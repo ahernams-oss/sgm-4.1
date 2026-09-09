@@ -41,8 +41,9 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/text-embedding-004",
+        model: "google/gemini-embedding-2",
         input: query.slice(0, 4000),
+        dimensions: 768,
       }),
     });
 

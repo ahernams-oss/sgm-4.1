@@ -39,44 +39,31 @@ const Login = () => {
   };
 
   return (
-    <div
-      className="min-h-screen w-full flex items-center justify-center p-4 sm:p-8 lg:p-12 relative overflow-hidden"
-      style={{
-        background:
-          "linear-gradient(135deg, #5fc4e8 0%, #3a9fd6 35%, #2563c4 70%, #1e3a8a 100%)",
-      }}
-    >
-      {/* Listras diagonais sutis no fundo */}
-      <div
-        className="absolute inset-0 opacity-20 pointer-events-none"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(135deg, transparent 0, transparent 60px, rgba(255,255,255,0.08) 60px, rgba(255,255,255,0.08) 120px)",
-        }}
-      />
+    <div className="login-canvas relative flex min-h-screen w-full items-center justify-center overflow-hidden p-1.5 sm:p-2">
+      <div className="login-stripes pointer-events-none absolute inset-0" />
 
-      <div className="relative w-full max-w-6xl flex bg-white rounded-3xl shadow-2xl overflow-hidden min-h-[640px]">
+      <div className="relative flex min-h-[calc(100dvh-0.75rem)] w-full overflow-hidden rounded-[1.6rem] bg-card shadow-2xl sm:min-h-[calc(100dvh-1rem)]">
       {/* Coluna esquerda - Formulário */}
-      <div className="flex-1 flex flex-col px-4 sm:px-6 sm:px-12 lg:px-20 py-8 lg:py-10 overflow-y-auto">
+      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto px-6 py-6 sm:px-10 lg:basis-[61%] lg:px-[7.5%] lg:py-10 xl:px-[8%]">
         {/* Topo: Logo + LOG IN */}
-        <div className="flex flex-wrap items-center justify-between gap-2 w-full max-w-2xl mx-auto">
+        <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-6">
           <img
             src={logoLasant}
             alt="Lasant Construções"
-            className="h-20 w-auto"
+            className="h-auto w-40 object-contain sm:w-48 lg:w-52"
           />
-          <span className="text-base font-semibold tracking-[0.2em] text-foreground border-b-2 border-foreground pb-1">
+          <span className="border-b-2 border-foreground pb-1 text-sm font-semibold tracking-[0.24em] text-foreground sm:text-base">
             LOG IN
           </span>
         </div>
 
         {/* Conteúdo central */}
-        <div className="flex-1 flex flex-col justify-center w-full max-w-md mx-auto py-10">
-          <div className="text-center mb-10">
-            <h1 className="text-2xl sm:text-3xl sm:text-4xl font-serif font-semibold text-[#3a1d6e] leading-tight">
+        <div className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center py-8 lg:py-6">
+          <div className="mb-9 text-center lg:mb-10">
+            <h1 className="text-2xl font-semibold leading-tight text-login-brand sm:text-3xl lg:text-4xl">
               LASANT CONSTRUÇÕES
             </h1>
-            <h2 className="text-xl sm:text-2xl sm:text-3xl font-serif font-medium text-[#3a1d6e] mt-3">
+            <h2 className="mt-3 text-xl font-normal text-login-brand sm:text-2xl lg:text-3xl">
               Log in - SGM
             </h2>
           </div>
@@ -84,40 +71,43 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Username */}
             <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+              <User className="absolute left-5 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-login-field-foreground" />
               <Input
                 type="email"
                 placeholder="Username"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
-                className="h-12 pl-11 pr-4 rounded-full bg-[#ececec] border-transparent focus-visible:ring-2 focus-visible:ring-[#3a1d6e]/30"
+                className="h-12 rounded-full border-transparent bg-login-field pl-12 pr-5 text-login-field-foreground shadow-none placeholder:text-login-field-foreground/80 focus-visible:ring-2 focus-visible:ring-login-brand/30 sm:h-14"
               />
             </div>
 
             {/* Password */}
             <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+              <Lock className="absolute left-5 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-login-field-foreground" />
               <Input
                 type={showSenha ? "text" : "password"}
                 placeholder="Password"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
                 autoComplete="current-password"
-                className="h-12 pl-11 pr-11 rounded-full bg-[#ececec] border-transparent focus-visible:ring-2 focus-visible:ring-[#3a1d6e]/30"
+                className="h-12 rounded-full border-transparent bg-login-field pl-12 pr-12 text-login-field-foreground shadow-none placeholder:text-login-field-foreground/80 focus-visible:ring-2 focus-visible:ring-login-brand/30 sm:h-14"
               />
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 type="button"
                 onClick={() => setShowSenha(!showSenha)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full text-login-field-foreground hover:bg-transparent hover:text-foreground"
                 tabIndex={-1}
+                aria-label={showSenha ? "Ocultar senha" : "Mostrar senha"}
               >
                 {showSenha ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
+              </Button>
             </div>
 
             {/* Lembrar / Esqueci */}
-            <div className="flex flex-wrap items-center justify-between gap-2 px-2 pt-1">
+            <div className="flex items-center justify-between gap-4 px-2 pt-1">
               <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer select-none">
                 <Checkbox
                   checked={lembrar}
@@ -138,7 +128,7 @@ const Login = () => {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-12 rounded-full bg-[#3a1d6e] hover:bg-[#2e1757] text-white font-semibold text-base mt-4 shadow-md"
+              className="mt-4 h-12 w-full rounded-full bg-login-brand text-base font-semibold text-login-brand-foreground shadow-md hover:bg-login-brand/90 sm:h-14"
             >
               {loading ? "Entrando..." : "Log in"}
             </Button>
@@ -147,16 +137,16 @@ const Login = () => {
               Para acesso, contate a empresa.
             </p>
 
-            <div className="flex flex-wrap justify-center gap-3 pt-4">
+            <div className="grid grid-cols-1 gap-3 pt-4 sm:grid-cols-2">
               <Link
                 to="/portal-fornecedor"
-                className="inline-flex items-center justify-center h-11 px-8 rounded-full bg-[#f5a623] hover:bg-[#e69612] text-[#3a1d6e] font-semibold text-sm shadow-md transition-colors"
+                className="inline-flex h-12 items-center justify-center rounded-full bg-accent px-6 text-sm font-semibold text-login-brand shadow-md transition-colors hover:bg-accent/90"
               >
                 Portal do fornecedor
               </Link>
               <Link
                 to="/portal"
-                className="inline-flex items-center justify-center h-11 px-8 rounded-full bg-[#3a1d6e] hover:bg-[#2e1757] text-white font-semibold text-sm shadow-md transition-colors"
+                className="inline-flex h-12 items-center justify-center rounded-full bg-login-brand px-6 text-sm font-semibold text-login-brand-foreground shadow-md transition-colors hover:bg-login-brand/90"
               >
                 Portal do funcionário
               </Link>
@@ -165,63 +155,36 @@ const Login = () => {
           </form>
         </div>
 
-        <p className="text-[11px] text-muted-foreground text-center">
+        <p className="text-center text-[11px] text-muted-foreground">
           © {new Date().getFullYear()} LASANT CONSTRUÇÕES — Todos os direitos reservados
         </p>
       </div>
 
       {/* Coluna direita - Painel decorativo */}
-      <div className="hidden lg:block relative w-[42%] xl:w-[45%] overflow-hidden">
+      <div className="relative hidden basis-[39%] overflow-hidden lg:block">
         {/* Camada roxa diagonal */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(135deg, #1a0a3e 0%, #2d1167 35%, #3a1d6e 60%, #4a2585 100%)",
-            clipPath: "polygon(15% 0, 100% 0, 85% 100%, 0 100%)",
-          }}
-        >
+        <div className="login-panel-purple absolute inset-0">
           {/* Listras diagonais sutis */}
-          <div
-            className="absolute inset-0 opacity-20"
-            style={{
-              backgroundImage:
-                "repeating-linear-gradient(135deg, transparent 0, transparent 40px, rgba(255,255,255,0.08) 40px, rgba(255,255,255,0.08) 80px)",
-            }}
-          />
+          <div className="login-stripes absolute inset-0" />
         </div>
 
         {/* Camada vermelha sobreposta */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(135deg, #8b2a3a 0%, #a83e4f 50%, #c45565 100%)",
-            clipPath: "polygon(55% 0, 100% 0, 100% 100%, 35% 100%)",
-            opacity: 0.92,
-          }}
-        >
-          <div
-            className="absolute inset-0 opacity-25"
-            style={{
-              backgroundImage:
-                "repeating-linear-gradient(135deg, transparent 0, transparent 40px, rgba(255,255,255,0.1) 40px, rgba(255,255,255,0.1) 80px)",
-            }}
-          />
+        <div className="login-panel-red absolute inset-0">
+          <div className="login-stripes absolute inset-0" />
         </div>
 
         {/* Texto sobreposto */}
-        <div className="absolute inset-0 flex flex-col justify-center px-12 xl:px-16">
-          <div className="text-white font-serif leading-tight space-y-2">
-            <div className="text-5xl xl:text-6xl font-light">Gestão</div>
-            <div className="text-2xl sm:text-3xl xl:text-4xl font-light pl-12">de</div>
-            <div className="text-4xl xl:text-5xl font-light pl-20">Manutenção</div>
-            <div className="text-2xl sm:text-3xl xl:text-4xl font-light pl-12">e</div>
-            <div className="text-4xl xl:text-5xl font-light pl-24">Obras</div>
-            <div className="text-2xl sm:text-3xl xl:text-4xl font-light pl-12 pt-2">Também</div>
-            <div className="text-4xl xl:text-5xl font-light pl-20">Suprimentos</div>
-            <div className="text-2xl sm:text-3xl xl:text-4xl font-light pl-12">e</div>
-            <div className="text-4xl xl:text-5xl font-light pl-24">Muito +</div>
+        <div className="absolute inset-0 flex flex-col justify-center px-[8%] xl:px-[10%]">
+          <div className="space-y-1 leading-[1.04] text-login-brand-foreground">
+            <div className="text-5xl font-light xl:text-6xl">Gestão</div>
+            <div className="pl-[12%] text-3xl font-light xl:text-4xl">de</div>
+            <div className="pl-[20%] text-4xl font-light xl:text-5xl">Manutenção</div>
+            <div className="pl-[12%] text-3xl font-light xl:text-4xl">e</div>
+            <div className="pl-[24%] text-4xl font-light xl:text-5xl">Obras</div>
+            <div className="pl-[12%] pt-2 text-3xl font-light xl:text-4xl">Também</div>
+            <div className="pl-[20%] text-4xl font-light xl:text-5xl">Suprimentos</div>
+            <div className="pl-[12%] text-3xl font-light xl:text-4xl">e</div>
+            <div className="pl-[24%] text-4xl font-light xl:text-5xl">Muito +</div>
           </div>
         </div>
       </div>

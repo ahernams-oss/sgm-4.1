@@ -42,7 +42,7 @@ const Login = () => {
     <div className="login-canvas relative flex min-h-screen w-full items-center justify-center overflow-hidden p-1.5 sm:p-2 lg:h-dvh lg:min-h-0">
       <div className="login-stripes pointer-events-none absolute inset-0" />
 
-      <div className="login-card relative flex min-h-[calc(100dvh-0.75rem)] overflow-hidden rounded-lg bg-card shadow-2xl sm:min-h-[calc(100dvh-1rem)] lg:h-[153.85dvh] lg:min-h-0 lg:origin-center lg:scale-[0.65]">
+      <div className="login-card relative flex min-h-[calc(100dvh-0.75rem)] overflow-hidden rounded-lg bg-card shadow-2xl sm:min-h-[calc(100dvh-1rem)] lg:min-h-0">
       {/* Coluna esquerda - Formulário */}
       <div className="flex min-w-0 flex-1 flex-col overflow-y-auto px-6 py-5 sm:px-10 lg:basis-[58%] lg:px-14 lg:py-6 xl:px-20">
         {/* Topo: Logo + LOG IN */}

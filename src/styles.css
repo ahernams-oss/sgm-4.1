@@ -265,3 +265,14 @@
   background: linear-gradient(135deg, var(--color-login-panel-accent), hsl(348 48% 61%));
   clip-path: polygon(55% 0, 100% 0, 100% 100%, 30% 100%);
 }
+
+/* Login card: control width directly so it wins over conflicting utilities */
+.login-card {
+  width: 100%;
+}
+
+@media (min-width: 64rem) {
+  .login-card {
+    width: 113.85%;
+  }
+}

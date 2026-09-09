@@ -37,8 +37,10 @@ const AssinaturaOtpEmail = ({ nomeUsuario, codigo, documento, papel }: Assinatur
           para concluir a assinatura:
         </Text>
 
-        <Section style={codeBox}>
-          <Text style={code}>{codigo}</Text>
+        <Section style={codeBoxWrapper}>
+          <Section style={codeBox}>
+            <Text style={code}>{codigo}</Text>
+          </Section>
         </Section>
 
         <Text style={textMuted}>
@@ -77,9 +79,10 @@ const subtitle = { color: '#6b7280', fontSize: '14px', margin: 0 }
 const divider = { borderColor: '#e5e7eb', margin: '0 32px' }
 const text = { color: '#374151', fontSize: '15px', lineHeight: '24px', padding: '0 32px', margin: '16px 0' }
 const textMuted = { color: '#6b7280', fontSize: '13px', lineHeight: '20px', padding: '0 32px', margin: '16px 0' }
+const codeBoxWrapper = { padding: '24px 32px' }
 const codeBox = {
   backgroundColor: '#f5f3ff', borderRadius: '8px',
-  margin: '24px 32px', padding: '20px', textAlign: 'center' as const,
+  padding: '20px', textAlign: 'center' as const,
   border: '2px dashed #673ab7',
 }
 const code = {

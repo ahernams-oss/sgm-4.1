@@ -39,10 +39,10 @@ const Login = () => {
   };
 
   return (
-    <div className="login-canvas relative flex min-h-screen w-full items-center justify-center overflow-hidden p-1.5 sm:p-2">
+    <div className="login-canvas relative flex min-h-screen w-full items-center justify-center overflow-hidden p-1.5 sm:p-2 lg:h-dvh lg:min-h-0">
       <div className="login-stripes pointer-events-none absolute inset-0" />
 
-      <div className="relative flex min-h-[calc(100dvh-0.75rem)] w-full overflow-hidden rounded-[1.6rem] bg-card shadow-2xl sm:min-h-[calc(100dvh-1rem)]">
+      <div className="relative flex min-h-[calc(100dvh-0.75rem)] w-full overflow-hidden rounded-[1.6rem] bg-card shadow-2xl sm:min-h-[calc(100dvh-1rem)] lg:h-[153.85dvh] lg:min-h-0 lg:w-[153.85%] lg:origin-center lg:scale-[0.65]">
       {/* Coluna esquerda - Formulário */}
       <div className="flex min-w-0 flex-1 flex-col overflow-y-auto px-6 py-6 sm:px-10 lg:basis-[61%] lg:px-[7.5%] lg:py-10 xl:px-[8%]">
         {/* Topo: Logo + LOG IN */}

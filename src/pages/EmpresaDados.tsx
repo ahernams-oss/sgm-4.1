@@ -264,7 +264,9 @@ export default function EmpresaDados() {
 
 
   return (
+    <FormContext.Provider value={{ form, update }}>
     <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-6">
+
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">

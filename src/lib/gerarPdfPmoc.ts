@@ -450,7 +450,7 @@ export async function gerarPdfPmocBiblioteca(biblioteca: PmocBibliotecaRotina[])
 
   // Detalhar checklist por rotina
   for (const b of biblioteca) {
-    if (!b.checklistItens?.length) return;
+    if (!b.checklistItens?.length) continue;
     doc.addPage();
     header(doc, `Rotina: ${b.titulo}`, `${b.tipoEquipamento || "-"} | ${b.tipoAtividade} | v${b.versao}`);
     doc.setTextColor(30, 30, 30);

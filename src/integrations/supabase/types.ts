@@ -9148,7 +9148,6 @@ export type Database = {
         Returns: undefined
       }
       req_header: { Args: { _name: string }; Returns: string }
-      sgm_exec_sql: { Args: { sql: string }; Returns: string }
       strip_anexo_base64: { Args: { _a: Json }; Returns: Json }
     }
     Enums: {

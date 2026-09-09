@@ -194,7 +194,7 @@ export function ClientesProvider({ children }: { children: ReactNode }) {
     let current = latestClientes.find(c => c.id === id);
     if (!current) {
       // Cache pode estar vazio/desatualizado — busca o registro direto do banco.
-      current = await refreshClienteCache(id);
+      current = (await refreshClienteCache(id)) ?? undefined;
       if (!current) return false;
     }
     const merged = { ...current, ...data };

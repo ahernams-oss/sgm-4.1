@@ -302,7 +302,7 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
     }
   };
 
-  const formatCurrency = (val: string) => {
+  const formatCurrency = (val?: string | null) => {
     if (val === undefined || val === null || val === "") return "—";
     // Aceita formato BR ("1.234,56") ou US ("1234.56")
     const s = String(val).trim();

@@ -90,7 +90,7 @@ export default function PropostaFornecedorPage() {
       return;
     }
 
-    if (new Date(data.expires_at) < new Date()) {
+    if (new Date(data.expires_at as string) < new Date()) {
       setError("Este convite expirou.");
       setLoading(false);
       return;

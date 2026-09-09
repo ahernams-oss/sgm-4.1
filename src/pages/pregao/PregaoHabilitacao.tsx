@@ -37,7 +37,7 @@ export default function PregaoHabilitacao() {
   const { clientes } = useClientes();
   const { empresa } = useEmpresa();
 
-  const pregao = pregoes.find(p => p.id === id);
+  const pregao = pregoes.find(p => p.id === id)!;
   const itensPregao = useMemo(() => itens.filter(i => i.pregaoId === id).sort((a, b) => a.ordem - b.ordem), [itens, id]);
   const partsPregao = useMemo(() => participantes.filter(p => p.pregaoId === id), [participantes, id]);
   const docsPregao = useMemo(() => documentos.filter(d => d.pregaoId === id).sort((a, b) => a.ordem - b.ordem), [documentos, id]);

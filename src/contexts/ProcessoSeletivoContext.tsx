@@ -322,7 +322,7 @@ export function ProcessoSeletivoProvider({ children }: { children: ReactNode }) 
     const etapas: EtapaCandidato[] = ["entrevista_psicologica", "entrevista_tecnica", "liberacao", "contratacao"];
     const p = await resolveProcesso(processoId);
     if (!p) return;
-    let candidatoNotif: { nome: string; nextEtapa: EtapaCandidato } | null = null;
+    let candidatoNotif: { nome: string; nextEtapa: EtapaCandidato } | null | any = null;
     await saveAndReload(p.id, {
       ...p, candidatos: p.candidatos.map(c => {
         if (c.id !== candidatoId) return c;

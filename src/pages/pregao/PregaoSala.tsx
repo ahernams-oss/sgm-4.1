@@ -52,7 +52,7 @@ export default function PregaoSala() {
     setChatParticipante,
   } = usePregao();
 
-  const pregao = pregoes.find(p => p.id === id);
+  const pregao = pregoes.find(p => p.id === id)!;
   const itensPregao = useMemo(() => itens.filter(i => i.pregaoId === id).sort((a, b) => a.ordem - b.ordem), [itens, id]);
   const participantesPregao = useMemo(() => participantes.filter(p => p.pregaoId === id).sort((a, b) => a.apelidoSeq - b.apelidoSeq), [participantes, id]);
 

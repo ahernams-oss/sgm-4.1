@@ -57,7 +57,7 @@ import ProcessoSeletivoKPIs from "@/components/ProcessoSeletivoKPIs";
 // Debounced Input to avoid saving on every keystroke
 function DebouncedInput({ value: externalValue, onChange, delay = 800, ...props }: React.ComponentProps<"input"> & { delay?: number; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void }) {
   const [localValue, setLocalValue] = useState(externalValue ?? "");
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const dirtyRef = useRef(false);
   useEffect(() => {
     if (!dirtyRef.current) setLocalValue(externalValue ?? "");
@@ -85,7 +85,7 @@ function DebouncedInput({ value: externalValue, onChange, delay = 800, ...props 
 
 function DebouncedTextarea({ value: externalValue, onChange, delay = 800, ...props }: React.ComponentProps<typeof Textarea> & { delay?: number; onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void }) {
   const [localValue, setLocalValue] = useState(externalValue ?? "");
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const dirtyRef = useRef(false);
   useEffect(() => {
     if (!dirtyRef.current) setLocalValue(externalValue ?? "");

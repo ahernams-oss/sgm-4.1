@@ -298,7 +298,7 @@ export default function LicitacoesPage() {
           if (dates.dataValidade) updates.dataValidade = dates.dataValidade;
           if (Object.keys(updates).length > 0) {
             setDocForm(prev => ({ ...prev, ...updates }));
-            const found = [];
+            const found: string[] = [];
             if (dates.dataEmissao) found.push("emissão");
             if (dates.dataValidade) found.push("validade");
             toast({ title: `Datas detectadas: ${found.join(" e ")}` });

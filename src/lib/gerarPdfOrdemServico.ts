@@ -459,7 +459,7 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas }
   // ===== DADOS FINAIS / Avaliação + Carimbo gerente =====
   const validada = os.situacao === "Validada";
   const assinaturaFiscal = (assinaturas || []).find((a) => a.papel === "fiscal");
-  let fiscalCellRect: { x: number; y: number; w: number; h: number } | null = null;
+  let fiscalCellRect: any = null;
   (await getAutoTable())(doc, {
     startY: y,
     theme: "grid",

@@ -193,7 +193,7 @@ export function ExamesPeriodicosTab({ funcionarioId, funcionarioNome, funcionari
   };
 
   const getNotificacaoStatus = (exame: ExamePeriodico) => {
-    const flags = [];
+    const flags: string[] = [];
     if (exame.notificado_30d) flags.push("30d");
     if (exame.notificado_20d) flags.push("20d");
     if (exame.notificado_10d) flags.push("10d");

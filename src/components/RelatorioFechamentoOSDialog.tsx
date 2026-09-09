@@ -66,7 +66,7 @@ const fmtData = (d?: string) => {
   if (isNaN(dt.getTime())) return d;
   return dt.toLocaleDateString("pt-BR");
 };
-const fmtDataHora = (d?: string) => {
+const fmtDataHora = (d?: string | null) => {
   if (!d) return "-";
   const dt = new Date(d);
   if (isNaN(dt.getTime())) return d;

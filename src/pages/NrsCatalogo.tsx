@@ -248,15 +248,15 @@ export default function NrsCatalogoPage() {
                 </div>
                 <div className="md:col-span-2">
                   <label className="field-label">Publicação</label>
-                  <Input type="date" value={novaRev.dataPublicacao} onChange={(e) => setNovaRev((p) => ({ ...p, dataPublicacao: e.target.value }))} />
+                  <Input type="date" value={novaRev.dataPublicacao ?? ""} onChange={(e) => setNovaRev((p) => ({ ...p, dataPublicacao: e.target.value }))} />
                 </div>
                 <div className="md:col-span-2">
                   <label className="field-label">Vigência</label>
-                  <Input type="date" value={novaRev.dataVigencia} onChange={(e) => setNovaRev((p) => ({ ...p, dataVigencia: e.target.value }))} />
+                  <Input type="date" value={novaRev.dataVigencia ?? ""} onChange={(e) => setNovaRev((p) => ({ ...p, dataVigencia: e.target.value }))} />
                 </div>
                 <div className="md:col-span-4">
                   <label className="field-label">Observação</label>
-                  <Input value={novaRev.observacao} onChange={(e) => setNovaRev((p) => ({ ...p, observacao: e.target.value }))} placeholder="Opcional" />
+                  <Input value={novaRev.observacao ?? ""} onChange={(e) => setNovaRev((p) => ({ ...p, observacao: e.target.value }))} placeholder="Opcional" />
                 </div>
                 <div className="md:col-span-2">
                   <Button type="button" variant="outline" className="w-full gap-2" onClick={addRevisao}>

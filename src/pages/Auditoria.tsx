@@ -115,10 +115,10 @@ export default function Auditoria() {
 
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-serif font-semibold">Auditoria do Sistema</h1>
+          <h1 className="text-xl sm:text-2xl font-serif font-semibold">Auditoria do Sistema</h1>
           <p className="text-sm text-muted-foreground">Registro de criações, edições e exclusões em todos os módulos.</p>
         </div>
         <div className="flex items-center gap-2">
@@ -147,7 +147,7 @@ export default function Auditoria() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { label: "Total de eventos", value: total, color: "text-foreground" },
           { label: "Criações", value: resumo.insert, color: "text-emerald-600" },
@@ -156,7 +156,7 @@ export default function Auditoria() {
         ].map((k) => (
           <Card key={k.label}><CardContent className="p-4">
             <div className="text-xs text-muted-foreground">{k.label}</div>
-            <div className={`text-2xl font-semibold tabular-nums ${k.color}`}>{k.value}</div>
+            <div className={`text-xl sm:text-2xl font-semibold tabular-nums ${k.color}`}>{k.value}</div>
           </CardContent></Card>
         ))}
       </div>
@@ -246,7 +246,7 @@ export default function Auditoria() {
           {detalhe && (
             <ScrollArea className="max-h-[70vh] pr-3">
               <div className="space-y-3 text-sm">
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div><span className="text-muted-foreground">Data/Hora:</span> {fmtDt(detalhe.created_at)}</div>
                   <div><span className="text-muted-foreground">Ação:</span> {acaoBadge(detalhe.acao)}</div>
                   <div><span className="text-muted-foreground">Usuário:</span> {detalhe.usuario_nome || "—"}</div>

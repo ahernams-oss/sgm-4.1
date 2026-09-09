@@ -106,7 +106,7 @@ export function ConselhoClasseSection({
         {anexos.length > 0 && (
           <div className="mt-3 space-y-2">
             {anexos.map((a) => (
-              <div key={a.id} className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2">
+              <div key={a.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-background px-3 py-2">
                 <span className="text-sm truncate">{a.nome}</span>
                 <div className="flex items-center gap-1">
                   <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => visualizar(a)}>

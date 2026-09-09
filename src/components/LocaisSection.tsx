@@ -309,7 +309,7 @@ export default function LocaisSection({ locais, onChange }: LocaisSectionProps) 
 
   return (
     <div className="section-card animate-fade-up mb-6" style={{ animationDelay: "120ms" }}>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
         <h2 className="section-title mb-0">Locais do Cliente</h2>
         {!adding && (
           <Button type="button" variant="outline" size="sm" onClick={() => setAdding(true)} className="gap-1">
@@ -320,7 +320,7 @@ export default function LocaisSection({ locais, onChange }: LocaisSectionProps) 
 
       {adding && (
         <div className="border border-border rounded-lg p-4 mb-4 bg-muted/30">
-          <div className="flex items-center justify-between mb-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
             <h3 className="text-sm font-semibold text-foreground">Novo Local</h3>
             <Button type="button" variant="ghost" size="sm" onClick={() => { setAdding(false); setNewLocal(emptyLocal); }}>
               <X className="h-4 w-4" />
@@ -341,7 +341,7 @@ export default function LocaisSection({ locais, onChange }: LocaisSectionProps) 
         <div className="divide-y divide-border">
           {locais.map((local) => (
             <div key={local.id} className="py-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <button
                   type="button"
                   className="flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
@@ -391,7 +391,7 @@ export default function LocaisSection({ locais, onChange }: LocaisSectionProps) 
                       <div className="divide-y divide-border rounded-lg border border-border">
                         {local.pavimentos.map((pav) => (
                           <div key={pav.id}>
-                            <div className="flex items-center justify-between px-3 py-2">
+                            <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
                               <div className="flex items-center gap-2">
                                 {editingPavId === pav.id ? (
                                   <div className="flex items-center gap-1">
@@ -503,7 +503,7 @@ export default function LocaisSection({ locais, onChange }: LocaisSectionProps) 
                                     <Upload className="h-3 w-3" /> Importar
                                   </Button>
                                 </div>
-                                <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2 mb-2">
                                   {([
                                     ["ocupantesFixos", "Ocupantes Fixos"],
                                     ["ocupantesFlutuantes", "Ocupantes Flutuantes"],
@@ -531,7 +531,7 @@ export default function LocaisSection({ locais, onChange }: LocaisSectionProps) 
                                 ) : (
                                   <div className="divide-y divide-border rounded border border-border">
                                     {pav.setores.map((setor) => (
-                                      <div key={setor.id} className="flex items-center justify-between px-2 py-1.5">
+                                      <div key={setor.id} className="flex flex-wrap items-center justify-between gap-2 px-2 py-1.5">
                                         <div className="flex items-center gap-2">
                                           {editingSetorId === setor.id ? (
                                             <div className="flex-1 space-y-1.5">
@@ -558,7 +558,7 @@ export default function LocaisSection({ locais, onChange }: LocaisSectionProps) 
                                                   <X className="h-3 w-3" />
                                                 </Button>
                                               </div>
-                                              <div className="grid grid-cols-2 md:grid-cols-5 gap-1 items-center">
+                                              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-1 items-center">
                                                 {([
                                                   ["ocupantesFixos", "Ocupantes Fixos"],
                                                   ["ocupantesFlutuantes", "Ocupantes Flutuantes"],

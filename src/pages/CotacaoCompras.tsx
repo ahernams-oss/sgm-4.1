@@ -1464,8 +1464,8 @@ export default function CotacaoComprasPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground mx-[5px]">  Cotações de Compras</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground mx-[5px]">  Cotações de Compras</h1>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={syncPropostasExternas} title="Sincronizar propostas externas">
             <RefreshCw className="mr-2 h-4 w-4" />Sincronizar
@@ -1561,7 +1561,7 @@ export default function CotacaoComprasPage() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-sm text-muted-foreground">
           {filtered.length} cotação{filtered.length !== 1 ? "ões" : ""} encontrada{filtered.length !== 1 ? "s" : ""}
           {hasActiveFilters && ` (de ${cotacoes.length} total)`}
@@ -1829,7 +1829,7 @@ export default function CotacaoComprasPage() {
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label>Fornecedor *</Label>
                 {editingPropostaId ? (
@@ -1861,7 +1861,7 @@ export default function CotacaoComprasPage() {
                 <Input type="date" value={propValidade} onChange={e => setPropValidade(e.target.value)} />
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <Label>Custos de Frete (R$)</Label>
                 <Input type="number" min="0" step="0.01" value={propFrete} placeholder="0,00"
@@ -1986,7 +1986,7 @@ export default function CotacaoComprasPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-lg border p-3 bg-muted/30">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3 bg-muted/30">
               <div className="space-y-0.5">
                 <Label className="text-sm font-medium">Aprovar por item</Label>
                 <p className="text-xs text-muted-foreground">
@@ -2217,7 +2217,7 @@ export default function CotacaoComprasPage() {
           </DialogHeader>
           {viewCotacao && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div><span className="text-muted-foreground">RCS Vinculada:</span> RCS-{String(viewCotacao.requisicaoNumero).padStart(4, "0")}</div>
                 <div><span className="text-muted-foreground">Comprador:</span> {viewCotacao.comprador}</div>
                 <div><span className="text-muted-foreground">Data:</span> {format(new Date(viewCotacao.dataCriacao), "dd/MM/yyyy HH:mm")}</div>
@@ -2589,7 +2589,7 @@ export default function CotacaoComprasPage() {
           </DialogHeader>
           <div className="space-y-3">
             <div>
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
                 <Label>Fornecedores * ({pdfFornecedorIds.length} selecionado(s))</Label>
                 {pdfFornecedorIds.length > 0 && (
                   <Button variant="ghost" size="sm" onClick={() => { setPdfFornecedorIds([]); setPdfEmails({}); }}>Limpar</Button>

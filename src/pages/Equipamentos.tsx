@@ -311,16 +311,16 @@ export default function Equipamentos() {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Monitor className="h-7 w-7 text-primary" />
-        <h1 className="text-2xl font-bold text-foreground">Inventário de Equipamentos</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground">Inventário de Equipamentos</h1>
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-primary">{equipamentos.length}</p><p className="text-xs text-muted-foreground">Total</p></CardContent></Card>
-        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-primary">{equipamentos.filter(e => e.situacao === "Ativo").length}</p><p className="text-xs text-muted-foreground">Ativos</p></CardContent></Card>
-        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-secondary-foreground">{equipamentos.filter(e => e.situacao === "Em Manutenção").length}</p><p className="text-xs text-muted-foreground">Em Manutenção</p></CardContent></Card>
-        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-destructive">{equipamentos.filter(e => e.situacao === "Inativo" || e.situacao === "Desativado").length}</p><p className="text-xs text-muted-foreground">Inativos</p></CardContent></Card>
-        <Card><CardContent className="p-4 text-center"><p className="text-2xl font-bold text-destructive">{equipamentos.filter(e => e.situacao === "Condenado").length}</p><p className="text-xs text-muted-foreground">Condenados</p></CardContent></Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+        <Card><CardContent className="p-4 text-center"><p className="text-xl sm:text-2xl font-bold text-primary">{equipamentos.length}</p><p className="text-xs text-muted-foreground">Total</p></CardContent></Card>
+        <Card><CardContent className="p-4 text-center"><p className="text-xl sm:text-2xl font-bold text-primary">{equipamentos.filter(e => e.situacao === "Ativo").length}</p><p className="text-xs text-muted-foreground">Ativos</p></CardContent></Card>
+        <Card><CardContent className="p-4 text-center"><p className="text-xl sm:text-2xl font-bold text-secondary-foreground">{equipamentos.filter(e => e.situacao === "Em Manutenção").length}</p><p className="text-xs text-muted-foreground">Em Manutenção</p></CardContent></Card>
+        <Card><CardContent className="p-4 text-center"><p className="text-xl sm:text-2xl font-bold text-destructive">{equipamentos.filter(e => e.situacao === "Inativo" || e.situacao === "Desativado").length}</p><p className="text-xs text-muted-foreground">Inativos</p></CardContent></Card>
+        <Card><CardContent className="p-4 text-center"><p className="text-xl sm:text-2xl font-bold text-destructive">{equipamentos.filter(e => e.situacao === "Condenado").length}</p><p className="text-xs text-muted-foreground">Condenados</p></CardContent></Card>
       </div>
 
       {/* Form */}
@@ -639,7 +639,7 @@ export default function Equipamentos() {
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Detalhes do Equipamento</DialogTitle></DialogHeader>
           {viewEquip && (
-            <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <div><span className="font-semibold">Cod. Lasant:</span> <span className="font-mono">{viewEquip.codLasant || "-"}</span></div>
               <div><span className="font-semibold">Situação:</span> {viewEquip.situacao}</div>
               <div><span className="font-semibold">Cliente:</span> {viewEquip.clienteNome}</div>
@@ -719,7 +719,7 @@ export default function Equipamentos() {
               {novaCalibOpen && (
                 <Card className="border-primary/30">
                   <CardContent className="p-4 space-y-3">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                       <div><Label>Data Calibração *</Label><Input type="date" value={novaCalib.data_calibracao} onChange={e => setNovaCalib(p => ({ ...p, data_calibracao: e.target.value }))} /></div>
                       <div><Label>Validade</Label><Input type="date" value={novaCalib.validade_calibracao} onChange={e => setNovaCalib(p => ({ ...p, validade_calibracao: e.target.value }))} /></div>
                       <div><Label>Resultado</Label>

@@ -127,16 +127,16 @@ export default function SolicitacoesPortalRH() {
   };
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-semibold">Solicitações do Portal (RH)</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold">Solicitações do Portal (RH)</h1>
           <p className="text-sm text-muted-foreground">Solicitações enviadas pelos colaboradores no Portal do Funcionário.</p>
         </div>
         <Button variant="outline" onClick={load}><RefreshCw className="w-4 h-4 mr-1" />Atualizar</Button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { l: "Abertas", v: kpis.abertas },
           { l: "Em análise", v: kpis.analise },
@@ -145,7 +145,7 @@ export default function SolicitacoesPortalRH() {
         ].map((k) => (
           <Card key={k.l}><CardContent className="p-4">
             <div className="text-xs text-muted-foreground">{k.l}</div>
-            <div className="text-2xl font-semibold">{k.v}</div>
+            <div className="text-xl sm:text-2xl font-semibold">{k.v}</div>
           </CardContent></Card>
         ))}
       </div>

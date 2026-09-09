@@ -366,10 +366,10 @@ export default function RdoPage() {
   };
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-serif font-semibold">RDO - Registro Diário de Obras</h1>
+          <h1 className="text-xl sm:text-2xl font-serif font-semibold">RDO - Registro Diário de Obras</h1>
           <p className="text-sm text-muted-foreground">Cadastre a obra e lance os RDOs por data dentro de cada obra.</p>
         </div>
         <Button
@@ -587,7 +587,7 @@ export default function RdoPage() {
             </TabsList>
 
             <TabsContent value="geral" className="space-y-3 mt-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <Label>Data do RDO *</Label>
                   <Input type="date" value={form.data_rdo || ""} onChange={(e) => setForm({ ...form, data_rdo: e.target.value })} />
@@ -633,7 +633,7 @@ export default function RdoPage() {
                   )}
                 </div>
                 {obraDoForm && (
-                  <div className="col-span-2 grid grid-cols-3 gap-3 rounded-lg border bg-muted/40 p-3 text-sm">
+                  <div className="col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 rounded-lg border bg-muted/40 p-3 text-sm">
                     <div>
                       <p className="text-xs text-muted-foreground">Contrato Nº</p>
                       <p className="font-medium">{obraDoForm.contrato_numero || "-"}</p>
@@ -701,7 +701,7 @@ export default function RdoPage() {
               {(["manha", "tarde", "noite"] as const).map((turno) => (
                 <Card key={turno}>
                   <CardHeader className="pb-2"><CardTitle className="text-base capitalize">{turno === "manha" ? "Manhã" : turno}</CardTitle></CardHeader>
-                  <CardContent className="grid grid-cols-2 gap-3">
+                  <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <Label>Clima</Label>
                       <Select
@@ -886,7 +886,7 @@ export default function RdoPage() {
               <CardTitle className="text-base">{editingObra ? "Editar Obra" : "Nova Obra"}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <Label>Cliente *</Label>
                   <Select

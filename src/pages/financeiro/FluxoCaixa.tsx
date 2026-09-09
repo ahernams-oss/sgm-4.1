@@ -46,8 +46,8 @@ export default function FluxoCaixa() {
   let saldoCorrente = saldoInicial;
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-serif font-semibold">Fluxo de Caixa</h1>
+    <div className="p-4 sm:p-6 space-y-4">
+      <h1 className="text-xl sm:text-2xl font-serif font-semibold">Fluxo de Caixa</h1>
       <Card>
         <CardHeader className="flex-row items-center justify-between flex-wrap gap-2">
           <CardTitle className="text-base">Saldo atual: {formatBRL(saldoInicial)}</CardTitle>

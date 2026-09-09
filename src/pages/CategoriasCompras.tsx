@@ -256,7 +256,7 @@ export default function CategoriasCompras() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-foreground">Categorias de Compras</h1>
+      <h1 className="text-xl sm:text-2xl font-bold text-foreground">Categorias de Compras</h1>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
@@ -322,7 +322,7 @@ export default function CategoriasCompras() {
 
         {/* === SUBGRUPOS === */}
         <TabsContent value="subgrupos" className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <Select value={filterGrupoId} onValueChange={v => { setFilterGrupoId(v); setPageSubs(1); }}>
               <SelectTrigger className="w-56"><SelectValue placeholder="Filtrar por Grupo" /></SelectTrigger>
               <SelectContent>

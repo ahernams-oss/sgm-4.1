@@ -513,7 +513,7 @@ export default function DashboardSSOS() {
       {/* Filtros */}
       <Card>
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Filter className="h-4 w-4" /> Filtros
             </CardTitle>
@@ -605,7 +605,7 @@ export default function DashboardSSOS() {
         <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
           <ClipboardList className="h-4 w-4 text-primary" /> Solicitações de Serviço (SS)
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-3">
           <KpiCard icon={ClipboardList} label="Total SS" value={ssTotal} gradientIdx={0} />
           {SS_STATUS_LIST.map(s => (
             <KpiCard key={s.key} icon={s.icon} label={s.label} value={ssCountByStatus(s.key)} gradientIdx={s.idx} />
@@ -618,7 +618,7 @@ export default function DashboardSSOS() {
         <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
           <Wrench className="h-4 w-4 text-primary" /> Ordens de Serviço (OS)
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
           <KpiCard icon={Wrench} label="Total OS" value={osTotal} gradientIdx={0} />
           <KpiCard icon={Clock} label="Abertas" value={osAbertas} gradientIdx={2} />
           <KpiCard icon={Activity} label="Executadas" value={osExecutadas} gradientIdx={5} />
@@ -680,7 +680,7 @@ export default function DashboardSSOS() {
           </div>
 
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-3 gap-3">
           <KpiCard icon={Calculator} label="Orçamentos" value={orcTotalQtd} gradientIdx={0} />
           <KpiCard icon={DollarSign} label="Valor Total Orçado" value={fmtBRL(orcValorTotal)} gradientIdx={1} />
           <KpiCard icon={TrendingUp} label="Ticket Médio" value={fmtBRL(orcTicketMedio)} gradientIdx={4} />
@@ -953,7 +953,7 @@ export default function DashboardSSOS() {
                   const pct = (c.total / max) * 100;
                   return (
                     <div key={c.cliente} className="space-y-1">
-                      <div className="flex items-center justify-between text-xs">
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                         <div className="flex items-center gap-2 min-w-0 flex-1">
                           <span className={cn(
                             "shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold",
@@ -1194,7 +1194,7 @@ export default function DashboardSSOS() {
                                 </div>
                                 <p className="text-[11px] font-semibold text-foreground leading-tight">{stage.label}</p>
                                 <div className="flex items-baseline gap-1.5 mt-1">
-                                  <span className="text-2xl font-bold text-foreground">{items.length}</span>
+                                  <span className="text-xl sm:text-2xl font-bold text-foreground">{items.length}</span>
                                   <span className="text-[10px] text-muted-foreground">({pct}%)</span>
                                 </div>
                                 <div className="mt-2 h-1 rounded-full bg-muted overflow-hidden">
@@ -1232,7 +1232,7 @@ export default function DashboardSSOS() {
                                   <p className="text-[10px] text-muted-foreground">SS encerradas fora do fluxo principal</p>
                                 </div>
                               </div>
-                              <span className={cn("text-2xl font-bold tabular-nums", stage.color)}>{items.length}</span>
+                              <span className={cn("text-xl sm:text-2xl font-bold tabular-nums", stage.color)}>{items.length}</span>
                             </div>
                           );
                         })}
@@ -1458,7 +1458,7 @@ export default function DashboardSSOS() {
                 </div>
 
                 {/* KPIs */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-3">
                   <KpiCard icon={Calculator} label="Total Orçamentos" value={orcFiltrados.length} gradientIdx={0} />
                   <KpiCard icon={DollarSign} label="Valor Total" value={fmtBRL(totalValor)} gradientIdx={1} />
                   <KpiCard icon={TrendingUp} label="Ticket Médio" value={fmtBRL(ticket)} gradientIdx={5} />
@@ -1505,7 +1505,7 @@ export default function DashboardSSOS() {
                                 </div>
                                 <div className="space-y-2">
                                   <div>
-                                    <div className="flex items-center justify-between text-[10px] mb-0.5">
+                                    <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] mb-0.5">
                                       <span className="text-muted-foreground uppercase">Valor Total</span>
                                       <span className="font-semibold tabular-nums">{fmtBRL(s.valor)}</span>
                                     </div>
@@ -1514,7 +1514,7 @@ export default function DashboardSSOS() {
                                     </div>
                                   </div>
                                   <div>
-                                    <div className="flex items-center justify-between text-[10px] mb-0.5">
+                                    <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] mb-0.5">
                                       <span className="text-muted-foreground uppercase">Qtd Orçamentos</span>
                                       <span className="font-semibold tabular-nums">{s.qtd}</span>
                                     </div>
@@ -1523,7 +1523,7 @@ export default function DashboardSSOS() {
                                     </div>
                                   </div>
                                   <div>
-                                    <div className="flex items-center justify-between text-[10px] mb-0.5">
+                                    <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] mb-0.5">
                                       <span className="text-muted-foreground uppercase">Ticket Médio</span>
                                       <span className="font-semibold tabular-nums">{fmtBRL(s.ticket)}</span>
                                     </div>
@@ -1680,7 +1680,7 @@ export default function DashboardSSOS() {
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-72 p-2" align="end">
-                            <div className="flex items-center justify-between px-2 pb-2 border-b mb-2">
+                            <div className="flex flex-wrap items-center justify-between gap-2 px-2 pb-2 border-b mb-2">
                               <span className="text-xs font-semibold">Orçamentistas</span>
                               <Button size="sm" variant="ghost" className="h-6 text-[10px] px-2"
                                 onClick={() => { setOrcOrcamentistaFilter([]); setOrcPage(1); }}>
@@ -1727,7 +1727,7 @@ export default function DashboardSSOS() {
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-72 p-2" align="end">
-                            <div className="flex items-center justify-between px-2 pb-2 border-b mb-2">
+                            <div className="flex flex-wrap items-center justify-between gap-2 px-2 pb-2 border-b mb-2">
                               <span className="text-xs font-semibold">Unidades</span>
                               <Button size="sm" variant="ghost" className="h-6 text-[10px] px-2"
                                 onClick={() => { setOrcUnitFilter([]); setOrcPage(1); }}>
@@ -1841,7 +1841,7 @@ export default function DashboardSSOS() {
               className="h-9"
             />
           </div>
-          <div className="flex items-center justify-between pb-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-2">
             <Badge variant="secondary" className="text-xs">
               {osDoFuncionarioFiltradas.length} OS encontrada{osDoFuncionarioFiltradas.length === 1 ? "" : "s"}
             </Badge>
@@ -1904,7 +1904,7 @@ export default function DashboardSSOS() {
             )}
           </div>
           {osDoFuncionarioFiltradas.length > 0 && (
-            <div className="flex items-center justify-between pt-2 border-t text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t text-xs text-muted-foreground">
               <span>
                 Mostrando {(osDetalhePageSafe - 1) * osDetalhePageSize + 1}
                 {"–"}

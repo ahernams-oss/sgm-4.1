@@ -111,7 +111,7 @@ export default function OrcamentosMobile() {
               inputMode="search"
             />
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <Select value={filtroStatus} onValueChange={setFiltroStatus}>
               <SelectTrigger className="bg-background text-foreground h-9 text-xs">
                 <Filter className="w-3.5 h-3.5 mr-1" />
@@ -179,7 +179,7 @@ export default function OrcamentosMobile() {
                 )}
                 <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{s.descricaoServicos}</p>
 
-                <div className="mt-3 flex items-center justify-between border-t pt-2">
+                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t pt-2">
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
                     <Calculator className="w-3.5 h-3.5" />
                     {orc ? `${(orc.memoriaCalculo?.length || 0)} grupo(s)` : "Novo orçamento"}

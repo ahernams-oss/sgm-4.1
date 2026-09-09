@@ -85,7 +85,7 @@ export default function PregaoHabilitacao() {
 
   if (!pregao) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <Button variant="ghost" size="sm" onClick={() => nav("/compras/pregao")}><ArrowLeft className="h-4 w-4 mr-2" /> Voltar</Button>
         <p className="text-muted-foreground mt-4">Pregão não encontrado.</p>
       </div>
@@ -238,7 +238,7 @@ export default function PregaoHabilitacao() {
                 onClick={() => setPartSelId(r.pid)}
                 className={`w-full text-left p-2 rounded-lg border transition ${partSelId === r.pid ? "ring-2 ring-primary" : "hover:bg-muted/60"}`}
               >
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="text-sm font-medium">{idx + 1}º · {r.part?.apelido}</span>
                   <Badge variant="outline" className="text-[10px]">{r.part?.status}</Badge>
                 </div>
@@ -358,7 +358,7 @@ export default function PregaoHabilitacao() {
             <div ref={chatRef} className="flex-1 overflow-y-auto space-y-2 h-[45vh] pr-1">
               {msgsPregao.map(m => (
                 <div key={m.id} className={`p-2 rounded-lg text-sm ${m.autorTipo === "pregoeiro" ? "bg-primary/10 border-l-2 border-primary" : "bg-muted"}`}>
-                  <div className="flex items-center justify-between mb-1">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
                     <span className="text-xs font-semibold">{m.autorNomeExibicao}</span>
                     <span className="text-[10px] text-muted-foreground">{formatarDataHora(m.ts)}</span>
                   </div>

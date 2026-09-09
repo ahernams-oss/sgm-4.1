@@ -118,7 +118,7 @@ export default function DashboardFinanceiro() {
       />
 
 
-      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-3">
         <KpiCardFinanceiro title="Saldo total" value={formatBRL(kpi.saldo)} icon={Wallet} tone="info" subtitle={`${contasBancarias.length} conta(s)`} />
         <KpiCardFinanceiro title="A pagar (30d)" value={formatBRL(kpi.aPagar)} icon={TrendingDown} tone="warning" />
         <KpiCardFinanceiro title="A receber (30d)" value={formatBRL(kpi.aReceber)} icon={TrendingUp} tone="success" />

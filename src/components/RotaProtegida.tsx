@@ -56,7 +56,7 @@ export function RotaProtegida({ perm, requireAcessoTotal, children }: RotaProteg
         <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
           <ShieldAlert className="w-8 h-8 text-destructive" />
         </div>
-        <h1 className="text-2xl font-semibold text-foreground">Acesso negado</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold text-foreground">Acesso negado</h1>
         <p className="text-sm text-muted-foreground">
           Você não possui permissão para acessar esta página. Entre em contato com o administrador
           se acredita que deveria ter acesso.

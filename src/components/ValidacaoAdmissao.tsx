@@ -300,7 +300,7 @@ export default function ValidacaoAdmissao({ candidato, onExameChange, onDadosBan
   return (
     <div className="space-y-6">
       {/* Header + refresh */}
-      <div className="flex items-center justify-between rounded-md border bg-muted/30 px-3 py-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-md border bg-muted/30 px-3 py-2">
         <div className="flex items-center gap-2 text-sm">
           <ShieldCheck className="h-4 w-4 text-primary" />
           Validação de admissão · CPF <span className="font-mono">{candidato.cpf || "—"}</span>
@@ -319,7 +319,7 @@ export default function ValidacaoAdmissao({ candidato, onExameChange, onDadosBan
         ) : (
           <div className="space-y-1">
             {termos.map((t) => (
-              <div key={t.id} className="flex items-center justify-between rounded border px-3 py-1.5 text-xs">
+              <div key={t.id} className="flex flex-wrap items-center justify-between gap-2 rounded border px-3 py-1.5 text-xs">
                 <div>
                   <span className="font-medium">{t.tipo_termo}</span>
                   <span className="text-muted-foreground"> · v{t.versao_termo} · {fmtDate(t.assinado_em)}</span>
@@ -333,7 +333,7 @@ export default function ValidacaoAdmissao({ candidato, onExameChange, onDadosBan
 
       {/* Ficha */}
       <section>
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           <h3 className="text-sm font-semibold">🧾 Ficha cadastral do portal</h3>
           {ficha && (
             <div className="flex gap-1">
@@ -359,7 +359,7 @@ export default function ValidacaoAdmissao({ candidato, onExameChange, onDadosBan
                     )}
                   </div>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 flex-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 flex-1">
                   <Row label="Nome" value={dp.nome} />
                   <Row label="CPF" value={dp.cpf || dpDocs.cpf} />
                   <Row label="Data Nasc." value={dp.dataNasc || dp.dataNascimento} />
@@ -379,7 +379,7 @@ export default function ValidacaoAdmissao({ candidato, onExameChange, onDadosBan
 
             <div>
               <div className="text-xs font-semibold mb-1 text-muted-foreground">Documentos informados</div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                 <Row label="RG" value={dpDocs.rgNumero} />
                 <Row label="Órgão/UF" value={[dpDocs.rgOrgao, dpDocs.rgUf].filter(Boolean).join("/")} />
                 <Row label="Emissão RG" value={dpDocs.rgEmissao} />
@@ -410,7 +410,7 @@ export default function ValidacaoAdmissao({ candidato, onExameChange, onDadosBan
             {uni && Object.values(uni).some(Boolean) && (
               <div>
                 <div className="text-xs font-semibold mb-1 text-muted-foreground">Uniforme / Medidas</div>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
                   <Row label="Camisa" value={uni.camisa} />
                   <Row label="Calça" value={uni.calca} />
                   <Row label="Calçado" value={uni.calcado} />
@@ -422,7 +422,7 @@ export default function ValidacaoAdmissao({ candidato, onExameChange, onDadosBan
 
             <div>
               <div className="text-xs font-semibold mb-1 text-muted-foreground">Endereço</div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                 <Row label="CEP" value={en.cep} />
                 <Row label="Logradouro" value={en.logradouro} />
                 <Row label="Nº" value={en.numero} />
@@ -434,7 +434,7 @@ export default function ValidacaoAdmissao({ candidato, onExameChange, onDadosBan
             </div>
             <div>
               <div className="text-xs font-semibold mb-1 text-muted-foreground">Dados Bancários</div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                 <Row label="Banco" value={ba.banco} />
                 <Row label="Agência" value={ba.agencia} />
                 <Row label="Conta" value={ba.conta} />
@@ -464,7 +464,7 @@ export default function ValidacaoAdmissao({ candidato, onExameChange, onDadosBan
                 <p className="text-xs text-muted-foreground">Candidato informou que não há desconto de pensão alimentícia.</p>
               ) : (
                 <div className="space-y-3 rounded border p-2">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                     <Row label="Processo (geral)" value={pensao.processo} />
                     <Row label="Percentual/Valor (geral)" value={pensao.percentualOuValor} />
                     <Row label="Conta bancária" value={pensao.contaBancaria} />
@@ -480,7 +480,7 @@ export default function ValidacaoAdmissao({ candidato, onExameChange, onDadosBan
                       </div>
                       <div className="space-y-1">
                         {pensao.beneficiarios.map((b: any, i: number) => (
-                          <div key={i} className="rounded border px-2 py-1 grid grid-cols-2 md:grid-cols-3 gap-2">
+                          <div key={i} className="rounded border px-2 py-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                             <Row label="Alimentando" value={b.nome} />
                             <Row label="CPF" value={b.cpf} />
                             <Row label="Processo" value={b.processo || pensao.processo} />
@@ -499,7 +499,7 @@ export default function ValidacaoAdmissao({ candidato, onExameChange, onDadosBan
                       </div>
                       <div className="space-y-1">
                         {pensao.anexos.map((a: any, i: number) => (
-                          <div key={i} className="flex items-center justify-between rounded border px-2 py-1 text-xs">
+                          <div key={i} className="flex flex-wrap items-center justify-between gap-2 rounded border px-2 py-1 text-xs">
                             <span className="truncate">{a.nome || `anexo-${i + 1}`}</span>
                             <div className="flex gap-1">
                               <Button variant="ghost" size="sm" onClick={() => window.open(a.base64 || a.url, "_blank", "noopener")} title="Visualizar">
@@ -555,7 +555,7 @@ export default function ValidacaoAdmissao({ candidato, onExameChange, onDadosBan
 
       {/* Documentos */}
       <section>
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           <h3 className="text-sm font-semibold">📁 Documentos enviados pelo portal</h3>
           <div className="flex items-center gap-2">
             <span className="text-xs text-muted-foreground">{aprovDocs} aprov. · {reprDocs} reprov. · {totalDocs} total</span>

@@ -213,8 +213,8 @@ export default function RecebimentoComprasPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">Recebimento de Materiais</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground">Recebimento de Materiais</h1>
       </div>
 
       {/* Stats Cards */}
@@ -224,7 +224,7 @@ export default function RecebimentoComprasPage() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Pedidos Pendentes</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalPendentes}</div>
+            <div className="text-xl sm:text-2xl font-bold">{totalPendentes}</div>
             <p className="text-xs text-muted-foreground">aguardando recebimento</p>
           </CardContent>
         </Card>
@@ -233,7 +233,7 @@ export default function RecebimentoComprasPage() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Recebimentos Hoje</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalRecebidosHoje}</div>
+            <div className="text-xl sm:text-2xl font-bold">{totalRecebidosHoje}</div>
             <p className="text-xs text-muted-foreground">registros no dia</p>
           </CardContent>
         </Card>
@@ -242,7 +242,7 @@ export default function RecebimentoComprasPage() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total de Recebimentos</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{recebimentos.length}</div>
+            <div className="text-xl sm:text-2xl font-bold">{recebimentos.length}</div>
             <p className="text-xs text-muted-foreground">registros totais</p>
           </CardContent>
         </Card>
@@ -363,7 +363,7 @@ export default function RecebimentoComprasPage() {
           </DialogHeader>
           {recPedido && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Nota Fiscal</Label>
                   <Input value={recNotaFiscal} onChange={e => setRecNotaFiscal(e.target.value)} placeholder="Nº da nota fiscal..." />
@@ -510,7 +510,7 @@ export default function RecebimentoComprasPage() {
           </DialogHeader>
           {viewPedido && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div><span className="text-muted-foreground">RC:</span> RCS-{String(viewPedido.requisicaoNumero).padStart(4, "0")}</div>
                 <div><span className="text-muted-foreground">Fornecedor:</span> {viewPedido.fornecedorNome}</div>
                 <div><span className="text-muted-foreground">Comprador:</span> {viewPedido.comprador}</div>
@@ -572,7 +572,7 @@ export default function RecebimentoComprasPage() {
             ) : recebimentosDoPedido.map(r => (
               <Card key={r.id}>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center justify-between">
+                  <CardTitle className="text-sm flex flex-wrap items-center justify-between gap-2">
                     <span className="flex items-center gap-2">
                       <Badge variant={r.tipo === "Total" ? "default" : "secondary"}>{r.tipo}</Badge>
                       {r.notaFiscal && <span className="text-muted-foreground font-normal">NF: {r.notaFiscal}</span>}

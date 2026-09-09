@@ -130,10 +130,10 @@ export default function MapaClientes() {
   }, [pontos]);
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-4 sm:p-6 space-y-4">
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-2xl font-serif">Mapa de Clientes - RJ</h1>
+          <h1 className="text-xl sm:text-2xl font-serif">Mapa de Clientes - RJ</h1>
           <p className="text-sm text-muted-foreground">
             Visualização geográfica dos clientes ativos no Estado do Rio de Janeiro.
           </p>

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export default function PortalAdmissional() {
   return (
     <PortalLayout requireTipo="candidato">
-      <h1 className="text-2xl font-semibold mb-4">Exame Admissional</h1>
+      <h1 className="text-xl sm:text-2xl font-semibold mb-4">Exame Admissional</h1>
 
       <Card className="mb-4">
         <CardHeader><CardTitle>Exame Admissional</CardTitle></CardHeader>

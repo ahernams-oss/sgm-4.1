@@ -43,7 +43,7 @@ export default function PortalLayout({ children, requireTipo }: Props) {
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">
       <header className="bg-primary text-primary-foreground">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between relative">
+        <div className="max-w-5xl mx-auto px-4 h-14 flex flex-wrap items-center justify-between gap-2 relative">
           <div className="absolute left-1/2 -translate-x-1/2">
             <span className="font-semibold tracking-tight text-lg">Portal de RH</span>
           </div>

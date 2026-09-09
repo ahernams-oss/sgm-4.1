@@ -260,7 +260,7 @@ export default function DashboardMedicoes() {
       {/* Filters */}
       <Card>
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Filter className="h-4 w-4" /> Filtros do Relatório
             </CardTitle>
@@ -361,7 +361,7 @@ export default function DashboardMedicoes() {
       </Card>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
         <GradientKpiCard icon={Ruler} label="Total Medições" value={totalMedicoes} gradientIdx={0} />
         <GradientKpiCard icon={Wallet} label="Valor Contratado" value={fmt(valorContratado)} gradientIdx={5} />
         <GradientKpiCard icon={TrendingUp} label="Valor Medido" value={fmt(valorMedido)} gradientIdx={1} />
@@ -377,12 +377,12 @@ export default function DashboardMedicoes() {
         <CardContent className="p-5 md:p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2 space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Execução Financeira Global</p>
                   <p className="text-sm text-foreground/80 mt-0.5">{fmt(valorMedido)} medidos de {fmt(valorContratado)} contratados</p>
                 </div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">
+                <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-indigo-600 bg-clip-text text-transparent">
                   {valorContratado > 0 ? fmtPct((valorMedido / valorContratado) * 100) : "0%"}
                 </span>
               </div>
@@ -392,17 +392,17 @@ export default function DashboardMedicoes() {
                 <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-muted-foreground/40" /> Saldo a executar: {fmt(saldoAberto)}</span>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-3 md:border-l md:pl-6 md:border-border/60">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:border-l md:pl-6 md:border-border/60">
               <div className="text-center">
-                <p className="text-2xl font-bold text-blue-600">{emAndamento}</p>
+                <p className="text-xl sm:text-2xl font-bold text-blue-600">{emAndamento}</p>
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">Em curso</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-emerald-600">{concluidas}</p>
+                <p className="text-xl sm:text-2xl font-bold text-emerald-600">{concluidas}</p>
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">Concluídas</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-rose-600">{paralisadas}</p>
+                <p className="text-xl sm:text-2xl font-bold text-rose-600">{paralisadas}</p>
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground mt-1">Paralisadas</p>
               </div>
             </div>

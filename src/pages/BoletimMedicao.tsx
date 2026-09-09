@@ -232,10 +232,10 @@ export default function BoletimMedicaoPage() {
     (b.frentes || []).reduce((s, f) => s + (f.medicoes || []).reduce((t, m) => t + (Number(m.valor) || 0), 0), 0);
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-3xl font-serif font-bold">Boletim de Medições</h1>
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold">Boletim de Medições</h1>
           <p className="text-muted-foreground">Resumo consolidado das medições enviado ao cliente para emissão da Nota Fiscal</p>
         </div>
         <div className="flex gap-2">
@@ -391,7 +391,7 @@ export default function BoletimMedicaoPage() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <h3 className="font-semibold flex items-center gap-2"><Layers className="h-4 w-4" />Frentes de Obra e Medições</h3>
               <div className="flex gap-2">
                 <Button size="sm" variant="secondary" onClick={importarFrentesCronograma} disabled={!atividadesCronograma.length}>
@@ -496,7 +496,7 @@ export default function BoletimMedicaoPage() {
                       </TableBody>
                     </Table>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                       <Button size="sm" variant="outline" onClick={() => addMedicao(fi)}>
                         <Plus className="h-4 w-4 mr-1" />Adicionar Medição
                       </Button>

@@ -735,9 +735,9 @@ export default function OrcamentoDialog({ open, onOpenChange, solicitacao, exist
         </Tabs>
 
         {/* Total */}
-        <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
+        <div className="flex flex-wrap items-center justify-between gap-2 p-4 bg-muted/50 rounded-lg border">
           <span className="text-lg font-bold">Valor Total do Orçamento:</span>
-          <span className="text-2xl font-bold text-primary">{fmt(valorTotal)}</span>
+          <span className="text-xl sm:text-2xl font-bold text-primary">{fmt(valorTotal)}</span>
         </div>
 
         {/* Observações */}

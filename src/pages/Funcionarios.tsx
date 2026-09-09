@@ -225,7 +225,7 @@ const DependentesTab = ({ dependentes, onChange }: { dependentes: Dependente[]; 
         <div className="space-y-3">
           {dependentes.map((dep) => (
             <div key={dep.id} className="border border-border rounded-lg p-4 bg-muted/30 space-y-3">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap gap-4 text-sm">
                   <span className="font-semibold text-foreground">{dep.nome}</span>
                   {dep.cpf && <span className="text-muted-foreground">CPF: {dep.cpf}</span>}
@@ -983,7 +983,7 @@ const Funcionarios = () => {
             <UserCheck className="h-4 w-4" />
             <span className="text-xs font-medium uppercase tracking-wider">Cadastro</span>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h1 className="text-xl font-bold text-foreground mb-1">Funcionários</h1>
               <p className="text-sm text-muted-foreground max-w-lg">
@@ -999,7 +999,7 @@ const Funcionarios = () => {
         </div>
 
         {showForm && (
-          <form onSubmit={handleSubmit} className="mb-8 rounded-xl border border-border bg-card p-6 shadow-sm animate-fade-up">
+          <form onSubmit={handleSubmit} className="mb-8 rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm animate-fade-up">
             <Tabs defaultValue="pessoal" className="w-full">
               <TabsList className="mb-6 flex-wrap h-auto gap-1">
                 <TabsTrigger value="pessoal">Dados Pessoais</TabsTrigger>
@@ -1567,7 +1567,7 @@ const Funcionarios = () => {
 
         {/* TABELA */}
         <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-border bg-muted/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="px-4 sm:px-6 py-4 border-b border-border bg-muted/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <h2 className="text-sm font-semibold text-foreground">Funcionários Cadastrados ({filteredFuncionarios.length})</h2>
             <div className="flex-1 flex items-center justify-center gap-2 flex-wrap">
               <div className="relative w-[29.25rem]">

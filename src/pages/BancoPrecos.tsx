@@ -302,10 +302,10 @@ export default function BancoPrecos() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-serif font-semibold">Banco de Preços</h1>
+          <h1 className="text-2xl sm:text-3xl font-serif font-semibold">Banco de Preços</h1>
           <p className="text-muted-foreground">
             Histórico de preços de compra por material/serviço, com média das últimas 10 aquisições.
           </p>
@@ -358,7 +358,7 @@ export default function BancoPrecos() {
               </SelectContent>
             </Select>
           </div>
-          <div className="md:col-span-4 flex items-center justify-between">
+          <div className="md:col-span-4 flex flex-wrap items-center justify-between gap-2">
             <div className="text-sm text-muted-foreground">
               {loading ? "Carregando..." : `${filtradas.length} item(ns)`}
             </div>

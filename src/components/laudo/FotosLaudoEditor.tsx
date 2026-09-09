@@ -61,7 +61,7 @@ export function FotosLaudoEditor({ fotos, onChange }: Props) {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <Label className="text-sm">Fotografias ({fotos.length}/{MAX_FOTOS})</Label>
         <label className={uploading ? "opacity-50 pointer-events-none" : ""}>
           <Button type="button" variant="outline" size="sm" asChild>

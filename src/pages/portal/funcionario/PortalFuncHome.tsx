@@ -34,7 +34,7 @@ export default function PortalFuncHome() {
 
   return (
     <PortalLayout requireTipo="funcionario">
-      <h1 className="text-2xl font-semibold mb-6">Bem-vindo</h1>
+      <h1 className="text-xl sm:text-2xl font-semibold mb-6">Bem-vindo</h1>
 
       {resumo && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
@@ -48,7 +48,7 @@ export default function PortalFuncHome() {
         {items.map(({ to, label, icon: Icon }) => (
           <Link key={to} to={to}>
             <Card className="hover:shadow-md transition">
-              <CardContent className="p-6 flex items-center gap-4">
+              <CardContent className="p-4 sm:p-6 flex items-center gap-4">
                 <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                   <Icon className="w-6 h-6" />
                 </div>
@@ -68,7 +68,7 @@ function ResumoCard({ label, value, to }: { label: string; value: number; to: st
       <Card className="hover:shadow-md transition">
         <CardContent className="p-4">
           <div className="text-xs text-muted-foreground uppercase tracking-wide">{label}</div>
-          <div className="text-3xl font-bold mt-1">{value}</div>
+          <div className="text-2xl sm:text-3xl font-bold mt-1">{value}</div>
         </CardContent>
       </Card>
     </Link>

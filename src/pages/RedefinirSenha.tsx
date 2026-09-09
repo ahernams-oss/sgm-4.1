@@ -64,7 +64,7 @@ export default function RedefinirSenha() {
       <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 space-y-6">
         <div className="flex flex-col items-center gap-3">
           <img src={logoLasant} alt="Lasant" className="h-16 w-auto" />
-          <h1 className="text-2xl font-serif font-semibold text-[#3a1d6e] text-center">
+          <h1 className="text-xl sm:text-2xl font-serif font-semibold text-[#3a1d6e] text-center">
             Redefinir senha
           </h1>
           <p className="text-sm text-muted-foreground text-center">

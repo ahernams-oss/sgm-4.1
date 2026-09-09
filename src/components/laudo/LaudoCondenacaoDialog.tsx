@@ -254,7 +254,7 @@ export function LaudoCondenacaoDialog({ equipamento, open, onOpenChange }: Props
               </TabsList>
 
               <TabsContent value="id" className="space-y-3 pt-3">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div><Label>Tipo do equipamento</Label><Input value={form.tipo || ""} onChange={e => setField("tipo", e.target.value)} /></div>
                   <div><Label>Marca</Label><Input value={form.marca || ""} onChange={e => setField("marca", e.target.value)} /></div>
                   <div><Label>Modelo</Label><Input value={form.modelo || ""} onChange={e => setField("modelo", e.target.value)} /></div>
@@ -265,7 +265,7 @@ export function LaudoCondenacaoDialog({ equipamento, open, onOpenChange }: Props
                   <div><Label>Localização atual</Label><Input value={form.localizacao || ""} onChange={e => setField("localizacao", e.target.value)} /></div>
                   <div className="col-span-2"><Label>Estado de conservação aparente</Label><Input value={form.estado_conservacao || ""} onChange={e => setField("estado_conservacao", e.target.value)} /></div>
                 </div>
-                <div className="grid grid-cols-3 gap-3 pt-2 border-t">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2 border-t">
                   <div><Label>Data de emissão *</Label><Input type="date" value={form.data_emissao || ""} onChange={e => setField("data_emissao", e.target.value)} /></div>
                   <div>
                     <Label>Responsável técnico *</Label>
@@ -303,7 +303,7 @@ export function LaudoCondenacaoDialog({ equipamento, open, onOpenChange }: Props
 
               <TabsContent value="fund" className="space-y-4 pt-3">
                 <div>
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <Label>Motivos técnicos da condenação</Label>
                     <Button size="sm" variant="outline" onClick={() => setField("motivos_condenacao", [...(form.motivos_condenacao || []), ""])}>
                       <Plus className="h-3 w-3 mr-1" />Adicionar motivo
@@ -328,7 +328,7 @@ export function LaudoCondenacaoDialog({ equipamento, open, onOpenChange }: Props
 
                 <Card><CardContent className="p-4 space-y-3">
                   <Label className="text-sm font-semibold">Análise de viabilidade econômica</Label>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     <div><Label>Custo estimado de reparo (R$)</Label><Input type="number" step="0.01" value={form.custo_reparo || ""} onChange={e => setField("custo_reparo", Number(e.target.value))} /></div>
                     <div><Label>Valor residual (R$)</Label><Input type="number" step="0.01" value={form.valor_residual || ""} onChange={e => setField("valor_residual", Number(e.target.value))} /></div>
                     <div><Label>Valor equipamento novo (R$)</Label><Input type="number" step="0.01" value={form.valor_novo_equivalente || ""} onChange={e => setField("valor_novo_equivalente", Number(e.target.value))} /></div>
@@ -342,7 +342,7 @@ export function LaudoCondenacaoDialog({ equipamento, open, onOpenChange }: Props
 
               <TabsContent value="concl" className="space-y-3 pt-3">
                 <div><Label>Condições (texto que completa a conclusão)</Label><Input value={form.conclusao_condicoes || ""} onChange={e => setField("conclusao_condicoes", e.target.value)} placeholder="ex.: irrecuperáveis / críticas / de risco iminente" /></div>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   <div>
                     <Label>Parecer técnico *</Label>
                     <Select value={form.parecer || ""} onValueChange={v => setField("parecer", v)}>
@@ -367,7 +367,7 @@ export function LaudoCondenacaoDialog({ equipamento, open, onOpenChange }: Props
                 <FotosLaudoEditor fotos={form.fotos || []} onChange={(f) => setField("fotos", f)} />
 
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <Label className="text-sm">Orçamentos de reparo</Label>
                     <label>
                       <Button type="button" size="sm" variant="outline" asChild><span><Upload className="h-3 w-3 mr-1" />Anexar</span></Button>
@@ -384,7 +384,7 @@ export function LaudoCondenacaoDialog({ equipamento, open, onOpenChange }: Props
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <Label className="text-sm">Outros anexos</Label>
                     <label>
                       <Button type="button" size="sm" variant="outline" asChild><span><Upload className="h-3 w-3 mr-1" />Anexar</span></Button>

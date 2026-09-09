@@ -283,7 +283,7 @@ export default function ConfirmacaoValoresDialog({ open, onOpenChange, itens, on
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={`${fullscreen ? "max-w-[99vw] w-[99vw] max-h-[99vh] h-[99vh]" : "max-w-[95vw] w-[1200px] max-h-[90vh]"} overflow-hidden resize min-w-[600px] min-h-[400px] flex flex-col p-0`}>
-        <DialogHeader className="px-6 pt-6 pb-2 shrink-0">
+        <DialogHeader className="px-4 sm:px-6 pt-6 pb-2 shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-primary" />
             Confirmação de Valores — pós-aprovação da Diretoria
@@ -295,7 +295,7 @@ export default function ConfirmacaoValoresDialog({ open, onOpenChange, itens, on
           </DialogDescription>
         </DialogHeader>
 
-        <div className="overflow-auto flex-1 px-6 pb-4 space-y-4 min-h-0">
+        <div className="overflow-auto flex-1 px-4 sm:px-6 pb-4 space-y-4 min-h-0">
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <div className="rounded-lg border p-3">
@@ -539,7 +539,7 @@ export default function ConfirmacaoValoresDialog({ open, onOpenChange, itens, on
 
         </div>
 
-        <DialogFooter className="px-6 pb-6 pt-2 shrink-0 gap-2">
+        <DialogFooter className="px-4 sm:px-6 pb-6 pt-2 shrink-0 gap-2">
           <div className="flex items-center gap-1 mr-auto">
             <Button type="button" variant="ghost" size="icon" className="h-8 w-8" title="Diminuir zoom" onClick={() => setZoom(z => Math.max(0.75, z - 0.1))}>
               <ZoomOut className="h-4 w-4" />

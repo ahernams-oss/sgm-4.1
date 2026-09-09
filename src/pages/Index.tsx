@@ -31,7 +31,7 @@ const Index = () => {
 
         {showForm && (
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
               <h2 className="text-lg font-semibold text-foreground">Nova Requisição</h2>
               <Button variant="ghost" size="sm" onClick={() => setShowForm(false)}>
                 Cancelar

@@ -538,7 +538,7 @@ export default function DashboardCompras() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
         <GradientKpiCard icon={ShoppingCart} label="Total" value={totalReqs} gradientIdx={0} />
         <GradientKpiCard icon={Clock} label="Em Andamento" value={abertas} gradientIdx={1} />
         <GradientKpiCard icon={CheckCircle} label="Concluídas" value={concluidas} gradientIdx={2} />
@@ -550,7 +550,7 @@ export default function DashboardCompras() {
       </div>
 
       {/* Confirmação de valores pós-aprovação */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         <GradientKpiCard icon={TrendingUp} label="Saving" value={savingMetrics.savingFmt} gradientIdx={2} subtitle="Economia real confirmada" />
         <GradientKpiCard icon={CheckCircle} label="Cost Avoidance" value={savingMetrics.avoidanceFmt} gradientIdx={0} subtitle="Preço mantido pós-vencimento" />
         <GradientKpiCard icon={AlertTriangle} label="Reajuste" value={savingMetrics.reajusteFmt} gradientIdx={1} subtitle="Aumento pós-aprovação" />

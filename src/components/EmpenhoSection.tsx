@@ -81,7 +81,7 @@ export default function EmpenhoSection({ empenhos, onChange, contratoNumero }: P
         <div className="divide-y divide-border">
           {empenhos.map(e => (
             <div key={e.id} className="py-2 flex items-center justify-between gap-4 text-sm">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-4 flex-1 min-w-0">
+              <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-4 gap-x-4 flex-1 min-w-0">
                 <p className="font-medium text-foreground truncate">Nº {e.numero || "—"}</p>
                 <p className="text-muted-foreground truncate">Proc: {e.processo || "—"}</p>
                 <p className="text-muted-foreground tabular-nums">

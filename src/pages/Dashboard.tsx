@@ -429,7 +429,7 @@ const Dashboard = () => {
               <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-primary" /> Requisições de Colaboradores
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
                 <GradientKpiCard icon={ClipboardList} label="Total" value={totalReqs} gradientIdx={0} />
                 {["Pendente", "Em Análise", "Aprovada", "Reprovada", "Concluída"].map((status, i) => {
                   const count = filteredReqs.filter((r) => r.status === status).length;
@@ -466,7 +466,7 @@ const Dashboard = () => {
               <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
                 <ClipboardCheck className="h-4 w-4 text-primary" /> Processos Seletivos
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-4 gap-3">
                 <GradientKpiCard icon={ClipboardCheck} label="Processos" value={psStats.total} gradientIdx={0} />
                 <GradientKpiCard icon={Users} label="Candidatos" value={psStats.candidatosTotal} gradientIdx={1} />
                 <GradientKpiCard icon={UserCheck} label="Contratados" value={psStats.contratados} color="hsl(160, 84%, 39%)" gradientIdx={2} />
@@ -608,7 +608,7 @@ const Dashboard = () => {
               <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
                 <UserCheck className="h-4 w-4 text-primary" /> Funcionários
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                 <GradientKpiCard icon={Users} label="Total" value={funcStats.total} gradientIdx={0} />
                 <GradientKpiCard icon={UserCheck} label="Ativos" value={funcStats.ativos} color="hsl(160, 84%, 39%)" gradientIdx={2} />
                 <GradientKpiCard icon={Users} label="Inativos" value={funcStats.inativos} color="hsl(0, 72%, 51%)" gradientIdx={3} />
@@ -640,7 +640,7 @@ const Dashboard = () => {
                           etapa = f.experienciaRenovado ? "2ª etapa" : "Final";
                         }
                         return (
-                          <div key={f.id} className="flex items-center justify-between text-sm px-2 py-1.5 rounded-md bg-destructive/5">
+                          <div key={f.id} className="flex flex-wrap items-center justify-between gap-2 text-sm px-2 py-1.5 rounded-md bg-destructive/5">
                             <span className="font-medium">{f.nome}</span>
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className="text-[10px] border-destructive/30 text-destructive">{etapa}</Badge>
@@ -666,7 +666,7 @@ const Dashboard = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-center">
                     <div>
                       <p className="text-xl font-bold text-foreground">{episStats.totalEpis}</p>
                       <p className="text-[10px] text-muted-foreground">EPIs Entregues</p>
@@ -690,7 +690,7 @@ const Dashboard = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-center">
                     <div>
                       <p className="text-xl font-bold" style={{ color: "hsl(160, 84%, 39%)" }}>{examesStats.emDia}</p>
                       <p className="text-[10px] text-muted-foreground">Em Dia</p>
@@ -714,7 +714,7 @@ const Dashboard = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                     <div>
                       <p className="text-xl font-bold text-foreground">{faltasStats.totalFaltas}</p>
                       <p className="text-[10px] text-muted-foreground">Total Faltas</p>
@@ -748,7 +748,7 @@ const Dashboard = () => {
                       {funcionariosFerias.map(f => {
                         const cliente = clientes.find(c => c.id === f.clienteId);
                         return (
-                          <div key={f.id} className="flex items-center justify-between text-sm px-2 py-1.5 rounded-md bg-muted/50">
+                          <div key={f.id} className="flex flex-wrap items-center justify-between gap-2 text-sm px-2 py-1.5 rounded-md bg-muted/50">
                             <span className="font-medium">{f.nome}</span>
                             <Badge variant="outline" className="text-[10px]">
                               {cliente?.nomeFantasia || cliente?.nome || "—"}

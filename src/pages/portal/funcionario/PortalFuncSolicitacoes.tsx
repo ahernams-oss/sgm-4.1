@@ -90,14 +90,14 @@ export default function PortalFuncSolicitacoes() {
 
   return (
     <PortalLayout requireTipo="funcionario">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold">Solicitações ao RH</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <h1 className="text-xl sm:text-2xl font-semibold">Solicitações ao RH</h1>
         <Button onClick={() => setOpen(true)}><Plus className="w-4 h-4 mr-1" />Nova solicitação</Button>
       </div>
 
       {loading && <p className="text-sm text-muted-foreground">Carregando...</p>}
       {!loading && list.length === 0 && (
-        <Card><CardContent className="p-6 text-center text-muted-foreground">Você ainda não abriu solicitações.</CardContent></Card>
+        <Card><CardContent className="p-4 sm:p-6 text-center text-muted-foreground">Você ainda não abriu solicitações.</CardContent></Card>
       )}
       <div className="space-y-2">
         {list.map((s) => (

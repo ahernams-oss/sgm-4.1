@@ -44,10 +44,10 @@ export default function OrcamentosSco() {
   const fmt = (v: number) => (v || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-serif font-bold">Orçamentos SCO</h1>
+          <h1 className="text-xl sm:text-2xl font-serif font-bold">Orçamentos SCO</h1>
           <p className="text-sm text-muted-foreground">
             Catálogo: {counts.servicos} serviços • {counts.elementares} elementares • {counts.composicoes} composições
           </p>

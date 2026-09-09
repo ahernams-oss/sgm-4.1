@@ -254,14 +254,14 @@ export default function PortalFicha() {
 
   return (
     <PortalLayout requireTipo="candidato">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold">Ficha Cadastral</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <h1 className="text-xl sm:text-2xl font-semibold">Ficha Cadastral</h1>
         <span className="text-xs px-2 py-1 rounded bg-muted">{status.toUpperCase()}</span>
       </div>
       {!loading && (
         <Card className="mb-4">
           <CardContent className="pt-4">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
               <span className="text-sm font-medium">Preenchimento da ficha</span>
               <span className={`text-sm font-bold ${progresso === 100 ? "text-emerald-600" : "text-primary"}`}>{progresso}%</span>
             </div>
@@ -324,7 +324,7 @@ export default function PortalFicha() {
                     )}
                   </div>
                 </div>
-                <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   <F l="Nome completo" v={dp.nome} on={(v: string) => setDp({ ...dp, nome: v })} />
                   <F l="Data de nascimento" type="date" v={dp.dataNasc} on={(v: string) => setDp({ ...dp, dataNasc: v })} />
                   <div className="flex flex-col gap-1.5">
@@ -382,7 +382,7 @@ export default function PortalFicha() {
             <CardContent className="space-y-4">
               <div>
                 <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Identificação</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <div>
                     <Label className="text-xs">CPF</Label>
                     <Input
@@ -414,7 +414,7 @@ export default function PortalFicha() {
               </div>
               <div>
                 <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Carteira de Trabalho (CTPS)</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <F l="Número" v={docs.ctpsNumero} on={(v: string) => setDocs({ ...docs, ctpsNumero: v })} />
                   <F l="Série" v={docs.ctpsSerie} on={(v: string) => setDocs({ ...docs, ctpsSerie: v })} />
                   <div>
@@ -431,7 +431,7 @@ export default function PortalFicha() {
               </div>
               <div>
                 <h4 className="text-sm font-semibold mb-2 text-muted-foreground">PIS / Título de Eleitor</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <F l="PIS/PASEP" v={docs.pisPasep} on={(v: string) => setDocs({ ...docs, pisPasep: v })} />
                   <F l="Título de Eleitor" v={docs.tituloEleitor} on={(v: string) => setDocs({ ...docs, tituloEleitor: v })} />
                   <F l="Zona" v={docs.tituloZona} on={(v: string) => setDocs({ ...docs, tituloZona: v })} />
@@ -440,7 +440,7 @@ export default function PortalFicha() {
               </div>
               <div>
                 <h4 className="text-sm font-semibold mb-2 text-muted-foreground">CNH</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <F l="Número" v={docs.cnhNumero} on={(v: string) => setDocs({ ...docs, cnhNumero: v })} />
                   <F l="Categoria" v={docs.cnhCategoria} on={(v: string) => setDocs({ ...docs, cnhCategoria: v })} />
                   <F l="Validade" type="date" v={docs.cnhValidade} on={(v: string) => setDocs({ ...docs, cnhValidade: v })} />
@@ -449,7 +449,7 @@ export default function PortalFicha() {
               </div>
               <div>
                 <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Reservista / Passaporte</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <F l="Reservista - Número" v={docs.reservistaNumero} on={(v: string) => setDocs({ ...docs, reservistaNumero: v })} />
                   <F l="Reservista - Categoria" v={docs.reservistaCategoria} on={(v: string) => setDocs({ ...docs, reservistaCategoria: v })} />
                   <F l="Passaporte - Número" v={docs.passaporteNumero} on={(v: string) => setDocs({ ...docs, passaporteNumero: v })} />
@@ -458,7 +458,7 @@ export default function PortalFicha() {
               </div>
               <div>
                 <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Conselho de Classe</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <div>
                     <Label className="text-xs">Conselho</Label>
                     <Select value={docs.conselhoClasse || ""} onValueChange={(v) => setDocs({ ...docs, conselhoClasse: v })}>
@@ -484,7 +484,7 @@ export default function PortalFicha() {
               </div>
               <div>
                 <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Certidão</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <div>
                     <Label className="text-xs">Certidão - Tipo</Label>
                     <Select value={docs.certidaoTipo || ""} onValueChange={(v) => setDocs({ ...docs, certidaoTipo: v })}>
@@ -503,7 +503,7 @@ export default function PortalFicha() {
           </Card>
           <Card>
             <CardHeader><CardTitle>Endereço</CardTitle></CardHeader>
-            <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               <div>
                 <Label className="text-xs">CEP</Label>
                 <Input
@@ -536,7 +536,7 @@ export default function PortalFicha() {
               <CardTitle>Dados Bancários</CardTitle>
               <p className="text-sm text-destructive font-medium">Preencha com muita atenção!</p>
             </CardHeader>
-            <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               <F l="Banco" v={bc.banco} on={(v: string) => setBc({ ...bc, banco: v })} />
               <F l="Agência" v={bc.agencia} on={(v: string) => setBc({ ...bc, agencia: v })} />
               <F l="Conta" v={bc.conta} on={(v: string) => setBc({ ...bc, conta: v })} />
@@ -557,7 +557,7 @@ export default function PortalFicha() {
               <CardTitle>Uniforme</CardTitle>
               <p className="text-xs text-muted-foreground">Informações para dimensionamento de uniformes e EPIs.</p>
             </CardHeader>
-            <CardContent className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
               <F l="Tam. Camisa" v={dp.uniforme?.camisa || ""} on={(v: string) => setDp({ ...dp, uniforme: { ...(dp.uniforme || {}), camisa: v } })} ph="P, M, G..." />
               <F l="Tam. Calça" v={dp.uniforme?.calca || ""} on={(v: string) => setDp({ ...dp, uniforme: { ...(dp.uniforme || {}), calca: v } })} ph="38, 40, 42" />
               <F l="Tam. Calçado" v={dp.uniforme?.calcado || ""} on={(v: string) => setDp({ ...dp, uniforme: { ...(dp.uniforme || {}), calcado: v } })} ph="39, 40, 41" />
@@ -573,7 +573,7 @@ export default function PortalFicha() {
             <CardContent className="space-y-2">
               {deps.map((d, i) => (
                 <div key={i} className="space-y-2 rounded-lg border p-3">
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-2 items-end">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2 items-end">
                     <div className="md:col-span-2"><Label className="text-xs">Nome</Label><Input value={d.nome} onChange={(e) => { const n = [...deps]; n[i].nome = e.target.value; setDeps(n); }} /></div>
                     <div>
                       <Label className="text-xs">Parentesco</Label>
@@ -633,7 +633,7 @@ export default function PortalFicha() {
                   </div>
 
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                       <Label className="text-xs font-semibold">Alimentandos ({(pensao.beneficiarios || []).length})</Label>
                       <Button type="button" size="sm" variant="outline"
                         onClick={() => setPensao((p: any) => ({ ...p, beneficiarios: [...(p.beneficiarios || []), novoBeneficiario()] }))}>
@@ -646,7 +646,7 @@ export default function PortalFicha() {
                       }));
                       return (
                         <div key={i} className="rounded-md border p-3 space-y-2">
-                          <div className="flex items-center justify-between">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
                             <span className="text-xs font-medium text-muted-foreground">Alimentando {i + 1}</span>
                             <Button type="button" variant="ghost" size="sm" className="text-destructive"
                               onClick={() => setPensao((p: any) => ({ ...p, beneficiarios: (p.beneficiarios || []).filter((_: any, j: number) => j !== i) }))}>
@@ -764,7 +764,7 @@ export default function PortalFicha() {
             </CardHeader>
             <CardContent className="space-y-2">
               {ces.map((c, i) => (
-                <div key={i} className="grid grid-cols-2 md:grid-cols-4 gap-2 items-end">
+                <div key={i} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 items-end">
                   <div><Label className="text-xs">Nome</Label><Input value={c.nome} onChange={(e) => { const n = [...ces]; n[i].nome = e.target.value; setCes(n); }} /></div>
                   <div>
                     <Label className="text-xs">Parentesco</Label>

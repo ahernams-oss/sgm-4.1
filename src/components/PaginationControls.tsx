@@ -33,7 +33,7 @@ export default function PaginationControls({
   const safePage = Math.min(currentPage, totalPages);
 
   return (
-    <div className="flex items-center justify-between pt-2">
+    <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         {onPageSizeChange ? (
           <>

@@ -56,7 +56,7 @@ const FaturamentoView = () => {
         </div>
 
         <div className="section-card animate-fade-up">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
             <h2 className="section-title mb-0">Clientes e Contratos</h2>
             <div className="relative w-64">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -92,7 +92,7 @@ const FaturamentoView = () => {
                               if (isOpen) { setOpenContratoId(null); setOpenClienteId(null); }
                               else { setOpenContratoId(ct.id); setOpenClienteId(cliente.id); }
                             }}
-                            className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/20 transition-colors text-left"
+                            className="w-full flex flex-wrap items-center justify-between gap-2 px-4 py-3 hover:bg-muted/20 transition-colors text-left"
                           >
                             <div className="flex items-center gap-3 min-w-0">
                               <DollarSign className="h-4 w-4 text-primary shrink-0" />
@@ -300,7 +300,7 @@ const Clientes = () => {
             <Users className="h-4 w-4" />
             <span className="text-xs font-medium uppercase tracking-wider">Cadastro</span>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h1 className="text-xl font-bold text-foreground mb-1">Clientes</h1>
               <p className="text-sm text-muted-foreground max-w-lg">
@@ -321,7 +321,7 @@ const Clientes = () => {
           <button
             type="button"
             onClick={() => setFormOpen(!formOpen)}
-            className="flex items-center justify-between w-full"
+            className="flex flex-wrap items-center justify-between gap-2 w-full"
           >
             <h2 className="section-title mb-0">{editingId ? "Editar Cliente" : "Novo Cliente"}</h2>
             {formOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
@@ -343,7 +343,7 @@ const Clientes = () => {
         )}
 
         <div className="section-card animate-fade-up" style={{ animationDelay: "160ms" }}>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
             <h2 className="section-title mb-0">Clientes Cadastrados</h2>
             <div className="relative w-64">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -401,7 +401,7 @@ const Clientes = () => {
                       checked={selectedIds.includes(cliente.id)}
                       onCheckedChange={() => toggleOne(cliente.id)}
                     />
-                    <div className="min-w-0 flex-1 grid grid-cols-2 sm:grid-cols-5 gap-x-4 gap-y-1">
+                    <div className="min-w-0 flex-1 grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-5 gap-x-4 gap-y-1">
                       <p className="text-sm font-semibold text-primary tabular-nums">Nº {cliente.codigo ?? "—"}</p>
                       <p className="text-sm font-medium text-foreground truncate">{cliente.nome}</p>
                       <p className="text-sm text-muted-foreground truncate tabular-nums">{cliente.cnpj || "—"}</p>
@@ -600,7 +600,7 @@ const Clientes = () => {
                   {contratos.map(ct => (
                     <div key={ct.id}>
                       <div className="py-3 flex items-start justify-between gap-4">
-                        <div className="min-w-0 flex-1 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-sm">
+                        <div className="min-w-0 flex-1 grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-sm">
                           <div>
                             <p className="font-medium text-foreground">{ct.numero}</p>
                             {ct.numeroProcesso && <p className="text-xs text-muted-foreground">Proc: {ct.numeroProcesso}</p>}

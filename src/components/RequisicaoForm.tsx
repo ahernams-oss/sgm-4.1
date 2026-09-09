@@ -568,7 +568,7 @@ const RequisicaoForm = ({ onSuccess }: { onSuccess?: () => void }) => {
             <div className="space-y-4">
               {indicados.map((ind, idx) => (
                 <div key={idx} className="rounded-lg border border-border/60 bg-muted/30 p-4 space-y-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                       Indicado {idx + 1}
                     </span>
@@ -711,7 +711,7 @@ const RequisicaoForm = ({ onSuccess }: { onSuccess?: () => void }) => {
         className="flex justify-end gap-3 animate-fade-up pt-2"
         style={{ animationDelay: "560ms" }}
       >
-        <Button type="button" variant="outline" size="lg" className="px-6 rounded-lg" onClick={() => setForm({
+        <Button type="button" variant="outline" size="lg" className="px-4 sm:px-6 rounded-lg" onClick={() => setForm({
           headcount: "", orcamento: "", tipoVaga: "",
           unidade: "", cargo: "", jornada: "", cargaHoraria: "",
           tipoContratacao: [], tipoContratacaoDetalhe: "", internoExterno: "", origemVaga: "", motivoOutros: "",

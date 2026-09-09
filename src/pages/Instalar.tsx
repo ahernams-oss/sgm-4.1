@@ -49,7 +49,7 @@ export default function Instalar() {
           <div className="mx-auto mb-4 w-20 h-20 rounded-2xl overflow-hidden shadow-md">
             <img src="/icon-512.png" alt="SGM Lasant" className="w-full h-full object-cover" />
           </div>
-          <CardTitle className="text-2xl">Instalar SGM Lasant</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl">Instalar SGM Lasant</CardTitle>
           <p className="text-sm text-muted-foreground mt-2">
             Tenha o sistema na tela inicial do seu celular, com acesso rápido e em tela cheia.
           </p>

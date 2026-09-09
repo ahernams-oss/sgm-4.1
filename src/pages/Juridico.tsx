@@ -778,35 +778,35 @@ export default function JuridicoPage() {
           {/* ============ DASHBOARD ============ */}
           <TabsContent value="dashboard" className="space-y-4">
             {/* KPIs principais */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
               <Card className="border-l-4 border-l-primary">
                 <CardHeader className="pb-1"><CardTitle className="text-xs text-muted-foreground flex items-center gap-1"><Scale className="h-3 w-3" /> Total Processos</CardTitle></CardHeader>
-                <CardContent><p className="text-2xl font-bold">{processos.length}</p></CardContent>
+                <CardContent><p className="text-xl sm:text-2xl font-bold">{processos.length}</p></CardContent>
               </Card>
               <Card className="border-l-4 border-l-blue-500">
                 <CardHeader className="pb-1"><CardTitle className="text-xs text-muted-foreground flex items-center gap-1"><Gavel className="h-3 w-3" /> Ativos</CardTitle></CardHeader>
-                <CardContent><p className="text-2xl font-bold text-blue-600">{stats.ativos}</p></CardContent>
+                <CardContent><p className="text-xl sm:text-2xl font-bold text-blue-600">{stats.ativos}</p></CardContent>
               </Card>
               <Card className="border-l-4 border-l-yellow-500">
                 <CardHeader className="pb-1"><CardTitle className="text-xs text-muted-foreground">Em Recurso</CardTitle></CardHeader>
-                <CardContent><p className="text-2xl font-bold text-yellow-600">{stats.emRecurso}</p></CardContent>
+                <CardContent><p className="text-xl sm:text-2xl font-bold text-yellow-600">{stats.emRecurso}</p></CardContent>
               </Card>
               <Card className="border-l-4 border-l-muted-foreground/40">
                 <CardHeader className="pb-1"><CardTitle className="text-xs text-muted-foreground">Encerrados</CardTitle></CardHeader>
-                <CardContent><p className="text-2xl font-bold text-muted-foreground">{stats.encerrados}</p></CardContent>
+                <CardContent><p className="text-xl sm:text-2xl font-bold text-muted-foreground">{stats.encerrados}</p></CardContent>
               </Card>
               <Card className="border-l-4 border-l-destructive">
                 <CardHeader className="pb-1"><CardTitle className="text-xs text-muted-foreground flex items-center gap-1"><AlertTriangle className="h-3 w-3 text-destructive" /> Risco Alto</CardTitle></CardHeader>
-                <CardContent><p className="text-2xl font-bold text-destructive">{stats.riscoAlto}</p></CardContent>
+                <CardContent><p className="text-xl sm:text-2xl font-bold text-destructive">{stats.riscoAlto}</p></CardContent>
               </Card>
               <Card className="border-l-4 border-l-emerald-500">
                 <CardHeader className="pb-1"><CardTitle className="text-xs text-muted-foreground flex items-center gap-1"><CalendarCheck className="h-3 w-3" /> Audiências 30d</CardTitle></CardHeader>
-                <CardContent><p className="text-2xl font-bold text-emerald-600">{stats.audiencias30d}</p></CardContent>
+                <CardContent><p className="text-xl sm:text-2xl font-bold text-emerald-600">{stats.audiencias30d}</p></CardContent>
               </Card>
             </div>
 
             {/* KPIs Financeiros */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
               <Card className="bg-gradient-to-br from-primary/5 to-transparent">
                 <CardHeader className="pb-1"><CardTitle className="text-xs text-muted-foreground flex items-center gap-1"><DollarSign className="h-3 w-3" /> Valor da Causa</CardTitle></CardHeader>
                 <CardContent><p className="text-base font-bold">{fmt(stats.totalValorCausa)}</p></CardContent>
@@ -932,7 +932,7 @@ export default function JuridicoPage() {
                   ) : (
                     <div className="space-y-2">
                       {stats.topClientes.map((c, i) => (
-                        <div key={c.nome} className="flex items-center justify-between p-2 rounded bg-muted/40">
+                        <div key={c.nome} className="flex flex-wrap items-center justify-between gap-2 p-2 rounded bg-muted/40">
                           <div className="flex items-center gap-2 min-w-0">
                             <Badge variant="outline" className="shrink-0">{i + 1}º</Badge>
                             <span className="text-sm truncate">{c.nome}</span>
@@ -1171,7 +1171,7 @@ export default function JuridicoPage() {
 
           {/* ============ DECISÕES E PAGAMENTOS ============ */}
           <TabsContent value="decisoes">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               <Card><CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">Total Acordado/Decidido</CardTitle></CardHeader><CardContent><p className="text-lg font-bold">{fmt(decisaoStats.totalAcordado)}</p></CardContent></Card>
               <Card><CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-green-600" /> Pago</CardTitle></CardHeader><CardContent><p className="text-lg font-bold text-green-600">{fmt(decisaoStats.totalPago)}</p></CardContent></Card>
               <Card><CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">Pendente</CardTitle></CardHeader><CardContent><p className="text-lg font-bold text-yellow-600">{fmt(decisaoStats.totalPendente)}</p></CardContent></Card>
@@ -1439,7 +1439,7 @@ export default function JuridicoPage() {
               {/* Valores e parcelamento */}
               <div>
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Valores e Parcelamento</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <div><Label>Valor Total *</Label><Input type="number" step="0.01" value={decisaoForm.valor_total} onChange={e => setDecisaoForm({ ...decisaoForm, valor_total: Number(e.target.value) })} /></div>
                   <div><Label>Principal</Label><Input type="number" step="0.01" value={decisaoForm.valor_principal} onChange={e => setDecisaoForm({ ...decisaoForm, valor_principal: Number(e.target.value) })} /></div>
                   <div><Label>Honorários</Label><Input type="number" step="0.01" value={decisaoForm.valor_honorarios} onChange={e => setDecisaoForm({ ...decisaoForm, valor_honorarios: Number(e.target.value) })} /></div>
@@ -1491,7 +1491,7 @@ export default function JuridicoPage() {
               {/* Bancários */}
               <div>
                 <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Dados Bancários para Pagamento</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <div className="md:col-span-2"><Label>Banco</Label><Input value={decisaoForm.banco} onChange={e => setDecisaoForm({ ...decisaoForm, banco: e.target.value })} /></div>
                   <div><Label>Agência</Label><Input value={decisaoForm.agencia} onChange={e => setDecisaoForm({ ...decisaoForm, agencia: e.target.value })} /></div>
                   <div><Label>Conta</Label><Input value={decisaoForm.conta} onChange={e => setDecisaoForm({ ...decisaoForm, conta: e.target.value })} /></div>
@@ -1587,7 +1587,7 @@ export default function JuridicoPage() {
                     <Banknote className="h-5 w-5" /> {viewDecisao.tipo} - Processo {viewDecisao.processo_numero}
                   </DialogTitle>
                 </DialogHeader>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                   <Card className="p-3"><p className="text-xs text-muted-foreground">Valor Total</p><p className="font-bold">{fmt(viewDecisao.valor_total)}</p></Card>
                   <Card className="p-3"><p className="text-xs text-muted-foreground">Principal</p><p className="font-bold">{fmt(viewDecisao.valor_principal)}</p></Card>
                   <Card className="p-3"><p className="text-xs text-muted-foreground">Honorários</p><p className="font-bold">{fmt(viewDecisao.valor_honorarios)}</p></Card>
@@ -1596,7 +1596,7 @@ export default function JuridicoPage() {
                 {viewDecisao.descricao && (
                   <div className="mt-3"><p className="text-xs text-muted-foreground mb-1">Descrição</p><p className="text-sm bg-muted p-2 rounded">{viewDecisao.descricao}</p></div>
                 )}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm mt-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-sm mt-3">
                   <div><span className="text-muted-foreground">Juiz:</span> {viewDecisao.juiz || "-"}</div>
                   <div><span className="text-muted-foreground">Data:</span> {viewDecisao.data_decisao || "-"}</div>
                   <div><span className="text-muted-foreground">Status:</span> {viewDecisao.status}</div>
@@ -1604,7 +1604,7 @@ export default function JuridicoPage() {
 
                 <div className="mt-4">
                   <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-1">Patrono do Autor</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-sm">
                     <div><span className="text-muted-foreground">Nome:</span> {viewDecisao.patrono_nome || "-"}</div>
                     <div><span className="text-muted-foreground">OAB:</span> {viewDecisao.patrono_oab || "-"}</div>
                     <div><span className="text-muted-foreground">Escritório:</span> {viewDecisao.patrono_escritorio || "-"}</div>
@@ -1615,7 +1615,7 @@ export default function JuridicoPage() {
 
                 <div className="mt-4">
                   <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-1">Dados Bancários</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-sm">
                     <div><span className="text-muted-foreground">Banco:</span> {viewDecisao.banco || "-"}</div>
                     <div><span className="text-muted-foreground">Agência:</span> {viewDecisao.agencia || "-"}</div>
                     <div><span className="text-muted-foreground">Conta:</span> {viewDecisao.conta || "-"} ({viewDecisao.tipo_conta})</div>
@@ -1688,7 +1688,7 @@ export default function JuridicoPage() {
                 <Input type="date" value={parcelaEditForm.data_vencimento}
                   onChange={e => setParcelaEditForm({ ...parcelaEditForm, data_vencimento: e.target.value })} />
               </div>
-              <div className="md:col-span-2 flex items-center justify-between rounded-md border p-3">
+              <div className="md:col-span-2 flex flex-wrap items-center justify-between gap-2 rounded-md border p-3">
                 <div>
                   <Label className="text-sm">Recalcular parcelas seguintes</Label>
                   <p className="text-xs text-muted-foreground">
@@ -2099,7 +2099,7 @@ export default function JuridicoPage() {
                   </DialogTitle>
                 </DialogHeader>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-sm">
                   <div><span className="text-muted-foreground">Autor:</span> <strong>{viewProcesso.autor_nome}</strong></div>
                   <div><span className="text-muted-foreground">CPF:</span> {viewProcesso.autor_cpf || "-"}</div>
                   <div><span className="text-muted-foreground">Vara:</span> {viewProcesso.vara || "-"}</div>
@@ -2113,7 +2113,7 @@ export default function JuridicoPage() {
                   <div><span className="text-muted-foreground">Centro de Custo:</span> {viewProcesso.cliente_nome || "-"}</div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 mt-3">
                   <Card className="p-3"><p className="text-xs text-muted-foreground">Valor Causa</p><p className="font-bold">{fmt(viewProcesso.valor_causa)}</p></Card>
                   <Card className="p-3"><p className="text-xs text-muted-foreground">Provisão</p><p className="font-bold">{fmt(viewProcesso.provisao_contabil)}</p></Card>
                   <Card className="p-3"><p className="text-xs text-muted-foreground">Acordo</p><p className="font-bold">{fmt(viewProcesso.valor_acordo)}</p></Card>
@@ -2144,14 +2144,14 @@ export default function JuridicoPage() {
                 )}
 
                 <div className="mt-4">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                     <h3 className="font-semibold text-sm flex items-center gap-1"><Calendar className="h-4 w-4" /> Andamentos</h3>
                     {podeEditar && <Button size="sm" onClick={() => setShowAndamentoForm(true)} className="gap-1"><Plus className="h-3 w-3" /> Adicionar</Button>}
                   </div>
 
                   {showAndamentoForm && (
                     <Card className="p-3 mb-3">
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                         <div>
                           <Label className="text-xs">Tipo</Label>
                           <Select value={andForm.tipo} onValueChange={v => setAndForm({ ...andForm, tipo: v })}>

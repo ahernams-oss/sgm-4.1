@@ -28,8 +28,8 @@ export default function Dre() {
   }, [lancamentos, planoContas, ini, fim]);
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-serif font-semibold">DRE Gerencial</h1>
+    <div className="p-4 sm:p-6 space-y-4">
+      <h1 className="text-xl sm:text-2xl font-serif font-semibold">DRE Gerencial</h1>
       <Card>
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle className="text-base">Período</CardTitle>
@@ -39,7 +39,7 @@ export default function Dre() {
           </div>
         </CardHeader>
         <CardContent className="space-y-2">
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <div className="rounded-lg border p-4 bg-emerald-50"><p className="text-xs text-muted-foreground">Receitas</p><p className="text-xl font-serif font-semibold text-emerald-700">{formatBRL(dados.receitas)}</p></div>
             <div className="rounded-lg border p-4 bg-red-50"><p className="text-xs text-muted-foreground">Despesas</p><p className="text-xl font-serif font-semibold text-red-700">{formatBRL(dados.despesas)}</p></div>
             <div className={`rounded-lg border p-4 ${dados.resultado >= 0 ? "bg-primary/10" : "bg-amber-50"}`}><p className="text-xs text-muted-foreground">Resultado</p><p className={`text-xl font-serif font-semibold ${dados.resultado >= 0 ? "text-primary" : "text-amber-700"}`}>{formatBRL(dados.resultado)}</p></div>
@@ -47,7 +47,7 @@ export default function Dre() {
           <div className="mt-6">
             <h3 className="font-medium mb-2">Por categoria</h3>
             {dados.grupos.map((g, i) => (
-              <div key={i} className="flex items-center justify-between border-b py-2 text-sm">
+              <div key={i} className="flex flex-wrap items-center justify-between gap-2 border-b py-2 text-sm">
                 <span><span className={g.tipo === "receita" ? "text-emerald-600" : "text-red-600"}>●</span> {g.nome}</span>
                 <span className="tabular-nums font-medium">{formatBRL(g.valor)}</span>
               </div>

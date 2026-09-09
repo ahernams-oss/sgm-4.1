@@ -236,7 +236,7 @@ const Fornecedores = () => {
             <Truck className="h-4 w-4" />
             <span className="text-xs font-medium uppercase tracking-wider">Cadastro</span>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h1 className="text-xl font-bold text-foreground mb-1">Fornecedores</h1>
               <p className="text-sm text-muted-foreground max-w-lg">
@@ -257,7 +257,7 @@ const Fornecedores = () => {
           <button
             type="button"
             onClick={() => setFormOpen(!formOpen)}
-            className="flex items-center justify-between w-full"
+            className="flex flex-wrap items-center justify-between gap-2 w-full"
           >
             <h2 className="section-title mb-0">{editingId ? "Editar Fornecedor" : "Novo Fornecedor"}</h2>
             {formOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
@@ -314,7 +314,7 @@ const Fornecedores = () => {
 
 
         <div className="section-card animate-fade-up" style={{ animationDelay: "160ms" }}>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
             <h2 className="section-title mb-0">Fornecedores Cadastrados</h2>
             <div className="relative w-64">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -372,7 +372,7 @@ const Fornecedores = () => {
                       checked={selectedIds.includes(fornecedor.id)}
                       onCheckedChange={() => toggleOne(fornecedor.id)}
                     />
-                    <div className="min-w-0 flex-1 grid grid-cols-2 sm:grid-cols-5 gap-x-4 gap-y-1">
+                    <div className="min-w-0 flex-1 grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-5 gap-x-4 gap-y-1">
                       <p className="text-sm font-semibold text-primary tabular-nums">Nº {fornecedor.codigo ?? "—"}</p>
                       <p className="text-sm font-medium text-foreground truncate">{fornecedor.nome}</p>
                       <p className="text-sm text-muted-foreground truncate tabular-nums">{fornecedor.cnpj || "—"}</p>

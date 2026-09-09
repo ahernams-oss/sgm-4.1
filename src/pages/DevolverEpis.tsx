@@ -303,7 +303,7 @@ export default function DevolverEpis() {
           {etapa === "revisar" && (
             <div className="space-y-4">
               <p className="text-sm">Confira as fotos capturadas antes de confirmar a devolução.</p>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {selfies.map((s, i) => (
                   <div key={i} className="border rounded overflow-hidden">
                     <img src={s} alt={`Selfie ${i + 1}`} className="w-full h-40 object-cover" />

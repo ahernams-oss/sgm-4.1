@@ -348,7 +348,7 @@ const Cargos = () => {
           <button
             type="button"
             onClick={() => setFormOpen(!formOpen)}
-            className="flex items-center justify-between w-full"
+            className="flex flex-wrap items-center justify-between gap-2 w-full"
           >
             <h2 className="section-title mb-0">
               {editingId ? "Editar Cargo" : "Novo Cargo"}
@@ -445,7 +445,7 @@ const Cargos = () => {
                 return (
                   <div key={cargo.id} className="py-3">
                     <div className="flex items-center justify-between gap-4">
-                      <div className="min-w-0 flex-1 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1">
+                      <div className="min-w-0 flex-1 grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1">
                         <p className="text-sm font-medium text-foreground truncate">{cargo.nome}</p>
                         <div>
                           {cargo.nivel && (
@@ -518,7 +518,7 @@ const Cargos = () => {
                           ) : (
                             <div className="divide-y divide-border rounded border border-border">
                               {[...cargo.salarios].sort((a, b) => (b.dataBase || "").localeCompare(a.dataBase || "")).map((sal) => (
-                                <div key={sal.id} className="flex items-center justify-between px-3 py-2">
+                                <div key={sal.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
                                   {editingSalarioId === sal.id ? (
                                     <div className="flex items-center gap-2 flex-1">
                                       <Input
@@ -607,7 +607,7 @@ const Cargos = () => {
                           ) : (
                             <div className="divide-y divide-border rounded border border-border">
                               {cargo.anexos.map((anexo) => (
-                                <div key={anexo.id} className="flex items-center justify-between px-3 py-2">
+                                <div key={anexo.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
                                   <div className="flex items-center gap-2 min-w-0">
                                     <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                                     <span className="text-xs truncate">{anexo.nome}</span>
@@ -676,7 +676,7 @@ const Cargos = () => {
                           ) : (
                             <div className="divide-y divide-border rounded border border-border">
                               {cargo.nrs.map((nr) => (
-                                <div key={nr.id} className="flex items-center justify-between px-3 py-2">
+                                <div key={nr.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
                                   {editingNrId === nr.id ? (
                                     <div className="flex items-center gap-2 flex-1">
                                       <Input
@@ -758,7 +758,7 @@ const Cargos = () => {
                           ) : (
                             <div className="divide-y divide-border rounded border border-border">
                               {cargo.episPadrao.map((epi) => (
-                                <div key={epi.id} className="flex items-center justify-between px-3 py-2">
+                                <div key={epi.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
                                   <div className="flex items-center gap-2 min-w-0 flex-1">
                                     <Badge variant="default" className="text-[10px] shrink-0">{String(epi.quantidade).padStart(2, "0")}</Badge>
                                     <span className="text-xs font-medium truncate">{epi.descricao}</span>

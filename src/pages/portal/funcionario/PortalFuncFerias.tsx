@@ -76,13 +76,13 @@ export default function PortalFuncFerias() {
 
   return (
     <PortalLayout requireTipo="funcionario">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold">Férias</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <h1 className="text-xl sm:text-2xl font-semibold">Férias</h1>
         <Button onClick={() => abrir()}><CalendarPlus className="w-4 h-4 mr-1" />Solicitar</Button>
       </div>
       {loading && <p className="text-sm text-muted-foreground">Carregando...</p>}
       {!loading && list.length === 0 && (
-        <Card><CardContent className="p-6 text-center text-muted-foreground">Nenhum período de férias registrado.</CardContent></Card>
+        <Card><CardContent className="p-4 sm:p-6 text-center text-muted-foreground">Nenhum período de férias registrado.</CardContent></Card>
       )}
       <div className="space-y-2">
         {list.map((f) => (
@@ -118,7 +118,7 @@ export default function PortalFuncFerias() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader><DialogTitle>Solicitar Férias</DialogTitle></DialogHeader>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div><Label>Início</Label><Input type="date" value={ini} onChange={(e) => setIni(e.target.value)} /></div>
             <div><Label>Fim</Label><Input type="date" value={fim} onChange={(e) => setFim(e.target.value)} /></div>
             <div><Label>Dias de abono (opcional)</Label><Input type="number" min={0} max={10} value={abon} onChange={(e) => setAbon(e.target.value)} /></div>

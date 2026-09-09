@@ -212,7 +212,7 @@ const PerfisAcesso = () => {
             <KeyRound className="h-4 w-4" />
             <span className="text-xs font-medium uppercase tracking-wider">Administração</span>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h1 className="text-xl font-bold text-foreground mb-1">Perfis de Acesso</h1>
               <p className="text-sm text-muted-foreground max-w-lg">
@@ -226,7 +226,7 @@ const PerfisAcesso = () => {
         </div>
 
         {showForm && (
-          <form onSubmit={handleSubmit} className="mb-8 rounded-xl border border-border bg-card p-6 shadow-sm animate-fade-up">
+          <form onSubmit={handleSubmit} className="mb-8 rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm animate-fade-up">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div className="space-y-1.5">
                 <Label className="text-xs font-semibold text-foreground/80">Nome do Perfil *</Label>
@@ -297,7 +297,7 @@ const PerfisAcesso = () => {
 
                 return (
                   <div key={grupo.grupo} className="rounded-lg border border-border overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-3 bg-muted/30">
+                    <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 bg-muted/30">
                       <div className="flex items-center gap-2">
                         <Checkbox
                           checked={allGrupoChecked}
@@ -384,7 +384,7 @@ const PerfisAcesso = () => {
                                 {mod.acoes && mod.acoes.length > 0 && (
                                   <div>
                                     <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Ações</p>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5">
                                       {mod.acoes.map(a => renderPermissionCheckbox(a, "acao"))}
                                     </div>
                                   </div>
@@ -392,7 +392,7 @@ const PerfisAcesso = () => {
                                 {mod.statusTransicoes && mod.statusTransicoes.length > 0 && (
                                   <div>
                                     <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Transições de Status</p>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5">
                                       {mod.statusTransicoes.map(s => renderPermissionCheckbox(s, "status"))}
                                     </div>
                                   </div>
@@ -400,7 +400,7 @@ const PerfisAcesso = () => {
                                 {mod.flags && mod.flags.length > 0 && (
                                   <div>
                                     <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Flags / Opções</p>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5">
                                       {mod.flags.map(f => renderPermissionCheckbox(f, "flag"))}
                                     </div>
                                   </div>
@@ -426,7 +426,7 @@ const PerfisAcesso = () => {
         )}
 
         <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-border bg-muted/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="px-4 sm:px-6 py-4 border-b border-border bg-muted/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <h2 className="text-sm font-semibold text-foreground">Perfis Cadastrados</h2>
             <div className="relative w-52">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

@@ -216,10 +216,10 @@ export default function ComunicacaoWhatsappPage() {
   };
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-serif font-semibold flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-serif font-semibold flex items-center gap-2">
             <MessageCircle className="h-6 w-6 text-primary" /> Notificação WhatsApp
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -232,9 +232,9 @@ export default function ComunicacaoWhatsappPage() {
       <Card>
         <CardHeader className="pb-3"><CardTitle className="text-base">Resumo</CardTitle></CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div><div className="text-xs text-muted-foreground">Funcionários elegíveis</div><div className="text-2xl font-semibold">{totalDestinatarios}</div></div>
-          <div><div className="text-xs text-muted-foreground">Campanhas cadastradas</div><div className="text-2xl font-semibold">{campanhas.length}</div></div>
-          <div><div className="text-xs text-muted-foreground">Recorrentes ativas</div><div className="text-2xl font-semibold">{campanhas.filter(c => c.modo === "recorrente" && c.ativo).length}</div></div>
+          <div><div className="text-xs text-muted-foreground">Funcionários elegíveis</div><div className="text-xl sm:text-2xl font-semibold">{totalDestinatarios}</div></div>
+          <div><div className="text-xs text-muted-foreground">Campanhas cadastradas</div><div className="text-xl sm:text-2xl font-semibold">{campanhas.length}</div></div>
+          <div><div className="text-xs text-muted-foreground">Recorrentes ativas</div><div className="text-xl sm:text-2xl font-semibold">{campanhas.filter(c => c.modo === "recorrente" && c.ativo).length}</div></div>
         </CardContent>
       </Card>
 
@@ -329,7 +329,7 @@ export default function ComunicacaoWhatsappPage() {
 
             {form.modo === "recorrente" && (
               <>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <Label>Recorrência *</Label>
                     <Select value={form.recorrencia || "diaria"} onValueChange={(v: any) => setForm({ ...form, recorrencia: v })}>

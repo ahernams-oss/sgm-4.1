@@ -510,7 +510,7 @@ const MedicoesServicos = () => {
 
               {/* Itens de serviço */}
               <div>
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                   <Label className="text-sm font-semibold">Itens de Serviço</Label>
                   {!ordemCompraId && (
                     <Button type="button" variant="outline" size="sm" onClick={addItem}>
@@ -787,7 +787,7 @@ const MedicoesServicos = () => {
           <Dialog open onOpenChange={() => setDetailId(null)}>
             <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <DialogTitle>Medição #{detailMedicao.numero} — {detailMedicao.descricao}</DialogTitle>
                   {(detailMedicao as any).fornecedor_nome && (
                     <p className="text-sm text-muted-foreground">Fornecedor: <span className="font-medium text-foreground">{(detailMedicao as any).fornecedor_nome}</span></p>
@@ -804,7 +804,7 @@ const MedicoesServicos = () => {
                 </div>
               </DialogHeader>
               <div className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   <div><span className="text-muted-foreground">Cliente:</span> <strong>{detailMedicao.cliente_nome}</strong></div>
                   <div><span className="text-muted-foreground">Contrato:</span> <strong>{detailMedicao.contrato}</strong></div>
                   <div><span className="text-muted-foreground">Valor Contratado:</span> <strong>{fmt(detailMedicao.valor_total_contratado)}</strong></div>

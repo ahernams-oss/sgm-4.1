@@ -174,7 +174,7 @@ export default function RelatorioClienteFornecedorDialog({ open, onOpenChange, t
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
               <Label className="text-sm font-medium">Campos do relatório ({camposSel.length})</Label>
               <div className="flex gap-2">
                 <Button type="button" variant="ghost" size="sm" onClick={() => setCamposSel(CAMPOS.map(c => c.key))}>Marcar todos</Button>
@@ -198,7 +198,7 @@ export default function RelatorioClienteFornecedorDialog({ open, onOpenChange, t
                           {grupo}
                         </Label>
                       </div>
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-1 pl-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 pl-6">
                         {itens.map(c => (
                           <div key={c.key} className="flex items-center gap-2">
                             <Checkbox

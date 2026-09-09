@@ -13,13 +13,13 @@ const items = [
 export default function PortalCandHome() {
   return (
     <PortalLayout requireTipo="candidato">
-      <h1 className="text-2xl font-semibold mb-2">Processo de Admissão</h1>
+      <h1 className="text-xl sm:text-2xl font-semibold mb-2">Processo de Admissão</h1>
       <p className="text-sm text-muted-foreground mb-6">Complete cada etapa abaixo. O RH será notificado a cada envio.</p>
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
         {items.map(({ to, label, icon: Icon }) => (
           <Link key={to} to={to}>
             <Card className="hover:shadow-md transition">
-              <CardContent className="p-6 flex items-center gap-4">
+              <CardContent className="p-4 sm:p-6 flex items-center gap-4">
                 <div className="w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                   <Icon className="w-6 h-6" />
                 </div>

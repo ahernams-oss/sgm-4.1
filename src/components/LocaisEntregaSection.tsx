@@ -76,7 +76,7 @@ export default function LocaisEntregaSection({ locais, onChange, clienteNome }: 
 
   return (
     <div className="section-card animate-fade-up mt-6">
-      <button type="button" onClick={() => setOpen(!open)} className="flex items-center justify-between w-full">
+      <button type="button" onClick={() => setOpen(!open)} className="flex flex-wrap items-center justify-between gap-2 w-full">
         <h2 className="section-title mb-0 flex items-center gap-2">
           <MapPin className="h-4 w-4" />
           Locais de Entrega — {clienteNome}
@@ -148,7 +148,7 @@ export default function LocaisEntregaSection({ locais, onChange, clienteNome }: 
             <div className="divide-y divide-border">
               {locais.map(l => (
                 <div key={l.id} className="py-3 flex items-start justify-between gap-4">
-                  <div className="min-w-0 flex-1 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-sm">
+                  <div className="min-w-0 flex-1 grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-sm">
                     <p className="font-medium text-foreground">{l.local}</p>
                     <p className="text-muted-foreground truncate">{l.logradouro ? `${l.logradouro}, ${l.numero}` : "—"}</p>
                     <p className="text-muted-foreground truncate">{l.bairro || "—"}</p>

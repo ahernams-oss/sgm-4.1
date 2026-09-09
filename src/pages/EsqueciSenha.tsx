@@ -47,7 +47,7 @@ const EsqueciSenha = () => {
           </p>
         </div>
 
-        <div className="bg-card border border-border rounded-xl shadow-sm p-6 space-y-4">
+        <div className="bg-card border border-border rounded-xl shadow-sm p-4 sm:p-6 space-y-4">
           {enviado ? (
             <div className="space-y-4 text-center py-2">
               <div className="mx-auto h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">

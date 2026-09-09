@@ -24,7 +24,7 @@ export default function DashboardHeader({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-primary via-primary/90 to-indigo-700 p-6 md:p-8 text-primary-foreground shadow-lg",
+        "relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-primary via-primary/90 to-indigo-700 p-4 sm:p-6 md:p-8 text-primary-foreground shadow-lg",
         className,
       )}
     >
@@ -38,7 +38,7 @@ export default function DashboardHeader({
               <span className="text-[11px] font-semibold uppercase tracking-wider">{badge}</span>
             </div>
           )}
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{title}</h1>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight">{title}</h1>
           {description && (
             <p className="text-sm md:text-base text-primary-foreground/85 mt-1.5 max-w-2xl">{description}</p>
           )}

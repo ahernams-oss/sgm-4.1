@@ -310,7 +310,7 @@ export default function RelatoriosGerenciais() {
       <div className="flex items-center gap-3">
         <BarChart3 className="h-7 w-7 text-primary" />
         <div>
-          <h1 className="text-2xl font-serif font-semibold">Relatórios Gerenciais</h1>
+          <h1 className="text-xl sm:text-2xl font-serif font-semibold">Relatórios Gerenciais</h1>
           <p className="text-sm text-muted-foreground">
             Gere relatórios semanais, quinzenais ou mensais em PDF ou Excel.
           </p>

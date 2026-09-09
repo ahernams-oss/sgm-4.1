@@ -160,7 +160,7 @@ export default function I0Page() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-foreground">Cadastro I0</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground">Cadastro I0</h1>
         <div className="flex gap-2">
           <input
             ref={fileInputRef}
@@ -254,7 +254,7 @@ export default function I0Page() {
             <DialogTitle>{editId ? "Editar Registro" : "Novo Registro"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label>Mês *</Label>
                 <Select value={String(form.mes)} onValueChange={(v) => setForm({ ...form, mes: Number(v) })}>

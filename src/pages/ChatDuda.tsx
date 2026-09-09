@@ -161,7 +161,7 @@ export default function ChatDuda() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] max-w-4xl mx-auto">
-      <div className="flex items-center justify-between border-b p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b p-4">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-full overflow-hidden ring-2 ring-primary/20">
             <DudaAvatar className="h-10 w-10" />

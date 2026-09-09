@@ -152,7 +152,7 @@ function PlanoManutencaoContent() {
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3">
           <Wrench className="h-7 w-7 text-primary" />
-          <h1 className="text-2xl md:text-3xl font-serif font-bold">Plano de Manutenção Preventiva</h1>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-serif font-bold">Plano de Manutenção Preventiva</h1>
         </div>
         <Button variant="outline" onClick={() => setRelatorioOpen(true)} className="gap-2">
           <FileBarChart className="h-4 w-4" /> Relatórios
@@ -545,7 +545,7 @@ function PlanoDetailDialog({
                     </div>
                     <div className="space-y-1 mt-2">
                       {(atvForm.checklist || []).map(item => (
-                        <div key={item.id} className="flex items-center justify-between bg-muted/50 px-3 py-1.5 rounded">
+                        <div key={item.id} className="flex flex-wrap items-center justify-between gap-2 bg-muted/50 px-3 py-1.5 rounded">
                           <span className="text-sm">{item.descricao}</span>
                           <Button size="sm" variant="ghost" onClick={() => removeChecklistItem(item.id)}>
                             <Trash2 className="h-3 w-3 text-destructive" />
@@ -662,7 +662,7 @@ function PlanoDetailDialog({
           {execAtividade && (
             <div className="space-y-3">
               <p className="text-sm"><strong>Atividade:</strong> {execAtividade.descricao}</p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <Label>Data Execução</Label>
                   <Input type="date" value={execForm.data_execucao} onChange={e => setExecForm(p => ({ ...p, data_execucao: e.target.value }))} />

@@ -257,10 +257,10 @@ function CronogramaInner() {
     : 0;
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-3xl font-serif font-semibold">Cronograma Físico-Financeiro</h1>
+          <h1 className="text-2xl sm:text-3xl font-serif font-semibold">Cronograma Físico-Financeiro</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Planejamento e acompanhamento por obra, integrado aos RDOs.
           </p>
@@ -284,7 +284,7 @@ function CronogramaInner() {
                   s + Object.values(a.valores || {}).reduce((ss, v) => ss + (Number(v.realizado_financeiro) || 0), 0), 0);
                 const pctFin = c.valor_total > 0 ? (totalReal / c.valor_total) * 100 : 0;
                 return (
-                  <div key={c.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/30 transition">
+                  <div key={c.id} className="flex flex-wrap items-center justify-between gap-2 p-4 border rounded-lg hover:bg-muted/30 transition">
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <Badge variant="outline">Nº {c.numero}</Badge>
@@ -354,7 +354,7 @@ function CronogramaInner() {
             </TabsList>
 
             <TabsContent value="dados" className="space-y-4 pt-4">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <Label>Cliente *</Label>
                   <Select
@@ -423,7 +423,7 @@ function CronogramaInner() {
             </TabsContent>
 
             <TabsContent value="periodos" className="space-y-4 pt-4">
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 <div>
                   <Label>Início *</Label>
                   <Input type="date" value={form.data_inicio || ""} onChange={(e) => setForm((f) => ({ ...f, data_inicio: e.target.value }))} />
@@ -606,7 +606,7 @@ function CronogramaInner() {
                       </tbody>
                     </table>
                   </div>
-                  <div className="grid grid-cols-3 gap-3 mt-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
                     <Card><CardContent className="pt-4">
                       <p className="text-xs text-muted-foreground">Valor Total</p>
                       <p className="text-lg font-bold text-primary">{fmtMoney(kpiValorTotal)}</p>

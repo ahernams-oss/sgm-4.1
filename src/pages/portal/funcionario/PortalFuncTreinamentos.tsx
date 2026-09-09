@@ -66,12 +66,12 @@ export default function PortalFuncTreinamentos() {
 
   return (
     <PortalLayout requireTipo="funcionario">
-      <h1 className="text-2xl font-semibold mb-4 flex items-center gap-2">
+      <h1 className="text-xl sm:text-2xl font-semibold mb-4 flex items-center gap-2">
         <GraduationCap className="w-6 h-6" /> Treinamentos
       </h1>
       {loading && <p className="text-sm text-muted-foreground">Carregando...</p>}
       {!loading && list.length === 0 && (
-        <Card><CardContent className="p-6 text-center text-muted-foreground">Nenhum treinamento registrado.</CardContent></Card>
+        <Card><CardContent className="p-4 sm:p-6 text-center text-muted-foreground">Nenhum treinamento registrado.</CardContent></Card>
       )}
       <div className="space-y-2">
         {list.map((t) => (

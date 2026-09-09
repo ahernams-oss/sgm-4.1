@@ -218,10 +218,10 @@ export default function BimPage() {
   };
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 p-4 sm:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-3xl font-serif font-semibold flex items-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-serif font-semibold flex items-center gap-2">
             <Box className="h-7 w-7 text-primary" />
             BIM - Building Information Modeling
           </h1>
@@ -232,10 +232,10 @@ export default function BimPage() {
 
       {/* KPIs */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Modelos cadastrados</p><p className="text-2xl font-semibold">{modelos.length}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Aprovados</p><p className="text-2xl font-semibold text-green-700">{modelos.filter(m => m.status === "Aprovado").length}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Em revisão</p><p className="text-2xl font-semibold text-yellow-700">{modelos.filter(m => m.status === "Em Revisão").length}</p></CardContent></Card>
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Pranchas / Quantitativos</p><p className="text-2xl font-semibold">{pranchas.length} / {quantitativos.length}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Modelos cadastrados</p><p className="text-xl sm:text-2xl font-semibold">{modelos.length}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Aprovados</p><p className="text-xl sm:text-2xl font-semibold text-green-700">{modelos.filter(m => m.status === "Aprovado").length}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Em revisão</p><p className="text-xl sm:text-2xl font-semibold text-yellow-700">{modelos.filter(m => m.status === "Em Revisão").length}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">Pranchas / Quantitativos</p><p className="text-xl sm:text-2xl font-semibold">{pranchas.length} / {quantitativos.length}</p></CardContent></Card>
       </div>
 
       {/* Filtros */}
@@ -503,7 +503,7 @@ export default function BimPage() {
           <div className="grid gap-3 py-2">
             <div><Label>Categoria</Label><Input value={qForm.categoria} onChange={(e) => setQForm({ ...qForm, categoria: e.target.value })} placeholder="Ex: Paredes, Lajes, Pilares" /></div>
             <div><Label>Elemento</Label><Input value={qForm.elemento} onChange={(e) => setQForm({ ...qForm, elemento: e.target.value })} placeholder="Ex: Parede 15cm bloco cerâmico" /></div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div><Label>Quantidade</Label><Input type="number" value={qForm.quantidade} onChange={(e) => setQForm({ ...qForm, quantidade: Number(e.target.value) })} /></div>
               <div><Label>Unidade</Label>
                 <Select value={qForm.unidade} onValueChange={(v) => setQForm({ ...qForm, unidade: v })}>
@@ -528,12 +528,12 @@ export default function BimPage() {
         <DialogContent>
           <DialogHeader><DialogTitle>Nova Prancha</DialogTitle></DialogHeader>
           <div className="grid gap-3 py-2">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div><Label>Código</Label><Input value={pForm.codigo} onChange={(e) => setPForm({ ...pForm, codigo: e.target.value })} placeholder="Ex: ARQ-01" /></div>
               <div><Label>Revisão</Label><Input value={pForm.revisao} onChange={(e) => setPForm({ ...pForm, revisao: e.target.value })} /></div>
             </div>
             <div><Label>Título</Label><Input value={pForm.titulo} onChange={(e) => setPForm({ ...pForm, titulo: e.target.value })} placeholder="Ex: Planta Baixa - Pavto Térreo" /></div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div><Label>Escala</Label><Input value={pForm.escala} onChange={(e) => setPForm({ ...pForm, escala: e.target.value })} placeholder="1:50" /></div>
               <div><Label>Data Revisão</Label><Input type="date" value={pForm.data_revisao} onChange={(e) => setPForm({ ...pForm, data_revisao: e.target.value })} /></div>
             </div>

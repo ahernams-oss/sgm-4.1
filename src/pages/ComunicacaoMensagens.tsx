@@ -125,13 +125,13 @@ export default function ComunicacaoMensagens() {
 
   return (
     <div className="space-y-4 pt-[15px] pl-0 pr-[10px]">
-      <h1 className="text-2xl font-bold mx-[7px]">Mensagens</h1>
+      <h1 className="text-xl sm:text-2xl font-bold mx-[7px]">Mensagens</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-[calc(100vh-160px)]">
         {/* Sidebar de conversas */}
         <Card className="md:col-span-1 flex flex-col">
           <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <CardTitle className="text-sm">Conversas</CardTitle>
               {podeCriarConversa && (
                 <Button size="sm" onClick={() => setDialogOpen(true)}>
@@ -188,7 +188,7 @@ export default function ComunicacaoMensagens() {
           {selectedConversa && conversaAtual ? (
             <>
               <CardHeader className="pb-2 border-b">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <CardTitle className="text-sm">{getConversaLabel(conversaAtual)}</CardTitle>
                     <p className="text-[11px] text-muted-foreground">

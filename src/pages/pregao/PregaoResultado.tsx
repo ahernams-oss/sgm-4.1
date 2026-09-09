@@ -27,7 +27,7 @@ export default function PregaoResultado() {
 
   if (!pregao) {
     return (
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <Button variant="ghost" size="sm" onClick={() => nav("/compras/pregao")}><ArrowLeft className="h-4 w-4 mr-2" /> Voltar</Button>
         <p className="text-muted-foreground mt-4">Pregão não encontrado.</p>
       </div>

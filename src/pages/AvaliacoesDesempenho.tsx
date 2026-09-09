@@ -197,12 +197,12 @@ function PageInner() {
   const totaisForm = calcularTotais(form.notas);
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-3">
           <ClipboardCheck className="h-7 w-7 text-primary" />
           <div>
-            <h1 className="text-2xl font-serif font-semibold">Avaliações de Desempenho</h1>
+            <h1 className="text-xl sm:text-2xl font-serif font-semibold">Avaliações de Desempenho</h1>
             <p className="text-sm text-muted-foreground">Avaliação periódica dos funcionários — escala de 0 a 10 em 15 quesitos.</p>
           </div>
         </div>
@@ -402,7 +402,7 @@ function PageInner() {
                 ))}
               </TableBody>
             </Table>
-            <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 border-t">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-muted/30 border-t">
               <div className="text-right">
                 <div className="text-xs text-muted-foreground">Pontuação Total</div>
                 <div className="text-xl font-mono font-semibold">{totaisForm.total.toFixed(1)} / {PONTUACAO_MAXIMA}</div>
@@ -434,7 +434,7 @@ function PageInner() {
           </DialogHeader>
           {viewing && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                 <div><div className="text-muted-foreground text-xs">Funcionário</div><div className="font-medium">{funcMap[viewing.funcionarioId] || "—"}</div></div>
                 <div><div className="text-muted-foreground text-xs">Data</div><div>{viewing.dataAvaliacao ? new Date(viewing.dataAvaliacao + "T00:00:00").toLocaleDateString("pt-BR") : "—"}</div></div>
                 <div><div className="text-muted-foreground text-xs">Período</div><div>{viewing.periodoReferencia || "—"}</div></div>
@@ -451,7 +451,7 @@ function PageInner() {
                   ))}
                 </TableBody>
               </Table>
-              <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 rounded-md">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-muted/30 rounded-md">
                 <div className="text-right">
                   <div className="text-xs text-muted-foreground">Pontuação Total</div>
                   <div className="text-xl font-mono font-semibold">{viewing.pontuacaoTotal.toFixed(1)} / {PONTUACAO_MAXIMA}</div>

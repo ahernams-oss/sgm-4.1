@@ -210,7 +210,7 @@ export default function RelatorioRecebimentoEpis() {
           </DialogHeader>
           {preview && (
             <div className="space-y-3">
-              <div className={`grid gap-3 ${preview.urls.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
+              <div className={`grid gap-3 ${preview.urls.length > 1 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
                 {preview.urls.map((u, i) => {
                   const path = i === 0 ? preview.row.selfie_path : preview.row.selfie_path_2;
                   const hash = i === 0 ? preview.row.selfie_hash : preview.row.selfie_hash_2;
@@ -234,7 +234,7 @@ export default function RelatorioRecebimentoEpis() {
                   );
                 })}
               </div>
-              <div className="grid grid-cols-2 gap-2 text-sm border-t pt-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm border-t pt-3">
                 <div><span className="text-muted-foreground">Funcionário:</span> {nomeFunc(preview.row.funcionario_id)}</div>
                 <div><span className="text-muted-foreground">Confirmado em:</span> {preview.row.confirmado_em ? new Date(preview.row.confirmado_em).toLocaleString("pt-BR") : "—"}</div>
                 <div><span className="text-muted-foreground">IP:</span> {preview.row.ip || "—"}</div>

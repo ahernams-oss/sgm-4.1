@@ -79,10 +79,10 @@ export default function ResponsaveisTecnicosPage() {
   };
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-serif font-semibold">Responsáveis Técnicos</h1>
+          <h1 className="text-xl sm:text-2xl font-serif font-semibold">Responsáveis Técnicos</h1>
           <p className="text-sm text-muted-foreground">Cadastro de profissionais habilitados (CREA/CAU).</p>
         </div>
         {podeCriar && <Button onClick={openNew}><Plus className="h-4 w-4 mr-2" /> Novo Responsável</Button>}
@@ -166,7 +166,7 @@ export default function ResponsaveisTecnicosPage() {
               <Label>Nome *</Label>
               <Input value={form.nome || ""} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <Label>Título do Engenheiro *</Label>
                 <select
@@ -191,7 +191,7 @@ export default function ResponsaveisTecnicosPage() {
             <div>
               <Label>Carteira do CREA (Anexo)</Label>
               {form.carteira_crea_url ? (
-                <div className="flex items-center justify-between border rounded-md p-2 bg-muted/30">
+                <div className="flex flex-wrap items-center justify-between gap-2 border rounded-md p-2 bg-muted/30">
                   <a href={form.carteira_crea_url} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline inline-flex items-center gap-2">
                     <FileText className="h-4 w-4" /> {form.carteira_crea_nome || "Carteira anexada"}
                   </a>

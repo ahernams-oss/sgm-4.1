@@ -446,7 +446,7 @@ export default function TransferirClienteDialog({ open, onOpenChange, funcionari
 
 
           {podeAutorizar && (
-            <div className="grid grid-cols-2 gap-3 p-3 border rounded-lg bg-amber-50 dark:bg-amber-900/10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 border rounded-lg bg-amber-50 dark:bg-amber-900/10">
               <div className="col-span-2 text-xs font-semibold text-amber-700 dark:text-amber-400">🛡️ Autorização do supervisor</div>
               <div>
                 <Label className="text-xs">E-mail</Label>

@@ -960,7 +960,7 @@ export default function RelatoriosMultidimensional() {
       <div className="flex items-center gap-3">
         <Boxes className="h-7 w-7 text-primary" />
         <div>
-          <h1 className="text-2xl font-serif font-semibold">Relatórios Multidimensional (Cubo)</h1>
+          <h1 className="text-xl sm:text-2xl font-serif font-semibold">Relatórios Multidimensional (Cubo)</h1>
           <p className="text-sm text-muted-foreground">
             Arraste dimensões, combine agregações, filtre valores e explore os dados até o registro de origem.
           </p>

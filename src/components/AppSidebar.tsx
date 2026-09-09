@@ -312,7 +312,7 @@ export function AppSidebar() {
           <img src="/Logo_Lasant.png" alt="Lasant Construções" className="h-8 w-auto shrink-0 border rounded-sm bg-white object-contain" />
           {!collapsed && (
             <div className="overflow-hidden">
-              <p className="truncate text-2xl font-serif font-semibold text-sidebar-foreground leading-none mx-[6px]">SGM</p>
+              <p className="truncate text-xl sm:text-2xl font-serif font-semibold text-sidebar-foreground leading-none mx-[6px]">SGM</p>
             </div>
           )}
         </div>
@@ -330,7 +330,7 @@ export function AppSidebar() {
               <SidebarGroup>
                 {!collapsed && (
                   <CollapsibleTrigger asChild>
-                    <SidebarGroupLabel className="font-bold cursor-pointer flex items-center justify-between hover:bg-sidebar-accent/30 rounded-md transition-colors text-[hsl(225,73%,40%)]">
+                    <SidebarGroupLabel className="font-bold cursor-pointer flex flex-wrap items-center justify-between gap-2 hover:bg-sidebar-accent/30 rounded-md transition-colors text-[hsl(225,73%,40%)]">
                       <span>{group.group}</span>
                       <ChevronDown
                         className={`h-4 w-4 transition-transform ${isOpen ? "" : "-rotate-90"}`}

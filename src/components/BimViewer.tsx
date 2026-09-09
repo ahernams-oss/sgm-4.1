@@ -130,7 +130,7 @@ export default function BimViewer({ url, formato }: BimViewerProps) {
 
   if (formato.toUpperCase() !== "IFC") {
     return (
-      <div className="flex h-[500px] flex-col items-center justify-center gap-4 rounded-lg border bg-muted/30 p-6 text-center">
+      <div className="flex h-[500px] flex-col items-center justify-center gap-4 rounded-lg border bg-muted/30 p-4 sm:p-6 text-center">
         <p className="text-muted-foreground">
           O visualizador 3D nativo suporta apenas arquivos <strong>IFC</strong>.<br />
           Para o formato <strong>{formato}</strong>, faça o download do arquivo abaixo.

@@ -232,7 +232,7 @@ function PlanosTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="relative max-w-sm flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input placeholder="Buscar plano..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} className="pl-9" />
@@ -289,7 +289,7 @@ function PlanosTab() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editingId ? "Editar" : "Novo"} Plano PMOC</DialogTitle></DialogHeader>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="col-span-2"><Label>Título *</Label><Input value={form.titulo} onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))} /></div>
             <div className="col-span-2"><Label>Descrição</Label><Textarea value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} rows={2} /></div>
             <div><Label>Cliente</Label>
@@ -526,7 +526,7 @@ function PlanosTab() {
       <Dialog open={bibliotecaPicker} onOpenChange={o => { setBibliotecaPicker(o); if (!o) { setFiltroTitulo(""); setFiltroTipoEquip(""); setFiltroTipo(""); setFiltroPeriodo(""); } }}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Selecionar rotina da biblioteca</DialogTitle></DialogHeader>
-          <div className="grid grid-cols-2 gap-3 mb-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
             <div>
               <Label className="text-xs">Título</Label>
               <Input placeholder="Buscar título..." value={filtroTitulo} onChange={e => setFiltroTitulo(e.target.value)} />
@@ -699,7 +699,7 @@ function AtividadesTab() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editingId ? "Editar" : "Nova"} Atividade</DialogTitle></DialogHeader>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="col-span-2"><Label>Descrição *</Label><Input value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} /></div>
             <div><Label>Plano PMOC</Label>
               <Select value={form.plano_id} onValueChange={v => setForm(f => ({ ...f, plano_id: v }))}>
@@ -868,7 +868,7 @@ function OrdensServicoTab() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editingId ? "Editar" : "Nova"} Ordem de Serviço</DialogTitle></DialogHeader>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="col-span-2"><Label>Descrição *</Label><Input value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} /></div>
             <div><Label>Plano PMOC</Label>
               <Select value={form.plano_id} onValueChange={v => setForm(f => ({ ...f, plano_id: v }))}>
@@ -991,7 +991,7 @@ function ResponsaveisTecnicosTab() {
         </Card>
       )}
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-lg font-semibold">Responsáveis Técnicos</h3>
         <Button onClick={openNew}><Plus className="mr-2 h-4 w-4" />Novo RT</Button>
       </div>
@@ -1036,7 +1036,7 @@ function ResponsaveisTecnicosTab() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editingId ? "Editar" : "Novo"} Responsável Técnico</DialogTitle></DialogHeader>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="col-span-2"><Label>Nome *</Label><Input value={form.nome} onChange={e => setForm(f => ({ ...f, nome: e.target.value }))} /></div>
             <div><Label>Registro Profissional</Label><Input value={form.registro_profissional} onChange={e => setForm(f => ({ ...f, registro_profissional: e.target.value }))} /></div>
             <div><Label>Tipo Registro</Label>
@@ -1233,7 +1233,7 @@ function QualidadeArTab() {
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editingId ? "Editar" : "Novo"} {dialogType === "ponto" ? "Ponto de Medição" : "Medição"}</DialogTitle></DialogHeader>
           {dialogType === "ponto" ? (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="col-span-2"><Label>Descrição *</Label><Input value={pontoForm.descricao} onChange={e => setPontoForm(f => ({ ...f, descricao: e.target.value }))} /></div>
               <div><Label>Cliente</Label>
                 <Select value={pontoForm.cliente_id} onValueChange={v => setPontoForm(f => ({ ...f, cliente_id: v, local_id: "", pavimento_id: "", setor_id: "" }))}>
@@ -1268,7 +1268,7 @@ function QualidadeArTab() {
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="col-span-2"><Label>Ponto de Medição *</Label>
                 <Select value={medicaoForm.ponto_id} onValueChange={v => { const p = pontosQA.find(p => p.id === v); setMedicaoForm(f => ({ ...f, ponto_id: v, ponto_descricao: p?.descricao || "" })); }}>
                   <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
@@ -1408,7 +1408,7 @@ function InconformidadesTab() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editingId ? "Editar" : "Nova"} Inconformidade</DialogTitle></DialogHeader>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="col-span-2"><Label>Descrição *</Label><Textarea value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} rows={2} /></div>
             <div><Label>Gravidade</Label>
               <Select value={form.gravidade} onValueChange={v => setForm(f => ({ ...f, gravidade: v }))}>
@@ -1503,7 +1503,7 @@ function BibliotecaTab() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader><DialogTitle>{editingId ? "Editar" : "Nova"} Rotina</DialogTitle></DialogHeader>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="col-span-2"><Label>Título *</Label><Input value={form.titulo} onChange={e => setForm(f => ({ ...f, titulo: e.target.value }))} /></div>
             <div><Label>Tipo Equipamento</Label><Input value={form.tipo_equipamento} onChange={e => setForm(f => ({ ...f, tipo_equipamento: e.target.value }))} placeholder="Ex: Split, VRF..." /></div>
             <div><Label>Tipo Atividade</Label>
@@ -1611,19 +1611,19 @@ function DashboardTab() {
       </div>
 
       {/* KPI Cards Row 1 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Planos Ativos</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{planosAtivos}</p></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Atividades Programadas</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{totalAtividades}</p></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">PMOC Executado</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{percentualExec}%</p></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">RTs Cadastrados</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{responsaveisTecnicos.length}</p></CardContent></Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Planos Ativos</CardTitle></CardHeader><CardContent><p className="text-xl sm:text-2xl font-bold">{planosAtivos}</p></CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Atividades Programadas</CardTitle></CardHeader><CardContent><p className="text-xl sm:text-2xl font-bold">{totalAtividades}</p></CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">PMOC Executado</CardTitle></CardHeader><CardContent><p className="text-xl sm:text-2xl font-bold">{percentualExec}%</p></CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">RTs Cadastrados</CardTitle></CardHeader><CardContent><p className="text-xl sm:text-2xl font-bold">{responsaveisTecnicos.length}</p></CardContent></Card>
       </div>
 
       {/* KPI Cards Row 2 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-blue-200 dark:border-blue-800"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-1"><Wrench className="h-4 w-4" />OS Abertas</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold text-blue-600">{osAbertas}</p></CardContent></Card>
-        <Card className="border-amber-200 dark:border-amber-800"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-1"><Activity className="h-4 w-4" />OS em Execução</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold text-amber-600">{osExecucao}</p></CardContent></Card>
-        <Card className="border-green-200 dark:border-green-800"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-1"><ShieldCheck className="h-4 w-4" />OS Concluídas</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold text-green-600">{osConcluidas}</p></CardContent></Card>
-        <Card className={osVencidas > 0 ? "border-red-500 bg-red-50 dark:bg-red-950/20" : ""}><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-1"><AlertTriangle className="h-4 w-4" />OS Vencidas</CardTitle></CardHeader><CardContent><p className={`text-2xl font-bold ${osVencidas > 0 ? "text-red-600" : ""}`}>{osVencidas}</p></CardContent></Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <Card className="border-blue-200 dark:border-blue-800"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-1"><Wrench className="h-4 w-4" />OS Abertas</CardTitle></CardHeader><CardContent><p className="text-xl sm:text-2xl font-bold text-blue-600">{osAbertas}</p></CardContent></Card>
+        <Card className="border-amber-200 dark:border-amber-800"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-1"><Activity className="h-4 w-4" />OS em Execução</CardTitle></CardHeader><CardContent><p className="text-xl sm:text-2xl font-bold text-amber-600">{osExecucao}</p></CardContent></Card>
+        <Card className="border-green-200 dark:border-green-800"><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-1"><ShieldCheck className="h-4 w-4" />OS Concluídas</CardTitle></CardHeader><CardContent><p className="text-xl sm:text-2xl font-bold text-green-600">{osConcluidas}</p></CardContent></Card>
+        <Card className={osVencidas > 0 ? "border-red-500 bg-red-50 dark:bg-red-950/20" : ""}><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground flex items-center gap-1"><AlertTriangle className="h-4 w-4" />OS Vencidas</CardTitle></CardHeader><CardContent><p className={`text-xl sm:text-2xl font-bold ${osVencidas > 0 ? "text-red-600" : ""}`}>{osVencidas}</p></CardContent></Card>
       </div>
 
       {/* Charts */}
@@ -1666,11 +1666,11 @@ function DashboardTab() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card className={incAbertas > 0 ? "border-amber-500" : ""}>
           <CardHeader className="pb-2"><CardTitle className="text-sm flex items-center gap-2"><AlertTriangle className="h-4 w-4" />Inconformidades Abertas</CardTitle></CardHeader>
-          <CardContent><p className="text-3xl font-bold">{incAbertas}</p></CardContent>
+          <CardContent><p className="text-2xl sm:text-3xl font-bold">{incAbertas}</p></CardContent>
         </Card>
         <Card className={medNaoConformes > 0 ? "border-red-500" : ""}>
           <CardHeader className="pb-2"><CardTitle className="text-sm flex items-center gap-2"><ThermometerSun className="h-4 w-4" />Medições Não Conformes (QAI)</CardTitle></CardHeader>
-          <CardContent><p className="text-3xl font-bold">{medNaoConformes}</p></CardContent>
+          <CardContent><p className="text-2xl sm:text-3xl font-bold">{medNaoConformes}</p></CardContent>
         </Card>
       </div>
     </div>
@@ -1720,7 +1720,7 @@ export default function PmocPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">PMOC</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground">PMOC</h1>
         <p className="text-sm text-muted-foreground">Plano de Manutenção, Operação e Controle — gestão completa por cliente e contrato.</p>
       </div>
 

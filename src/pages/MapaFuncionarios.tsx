@@ -396,7 +396,7 @@ const MapaFuncionarios = () => {
             <CalendarClock className="h-4 w-4" />
             <span className="text-xs font-medium uppercase tracking-wider">Gestão de Pessoas</span>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h1 className="text-xl font-bold text-foreground mb-1">Mapa de Funcionários</h1>
               <p className="text-sm text-muted-foreground max-w-lg">
@@ -442,39 +442,39 @@ const MapaFuncionarios = () => {
         </div>
 
         {/* Resumo cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6 animate-fade-up" style={{ animationDelay: "50ms" }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6 animate-fade-up" style={{ animationDelay: "50ms" }}>
           <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
             <p className="text-xs text-muted-foreground mb-1">Total Faltas (mês)</p>
-            <p className="text-2xl font-bold text-foreground">{resumoMes.totalFaltas}</p>
+            <p className="text-xl sm:text-2xl font-bold text-foreground">{resumoMes.totalFaltas}</p>
             <p className="text-xs text-muted-foreground">{resumoMes.funcionariosComFalta} funcionário(s)</p>
           </div>
           <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
             <p className="text-xs text-muted-foreground mb-1">Faltas Injustificadas</p>
-            <p className="text-2xl font-bold text-destructive">{resumoMes.totalFaltasInjustificadas}</p>
+            <p className="text-xl sm:text-2xl font-bold text-destructive">{resumoMes.totalFaltasInjustificadas}</p>
           </div>
           <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
             <p className="text-xs text-muted-foreground mb-1">Faltas Justificadas</p>
-            <p className="text-2xl font-bold text-foreground">{resumoMes.totalFaltasJustificadas}</p>
+            <p className="text-xl sm:text-2xl font-bold text-foreground">{resumoMes.totalFaltasJustificadas}</p>
           </div>
           <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
             <p className="text-xs text-muted-foreground mb-1">Suspensões</p>
-            <p className="text-2xl font-bold text-foreground">{resumoMes.totalFaltasSuspensao}</p>
+            <p className="text-xl sm:text-2xl font-bold text-foreground">{resumoMes.totalFaltasSuspensao}</p>
           </div>
           <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
             <p className="text-xs text-muted-foreground mb-1">Horas Extras (mês)</p>
-            <p className="text-2xl font-bold text-primary">{resumoMes.totalHorasExtras.toFixed(1)}h</p>
+            <p className="text-xl sm:text-2xl font-bold text-primary">{resumoMes.totalHorasExtras.toFixed(1)}h</p>
             <p className="text-xs text-muted-foreground">{resumoMes.funcionariosComHE} funcionário(s)</p>
           </div>
           <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
             <p className="text-xs text-muted-foreground mb-1">Advertências (mês)</p>
-            <p className="text-2xl font-bold text-orange-600">{resumoMes.totalAdvertencias}</p>
+            <p className="text-xl sm:text-2xl font-bold text-orange-600">{resumoMes.totalAdvertencias}</p>
             <p className="text-xs text-muted-foreground">{resumoMes.funcionariosComAdvertencia} funcionário(s)</p>
           </div>
         </div>
 
         {/* Formulário */}
         {showForm && (
-          <form onSubmit={handleSubmit} className="mb-8 rounded-xl border border-border bg-card p-6 shadow-sm animate-fade-up">
+          <form onSubmit={handleSubmit} className="mb-8 rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm animate-fade-up">
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "faltas" | "horas_extras" | "advertencias" | "atestados")} className="w-full">
               <TabsList className="mb-6">
                 <TabsTrigger value="faltas" className="gap-1.5">
@@ -615,7 +615,7 @@ const MapaFuncionarios = () => {
 
                 <TabsContent value="advertencias" className="mt-0 p-0">
                   <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
                         <Label className="text-xs font-semibold text-foreground/80">Tipo de Advertência</Label>
                         <Select value={tipoAdvertencia} onValueChange={(v) => setTipoAdvertencia(v as TipoAdvertencia)}>
@@ -719,7 +719,7 @@ const MapaFuncionarios = () => {
 
         {/* Tabela de lançamentos */}
         <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-border bg-muted/30">
+          <div className="px-4 sm:px-6 py-4 border-b border-border bg-muted/30">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "faltas" | "horas_extras" | "advertencias" | "atestados")}>
@@ -772,7 +772,7 @@ const MapaFuncionarios = () => {
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-3" align="start">
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
                         <span className="text-xs font-semibold">Intervalo personalizado</span>
                         {useCustomRange && (
                           <button type="button" onClick={() => { setDateFrom(undefined); setDateTo(undefined); setPageLanc(1); }} className="text-xs text-primary hover:underline">
@@ -880,7 +880,7 @@ const MapaFuncionarios = () => {
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-52 p-2" align="start">
-                        <div className="flex items-center justify-between px-1 pb-1.5 mb-1 border-b">
+                        <div className="flex flex-wrap items-center justify-between gap-2 px-1 pb-1.5 mb-1 border-b">
                           <span className="text-xs font-semibold">Tipo</span>
                           {filterTipos.length > 0 && (
                             <button type="button" onClick={() => { setFilterTipos([]); setPageLanc(1); }} className="text-xs text-primary hover:underline">

@@ -1303,8 +1303,8 @@ export default function OrdensServicoPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold flex items-center gap-2 mx-[20px] my-[5px]">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2 mx-[20px] my-[5px]">
           <Wrench className="h-6 w-6" /> Ordem de Serviço
         </h1>
         <div className="flex items-center gap-2 mx-[24px] my-[2px]">
@@ -1781,7 +1781,7 @@ export default function OrdensServicoPage() {
 
       {temFiltrosAtivos && (
         <Card className="border-primary/30 bg-primary/5">
-          <CardContent className="flex items-center justify-between py-4 px-6">
+          <CardContent className="flex flex-wrap items-center justify-between gap-2 py-4 px-4 sm:px-6">
             <div className="flex items-center gap-3">
               <BadgeCheck className="h-5 w-5 text-primary" />
               <span className="text-sm font-medium text-muted-foreground">
@@ -1800,7 +1800,7 @@ export default function OrdensServicoPage() {
 
       {vtmInfo && (
         <Card className="border-primary/30">
-          <CardContent className="py-4 px-6 space-y-4">
+          <CardContent className="py-4 px-4 sm:px-6 space-y-4">
             <div className="text-sm font-semibold text-muted-foreground">
               Saldo VTM — {vtmInfo.clienteNome}
             </div>
@@ -1922,7 +1922,7 @@ export default function OrdensServicoPage() {
             </div>
 
             {/* Datas e prioridade */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <Label>Data de Início</Label>
                 <Input type="date" value={dataInicio} onChange={e => setDataInicio(e.target.value)} />
@@ -2039,7 +2039,7 @@ export default function OrdensServicoPage() {
             {/* Resumo de Valores com BDI */}
             {clienteId && (
               <div className="bg-muted/30 border rounded-lg p-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   <div>
                     <p className="text-xs text-muted-foreground">Valor dos Itens (SCO + Estoque)</p>
                     <p className="font-bold text-base">
@@ -2423,7 +2423,7 @@ export default function OrdensServicoPage() {
                     />
                   )}
                   {fotos.length > 0 && (
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                       {fotos.map(f => (
                         <div key={f.id} className="relative group">
                           <img src={f.url} alt="Foto" className="w-full h-24 object-cover rounded" />
@@ -2523,7 +2523,7 @@ export default function OrdensServicoPage() {
           </DialogHeader>
           {viewOS && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <p className="text-xs text-muted-foreground">Nº OS</p>
                   <p className="font-bold text-lg">{formatNumeroAno(viewOS.numero, viewOS.createdAt)}</p>
@@ -2606,7 +2606,7 @@ export default function OrdensServicoPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <p className="text-xs text-muted-foreground">Solicitante</p>
                   <p>{viewOS.solicitante || "-"}</p>
@@ -2625,7 +2625,7 @@ export default function OrdensServicoPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-muted/30 rounded p-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 bg-muted/30 rounded p-3">
                 <div>
                   <p className="text-xs text-muted-foreground">Data Início</p>
                   <p>{viewOS.dataInicio ? viewOS.dataInicio.split("-").reverse().join("/") : "-"}</p>
@@ -2725,7 +2725,7 @@ export default function OrdensServicoPage() {
                       ) : (
                         <ul className="space-y-2">
                           {anexosView.map((a: any) => (
-                            <li key={a.id} className="flex items-center justify-between border rounded p-2 text-sm">
+                            <li key={a.id} className="flex flex-wrap items-center justify-between gap-2 border rounded p-2 text-sm">
                               <span>{a.titulo || "Anexo"}</span>
                               <a href={a.url} target="_blank" rel="noopener noreferrer" className="text-primary underline text-xs">
                                 Abrir
@@ -2739,7 +2739,7 @@ export default function OrdensServicoPage() {
                       {fotosView.length === 0 ? (
                         <p className="text-sm text-muted-foreground">Nenhuma foto.</p>
                       ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                           {fotosView.map((f: any) => (
                             <a key={f.id} href={f.url} target="_blank" rel="noopener noreferrer" className="block border rounded overflow-hidden">
                               <img src={f.url} alt="Foto da ordem de serviço" loading="lazy" className="w-full h-40 object-cover" />
@@ -2780,7 +2780,7 @@ export default function OrdensServicoPage() {
                 const valorTotal = totalItens + valorBDI;
                 return totalItens > 0 ? (
                   <div className="bg-muted/30 border rounded-lg p-4">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
                         <p className="text-xs text-muted-foreground">Valor dos Itens</p>
                         <p className="font-bold">{totalItens.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p>
@@ -3171,7 +3171,7 @@ export default function OrdensServicoPage() {
             ];
             return (
               <div className="space-y-6 py-2">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label className="text-xs text-muted-foreground">Data/Hora</Label>
                     <p className="text-sm font-medium">
@@ -3206,7 +3206,7 @@ export default function OrdensServicoPage() {
 
                 <div className="border-t pt-4">
                   <h4 className="text-sm font-semibold mb-3 text-muted-foreground">Localização</h4>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <Label className="text-xs text-muted-foreground">Cliente</Label>
                       <p className="text-sm font-medium">{viewSSTarget.clienteNome || "-"}</p>
@@ -3253,7 +3253,7 @@ export default function OrdensServicoPage() {
                 {orc && (
                   <div className="border-t pt-4">
                     <h4 className="text-sm font-semibold mb-3 text-muted-foreground">Orçamento nº {(orc as any).numero}</h4>
-                    <div className="grid grid-cols-2 gap-4 mb-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
                       <div>
                         <Label className="text-xs text-muted-foreground">Status</Label>
                         <Badge variant="outline" className="mt-1">{(orc as any).status}</Badge>

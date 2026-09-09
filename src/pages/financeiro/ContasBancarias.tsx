@@ -38,9 +38,9 @@ export default function ContasBancarias() {
   const totalSaldo = useMemo(() => contasBancarias.reduce((s, c) => s + saldoConta(c.id), 0), [contasBancarias, saldoConta]);
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-serif font-semibold">Contas Bancárias / Caixas</h1>
+    <div className="p-4 sm:p-6 space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-xl sm:text-2xl font-serif font-semibold">Contas Bancárias / Caixas</h1>
         {podeTransferir && <Button variant="outline" onClick={() => setTransfOpen(true)}><ArrowLeftRight className="h-4 w-4 mr-2" />Transferir</Button>}
       </div>
 

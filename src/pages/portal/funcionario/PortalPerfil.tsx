@@ -28,7 +28,7 @@ export default function PortalPerfil() {
 
   return (
     <PortalLayout requireTipo="funcionario">
-      <h1 className="text-2xl font-semibold mb-4">Perfil</h1>
+      <h1 className="text-xl sm:text-2xl font-semibold mb-4">Perfil</h1>
       <Card>
         <CardHeader><CardTitle>Alterar Senha</CardTitle></CardHeader>
         <CardContent>

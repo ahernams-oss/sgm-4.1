@@ -201,13 +201,13 @@ export default function FaturarLoteOs() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-3">
           <div className="bg-primary/10 p-2.5 rounded-xl">
             <Receipt className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Faturar OS em Lote</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Faturar OS em Lote</h1>
             <p className="text-sm text-muted-foreground">
               Somente Ordens de Serviço com status "Validada" podem ser faturadas
             </p>

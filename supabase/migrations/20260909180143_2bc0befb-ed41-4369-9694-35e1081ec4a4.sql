@@ -1,0 +1,1 @@
+DROP FUNCTION IF EXISTS public.sgm_exec_sql(text);

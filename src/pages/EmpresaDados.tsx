@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, createContext, useContext } from "react";
 import { useEmpresa, Empresa } from "@/contexts/EmpresaContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,8 +10,34 @@ import { Building2, Upload, Save, MapPin, Phone, Mail, Globe, Trash2, Landmark, 
 import { usePermissao } from "@/hooks/usePermissao";
 import { supabase } from "@/integrations/supabase/client";
 
+type FormCtx = {
+  form: Empresa;
+  update: (field: keyof Empresa, value: string) => void;
+};
+const FormContext = createContext<FormCtx | null>(null);
+
+function Field({ label, field, placeholder, icon: Icon }: {
+  label: string; field: keyof Empresa; placeholder?: string; icon?: any;
+}) {
+  const ctx = useContext(FormContext)!;
+  return (
+    <div className="space-y-1.5">
+      <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
+      <div className="relative">
+        {Icon && <Icon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />}
+        <Input
+          value={(ctx.form[field] as string) ?? ""}
+          onChange={(e) => ctx.update(field, e.target.value)}
+          placeholder={placeholder}
+          className={Icon ? "pl-9" : ""}
+        />
+      </div>
+    </div>
+  );
+}
 
 export default function EmpresaDados() {
+
   const { empresa, loading, saveEmpresa, uploadLogo, uploadCertificadoA1, removerCertificadoA1 } = useEmpresa();
   const { toast } = useToast();
   const { tem } = usePermissao();

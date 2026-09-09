@@ -77,7 +77,7 @@ export default function PortalCandDocumentos() {
 
   return (
     <PortalLayout requireTipo="candidato">
-      <h1 className="text-2xl font-semibold mb-4">Envio de Documentos</h1>
+      <h1 className="text-xl sm:text-2xl font-semibold mb-4">Envio de Documentos</h1>
       <Card className="mb-4">
         <CardHeader><CardTitle>Adicionar documentos</CardTitle></CardHeader>
         <CardContent className="space-y-4">
@@ -170,7 +170,7 @@ export default function PortalCandDocumentos() {
           {docs.length === 0 && <p className="text-sm text-muted-foreground">Nenhum documento enviado.</p>}
           <div className="space-y-2">
             {docs.map((d) => (
-              <div key={d.id} className="flex items-center justify-between border-b pb-2">
+              <div key={d.id} className="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
                 <div>
                   <div className="text-sm font-medium">{d.tipo_documento}</div>
                   <div className="text-xs text-muted-foreground">{d.nome_arquivo} • {new Date(d.enviado_em).toLocaleString("pt-BR")}</div>

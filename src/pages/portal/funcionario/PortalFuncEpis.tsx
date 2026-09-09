@@ -74,7 +74,7 @@ export default function PortalFuncEpis() {
           <HardHat className="h-6 w-6 text-primary" />
         </div>
         <div>
-          <h1 className="text-2xl font-semibold">Meus EPIs</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold">Meus EPIs</h1>
           <p className="text-sm text-muted-foreground">Equipamentos de Proteção Individual recebidos e pendentes</p>
         </div>
       </div>

@@ -136,7 +136,7 @@ export default function RelatorioSaldosContratoDialog({ open, onOpenChange }: Pr
             </Select>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label>Período de (mês)</Label>
               <Input type="month" value={periodoInicio.slice(0, 7)} onChange={(e) => setPeriodoInicio(e.target.value + "-01")} />
@@ -147,7 +147,7 @@ export default function RelatorioSaldosContratoDialog({ open, onOpenChange }: Pr
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label>Previsto Mensal - M.O. Fixa</Label>
               <Input value={prevFolha} onChange={(e) => setPrevFolha(e.target.value)} placeholder="0,00" />

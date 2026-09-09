@@ -319,8 +319,8 @@ export default function VerificarAssinatura() {
   return (
     <div className="min-h-screen bg-muted/30 py-8 px-4">
       <div className="max-w-3xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-serif font-semibold flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h1 className="text-xl sm:text-2xl font-serif font-semibold flex items-center gap-2">
             <FileSignature className="h-6 w-6 text-primary" />
             Verificação de Assinatura Eletrônica
           </h1>

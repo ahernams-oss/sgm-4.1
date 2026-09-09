@@ -141,29 +141,29 @@ function DashboardFornecedor({ pedidos, convites, loading }: { pedidos: PedidoRo
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 text-xs text-muted-foreground"><Clock className="h-3.5 w-3.5" />Em andamento</div>
-            <p className="text-2xl font-semibold mt-1">{emAndamento.length}</p>
+            <p className="text-xl sm:text-2xl font-semibold mt-1">{emAndamento.length}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 text-xs text-muted-foreground"><CheckCircle2 className="h-3.5 w-3.5" />Entregues</div>
-            <p className="text-2xl font-semibold mt-1 text-green-600">{entregues.length}</p>
+            <p className="text-xl sm:text-2xl font-semibold mt-1 text-green-600">{entregues.length}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 text-xs text-muted-foreground"><XCircle className="h-3.5 w-3.5" />Cancelados</div>
-            <p className="text-2xl font-semibold mt-1 text-destructive">{cancelados.length}</p>
+            <p className="text-xl sm:text-2xl font-semibold mt-1 text-destructive">{cancelados.length}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">Valor total</div>
-            <p className="text-2xl font-semibold mt-1 text-primary">{fmtMoney(valorTotal)}</p>
+            <p className="text-xl sm:text-2xl font-semibold mt-1 text-primary">{fmtMoney(valorTotal)}</p>
           </CardContent>
         </Card>
       </div>
@@ -181,7 +181,7 @@ function DashboardFornecedor({ pedidos, convites, loading }: { pedidos: PedidoRo
               const pct = pedidos.length > 0 ? Math.round((s.qtd / pedidos.length) * 100) : 0;
               return (
                 <div key={s.status} className="border rounded-lg p-3">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2 text-sm font-medium">
                       <Icon className="h-4 w-4" style={{ color }} />
                       {s.status}
@@ -733,7 +733,7 @@ function Dashboard({ session, onLogout }: { session: FornecedorSession; onLogout
   return (
     <div className="min-h-screen bg-muted/30">
       <header className="bg-background border-b">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             <img src={logoLasant} alt="Lasant Construções" className="h-10 object-contain" />
             <div>
@@ -757,25 +757,25 @@ function Dashboard({ session, onLogout }: { session: FornecedorSession; onLogout
           <Card>
             <CardContent className="pt-6">
               <p className="text-xs text-muted-foreground">Cotações pendentes</p>
-              <p className="text-3xl font-semibold text-primary">{pendentes.length}</p>
+              <p className="text-2xl sm:text-3xl font-semibold text-primary">{pendentes.length}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
               <p className="text-xs text-muted-foreground">Total de cotações</p>
-              <p className="text-3xl font-semibold">{convites.length}</p>
+              <p className="text-2xl sm:text-3xl font-semibold">{convites.length}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
               <p className="text-xs text-muted-foreground">Pedidos de compra</p>
-              <p className="text-3xl font-semibold">{pedidos.length}</p>
+              <p className="text-2xl sm:text-3xl font-semibold">{pedidos.length}</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
               <p className="text-xs text-muted-foreground">Pregões disponíveis</p>
-              <p className="text-3xl font-semibold text-primary">{pregoes.length}</p>
+              <p className="text-2xl sm:text-3xl font-semibold text-primary">{pregoes.length}</p>
             </CardContent>
           </Card>
         </div>

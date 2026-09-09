@@ -75,7 +75,7 @@ const statusColor = (label: string): { dot: string; text: string; bar: string } 
 const StatusPill = ({ label, count }: { label: string; count: number }) => {
   const c = statusColor(label);
   return (
-    <div className="group relative flex items-center justify-between overflow-hidden rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 backdrop-blur-sm transition-all hover:border-white/25 hover:bg-white/[0.08]">
+    <div className="group relative flex flex-wrap items-center justify-between gap-2 overflow-hidden rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 backdrop-blur-sm transition-all hover:border-white/25 hover:bg-white/[0.08]">
       <div
         className={`pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r ${c.bar} opacity-60`}
       />
@@ -108,7 +108,7 @@ const KpiBox = ({
   return (
     <div className={`relative overflow-hidden rounded-xl border bg-gradient-to-br ${accents[accent]} px-4 py-3 backdrop-blur`}>
       <div className="text-[10px] font-semibold uppercase tracking-widest text-white/70">{label}</div>
-      <div className="mt-1 text-2xl font-black tracking-tight text-white drop-shadow">{value}</div>
+      <div className="mt-1 text-xl sm:text-2xl font-black tracking-tight text-white drop-shadow">{value}</div>
       {sub && <div className="mt-0.5 text-xs font-medium text-white/60">{sub}</div>}
     </div>
   );
@@ -387,7 +387,7 @@ const MonitorTV = () => {
       />
 
       {/* Header */}
-      <div className="relative z-10 mb-4 flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3 backdrop-blur-xl">
+      <div className="relative z-10 mb-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3 backdrop-blur-xl">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-600 shadow-lg shadow-violet-500/50">
@@ -441,7 +441,7 @@ const MonitorTV = () => {
 
         <div className="flex items-center gap-3">
           <div className="rounded-xl border border-white/10 bg-black/30 px-4 py-2 text-right">
-            <div className="text-2xl font-black tabular-nums leading-none text-white">
+            <div className="text-xl sm:text-2xl font-black tabular-nums leading-none text-white">
               {now.toLocaleTimeString("pt-BR")}
             </div>
             <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-widest text-white/50">
@@ -513,7 +513,7 @@ const MonitorTV = () => {
       </div>
 
       {/* Grid 2x2 */}
-      <div className="relative z-10 grid h-[calc(100vh-110px)] grid-cols-2 grid-rows-2 gap-4">
+      <div className="relative z-10 grid h-[calc(100vh-110px)] grid-cols-1 sm:grid-cols-2 grid-rows-2 gap-4">
         {/* Q1 - SS + OS */}
         <Quadrant
           title="Solicitações & Ordens de Serviço"
@@ -521,13 +521,13 @@ const MonitorTV = () => {
           badge={clienteAtual ? clienteAtual.nome : "—"}
           accent="violet"
         >
-          <div className="grid h-full grid-cols-2 gap-4">
+          <div className="grid h-full grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col">
               <div className="mb-3 flex items-baseline justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-widest text-white/60">
                   Solicitações
                 </span>
-                <span className="text-3xl font-black tabular-nums text-white">{ssCliente.length}</span>
+                <span className="text-2xl sm:text-3xl font-black tabular-nums text-white">{ssCliente.length}</span>
               </div>
               <div className="flex-1 space-y-2 overflow-auto pr-1">
                 {Object.keys(ssStatus).length === 0 ? (
@@ -568,13 +568,13 @@ const MonitorTV = () => {
           badge={`${clienteAtual?.nome ?? "—"} + Geral`}
           accent="emerald"
         >
-          <div className="grid h-full grid-cols-2 gap-4">
+          <div className="grid h-full grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col">
               <div className="mb-3 flex items-baseline justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-widest text-white/60">
                   RCS deste cliente
                 </span>
-                <span className="text-3xl font-black tabular-nums text-white">{rcsCliente.length}</span>
+                <span className="text-2xl sm:text-3xl font-black tabular-nums text-white">{rcsCliente.length}</span>
               </div>
               <div className="flex-1 space-y-2 overflow-auto pr-1">
                 {Object.keys(rcsStatus).length === 0 ? (
@@ -590,7 +590,7 @@ const MonitorTV = () => {
               <div className="mb-3 text-[11px] font-bold uppercase tracking-widest text-white/60">
                 Consolidado Geral
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <KpiBox label="RCS abertas" value={rcsConsolidado.length} accent="emerald" />
                 <KpiBox
                   label="Pedidos"
@@ -620,13 +620,13 @@ const MonitorTV = () => {
           badge={`${clienteAtual?.nome ?? "—"} + Geral`}
           accent="amber"
         >
-          <div className="grid h-full grid-cols-2 gap-4">
+          <div className="grid h-full grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col">
               <div className="mb-3 flex items-baseline justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-widest text-white/60">
                   Por unidade/cliente
                 </span>
-                <span className="text-3xl font-black tabular-nums text-white">{rpsCliente.length}</span>
+                <span className="text-2xl sm:text-3xl font-black tabular-nums text-white">{rpsCliente.length}</span>
               </div>
               <div className="flex-1 space-y-2 overflow-auto pr-1">
                 {Object.keys(rpsStatus).length === 0 ? (
@@ -643,7 +643,7 @@ const MonitorTV = () => {
                 <span className="text-[11px] font-bold uppercase tracking-widest text-white/60">
                   Consolidado
                 </span>
-                <span className="text-3xl font-black tabular-nums text-amber-300">{rpsConsolidado.length}</span>
+                <span className="text-2xl sm:text-3xl font-black tabular-nums text-amber-300">{rpsConsolidado.length}</span>
               </div>
               <div className="flex-1 space-y-2 overflow-auto pr-1">
                 {Object.entries(rpsConsolStatus)
@@ -703,7 +703,7 @@ const MonitorTV = () => {
                   })
                 )}
               </div>
-              <div className="mt-3 grid grid-cols-3 gap-2 border-t border-white/10 pt-3">
+              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 border-t border-white/10 pt-3">
                 {Object.entries(licStatus)
                   .slice(0, 6)
                   .map(([k, v]) => {
@@ -724,7 +724,7 @@ const MonitorTV = () => {
             </div>
           ) : (
             <div className="flex h-full flex-col">
-              <div className="mb-3 grid grid-cols-3 gap-2">
+              <div className="mb-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 <KpiBox label="Total" value={licitacoes.length} accent="sky" />
                 <KpiBox label="Valor estimado" value={fmtMoney(valorEstimadoTotal)} accent="emerald" />
                 <KpiBox label="Taxa de êxito" value={`${taxaExito}%`} accent="amber" />

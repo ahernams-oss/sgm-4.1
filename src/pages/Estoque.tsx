@@ -521,8 +521,8 @@ export default function EstoquePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">Controle de Estoque</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground">Controle de Estoque</h1>
         <div className="flex gap-2">
           {podeEntrada && (
             <Button variant="outline" onClick={() => openMovDialog("entrada")}>
@@ -551,19 +551,19 @@ export default function EstoquePage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Itens em Estoque</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">{saldos.length}</p></CardContent>
+          <CardContent><p className="text-xl sm:text-2xl font-bold">{saldos.length}</p></CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Quantidade Total</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">{totalItensEstoque.toLocaleString("pt-BR")}</p></CardContent>
+          <CardContent><p className="text-xl sm:text-2xl font-bold">{totalItensEstoque.toLocaleString("pt-BR")}</p></CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Locais</CardTitle></CardHeader>
-          <CardContent><p className="text-2xl font-bold">{totalLocais}</p></CardContent>
+          <CardContent><p className="text-xl sm:text-2xl font-bold">{totalLocais}</p></CardContent>
         </Card>
         <Card className={alertas.length > 0 ? "border-destructive" : ""}>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Alertas Estoque Mínimo</CardTitle></CardHeader>
-          <CardContent><p className={`text-2xl font-bold ${alertas.length > 0 ? "text-destructive" : ""}`}>{alertas.length}</p></CardContent>
+          <CardContent><p className={`text-xl sm:text-2xl font-bold ${alertas.length > 0 ? "text-destructive" : ""}`}>{alertas.length}</p></CardContent>
         </Card>
       </div>
 
@@ -1009,7 +1009,7 @@ export default function EstoquePage() {
                 </PopoverContent>
               </Popover>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <Label>Local de Origem *</Label>
                 <Select value={transferOrigem} onValueChange={setTransferOrigem} disabled={!transferMaterialId}>

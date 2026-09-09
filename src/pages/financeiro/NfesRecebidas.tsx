@@ -490,9 +490,9 @@ export default function NfesRecebidas() {
   const totalValorNfse = useMemo(() => filtradosNfse.reduce((s, r) => s + (Number(r.valor_total) || 0), 0), [filtradosNfse]);
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-4 sm:p-6 space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <h1 className="text-2xl font-serif font-semibold">Notas Fiscais Recebidas</h1>
+        <h1 className="text-xl sm:text-2xl font-serif font-semibold">Notas Fiscais Recebidas</h1>
         <div className="flex gap-2 flex-wrap">
           <input
             ref={fileInputRef}
@@ -707,7 +707,7 @@ export default function NfesRecebidas() {
           <DialogHeader><DialogTitle>{docTipo === "nfe" ? "NFe" : "NFS-e"} nº {docSel?.numero || "—"}</DialogTitle></DialogHeader>
           {docSel && (
             <div className="space-y-3 text-sm">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div><b>{docTipo === "nfe" ? "Emitente" : "Prestador"}:</b> {(docTipo === "nfe" ? docSel.emitente_nome : docSel.prestador_nome) || "—"}</div>
                 <div><b>CNPJ:</b> {formatCnpj(docTipo === "nfe" ? docSel.emitente_cnpj : docSel.prestador_cnpj)}</div>
                 <div><b>Emissão:</b> {formatDateTime(docSel.data_emissao)}</div>

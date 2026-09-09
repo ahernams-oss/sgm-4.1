@@ -180,17 +180,17 @@ export default function ChecklistsPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Checklists</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Checklists</h1>
           <p className="text-muted-foreground text-sm">Gerencie templates e preenchimentos de checklists vinculados a evidências</p>
         </div>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Templates</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{checklists.length}</p></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Preenchimentos</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{preenchimentos.length}</p></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Concluídos</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{preenchimentos.filter(p => p.status === "Concluído").length}</p></CardContent></Card>
-        <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Média Conformidade</CardTitle></CardHeader><CardContent><p className="text-2xl font-bold">{preenchimentos.length ? Math.round(preenchimentos.reduce((a, p) => a + (p.percentual_conformidade || 0), 0) / preenchimentos.length) : 0}%</p></CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Templates</CardTitle></CardHeader><CardContent><p className="text-xl sm:text-2xl font-bold">{checklists.length}</p></CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Preenchimentos</CardTitle></CardHeader><CardContent><p className="text-xl sm:text-2xl font-bold">{preenchimentos.length}</p></CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Concluídos</CardTitle></CardHeader><CardContent><p className="text-xl sm:text-2xl font-bold">{preenchimentos.filter(p => p.status === "Concluído").length}</p></CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium text-muted-foreground">Média Conformidade</CardTitle></CardHeader><CardContent><p className="text-xl sm:text-2xl font-bold">{preenchimentos.length ? Math.round(preenchimentos.reduce((a, p) => a + (p.percentual_conformidade || 0), 0) / preenchimentos.length) : 0}%</p></CardContent></Card>
       </div>
 
       <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setPage(1); setSearch(""); }}>
@@ -310,7 +310,7 @@ export default function ChecklistsPage() {
             <div><Label>Descrição</Label><Textarea value={templateForm.descricao} onChange={e => setTemplateForm(f => ({ ...f, descricao: e.target.value }))} rows={2} /></div>
 
             <div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                 <Label className="text-base font-semibold">Itens do Checklist</Label>
                 <Button size="sm" variant="outline" onClick={addTemplateItem}><Plus className="h-3 w-3 mr-1" />Adicionar Item</Button>
               </div>
@@ -373,7 +373,7 @@ export default function ChecklistsPage() {
 
             {preenchForm.itens.length > 0 && (
               <div>
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                   <Label className="text-base font-semibold">Itens ({preenchForm.itens.filter(i => i.status).length}/{preenchForm.itens.length} avaliados)</Label>
                   <Badge className={percColor(calcPercentual(preenchForm.itens))}>{calcPercentual(preenchForm.itens)}% Conforme</Badge>
                 </div>
@@ -441,7 +441,7 @@ export default function ChecklistsPage() {
           <DialogHeader><DialogTitle>Detalhes do Preenchimento</DialogTitle></DialogHeader>
           {viewing && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div><span className="text-muted-foreground">Checklist:</span> <strong>{viewing.checklist_titulo}</strong></div>
                 <div><span className="text-muted-foreground">Evidência:</span> <strong>{viewing.evidencia_titulo || "—"}</strong></div>
                 <div><span className="text-muted-foreground">Responsável:</span> <strong>{viewing.responsavel}</strong></div>

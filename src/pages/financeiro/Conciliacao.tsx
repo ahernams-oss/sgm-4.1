@@ -49,8 +49,8 @@ export default function Conciliacao() {
   };
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-serif font-semibold">Conciliação Bancária (OFX)</h1>
+    <div className="p-4 sm:p-6 space-y-4">
+      <h1 className="text-xl sm:text-2xl font-serif font-semibold">Conciliação Bancária (OFX)</h1>
       <Card>
         <CardHeader className="flex-row items-center justify-between gap-2">
           <CardTitle className="text-base">{filtrados.length} movimento(s) — {filtrados.filter(m => !m.conciliado).length} pendente(s)</CardTitle>

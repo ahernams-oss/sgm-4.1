@@ -79,7 +79,7 @@ export default function PainelFaturamentoClientes() {
         <div className="flex items-center gap-3">
           <Receipt className="h-7 w-7 text-primary" />
           <div>
-            <h1 className="text-2xl font-serif font-semibold">Painel de Faturamento por Cliente</h1>
+            <h1 className="text-xl sm:text-2xl font-serif font-semibold">Painel de Faturamento por Cliente</h1>
             <p className="text-sm text-muted-foreground">
               Valor faturado por mês (OS com situação “Faturada”) e saldo contratual.
             </p>
@@ -130,7 +130,7 @@ export default function PainelFaturamentoClientes() {
               <CardTitle className="text-xs uppercase tracking-wide text-muted-foreground">{k.label}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className={`text-2xl font-bold ${k.cls}`}>{formatBRLValor(k.valor)}</div>
+              <div className={`text-xl sm:text-2xl font-bold ${k.cls}`}>{formatBRLValor(k.valor)}</div>
             </CardContent>
           </Card>
         ))}

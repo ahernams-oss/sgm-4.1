@@ -40,7 +40,7 @@ const ProcessoSeletivoKPIs = ({ candidatos, className = "" }: Props) => {
   ];
 
   return (
-    <div className={`grid grid-cols-2 lg:grid-cols-4 gap-3 ${className}`}>
+    <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 ${className}`}>
       {cards.map((card) => (
         <Card key={card.label} className={`bg-card border-l-4 ${card.accent}`}>
           <CardContent className="py-4 flex items-center justify-between gap-2">
@@ -48,7 +48,7 @@ const ProcessoSeletivoKPIs = ({ candidatos, className = "" }: Props) => {
               <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground truncate">
                 {card.label}
               </p>
-              <p className={`text-2xl font-bold ${card.tone}`}>{card.value}</p>
+              <p className={`text-xl sm:text-2xl font-bold ${card.tone}`}>{card.value}</p>
             </div>
             <card.icon className={`h-5 w-5 shrink-0 ${card.tone}`} />
           </CardContent>

@@ -426,12 +426,12 @@ export default function PmocGerenciarOperacao() {
       });
 
     return (
-      <div className="p-6 space-y-4">
+      <div className="p-4 sm:p-6 space-y-4">
         <div className="flex items-center gap-3 flex-wrap">
           <Button variant="outline" size="sm" onClick={() => setSelectedEquipId(null)}>
             <ArrowLeft className="h-4 w-4 mr-1" /> Voltar
           </Button>
-          <h1 className="text-2xl font-serif font-semibold flex-1">{selected.nome}</h1>
+          <h1 className="text-xl sm:text-2xl font-serif font-semibold flex-1">{selected.nome}</h1>
           <div className="flex gap-2 flex-wrap">
             <Button variant="outline" size="sm" onClick={relInformacoes}>
               <FileText className="h-4 w-4 mr-1" /> Informações
@@ -542,7 +542,7 @@ export default function PmocGerenciarOperacao() {
 
             <div className="space-y-4">
               <div>
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                   <label className="text-sm font-medium">
                     Fotos da atividade ({regFotos.length}/{MAX_FOTOS})
                   </label>
@@ -580,11 +580,11 @@ export default function PmocGerenciarOperacao() {
                   </div>
                 </div>
                 {regFotos.length === 0 ? (
-                  <div className="border-2 border-dashed rounded-md p-6 text-center text-sm text-muted-foreground">
+                  <div className="border-2 border-dashed rounded-md p-4 sm:p-6 text-center text-sm text-muted-foreground">
                     Adicione até {MAX_FOTOS} fotos da atividade executada. No celular, "Tirar foto" abre a câmera.
                   </div>
                 ) : (
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 sm:grid-cols-6 gap-2">
                     {regFotos.map((f, idx) => (
                       <div key={idx} className="relative group aspect-square rounded-md overflow-hidden border bg-muted">
                         <img src={f.preview} alt={`Foto ${idx + 1}`} className="w-full h-full object-cover" />
@@ -632,8 +632,8 @@ export default function PmocGerenciarOperacao() {
 
   // ===================== LISTA + ABAS =====================
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-serif font-semibold">Gerenciar Operação</h1>
+    <div className="p-4 sm:p-6 space-y-4">
+      <h1 className="text-xl sm:text-2xl font-serif font-semibold">Gerenciar Operação</h1>
 
       <Tabs defaultValue="equipamentos">
         <TabsList>

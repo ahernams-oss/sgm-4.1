@@ -90,10 +90,10 @@ const MapaPlantoes = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
             <CalendarClock className="h-6 w-6 text-primary" />
             Mapa de Plantões
           </h1>
@@ -170,7 +170,7 @@ const MapaPlantoes = () => {
 
       {/* Mapa */}
       <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-border bg-muted/30">
+        <div className="px-4 sm:px-6 py-4 border-b border-border bg-muted/30">
           <h2 className="text-sm font-semibold text-foreground">
             {MESES[mes]}/{ano} — {funcionariosFiltrados.length} funcionário(s)
           </h2>

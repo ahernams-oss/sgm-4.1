@@ -133,7 +133,7 @@ export default function LinhasFornecimentoTab({ linhas, onChange }: Props) {
       </div>
 
       <div>
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
           <h3 className="text-sm font-semibold text-foreground">Portfólio de Fornecimento</h3>
           <Badge variant="secondary">{linhas.length} item(ns)</Badge>
         </div>
@@ -146,7 +146,7 @@ export default function LinhasFornecimentoTab({ linhas, onChange }: Props) {
             {linhas.map((l) => (
               <div key={l.id} className="flex items-center gap-3 px-3 py-2.5">
                 <Layers className="h-4 w-4 text-primary shrink-0" />
-                <div className="min-w-0 flex-1 grid grid-cols-2 sm:grid-cols-5 gap-x-4 gap-y-1">
+                <div className="min-w-0 flex-1 grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-5 gap-x-4 gap-y-1">
                   <p className="text-sm font-semibold text-primary tabular-nums">{l.codigo || "—"}</p>
                   <p className="text-sm text-foreground truncate sm:col-span-2">{l.descricao}</p>
                   <p className="text-sm text-muted-foreground truncate">{l.tipo}</p>

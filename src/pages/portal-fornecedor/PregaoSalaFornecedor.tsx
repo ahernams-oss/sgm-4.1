@@ -560,7 +560,7 @@ export default function PregaoSalaFornecedorPage() {
   if (!session) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted/30">
-        <Card className="max-w-md w-full text-center p-6">
+        <Card className="max-w-md w-full text-center p-4 sm:p-6">
           <p className="text-muted-foreground">Sessão expirada. Faça login no portal.</p>
           <Button className="mt-4" onClick={() => navigate("/portal-fornecedor")}>Voltar ao Portal</Button>
         </Card>
@@ -579,7 +579,7 @@ export default function PregaoSalaFornecedorPage() {
   if (!pregao) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted/30">
-        <Card className="max-w-md w-full text-center p-6">
+        <Card className="max-w-md w-full text-center p-4 sm:p-6">
           <p className="text-muted-foreground">Pregão não encontrado.</p>
           <Button className="mt-4" onClick={() => navigate("/portal-fornecedor")}>Voltar</Button>
         </Card>
@@ -590,7 +590,7 @@ export default function PregaoSalaFornecedorPage() {
   if (!participante || ["Inabilitado", "Desclassificado", "Desistente"].includes(participante.status)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
-        <Card className="max-w-md w-full text-center p-6">
+        <Card className="max-w-md w-full text-center p-4 sm:p-6">
           <AlertCircle className="h-10 w-10 text-amber-500 mx-auto mb-3" />
           <h2 className="text-lg font-semibold mb-2">Acesso não autorizado</h2>
           <p className="text-muted-foreground text-sm mb-4">
@@ -608,7 +608,7 @@ export default function PregaoSalaFornecedorPage() {
     <div className="min-h-screen bg-muted/30 flex flex-col">
       {/* Header */}
       <header className="bg-background border-b">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             <img src={logoLasant} alt="Lasant" className="h-8 object-contain" />
             <div>
@@ -662,7 +662,7 @@ export default function PregaoSalaFornecedorPage() {
                       isActive ? "border-primary bg-primary/5" : "border-border hover:bg-accent"
                     }`}
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                       <span className="font-medium">
                         {item.agrupamento === "Lote" ? `Lote ${item.lote_codigo}` : `Item ${item.ordem}`}
                       </span>
@@ -693,7 +693,7 @@ export default function PregaoSalaFornecedorPage() {
           {activeItem ? (
             <Card>
               <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <CardTitle className="text-base">
                     {activeItem.agrupamento === "Lote" ? `Lote ${activeItem.lote_codigo}` : `Item ${activeItem.ordem}`}
                   </CardTitle>
@@ -709,7 +709,7 @@ export default function PregaoSalaFornecedorPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Melhor lance */}
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
                     <p className="text-xs text-green-700">Melhor lance</p>
                     <p className="text-xl font-bold text-green-700">

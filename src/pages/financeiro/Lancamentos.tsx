@@ -41,8 +41,8 @@ export default function Lancamentos() {
   const icone = (t: string) => t === "entrada" ? <ArrowDownCircle className="h-4 w-4 text-emerald-600" /> : t === "saida" ? <ArrowUpCircle className="h-4 w-4 text-red-600" /> : <ArrowLeftRight className="h-4 w-4 text-blue-600" />;
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-serif font-semibold">Lançamentos</h1>
+    <div className="p-4 sm:p-6 space-y-4">
+      <h1 className="text-xl sm:text-2xl font-serif font-semibold">Lançamentos</h1>
       <Card>
         <CardHeader className="flex-row items-center justify-between flex-wrap gap-2">
           <CardTitle className="text-base">{filtrados.length} lançamento(s) — Entradas: {formatBRL(totais.entrada)} | Saídas: {formatBRL(totais.saida)} | Saldo: {formatBRL(totais.entrada - totais.saida)}</CardTitle>

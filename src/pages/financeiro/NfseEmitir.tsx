@@ -143,14 +143,14 @@ export default function NfseEmitir() {
 
   return (
     <div className="space-y-4 p-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-serif font-bold">NFS-e Nacional</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-xl sm:text-2xl font-serif font-bold">NFS-e Nacional</h1>
         <Button onClick={() => setOpenEmit(true)} className="gap-2">
           <Plus className="w-4 h-4" /> Emitir NFS-e
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         <KpiCard label="Emitidas no mês" value={String(kpis.emitidas)} icon={<Receipt className="w-5 h-5" />} />
         <KpiCard label="Rejeitadas" value={String(kpis.rejeitadas)} icon={<XCircle className="w-5 h-5" />} />
         <KpiCard label="Canceladas" value={String(kpis.canceladas)} icon={<XCircle className="w-5 h-5" />} />
@@ -259,7 +259,7 @@ export default function NfseEmitir() {
           <DialogHeader><DialogTitle>NFS-e {viewNfse?.numero_dps}/{viewNfse?.serie}</DialogTitle></DialogHeader>
           {viewNfse && (
             <div className="space-y-3 text-sm">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Info label="Status" value={viewNfse.status} />
                 <Info label="Ambiente" value={viewNfse.ambiente === 1 ? "Produção" : "Homologação"} />
                 <Info label="Chave de acesso" value={viewNfse.chave_acesso || "—"} />
@@ -276,7 +276,7 @@ export default function NfseEmitir() {
                 <p className="whitespace-pre-wrap">{viewNfse.servico?.descricao}</p>
                 <p className="text-xs text-muted-foreground">Cód. trib. municipal: {viewNfse.servico?.codigoTributacaoMunicipio}</p>
               </div>
-              <div className="grid grid-cols-3 gap-3 mt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-2">
                 <Info label="Valor serviço" value={formatBRL(viewNfse.valor_servico)} />
                 <Info label="ISS" value={formatBRL(viewNfse.valor_iss)} />
                 <Info label="Líquido" value={formatBRL(viewNfse.valor_liquido)} />
@@ -580,7 +580,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
               <Label>Descrição do serviço</Label>
               <Textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} rows={4} />
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <div>
                 <Label>UF da prestação</Label>
                 <Select value={ufPrest} onValueChange={(v) => { setUfPrest(v); setMunicipioPrest(null); }}>
@@ -739,7 +739,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
                 <Input value={obraInscMobiliaria} onChange={(e) => setObraInscMobiliaria(e.target.value)} placeholder="Opcional" />
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <div>
                 <Label>Código NBS (opcional)</Label>
                 <Input value={codigoNbs} onChange={(e) => setCodigoNbs(e.target.value)} />
@@ -767,7 +767,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
             {/* ISS Municipal */}
             <div className="border rounded-lg p-3 space-y-3">
               <h4 className="text-sm font-semibold text-primary">ISS Municipal</h4>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <Label>Alíquota ISS (%)</Label>
                   <Input value={aliquotaIss} onChange={(e) => setAliquotaIss(e.target.value)} />
@@ -809,7 +809,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
                 <Input value={baseInss} onChange={(e) => setBaseInss(e.target.value)} />
                 <p className="text-xs text-muted-foreground mt-1">Preenchido automaticamente com o valor bruto do serviço.</p>
               </div>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="flex flex-col">
                   <Label className="min-h-[2.5rem] leading-tight">PIS - Alíquota (%)</Label>
                   <Input value={aliquotaPis} onChange={(e) => setAliquotaPis(e.target.value)} />
@@ -841,7 +841,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 <div className="flex flex-col">
                   <Label className="min-h-[2.5rem] leading-tight">IRRF (R$)</Label>
                   <Input value={irrf} onChange={(e) => setIrrf(e.target.value)} />
@@ -860,7 +860,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
             {/* Total dos tributos */}
             <div className="border rounded-lg p-3 space-y-3">
               <h4 className="text-sm font-semibold text-primary">Total dos tributos</h4>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 <div>
                   <Label>Federal (%)</Label>
                   <Input value={totalFederal} onChange={(e) => setTotalFederal(e.target.value)} />

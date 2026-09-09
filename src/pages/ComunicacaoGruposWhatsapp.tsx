@@ -225,13 +225,13 @@ export default function ComunicacaoGruposWhatsappPage() {
   }, [pickerOpen, pickerSearch, clientes, funcionarios]);
 
   if (!podeVer) {
-    return <div className="p-6"><Card><CardContent className="p-6">Você não tem permissão para acessar esta página.</CardContent></Card></div>;
+    return <div className="p-4 sm:p-6"><Card><CardContent className="p-4 sm:p-6">Você não tem permissão para acessar esta página.</CardContent></Card></div>;
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-4 sm:p-6 space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <h1 className="text-2xl font-serif font-semibold">Grupos WhatsApp</h1>
+        <h1 className="text-xl sm:text-2xl font-serif font-semibold">Grupos WhatsApp</h1>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => carregar(true)} disabled={loading}>
             <RefreshCw className={`h-4 w-4 mr-1 ${loading ? "animate-spin" : ""}`} /> Atualizar
@@ -424,7 +424,7 @@ export default function ComunicacaoGruposWhatsappPage() {
               <button
                 key={p.id}
                 type="button"
-                className="w-full text-left px-3 py-2 hover:bg-muted flex items-center justify-between"
+                className="w-full text-left px-3 py-2 hover:bg-muted flex flex-wrap items-center justify-between gap-2"
                 onClick={() => { addNumero(novoNumeros, setNovoNumeros, p.telefone); }}
               >
                 <div>
@@ -485,7 +485,7 @@ export default function ComunicacaoGruposWhatsappPage() {
                     const pjid = p?.JID || p?.jid || "";
                     const numero = sanitize(pjid.split("@")[0]);
                     return (
-                      <div key={pjid || idx} className="flex items-center justify-between px-3 py-2 text-sm">
+                      <div key={pjid || idx} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-sm">
                         <div className="flex items-center gap-2">
                           <span>{fmtBR(numero)}</span>
                           {(p?.isAdmin || p?.isSuperAdmin) && <Badge variant="outline" className="text-xs">admin</Badge>}

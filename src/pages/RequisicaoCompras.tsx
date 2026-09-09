@@ -485,8 +485,8 @@ export default function RequisicaoComprasPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground mx-[7px]">Requisições de Compras e Serviços</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground mx-[7px]">Requisições de Compras e Serviços</h1>
         {podeCriar && <Button onClick={() => { resetForm(); setDialogOpen(true); }}><Plus className="mr-2 h-4 w-4" />Nova Requisição</Button>}
       </div>
 
@@ -720,7 +720,7 @@ export default function RequisicaoComprasPage() {
             </TabsList>
 
             <TabsContent value="dados" className="space-y-4 mt-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Centro de Custo (Cliente) *</Label>
                   <Select value={centroCusto} onValueChange={v => { setCentroCusto(v); setLocalEntrega(""); }}>
@@ -777,7 +777,7 @@ export default function RequisicaoComprasPage() {
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <Label>Material/Serviço cadastrado</Label>
                       <Popover open={materialPopoverOpen} onOpenChange={setMaterialPopoverOpen}>
@@ -825,7 +825,7 @@ export default function RequisicaoComprasPage() {
                     <Label>Especificação Técnica</Label>
                     <Textarea value={itemEspec} onChange={e => setItemEspec(e.target.value)} rows={2} />
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <Label>Observação</Label>
                       <Input value={itemObs} onChange={e => setItemObs(e.target.value)} />
@@ -838,7 +838,7 @@ export default function RequisicaoComprasPage() {
                       </Select>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <Label>Quantidade *</Label>
                       <Input type="number" min="0" step="0.01" value={itemQtd} onChange={e => setItemQtd(e.target.value)} />
@@ -940,7 +940,7 @@ export default function RequisicaoComprasPage() {
           </DialogHeader>
           {viewReq && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div><span className="font-medium text-muted-foreground">Solicitante:</span> {viewReq.solicitante}</div>
                 <div><span className="font-medium text-muted-foreground">Data:</span> {format(new Date(viewReq.dataCriacao), "dd/MM/yyyy HH:mm")}</div>
                 <div><span className="font-medium text-muted-foreground">Centro de Custo:</span> {viewReq.centroCustoNome}</div>
@@ -1071,7 +1071,7 @@ export default function RequisicaoComprasPage() {
             {justificativas.length === 0 ? (
               <p className="text-sm text-muted-foreground">Nenhum motivo cadastrado.</p>
             ) : justificativas.map(j => (
-              <div key={j.id} className="flex items-center justify-between border rounded px-3 py-2">
+              <div key={j.id} className="flex flex-wrap items-center justify-between gap-2 border rounded px-3 py-2">
                 <span className="text-sm">{j.motivo}</span>
                 <Button variant="ghost" size="icon" onClick={() => excluirMotivo(j.id)}>
                   <Trash2 className="h-4 w-4 text-destructive" />

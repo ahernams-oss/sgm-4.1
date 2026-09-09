@@ -181,13 +181,13 @@ export default function AprovarLoteSS() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-3">
           <div className="bg-primary/10 p-2.5 rounded-xl">
             <ClipboardCheck className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Aprovar em Lote</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Aprovar em Lote</h1>
             <p className="text-sm text-muted-foreground">
               Solicitações de Serviço aguardando aprovação
             </p>
@@ -375,7 +375,7 @@ export default function AprovarLoteSS() {
             ];
             return (
               <div className="space-y-6 py-2">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label className="text-xs text-muted-foreground">Data/Hora</Label>
                     <p className="text-sm font-medium">
@@ -410,7 +410,7 @@ export default function AprovarLoteSS() {
 
                 <div className="border-t pt-4">
                   <h4 className="text-sm font-semibold mb-3 text-muted-foreground">Localização</h4>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <Label className="text-xs text-muted-foreground">Cliente</Label>
                       <p className="text-sm font-medium">{viewSSTarget.clienteNome || "-"}</p>
@@ -457,7 +457,7 @@ export default function AprovarLoteSS() {
                 {orc && (
                   <div className="border-t pt-4">
                     <h4 className="text-sm font-semibold mb-3 text-muted-foreground">Orçamento nº {(orc as any).numero}</h4>
-                    <div className="grid grid-cols-2 gap-4 mb-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
                       <div>
                         <Label className="text-xs text-muted-foreground">Status</Label>
                         <Badge variant="outline" className="mt-1">{(orc as any).status}</Badge>

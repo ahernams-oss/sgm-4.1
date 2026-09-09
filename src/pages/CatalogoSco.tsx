@@ -39,10 +39,10 @@ export default function CatalogoSco() {
 
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-4 sm:p-6 space-y-4">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="icon" onClick={() => nav("/orcamentos")}><ArrowLeft className="h-4 w-4" /></Button>
-        <h1 className="text-2xl font-serif font-bold">Catálogo SCO</h1>
+        <h1 className="text-xl sm:text-2xl font-serif font-bold">Catálogo SCO</h1>
       </div>
       <Card>
         <CardHeader>

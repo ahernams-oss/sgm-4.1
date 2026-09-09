@@ -233,14 +233,14 @@ export default function BaseConhecimentoPage() {
 
   // ====== Render ======
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
             <BookOpen className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-serif font-semibold">Base de Conhecimento</h1>
+            <h1 className="text-xl sm:text-2xl font-serif font-semibold">Base de Conhecimento</h1>
             <p className="text-sm text-muted-foreground">
               Procedimentos, manuais e soluções para a equipe de manutenção
             </p>
@@ -264,19 +264,19 @@ export default function BaseConhecimentoPage() {
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <Card><CardContent className="p-4">
           <p className="text-xs text-muted-foreground">Artigos publicados</p>
-          <p className="text-2xl font-bold">{artigos.filter((a) => a.status === "publicado").length}</p>
+          <p className="text-xl sm:text-2xl font-bold">{artigos.filter((a) => a.status === "publicado").length}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs text-muted-foreground">Rascunhos</p>
-          <p className="text-2xl font-bold">{artigos.filter((a) => a.status === "rascunho").length}</p>
+          <p className="text-xl sm:text-2xl font-bold">{artigos.filter((a) => a.status === "rascunho").length}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs text-muted-foreground">FAQs</p>
-          <p className="text-2xl font-bold">{faqs.length}</p>
+          <p className="text-xl sm:text-2xl font-bold">{faqs.length}</p>
         </CardContent></Card>
         <Card><CardContent className="p-4">
           <p className="text-xs text-muted-foreground">Categorias</p>
-          <p className="text-2xl font-bold">{categorias.length}</p>
+          <p className="text-xl sm:text-2xl font-bold">{categorias.length}</p>
         </CardContent></Card>
       </div>
 
@@ -386,7 +386,7 @@ export default function BaseConhecimentoPage() {
                         {a.anexos.length} anexo(s)
                       </div>
                     )}
-                    <div className="flex items-center justify-between pt-2 border-t">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t">
                       <div className="text-xs text-muted-foreground flex items-center gap-1">
                         <Eye className="h-3 w-3" /> {a.visualizacoes}
                       </div>
@@ -478,7 +478,7 @@ export default function BaseConhecimentoPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {categorias.map((c) => (
               <Card key={c.id}>
-                <CardContent className="p-4 flex items-center justify-between">
+                <CardContent className="p-4 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-3">
                     <div className="h-8 w-8 rounded-lg" style={{ background: c.cor }} />
                     <div>
@@ -513,7 +513,7 @@ export default function BaseConhecimentoPage() {
               <Label>Resumo</Label>
               <Textarea rows={2} value={artigoForm.resumo ?? ""} onChange={(e) => setArtigoForm({ ...artigoForm, resumo: e.target.value })} />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <Label>Categoria</Label>
                 <Select value={artigoForm.categoria_id ?? "none"}
@@ -602,7 +602,7 @@ export default function BaseConhecimentoPage() {
               {(artigoForm.anexos ?? []).length > 0 && (
                 <div className="space-y-1 mt-2">
                   {(artigoForm.anexos ?? []).map((an, i) => (
-                    <div key={i} className="flex items-center justify-between border rounded p-2 text-sm">
+                    <div key={i} className="flex flex-wrap items-center justify-between gap-2 border rounded p-2 text-sm">
                       <a href={an.url} target="_blank" rel="noreferrer" className="flex items-center gap-1 hover:underline">
                         <Paperclip className="h-3 w-3" /> {an.nome}
                       </a>
@@ -628,7 +628,7 @@ export default function BaseConhecimentoPage() {
           {viewArtigo && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-2xl font-serif">{viewArtigo.titulo}</DialogTitle>
+                <DialogTitle className="text-xl sm:text-2xl font-serif">{viewArtigo.titulo}</DialogTitle>
                 <div className="flex flex-wrap gap-1 pt-2">
                   {viewArtigo.categoria_nome && <Badge variant="secondary">{viewArtigo.categoria_nome}</Badge>}
                   {viewArtigo.tags.map((t) => <Badge key={t} variant="outline">{t}</Badge>)}

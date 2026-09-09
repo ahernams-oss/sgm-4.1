@@ -185,7 +185,7 @@ export default function EvidenciasPage() {
     <div className="p-4 md:p-6 space-y-4">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Registro de Evidências</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Registro de Evidências</h1>
           <p className="text-sm text-muted-foreground">
             Cadastro, rastreabilidade e controle de evidências documentais e operacionais
           </p>
@@ -198,13 +198,13 @@ export default function EvidenciasPage() {
       </div>
 
       {/* Resumo cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
         {STATUS_LIST.map((s) => {
           const count = evidencias.filter((e) => e.status === s).length;
           return (
             <Card key={s} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => { setFilterStatus(s); setPage(1); }}>
               <CardContent className="p-3 text-center">
-                <p className="text-2xl font-bold">{count}</p>
+                <p className="text-xl sm:text-2xl font-bold">{count}</p>
                 <p className="text-xs text-muted-foreground">{s}</p>
               </CardContent>
             </Card>
@@ -454,7 +454,7 @@ export default function EvidenciasPage() {
                 <TabsTrigger value="historico">Histórico ({(viewing.historico || []).length})</TabsTrigger>
               </TabsList>
               <TabsContent value="detalhes" className="space-y-3 mt-4">
-                <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                   <div><span className="font-semibold">Tipo:</span> {viewing.tipo}</div>
                   <div><span className="font-semibold">Status:</span> <Badge className={statusColor(viewing.status)}>{viewing.status}</Badge></div>
                   <div><span className="font-semibold">Centro de Custo:</span> {viewing.centro_custo_nome || "—"}</div>

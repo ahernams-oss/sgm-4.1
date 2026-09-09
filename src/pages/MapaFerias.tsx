@@ -240,7 +240,7 @@ const MapaFerias = () => {
             <Calendar className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Mapa de Férias</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Mapa de Férias</h1>
             <p className="text-sm text-muted-foreground">Acompanhe os períodos aquisitivos e a concessão de férias dos funcionários.</p>
           </div>
         </div>
@@ -277,26 +277,26 @@ const MapaFerias = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
         <div className="rounded-lg border border-border p-4 bg-card">
           <p className="text-xs text-muted-foreground">Vencidas</p>
-          <p className="text-2xl font-bold text-red-600">{stats.vencidas}</p>
+          <p className="text-xl sm:text-2xl font-bold text-red-600">{stats.vencidas}</p>
         </div>
         <div className="rounded-lg border border-border p-4 bg-card">
           <p className="text-xs text-muted-foreground">Vencem em 30 dias</p>
-          <p className="text-2xl font-bold text-amber-600">{stats.proximas}</p>
+          <p className="text-xl sm:text-2xl font-bold text-amber-600">{stats.proximas}</p>
         </div>
         <div className="rounded-lg border border-border p-4 bg-card">
           <p className="text-xs text-muted-foreground">Em gozo</p>
-          <p className="text-2xl font-bold text-blue-600">{stats.emGozo}</p>
+          <p className="text-xl sm:text-2xl font-bold text-blue-600">{stats.emGozo}</p>
         </div>
         <div className="rounded-lg border border-border p-4 bg-card">
           <p className="text-xs text-muted-foreground">Programadas</p>
-          <p className="text-2xl font-bold text-primary">{stats.programadas}</p>
+          <p className="text-xl sm:text-2xl font-bold text-primary">{stats.programadas}</p>
         </div>
         <div className={`rounded-lg border p-4 bg-card ${stats.semCobertura > 0 ? "border-red-500/60 animate-blink-row" : "border-border"}`}>
           <p className="text-xs text-muted-foreground">Sem cobertura</p>
-          <p className="text-2xl font-bold text-red-600">{stats.semCobertura}</p>
+          <p className="text-xl sm:text-2xl font-bold text-red-600">{stats.semCobertura}</p>
         </div>
       </div>
 

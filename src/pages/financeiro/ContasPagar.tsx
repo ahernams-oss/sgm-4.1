@@ -190,8 +190,8 @@ export default function ContasPagar() {
   };
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-serif font-semibold">Contas a Pagar</h1>
+    <div className="p-4 sm:p-6 space-y-4">
+      <h1 className="text-xl sm:text-2xl font-serif font-semibold">Contas a Pagar</h1>
 
       {(podeCriar || (editingId && podeEditar)) && (
       <Card>

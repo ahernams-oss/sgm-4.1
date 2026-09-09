@@ -396,7 +396,7 @@ export default function DashboardSolicitacoes() {
       {/* Filtros */}
       <Card>
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <CardTitle className="text-base flex items-center gap-2">
               <Filter className="h-4 w-4" /> Filtros
             </CardTitle>
@@ -485,7 +485,7 @@ export default function DashboardSolicitacoes() {
         <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
           <ClipboardList className="h-4 w-4 text-primary" /> Solicitações de Serviço (SS)
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-3">
           <KpiCard icon={ClipboardList} label="Total SS" value={ssTotal} gradientIdx={0} />
           {SS_STATUS_LIST.map(s => (
             <KpiCard key={s.key} icon={s.icon} label={s.label} value={ssCountByStatus(s.key)} gradientIdx={s.idx} />
@@ -498,7 +498,7 @@ export default function DashboardSolicitacoes() {
         <h2 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
           <Wrench className="h-4 w-4 text-primary" /> Ordens de Serviço (OS)
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
           <KpiCard icon={Wrench} label="Total OS" value={osTotal} gradientIdx={0} />
           <KpiCard icon={Clock} label="Abertas" value={osAbertas} gradientIdx={2} />
           <KpiCard icon={Activity} label="Executadas" value={osExecutadas} gradientIdx={5} />
@@ -646,7 +646,7 @@ export default function DashboardSolicitacoes() {
                   const pct = (c.total / max) * 100;
                   return (
                     <div key={c.cliente} className="space-y-1">
-                      <div className="flex items-center justify-between text-xs">
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                         <div className="flex items-center gap-2 min-w-0 flex-1">
                           <span className={cn(
                             "shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold",
@@ -768,7 +768,7 @@ export default function DashboardSolicitacoes() {
                                 </div>
                                 <p className="text-[11px] font-semibold text-foreground leading-tight">{stage.label}</p>
                                 <div className="flex items-baseline gap-1.5 mt-1">
-                                  <span className="text-2xl font-bold text-foreground">{items.length}</span>
+                                  <span className="text-xl sm:text-2xl font-bold text-foreground">{items.length}</span>
                                   <span className="text-[10px] text-muted-foreground">({pct}%)</span>
                                 </div>
                                 <div className="mt-2 h-1 rounded-full bg-muted overflow-hidden">
@@ -806,7 +806,7 @@ export default function DashboardSolicitacoes() {
                                   <p className="text-[10px] text-muted-foreground">SS encerradas fora do fluxo principal</p>
                                 </div>
                               </div>
-                              <span className={cn("text-2xl font-bold tabular-nums", stage.color)}>{items.length}</span>
+                              <span className={cn("text-xl sm:text-2xl font-bold tabular-nums", stage.color)}>{items.length}</span>
                             </div>
                           );
                         })}

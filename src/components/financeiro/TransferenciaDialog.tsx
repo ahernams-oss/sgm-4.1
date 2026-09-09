@@ -51,7 +51,7 @@ export default function TransferenciaDialog({ open, onOpenChange }: { open: bool
               <SelectContent>{contasBancarias.filter(c => c.ativo && c.id !== origem).map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}</SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="text-sm font-medium">Valor (R$)</label>
               <Input value={valor} onChange={(e) => setValor(e.target.value.replace(/[^\d,.]/g, ""))} />

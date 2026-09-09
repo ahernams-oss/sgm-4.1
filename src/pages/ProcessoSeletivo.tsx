@@ -649,7 +649,7 @@ const ProcessoSeletivoPage = () => {
                 {processo.candidatos.map((c) => (
                   <Card key={c.id}>
                     <CardContent className="py-4">
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
                         <div>
                           <p className="font-medium text-sm">{c.nome}</p>
                           <p className="text-xs text-muted-foreground">
@@ -716,7 +716,7 @@ const ProcessoSeletivoPage = () => {
                   return (
                     <Card key={c.id} className={!isCurrentEtapa && !isPast ? "opacity-50" : ""}>
                       <CardHeader className="pb-2">
-                        <CardTitle className="text-sm flex items-center justify-between">
+                        <CardTitle className="text-sm flex flex-wrap items-center justify-between gap-2">
                           {c.nome}
                           <Badge variant="outline" className={statusBadge[c.statusPsicologico]}>
                             {c.statusPsicologico === "pendente" ? "Pendente" : c.statusPsicologico === "aprovado" ? "Aprovado" : c.statusPsicologico === "neutro" ? "Neutro" : "Reprovado"}
@@ -724,7 +724,7 @@ const ProcessoSeletivoPage = () => {
                         </CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-3">
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
                             <label className="text-xs font-medium text-muted-foreground">Idade</label>
                             <DebouncedInput
@@ -844,7 +844,7 @@ const ProcessoSeletivoPage = () => {
                       return (
                         <Card key={c.id}>
                           <CardHeader className="pb-2">
-                            <CardTitle className="text-sm flex items-center justify-between">
+                            <CardTitle className="text-sm flex flex-wrap items-center justify-between gap-2">
                               {c.nome}
                               <Badge variant="outline" className={statusBadge[c.statusTecnico]}>
                                 {c.statusTecnico === "pendente" ? "Pendente" : c.statusTecnico === "aprovado" ? "Aprovado" : "Reprovado"}
@@ -921,7 +921,7 @@ const ProcessoSeletivoPage = () => {
                     return (
                       <Card key={c.id}>
                         <CardHeader className="pb-2">
-                          <CardTitle className="text-sm flex items-center justify-between">
+                          <CardTitle className="text-sm flex flex-wrap items-center justify-between gap-2">
                             <div className="flex items-center gap-2">
                               {c.etapaAtual === "contratacao" && <ShieldCheck className="h-4 w-4 text-emerald-600" />}
                               {c.nome}
@@ -1208,7 +1208,7 @@ const ProcessoSeletivoPage = () => {
                   placeholder="+55 (00) 00000-0000"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">CPF *</label>
                   <Input
@@ -1255,7 +1255,7 @@ const ProcessoSeletivoPage = () => {
                 {anexos.length > 0 && (
                   <div className="mt-2 space-y-1">
                     {anexos.map((a, i) => (
-                      <div key={i} className="flex items-center justify-between rounded-md border px-2 py-1.5 text-xs">
+                      <div key={i} className="flex flex-wrap items-center justify-between gap-2 rounded-md border px-2 py-1.5 text-xs">
                         <div className="flex items-center gap-1.5 text-muted-foreground">
                           <FileText className="h-3.5 w-3.5" />
                           <span className="truncate max-w-[200px]">{a.nome}</span>
@@ -1316,7 +1316,7 @@ const ProcessoSeletivoPage = () => {
                     placeholder="+55 (00) 00000-0000"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs font-medium text-muted-foreground">CPF *</label>
                     <Input
@@ -1365,7 +1365,7 @@ const ProcessoSeletivoPage = () => {
                   {editingCandidato.anexos && editingCandidato.anexos.length > 0 && (
                     <div className="mt-2 space-y-1">
                       {editingCandidato.anexos.map((a, i) => (
-                        <div key={i} className="flex items-center justify-between rounded-md border px-2 py-1.5 text-xs">
+                        <div key={i} className="flex flex-wrap items-center justify-between gap-2 rounded-md border px-2 py-1.5 text-xs">
                           <div className="flex items-center gap-1.5 text-muted-foreground">
                             <FileText className="h-3.5 w-3.5" />
                             <span className="truncate max-w-[200px]">{a.nome}</span>

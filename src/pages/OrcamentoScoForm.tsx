@@ -165,11 +165,11 @@ export default function OrcamentoScoForm() {
   };
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={() => nav("/orcamentos")}><ArrowLeft className="h-4 w-4" /></Button>
-          <h1 className="text-2xl font-serif font-bold">{editing ? `Orçamento Nº ${editing.numero}` : "Novo Orçamento SCO"}</h1>
+          <h1 className="text-xl sm:text-2xl font-serif font-bold">{editing ? `Orçamento Nº ${editing.numero}` : "Novo Orçamento SCO"}</h1>
         </div>
         <div className="flex gap-2">
           {podePdf && <Button variant="outline" onClick={() => exportar("pdf")}><FileText className="h-4 w-4 mr-1" /> PDF</Button>}

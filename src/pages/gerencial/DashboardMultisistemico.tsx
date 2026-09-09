@@ -263,7 +263,7 @@ export default function DashboardMultisistemico() {
       {ativos.includes("os") && (
         <section className="space-y-3">
           <h2 className="text-lg font-semibold">Ordens de Serviço</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <KPI label="Total OS" value={fOrdens.length} />
             <KPI label="Em Execução" value={fOrdens.filter((o: any) => o.situacao === "Em Execução").length} />
             <KPI label="Concluídas" value={fOrdens.filter((o: any) => o.situacao === "Concluída").length} />
@@ -301,7 +301,7 @@ export default function DashboardMultisistemico() {
       {ativos.includes("ss") && (
         <section className="space-y-3">
           <h2 className="text-lg font-semibold">Solicitações de Serviço</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <KPI label="Total SS" value={fSol.length} />
             <KPI label="Aprovadas" value={fSol.filter((s: any) => s.situacao === "Aprovada").length} />
             <KPI label="Pendentes" value={fSol.filter((s: any) => s.situacao === "Pendente").length} />
@@ -339,7 +339,7 @@ export default function DashboardMultisistemico() {
       {ativos.includes("pc") && (
         <section className="space-y-3">
           <h2 className="text-lg font-semibold">Ordens de Compra</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <KPI label="Total Pedidos" value={fPed.length} />
             <KPI label="Valor Total" value={formatBRL(fPed.reduce((s, p: any) => s + Number(p.valorTotal || 0), 0))} />
             <KPI label="Aprovados" value={fPed.filter((p: any) => p.status === "Aprovado").length} />
@@ -377,7 +377,7 @@ export default function DashboardMultisistemico() {
       {ativos.includes("rc") && (
         <section className="space-y-3">
           <h2 className="text-lg font-semibold">Requisições de Compras</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <KPI label="Total RC" value={fReq.length} />
             <KPI label="Em Cotação" value={fReq.filter((r: any) => r.status === "Em Cotação").length} />
             <KPI label="Aprovadas" value={fReq.filter((r: any) => r.status === "Aprovada").length} />
@@ -415,7 +415,7 @@ export default function DashboardMultisistemico() {
       {ativos.includes("func") && (
         <section className="space-y-3">
           <h2 className="text-lg font-semibold">Funcionários</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <KPI label="Total" value={funcionarios.length} />
             <KPI label="Ativos" value={funcionarios.filter((f: any) => f.status === "Ativo").length} />
             <KPI label="Inativos" value={funcionarios.filter((f: any) => f.status !== "Ativo").length} />
@@ -452,7 +452,7 @@ export default function DashboardMultisistemico() {
       {ativos.includes("cp") && (
         <section className="space-y-3">
           <h2 className="text-lg font-semibold">Contas a Pagar</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <KPI label="Total Lançado" value={formatBRL(fCp.reduce((s, c: any) => s + Number(c.valor_total || 0), 0))} />
             <KPI label="Total Pago" value={formatBRL(fCp.reduce((s, c: any) => s + Number(c.valor_pago || 0), 0))} />
             <KPI label="Em Aberto" value={fCp.filter((c: any) => c.status !== "Pago").length} />
@@ -490,7 +490,7 @@ export default function DashboardMultisistemico() {
       {ativos.includes("cr") && (
         <section className="space-y-3">
           <h2 className="text-lg font-semibold">Contas a Receber</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
             <KPI label="Total Lançado" value={formatBRL(fCr.reduce((s, c: any) => s + Number(c.valor_total || 0), 0))} />
             <KPI label="Total Recebido" value={formatBRL(fCr.reduce((s, c: any) => s + Number(c.valor_recebido || 0), 0))} />
             <KPI label="Em Aberto" value={fCr.filter((c: any) => c.status !== "Recebido").length} />

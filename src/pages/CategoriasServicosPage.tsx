@@ -66,7 +66,7 @@ const CategoriasServicosPage = () => {
 
         {showForm && (
           <div className="mb-8 border rounded-lg p-4 bg-card">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
               <h2 className="text-lg font-semibold">{editId ? "Editar Categoria" : "Nova Categoria"}</h2>
               <Button variant="ghost" size="sm" onClick={resetForm}>Cancelar</Button>
             </div>

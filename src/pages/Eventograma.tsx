@@ -174,10 +174,10 @@ export default function EventogramaPage() {
   const totalValor = (form.eventos || []).reduce((s, e) => s + (Number(e.valor) || 0), 0);
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-3xl font-serif font-bold">Eventograma</h1>
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold">Eventograma</h1>
           <p className="text-muted-foreground">Marcos de execução e medição por obra</p>
         </div>
         <div className="flex gap-2">
@@ -237,7 +237,7 @@ export default function EventogramaPage() {
             <DialogTitle>{editing ? `Eventograma Nº ${editing.numero}` : "Novo Eventograma"}</DialogTitle>
           </DialogHeader>
 
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div className="col-span-2">
               <Label>Cliente *</Label>
               <Select
@@ -442,15 +442,15 @@ function CalendarioEventos({ eventos }: { eventos: EventogramaEvento[] }) {
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <Button type="button" variant="outline" size="sm" onClick={() => setCursor(new Date(year, month - 1, 1))}>‹ Anterior</Button>
         <div className="font-semibold">{meses[month]} / {year}</div>
         <Button type="button" variant="outline" size="sm" onClick={() => setCursor(new Date(year, month + 1, 1))}>Próximo ›</Button>
       </div>
-      <div className="grid grid-cols-7 gap-1 text-xs text-center font-medium text-muted-foreground">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1 text-xs text-center font-medium text-muted-foreground">
         {["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"].map((d) => <div key={d} className="py-1">{d}</div>)}
       </div>
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1">
         {days.map((d, i) => (
           <div key={i} className="min-h-[80px] border rounded-md p-1 text-xs bg-card">
             {d && (

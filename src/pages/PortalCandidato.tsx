@@ -165,7 +165,7 @@ export default function PortalCandidato() {
       <div className="max-w-3xl mx-auto space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
+            <CardTitle className="flex flex-wrap items-center justify-between gap-2">
               <span>Documentos para Admissão</span>
               <Badge variant="outline">{progresso.ok} / {progresso.total}</Badge>
             </CardTitle>

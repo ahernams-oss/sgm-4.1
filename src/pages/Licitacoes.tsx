@@ -440,7 +440,7 @@ export default function LicitacoesPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold text-foreground">Licitações</h1>
+      <h1 className="text-xl sm:text-2xl font-bold text-foreground">Licitações</h1>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3">
@@ -646,7 +646,7 @@ export default function LicitacoesPage() {
               return (
                 <Card key={a.id}>
                   <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                       <CardTitle className="text-base">
                         {lic ? `${lic.numeroProcesso} - ${lic.orgaoLicitante}` : "Licitação não encontrada"}
                       </CardTitle>
@@ -660,7 +660,7 @@ export default function LicitacoesPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 text-sm">
                       <div><span className="text-muted-foreground">Analista:</span> {a.analista || "-"}</div>
                       <div><span className="text-muted-foreground">Data:</span> {a.dataAnalise || "-"}</div>
                       <div className="col-span-2"><span className="text-muted-foreground">Resumo:</span> {a.resumoObjeto?.substring(0, 100) || "-"}</div>
@@ -814,7 +814,7 @@ export default function LicitacoesPage() {
           </DialogHeader>
           {viewLic && (
             <div className="space-y-4 text-sm">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                 <div><span className="text-muted-foreground block">Processo:</span>{viewLic.numeroProcesso}</div>
                 <div><span className="text-muted-foreground block">Edital:</span>{viewLic.numeroEdital || "-"}</div>
                 <div><span className="text-muted-foreground block">Modalidade:</span>{viewLic.modalidade || "-"}</div>
@@ -1061,7 +1061,7 @@ export default function LicitacoesPage() {
             ) : (
               <div className="border rounded-lg divide-y max-h-[300px] overflow-y-auto">
                 {phoneList.map(p => (
-                  <div key={p.id} className="flex items-center justify-between px-3 py-2">
+                  <div key={p.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2">
                     <div>
                       <span className="font-medium text-sm">{p.nome_contato || "Sem nome"}</span>
                       <span className="text-sm text-muted-foreground ml-2">{p.telefone}</span>
@@ -1117,7 +1117,7 @@ export default function LicitacoesPage() {
               {iaFiles.length > 0 && (
                 <div className="mt-2 border rounded p-2 max-h-40 overflow-y-auto text-sm space-y-1">
                   {iaFiles.map((f, i) => (
-                    <div key={i} className="flex items-center justify-between">
+                    <div key={i} className="flex flex-wrap items-center justify-between gap-2">
                       <span className="truncate flex items-center gap-1"><FileText className="h-3 w-3" /> {f.name}</span>
                       <span className="text-xs text-muted-foreground ml-2">{(f.size / 1024).toFixed(0)} KB</span>
                     </div>

@@ -499,8 +499,8 @@ export default function PedidoCompraPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">Ordens de Compra</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground">Ordens de Compra</h1>
       </div>
 
       <div className="flex flex-wrap gap-3 items-end">
@@ -692,7 +692,7 @@ export default function PedidoCompraPage() {
           </DialogHeader>
           {viewPedido && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div><span className="text-muted-foreground">RCS Vinculada:</span> RCS-{String(viewPedido.requisicaoNumero).padStart(4, "0")}</div>
                 <div><span className="text-muted-foreground">Fornecedor:</span> {viewPedido.fornecedorNome}</div>
                 <div><span className="text-muted-foreground">Comprador:</span> {viewPedido.comprador}</div>
@@ -836,7 +836,7 @@ export default function PedidoCompraPage() {
           <div className="space-y-4">
             <div>
               <Label>Método de Envio *</Label>
-              <div className="grid grid-cols-2 gap-3 mt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
                 <Button
                   variant={sendMethod === "email" ? "default" : "outline"}
                   className="h-20 flex flex-col gap-2"
@@ -903,7 +903,7 @@ export default function PedidoCompraPage() {
           <div className="space-y-4">
             <div>
               <Label>Método de Envio *</Label>
-              <div className="grid grid-cols-2 gap-3 mt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
                 <Button
                   type="button"
                   variant={batchMethod === "email" ? "default" : "outline"}

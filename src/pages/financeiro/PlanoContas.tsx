@@ -34,8 +34,8 @@ export default function PlanoContas() {
   const lista = planoContas.filter(p => filtroTipo === "todos" || p.tipo === filtroTipo);
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-serif font-semibold">Plano de Contas</h1>
+    <div className="p-4 sm:p-6 space-y-4">
+      <h1 className="text-xl sm:text-2xl font-serif font-semibold">Plano de Contas</h1>
 
       {podeGerenciar && (
       <Card>

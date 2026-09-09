@@ -288,10 +288,10 @@ export default function Treinamentos() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-semibold flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-semibold flex items-center gap-2">
             <GraduationCap className="w-6 h-6" /> Treinamentos
           </h1>
           <p className="text-sm text-muted-foreground">Gerencie os treinamentos exibidos no Portal do Funcionário.</p>
@@ -308,7 +308,7 @@ export default function Treinamentos() {
       </div>
 
 
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {[
           { l: "Total", v: kpis.total },
           { l: "Pendentes", v: kpis.pendentes },
@@ -317,7 +317,7 @@ export default function Treinamentos() {
         ].map((k) => (
           <Card key={k.l}>
             <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground font-medium">{k.l}</CardTitle></CardHeader>
-            <CardContent><div className="text-2xl font-semibold">{k.v}</div></CardContent>
+            <CardContent><div className="text-xl sm:text-2xl font-semibold">{k.v}</div></CardContent>
           </Card>
         ))}
       </div>
@@ -508,7 +508,7 @@ export default function Treinamentos() {
               <Textarea rows={2} value={form.titulo} onChange={(e) => setForm((p) => ({ ...p, titulo: e.target.value }))} placeholder="Ex.: NR-35 Trabalho em Altura" />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Tipo</Label>
                 <Select value={form.tipo} onValueChange={(v) => setForm((p) => ({ ...p, tipo: v }))}>
@@ -525,7 +525,7 @@ export default function Treinamentos() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Nota</Label>
                 <Input value={form.nota} onChange={(e) => setForm((p) => ({ ...p, nota: e.target.value }))} placeholder="0 a 100" />

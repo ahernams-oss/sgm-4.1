@@ -57,9 +57,9 @@ const Login = () => {
 
       <div className="relative w-full max-w-6xl flex bg-white rounded-3xl shadow-2xl overflow-hidden min-h-[640px]">
       {/* Coluna esquerda - Formulário */}
-      <div className="flex-1 flex flex-col px-6 sm:px-12 lg:px-20 py-8 lg:py-10 overflow-y-auto">
+      <div className="flex-1 flex flex-col px-4 sm:px-6 sm:px-12 lg:px-20 py-8 lg:py-10 overflow-y-auto">
         {/* Topo: Logo + LOG IN */}
-        <div className="flex items-center justify-between w-full max-w-2xl mx-auto">
+        <div className="flex flex-wrap items-center justify-between gap-2 w-full max-w-2xl mx-auto">
           <img
             src={logoLasant}
             alt="Lasant Construções"
@@ -73,10 +73,10 @@ const Login = () => {
         {/* Conteúdo central */}
         <div className="flex-1 flex flex-col justify-center w-full max-w-md mx-auto py-10">
           <div className="text-center mb-10">
-            <h1 className="text-3xl sm:text-4xl font-serif font-semibold text-[#3a1d6e] leading-tight">
+            <h1 className="text-2xl sm:text-3xl sm:text-4xl font-serif font-semibold text-[#3a1d6e] leading-tight">
               LASANT CONSTRUÇÕES
             </h1>
-            <h2 className="text-2xl sm:text-3xl font-serif font-medium text-[#3a1d6e] mt-3">
+            <h2 className="text-xl sm:text-2xl sm:text-3xl font-serif font-medium text-[#3a1d6e] mt-3">
               Log in - SGM
             </h2>
           </div>
@@ -117,7 +117,7 @@ const Login = () => {
             </div>
 
             {/* Lembrar / Esqueci */}
-            <div className="flex items-center justify-between px-2 pt-1">
+            <div className="flex flex-wrap items-center justify-between gap-2 px-2 pt-1">
               <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer select-none">
                 <Checkbox
                   checked={lembrar}
@@ -214,13 +214,13 @@ const Login = () => {
         <div className="absolute inset-0 flex flex-col justify-center px-12 xl:px-16">
           <div className="text-white font-serif leading-tight space-y-2">
             <div className="text-5xl xl:text-6xl font-light">Gestão</div>
-            <div className="text-3xl xl:text-4xl font-light pl-12">de</div>
+            <div className="text-2xl sm:text-3xl xl:text-4xl font-light pl-12">de</div>
             <div className="text-4xl xl:text-5xl font-light pl-20">Manutenção</div>
-            <div className="text-3xl xl:text-4xl font-light pl-12">e</div>
+            <div className="text-2xl sm:text-3xl xl:text-4xl font-light pl-12">e</div>
             <div className="text-4xl xl:text-5xl font-light pl-24">Obras</div>
-            <div className="text-3xl xl:text-4xl font-light pl-12 pt-2">Também</div>
+            <div className="text-2xl sm:text-3xl xl:text-4xl font-light pl-12 pt-2">Também</div>
             <div className="text-4xl xl:text-5xl font-light pl-20">Suprimentos</div>
-            <div className="text-3xl xl:text-4xl font-light pl-12">e</div>
+            <div className="text-2xl sm:text-3xl xl:text-4xl font-light pl-12">e</div>
             <div className="text-4xl xl:text-5xl font-light pl-24">Muito +</div>
           </div>
         </div>

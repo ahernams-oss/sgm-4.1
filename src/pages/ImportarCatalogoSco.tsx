@@ -194,25 +194,25 @@ export default function ImportarCatalogoSco() {
 
 
   return (
-    <div className="p-6 space-y-4 max-w-3xl">
+    <div className="p-4 sm:p-6 space-y-4 max-w-3xl">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="icon" onClick={() => nav("/orcamentos")}><ArrowLeft className="h-4 w-4" /></Button>
-        <h1 className="text-2xl font-serif font-bold">Importar Catálogo SCO/FGV</h1>
+        <h1 className="text-xl sm:text-2xl font-serif font-bold">Importar Catálogo SCO/FGV</h1>
       </div>
 
       <Card>
         <CardHeader><CardTitle className="text-lg">Estado atual</CardTitle></CardHeader>
-        <CardContent className="grid grid-cols-3 gap-4 text-center">
-          <div><div className="text-2xl font-bold" style={{ color: "#673ab7" }}>{counts.elementares}</div><div className="text-xs text-muted-foreground">Elementares</div></div>
-          <div><div className="text-2xl font-bold" style={{ color: "#673ab7" }}>{counts.servicos}</div><div className="text-xs text-muted-foreground">Serviços</div></div>
-          <div><div className="text-2xl font-bold" style={{ color: "#673ab7" }}>{counts.composicoes}</div><div className="text-xs text-muted-foreground">Composições</div></div>
+        <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-center">
+          <div><div className="text-xl sm:text-2xl font-bold" style={{ color: "#673ab7" }}>{counts.elementares}</div><div className="text-xs text-muted-foreground">Elementares</div></div>
+          <div><div className="text-xl sm:text-2xl font-bold" style={{ color: "#673ab7" }}>{counts.servicos}</div><div className="text-xs text-muted-foreground">Serviços</div></div>
+          <div><div className="text-xl sm:text-2xl font-bold" style={{ color: "#673ab7" }}>{counts.composicoes}</div><div className="text-xs text-muted-foreground">Composições</div></div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader><CardTitle className="text-lg">Carregar planilhas FGV</CardTitle></CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-3 p-3 rounded-md border" style={{ borderColor: "#673ab7" }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-md border" style={{ borderColor: "#673ab7" }}>
             <div>
               <Label>Mês da tabela</Label>
               <Select value={mes} onValueChange={setMes}>

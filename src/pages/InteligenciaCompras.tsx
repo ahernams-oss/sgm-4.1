@@ -299,11 +299,11 @@ export default function InteligenciaComprasPage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 space-y-6">
       <div className="flex items-center gap-3">
         <Sparkles className="h-7 w-7 text-primary" />
         <div>
-          <h1 className="text-2xl font-semibold">Inteligência de Compras</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold">Inteligência de Compras</h1>
           <p className="text-sm text-muted-foreground">
             Aglutina itens e requisições para aumentar poder de barganha pela escala.
           </p>
@@ -319,10 +319,10 @@ export default function InteligenciaComprasPage() {
         {/* ============ TAB 1 — Por Item ============ */}
         <TabsContent value="itens" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Itens com potencial</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{grupos.length}</div></CardContent></Card>
-            <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Selecionados</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{totalItensConsolidados}</div></CardContent></Card>
-            <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Volume consolidado</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{totalQuantidade.toLocaleString("pt-BR")}</div></CardContent></Card>
-            <Card><CardHeader className="pb-2"><CardTitle className="text-sm">RCs envolvidas</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{totalRCs}</div></CardContent></Card>
+            <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Itens com potencial</CardTitle></CardHeader><CardContent><div className="text-xl sm:text-2xl font-bold">{grupos.length}</div></CardContent></Card>
+            <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Selecionados</CardTitle></CardHeader><CardContent><div className="text-xl sm:text-2xl font-bold">{totalItensConsolidados}</div></CardContent></Card>
+            <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Volume consolidado</CardTitle></CardHeader><CardContent><div className="text-xl sm:text-2xl font-bold">{totalQuantidade.toLocaleString("pt-BR")}</div></CardContent></Card>
+            <Card><CardHeader className="pb-2"><CardTitle className="text-sm">RCs envolvidas</CardTitle></CardHeader><CardContent><div className="text-xl sm:text-2xl font-bold">{totalRCs}</div></CardContent></Card>
           </div>
 
           <Card>
@@ -419,9 +419,9 @@ export default function InteligenciaComprasPage() {
         {/* ============ TAB 2 — Por Centro de Custo + Grupo ============ */}
         <TabsContent value="rcs" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Combinações detectadas</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{gruposRCs.length}</div></CardContent></Card>
-            <Card><CardHeader className="pb-2"><CardTitle className="text-sm">RCs candidatas</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{new Set(gruposRCs.flatMap(g => g.requisicoes.map(r => r.id))).size}</div></CardContent></Card>
-            <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Centros de Custo</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{new Set(gruposRCs.map(g => g.centroCusto)).size}</div></CardContent></Card>
+            <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Combinações detectadas</CardTitle></CardHeader><CardContent><div className="text-xl sm:text-2xl font-bold">{gruposRCs.length}</div></CardContent></Card>
+            <Card><CardHeader className="pb-2"><CardTitle className="text-sm">RCs candidatas</CardTitle></CardHeader><CardContent><div className="text-xl sm:text-2xl font-bold">{new Set(gruposRCs.flatMap(g => g.requisicoes.map(r => r.id))).size}</div></CardContent></Card>
+            <Card><CardHeader className="pb-2"><CardTitle className="text-sm">Centros de Custo</CardTitle></CardHeader><CardContent><div className="text-xl sm:text-2xl font-bold">{new Set(gruposRCs.map(g => g.centroCusto)).size}</div></CardContent></Card>
           </div>
 
           <Card>

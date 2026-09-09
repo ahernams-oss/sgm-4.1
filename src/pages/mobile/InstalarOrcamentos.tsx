@@ -65,7 +65,7 @@ export default function InstalarOrcamentos() {
           <div className="mx-auto mb-4 w-20 h-20 rounded-2xl overflow-hidden shadow-md">
             <img src="/icon-orcamentos-512.png" alt="App Orçamentos Lasant" className="w-full h-full object-cover" width={80} height={80} />
           </div>
-          <CardTitle className="text-2xl">Instalar Orçamentos</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl">Instalar Orçamentos</CardTitle>
           <p className="text-sm text-muted-foreground mt-2">
             App dedicado ao módulo de <strong>Orçamentos e Memória de Cálculo</strong>, otimizado para celular e tablet.
           </p>

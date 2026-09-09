@@ -466,7 +466,7 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
         <div className="divide-y divide-border">
           {faturamentos.map((f) => (
             <div key={f.id} className="py-3 flex items-start justify-between gap-4">
-              <div className="min-w-0 flex-1 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-sm">
+              <div className="min-w-0 flex-1 grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-sm">
                 <p className="font-medium text-foreground">
                   Medição {f.numeroMedicao || "—"}
                 </p>

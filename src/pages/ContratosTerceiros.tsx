@@ -244,9 +244,9 @@ function ContratosInner() {
   }, [contratos, filtro]);
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-serif font-semibold">Contratos de Terceiro</h1>
+    <div className="p-4 sm:p-6 space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-2xl sm:text-3xl font-serif font-semibold">Contratos de Terceiro</h1>
         <Button onClick={abrirNovo}><Plus className="h-4 w-4 mr-2" /> Novo Contrato</Button>
       </div>
 
@@ -331,7 +331,7 @@ function ContratosInner() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                 <div>
                   <Label>Fornecedor / Prestador *</Label>
@@ -516,7 +516,7 @@ function ContratosInner() {
               </div>
               <ul className="space-y-2">
                 {(form.anexos || []).map((a, i) => (
-                  <li key={i} className="flex items-center justify-between border rounded-md p-2">
+                  <li key={i} className="flex flex-wrap items-center justify-between gap-2 border rounded-md p-2">
                     <a href={a.url} target="_blank" rel="noreferrer" className="text-primary hover:underline truncate">{a.nome}</a>
                     <Button size="icon" variant="ghost" onClick={() => delAnexo(i)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                   </li>

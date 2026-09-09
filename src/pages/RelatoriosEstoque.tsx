@@ -326,7 +326,7 @@ export default function RelatoriosEstoquePage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold text-foreground">Relatórios de Estoque</h1>
+      <h1 className="text-xl sm:text-2xl font-bold text-foreground">Relatórios de Estoque</h1>
 
       {/* Filters */}
       <Card>

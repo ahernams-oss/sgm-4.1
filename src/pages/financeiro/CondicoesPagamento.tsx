@@ -113,11 +113,11 @@ export default function CondicoesPagamento() {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-4 sm:p-6 space-y-6">
       <div className="flex items-center gap-3">
         <CreditCard className="h-7 w-7 text-primary" />
         <div>
-          <h1 className="text-2xl font-serif font-semibold">Condições de Pagamento</h1>
+          <h1 className="text-xl sm:text-2xl font-serif font-semibold">Condições de Pagamento</h1>
           <p className="text-sm text-muted-foreground">
             Cadastros parametrizáveis utilizados pelos módulos Financeiro e de Compras.
           </p>

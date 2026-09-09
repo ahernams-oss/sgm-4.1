@@ -45,7 +45,7 @@ export function DuplicateWarningDialog<T>({
             {matches.map((m, i) => {
               const cod = getCodigo?.(m.item);
               return (
-                <div key={i} className="p-2 flex items-center justify-between text-sm">
+                <div key={i} className="p-2 flex flex-wrap items-center justify-between gap-2 text-sm">
                   <div>
                     {cod ? <Badge variant="outline" className="font-mono mr-2">{cod}</Badge> : null}
                     <span className="font-medium">{getNome(m.item)}</span>

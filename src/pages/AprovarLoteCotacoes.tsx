@@ -349,9 +349,9 @@ export default function AprovarLoteCotacoesPage() {
 
   return (
     <div className="space-y-4 pt-[15px] pl-0 pr-[10px]">
-      <div className="flex items-center justify-between mx-[7px]">
+      <div className="flex flex-wrap items-center justify-between gap-2 mx-[7px]">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
             <Trophy className="h-6 w-6 text-primary" /> Aprovação em Lote — Menor Preço
           </h1>
           <p className="text-sm text-muted-foreground">Aprova automaticamente, para cada item de cada cotação selecionada, o fornecedor com o menor preço unitário e emite os Ordens de Compra agrupados por fornecedor.</p>

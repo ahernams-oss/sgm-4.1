@@ -894,8 +894,8 @@ export default function SolicitacaoServicosPage() {
 
   return (
     <div className="space-y-6 pt-[15px] pl-0 pr-[10px]">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold mx-[7px]">Solicitação de Serviços</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h1 className="text-xl sm:text-2xl font-bold mx-[7px]">Solicitação de Serviços</h1>
         {!formOpen && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -1528,7 +1528,7 @@ export default function SolicitacaoServicosPage() {
             return (
               <div className="space-y-6 py-2">
                 {/* Info geral */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label className="text-xs text-muted-foreground">Data/Hora</Label>
                     <p className="text-sm font-medium">
@@ -1587,7 +1587,7 @@ export default function SolicitacaoServicosPage() {
                 {/* Localização */}
                 <div className="border-t pt-4">
                   <h4 className="text-sm font-semibold mb-3 text-muted-foreground">Localização</h4>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <Label className="text-xs text-muted-foreground">Cliente</Label>
                       <p className="text-sm font-medium">{viewTarget.clienteNome || "-"}</p>
@@ -1645,7 +1645,7 @@ export default function SolicitacaoServicosPage() {
                 {orc && (
                   <div className="border-t pt-4">
                     <h4 className="text-sm font-semibold mb-3 text-muted-foreground">Orçamento nº {orc.numero}</h4>
-                    <div className="grid grid-cols-2 gap-4 mb-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
                       <div>
                         <Label className="text-xs text-muted-foreground">Status</Label>
                         <Badge variant="outline" className="mt-1">{orc.status}</Badge>
@@ -1809,7 +1809,7 @@ export default function SolicitacaoServicosPage() {
             <div className="max-h-72 overflow-y-auto space-y-2">
               {duplicateMatches.map(m => (
                 <div key={m.id} className="border rounded-md p-3 bg-muted/30">
-                  <div className="flex items-center justify-between mb-1">
+                  <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
                     <span className="font-semibold text-sm">SS Nº {formatNumeroAno(m.numero, m.createdAt)}</span>
                     <Badge variant="outline">{m.situacao}</Badge>
                   </div>

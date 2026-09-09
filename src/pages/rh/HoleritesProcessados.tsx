@@ -354,9 +354,9 @@ export default function HoleritesProcessados() {
   };
 
   return (
-    <div className="p-6 max-w-[1600px] mx-auto space-y-4">
+    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Holerites Processados</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold">Holerites Processados</h1>
         <div className="flex flex-wrap gap-2 items-center">
           {!!selecionados.length && (
             <>
@@ -384,7 +384,7 @@ export default function HoleritesProcessados() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { l: "Holerites", v: String(filtrados.length) },
           { l: "Total salários", v: money(soma("salario_base")) },

@@ -77,7 +77,7 @@ export default function PortalTermos() {
 
   return (
     <PortalLayout requireTipo="candidato">
-      <h1 className="text-2xl font-semibold mb-4">Termos e Documentos</h1>
+      <h1 className="text-xl sm:text-2xl font-semibold mb-4">Termos e Documentos</h1>
       <div className="space-y-4">
         {TERMOS.map((t) => {
           const done = jaAssinou(t.tipo);

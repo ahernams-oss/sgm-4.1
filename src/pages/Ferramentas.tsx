@@ -170,7 +170,7 @@ export default function FerramentasPage() {
 
   return (
     <div className="p-4 md:p-6 max-w-[1400px] mx-auto space-y-4">
-      <h1 className="text-2xl font-bold text-primary">Ferramentas e Equipamentos</h1>
+      <h1 className="text-xl sm:text-2xl font-bold text-primary">Ferramentas e Equipamentos</h1>
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>

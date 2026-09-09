@@ -165,8 +165,8 @@ export default function ComunicacaoAvisos() {
 
   return (
     <div className="space-y-4 pt-[15px] pl-0 pr-[10px]">
-      <div className="flex items-center justify-between mx-[7px]">
-        <h1 className="text-2xl font-bold">Avisos e Comunicados</h1>
+      <div className="flex flex-wrap items-center justify-between gap-2 mx-[7px]">
+        <h1 className="text-xl sm:text-2xl font-bold">Avisos e Comunicados</h1>
       </div>
 
       <Tabs value={tab} onValueChange={setTab} className="mx-[7px]">
@@ -316,9 +316,9 @@ export default function ComunicacaoAvisos() {
               </Select>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <Label className="flex items-center justify-between">
+                <Label className="flex flex-wrap items-center justify-between gap-2">
                   Grupos <span className="text-xs text-muted-foreground">{avisoForm.gruposIds.length} selecionado(s)</span>
                 </Label>
                 <div className="border rounded-md mt-1 max-h-44 overflow-y-auto p-2 space-y-1">
@@ -334,7 +334,7 @@ export default function ComunicacaoAvisos() {
                 </div>
               </div>
               <div>
-                <Label className="flex items-center justify-between">
+                <Label className="flex flex-wrap items-center justify-between gap-2">
                   Usuários <span className="text-xs text-muted-foreground">{avisoForm.destinatariosEmails.length} selecionado(s)</span>
                 </Label>
                 <div className="border rounded-md mt-1 max-h-44 overflow-y-auto p-2 space-y-1">
@@ -429,7 +429,7 @@ export default function ComunicacaoAvisos() {
               <Textarea value={grupoForm.descricao} onChange={e => setGrupoForm(f => ({ ...f, descricao: e.target.value }))} rows={2} />
             </div>
             <div>
-              <Label className="flex items-center justify-between">
+              <Label className="flex flex-wrap items-center justify-between gap-2">
                 Membros <span className="text-xs text-muted-foreground">{grupoForm.membrosEmails.length} selecionado(s)</span>
               </Label>
               <div className="border rounded-md mt-1 max-h-60 overflow-y-auto p-2 space-y-1">

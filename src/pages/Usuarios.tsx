@@ -282,7 +282,7 @@ const Usuarios = () => {
             <Shield className="h-4 w-4" />
             <span className="text-xs font-medium uppercase tracking-wider">Administração</span>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h1 className="text-xl font-bold text-foreground mb-1">Usuários</h1>
               <p className="text-sm text-muted-foreground max-w-lg">
@@ -308,7 +308,7 @@ const Usuarios = () => {
         </div>
 
         {showForm && (
-          <form onSubmit={handleSubmit} className="mb-8 rounded-xl border border-border bg-card p-6 shadow-sm animate-fade-up">
+          <form onSubmit={handleSubmit} className="mb-8 rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm animate-fade-up">
             <Tabs defaultValue="dados" className="w-full">
               <TabsList className="mb-6">
                 <TabsTrigger value="dados">Dados do Usuário</TabsTrigger>
@@ -531,7 +531,7 @@ const Usuarios = () => {
         )}
 
         <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-border bg-muted/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="px-4 sm:px-6 py-4 border-b border-border bg-muted/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <h2 className="text-sm font-semibold text-foreground">Usuários Cadastrados</h2>
             <div className="flex items-center gap-2">
               <Select value={filterCargo} onValueChange={setFilterCargo}>
@@ -609,18 +609,18 @@ const Usuarios = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
               <p className="text-xs text-emerald-700 font-semibold uppercase">Senhas seguras</p>
-              <p className="text-2xl font-bold text-emerald-700">{auditoria.seguros.length}</p>
+              <p className="text-xl sm:text-2xl font-bold text-emerald-700">{auditoria.seguros.length}</p>
             </div>
             <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3">
               <p className="text-xs text-yellow-700 font-semibold uppercase">Senhas legadas</p>
-              <p className="text-2xl font-bold text-yellow-700">{auditoria.legado.length}</p>
+              <p className="text-xl sm:text-2xl font-bold text-yellow-700">{auditoria.legado.length}</p>
             </div>
             <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3">
               <p className="text-xs text-destructive font-semibold uppercase">Sem senha</p>
-              <p className="text-2xl font-bold text-destructive">{auditoria.semSenha.length}</p>
+              <p className="text-xl sm:text-2xl font-bold text-destructive">{auditoria.semSenha.length}</p>
             </div>
           </div>
 
@@ -632,7 +632,7 @@ const Usuarios = () => {
               </h3>
               <div className="rounded-lg border border-border divide-y">
                 {auditoria.semSenha.map((u) => (
-                  <div key={u.id} className="flex items-center justify-between p-3">
+                  <div key={u.id} className="flex flex-wrap items-center justify-between gap-2 p-3">
                     <div>
                       <p className="text-sm font-medium">{u.nome}</p>
                       <p className="text-xs text-muted-foreground">{u.email}</p>
@@ -657,7 +657,7 @@ const Usuarios = () => {
               </p>
               <div className="rounded-lg border border-border divide-y max-h-[300px] overflow-y-auto">
                 {auditoria.legado.map((u) => (
-                  <div key={u.id} className="flex items-center justify-between p-3">
+                  <div key={u.id} className="flex flex-wrap items-center justify-between gap-2 p-3">
                     <div>
                       <p className="text-sm font-medium">{u.nome}</p>
                       <p className="text-xs text-muted-foreground">{u.email}</p>
@@ -691,18 +691,18 @@ const Usuarios = () => {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
             <div className="rounded-lg border border-border bg-muted/40 p-3">
               <p className="text-xs text-muted-foreground font-semibold uppercase">Total</p>
-              <p className="text-2xl font-bold">{loginAuditStats.total}</p>
+              <p className="text-xl sm:text-2xl font-bold">{loginAuditStats.total}</p>
             </div>
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
               <p className="text-xs text-emerald-700 font-semibold uppercase">Sucessos</p>
-              <p className="text-2xl font-bold text-emerald-700">{loginAuditStats.sucesso}</p>
+              <p className="text-xl sm:text-2xl font-bold text-emerald-700">{loginAuditStats.sucesso}</p>
             </div>
             <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3">
               <p className="text-xs text-destructive font-semibold uppercase">Falhas</p>
-              <p className="text-2xl font-bold text-destructive">{loginAuditStats.falha}</p>
+              <p className="text-xl sm:text-2xl font-bold text-destructive">{loginAuditStats.falha}</p>
             </div>
           </div>
 

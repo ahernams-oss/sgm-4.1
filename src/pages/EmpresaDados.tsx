@@ -236,7 +236,7 @@ export default function EmpresaDados() {
     } catch { /* ignore */ }
   };
 
-  if (loading) return <div className="p-6">Carregando...</div>;
+  if (loading) return <div className="p-4 sm:p-6">Carregando...</div>;
 
   const Field = ({ label, field, placeholder, icon: Icon }: {
     label: string; field: keyof Empresa; placeholder?: string; icon?: any;
@@ -257,9 +257,9 @@ export default function EmpresaDados() {
 
   return (
     <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
             <Building2 className="h-6 w-6 text-primary" />
             Dados da Empresa
           </h1>

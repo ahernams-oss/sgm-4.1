@@ -1153,7 +1153,7 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
         <div className="space-y-4">
           <div>
             <Label className="text-sm font-medium mb-2 block">Período de Fechamento</Label>
-            <RadioGroup value={periodo} onValueChange={(v) => setPeriodo(v as Periodo)} className="grid grid-cols-2 gap-2">
+            <RadioGroup value={periodo} onValueChange={(v) => setPeriodo(v as Periodo)} className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {PERIODOS.map(p => (
                 <div key={p.value} className="flex items-start gap-2 border rounded-md p-2">
                   <RadioGroupItem value={p.value} id={`p-${p.value}`} className="mt-1" />
@@ -1167,7 +1167,7 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
           </div>
 
           {periodo === "personalizado" && (
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <Label className="text-sm">Data Início</Label>
                 <Input type="date" value={dataInicio} onChange={e => setDataInicio(e.target.value)} />
@@ -1194,7 +1194,7 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
             </RadioGroup>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label className="text-sm">Cliente</Label>
               <Select value={clienteSel} onValueChange={setClienteSel}>
@@ -1230,7 +1230,7 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
 
           <div>
             <Label className="text-sm font-medium mb-2 block">Orientação da Impressão (PDF)</Label>
-            <RadioGroup value={orientacao} onValueChange={(v) => setOrientacao(v as "p" | "l")} className="grid grid-cols-2 gap-2">
+            <RadioGroup value={orientacao} onValueChange={(v) => setOrientacao(v as "p" | "l")} className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div className="flex items-center gap-2 border rounded-md p-2">
                 <RadioGroupItem value="p" id="ori-p" />
                 <Label htmlFor="ori-p" className="font-normal cursor-pointer flex-1 text-sm">Retrato</Label>

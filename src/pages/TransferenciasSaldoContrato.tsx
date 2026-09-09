@@ -297,10 +297,10 @@ export default function TransferenciasSaldoContrato() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-4 sm:p-6 space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
             <ArrowLeftRight className="h-6 w-6" /> Transferência de Saldos entre Contratos
           </h1>
           <p className="text-sm text-muted-foreground">Débito/crédito imediato entre contratos, com histórico completo.</p>
@@ -391,7 +391,7 @@ export default function TransferenciasSaldoContrato() {
         <DialogContent className="max-w-3xl">
           <DialogHeader><DialogTitle>Nova Transferência de Saldo</DialogTitle></DialogHeader>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium">Data</label>
                 <Input type="date" value={data} onChange={(e) => setData(e.target.value)} />
@@ -409,7 +409,7 @@ export default function TransferenciasSaldoContrato() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 border rounded-md p-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border rounded-md p-3">
               <div className="col-span-2 text-sm font-semibold text-muted-foreground">Origem (débito)</div>
               <div>
                 <label className="text-sm font-medium">Cliente</label>
@@ -428,7 +428,7 @@ export default function TransferenciasSaldoContrato() {
               <div className="col-span-2 text-xs text-muted-foreground">Saldo atual ({TIPO_LABEL[tipoSaldo]}): <strong className="text-foreground">{fmtBRL(saldoOrigem)}</strong></div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 border rounded-md p-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border rounded-md p-3">
               <div className="col-span-2 text-sm font-semibold text-muted-foreground">Destino (crédito)</div>
               <div>
                 <label className="text-sm font-medium">Cliente</label>
@@ -447,7 +447,7 @@ export default function TransferenciasSaldoContrato() {
               <div className="col-span-2 text-xs text-muted-foreground">Saldo atual ({TIPO_LABEL[tipoSaldo]}): <strong className="text-foreground">{fmtBRL(saldoDestino)}</strong></div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium">Valor a transferir (R$)</label>
                 <Input value={valor} onChange={(e) => setValor(e.target.value.replace(/[^\d,.]/g, ""))} placeholder="0,00" />
@@ -472,7 +472,7 @@ export default function TransferenciasSaldoContrato() {
           </DialogHeader>
           {detalhe && (
             <div className="space-y-5">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-muted-foreground">Data da transferência</span>
                   <div className="font-medium">{new Date(detalhe.data + "T00:00:00").toLocaleDateString("pt-BR")}</div>

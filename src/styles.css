@@ -266,13 +266,13 @@
   clip-path: polygon(55% 0, 100% 0, 100% 100%, 30% 100%);
 }
 
-/* Login card: control width directly so it wins over conflicting utilities */
 .login-card {
   width: 100%;
 }
 
 @media (min-width: 64rem) {
   .login-card {
-    width: 84.62%;
+    width: min(70rem, calc(100vw - 3rem));
+    height: min(43rem, calc(100dvh - 3rem));
   }
 }

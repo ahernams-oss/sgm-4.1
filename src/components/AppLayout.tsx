@@ -11,13 +11,13 @@ interface AppLayoutProps {
 const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <SidebarProvider defaultOpen>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full overflow-x-hidden">
         <AppSidebar />
-        <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-12 flex items-center border-b border-border bg-card sticky top-0 z-10">
+        <div className="flex-1 flex flex-col min-w-0 w-full">
+          <header className="h-12 flex items-center border-b border-border bg-card sticky top-0 z-10 shrink-0">
             <SidebarTrigger className="ml-3" />
           </header>
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 min-w-0 w-full overflow-x-hidden">{children}</main>
         </div>
       </div>
       <AvisosPopup />

@@ -234,22 +234,18 @@ export default function EmpresaDados() {
 
   if (loading) return <div className="p-4 sm:p-6">Carregando...</div>;
 
-  const Field = ({ label, field, placeholder, icon: Icon }: {
+  const Field = ({ label, field, placeholder, icon }: {
     label: string; field: keyof Empresa; placeholder?: string; icon?: any;
   }) => (
-    <div className="space-y-1.5">
-      <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
-      <div className="relative">
-        {Icon && <Icon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />}
-        <Input
-          value={form[field] as string}
-          onChange={e => update(field, e.target.value)}
-          placeholder={placeholder}
-          className={Icon ? "pl-9" : ""}
-        />
-      </div>
-    </div>
+    <CampoTexto
+      label={label}
+      value={(form[field] as string) ?? ""}
+      onChange={(v) => update(field, v)}
+      placeholder={placeholder}
+      icon={icon}
+    />
   );
+
 
   return (
     <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-6">

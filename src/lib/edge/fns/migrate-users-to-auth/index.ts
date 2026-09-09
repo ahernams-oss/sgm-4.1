@@ -142,7 +142,7 @@ Deno.serve(async (req) => {
                 perPage: 200,
               });
               const found = list?.users?.find(
-                (x) => (x.email || "").toLowerCase() === u.email.toLowerCase()
+                (x: any) => (x.email || "").toLowerCase() === (u as any).email.toLowerCase()
               );
               if (found) {
                 await admin

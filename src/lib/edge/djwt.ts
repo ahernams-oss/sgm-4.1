@@ -39,7 +39,7 @@ export async function verify(token: string, key: CryptoKey): Promise<Payload> {
   const ok = await crypto.subtle.verify(
     'HMAC',
     key,
-    b64urlDecode(parts[2] as string),
+    b64urlDecode(parts[2] as string) as any,
     new TextEncoder().encode(data),
   );
   if (!ok) throw new Error('Assinatura inválida');

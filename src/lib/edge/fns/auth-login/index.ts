@@ -172,7 +172,7 @@ Deno.serve(async (req) => {
         if (!authUser?.auth_user_id) {
           const { data: list } = await supabase.auth.admin.listUsers();
           const found = list?.users?.find(
-            (u) => (u.email ?? "").toLowerCase() === emailAuth,
+            (u: any) => (u.email ?? "").toLowerCase() === emailAuth,
           );
           if (found) {
             await supabase.from("usuarios").update({ auth_user_id: found.id }).eq("id", user.id);

@@ -26,7 +26,7 @@ const CotacaoConfirmationEmail = ({
   <Html lang="pt-BR" dir="ltr">
     <Head />
     <Preview>
-      {nomeEmpresa || SITE_NAME} — Solicitação de Cotação #{cotacaoNumero || '---'}
+      {` — Solicitação de Cotação #`}
     </Preview>
     <Body style={main}>
       <Container style={container}>

@@ -16,7 +16,7 @@ interface AssinaturaOtpProps {
 const AssinaturaOtpEmail = ({ nomeUsuario, codigo, documento, papel }: AssinaturaOtpProps) => (
   <Html lang="pt-BR" dir="ltr">
     <Head />
-    <Preview>Código de assinatura eletrônica: {codigo}</Preview>
+    <Preview>{`Código de assinatura eletrônica: ${codigo ?? ""}`}</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={headerSection}>

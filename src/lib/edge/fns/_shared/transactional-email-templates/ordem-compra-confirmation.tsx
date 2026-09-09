@@ -30,7 +30,7 @@ const OrdemCompraConfirmationEmail = ({
   <Html lang="pt-BR" dir="ltr">
     <Head />
     <Preview>
-      {nomeEmpresa || SITE_NAME} — Ordem de Compra #{pedidoNumero || '---'}
+      {` — Ordem de Compra #`}
     </Preview>
     <Body style={main}>
       <Container style={container}>

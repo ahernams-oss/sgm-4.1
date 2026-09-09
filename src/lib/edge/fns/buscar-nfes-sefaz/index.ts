@@ -125,7 +125,7 @@ Deno.serve(async (req) => {
 </soap12:Envelope>`;
 
     // 5. Cria HTTP client com mTLS (certificado cliente)
-    let client: Deno.HttpClient;
+    let client: any;
     try {
       // @ts-ignore - createHttpClient está disponível no Supabase Edge Runtime
       client = Deno.createHttpClient({ cert: certPem, key: keyPem });

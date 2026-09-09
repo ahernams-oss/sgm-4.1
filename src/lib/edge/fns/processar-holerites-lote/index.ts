@@ -157,7 +157,7 @@ function lerExcel(b64: string) {
   }
   if (hIdx < 0) throw new Error("Não foi possível identificar as colunas (CPF/Nome) na planilha.");
   const get = (row: any[], campo: string) => (idx[campo] === undefined ? null : row[idx[campo]]);
-  const registros = [];
+  const registros: any[] = [];
   for (let i = hIdx + 1; i < linhas.length; i++) {
     const row = linhas[i] || [];
     const cpf = onlyDigits(String(get(row, "cpf") ?? ""));

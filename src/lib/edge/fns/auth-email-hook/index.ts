@@ -3,7 +3,7 @@ const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
 import * as React from 'react'
-import { renderAsync } from '@react-email/components'
+import { render } from '@react-email/components'
 import { createAuthEmailHandler } from '@lovable.dev/email-js'
 import { SignupEmail } from '../_shared/email-templates/signup.tsx'
 import { InviteEmail } from '../_shared/email-templates/invite.tsx'
@@ -116,7 +116,7 @@ async function handlePreview(req: Request): Promise<Response> {
   }
 
   const sampleData = SAMPLE_DATA[type] || {}
-  const html = await renderAsync(React.createElement(EmailTemplate, sampleData))
+  const html = await render(React.createElement(EmailTemplate, sampleData))
 
   return new Response(html, {
     status: 200,

@@ -3,7 +3,7 @@ const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
 import * as React from 'react'
-import { renderAsync } from '@react-email/components'
+import { render } from '@react-email/components'
 import { corsHeaders } from '@/lib/edge/cors'
 import { TEMPLATES } from '../_shared/transactional-email-templates/registry.ts'
 
@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-      const html = await renderAsync(
+      const html = await render(
         React.createElement(entry.component, entry.previewData)
       )
       const resolvedSubject =

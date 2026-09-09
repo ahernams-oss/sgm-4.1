@@ -1,7 +1,7 @@
 import { denoEnv } from "@/lib/edge/deno-shim";
 const Deno = { env: denoEnv } as any;
 import * as React from 'react'
-import { renderAsync } from '@react-email/components'
+import { render } from '@react-email/components'
 import { EmailAPIError, sendLovableEmail } from '@lovable.dev/email-js'
 import { TEMPLATES } from './registry.ts'
 
@@ -61,8 +61,8 @@ export async function sendTemplateEmail(
 
   const templateData = options.templateData ?? {}
   const element = React.createElement(template.component, templateData)
-  const html = await renderAsync(element)
-  const text = await renderAsync(element, { plainText: true })
+  const html = await render(element)
+  const text = await render(element, { plainText: true })
   const subject =
     typeof template.subject === 'function'
       ? template.subject(templateData)

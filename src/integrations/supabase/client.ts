@@ -108,6 +108,9 @@ function createSupabaseClient() {
   (client.functions as any).invoke = invoke;
 
   return client;
+}
+
+
 
 
 let _supabase: ReturnType<typeof createSupabaseClient> | undefined;

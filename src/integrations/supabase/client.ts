@@ -105,7 +105,13 @@ function createSupabaseClient() {
     }
   };
 
-  (client.functions as any).invoke = invoke;
+  // `client.functions` é um getter que devolve um cliente novo a cada acesso,
+  // então substituímos a propriedade inteira para a ponte valer sempre.
+  const functionsBridge = { invoke, setAuth: () => {} } as any;
+  Object.defineProperty(client, 'functions', {
+    configurable: true,
+    get: () => functionsBridge,
+  });
 
   return client;
 }

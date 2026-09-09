@@ -39,7 +39,7 @@ const Login = () => {
   };
 
   return (
-    <div className="login-canvas relative flex min-h-screen w-full items-center justify-center overflow-hidden p-1.5 sm:p-2">
+    <div className="login-canvas relative flex min-h-screen w-full items-center justify-center overflow-hidden p-1.5 sm:p-2 lg:h-dvh lg:min-h-0">
       <div className="login-stripes pointer-events-none absolute inset-0" />
 
       <div className="relative flex min-h-[calc(100dvh-0.75rem)] w-full overflow-hidden rounded-[1.6rem] bg-card shadow-2xl sm:min-h-[calc(100dvh-1rem)] lg:h-[153.85dvh] lg:min-h-0 lg:w-[153.85%] lg:origin-center lg:scale-[0.65]">

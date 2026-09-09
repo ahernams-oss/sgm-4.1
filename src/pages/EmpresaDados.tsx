@@ -36,7 +36,7 @@ export default function EmpresaDados() {
   const initialLoadDone = useRef(false);
 
   useEffect(() => {
-    if (!loading && !dirtyRef.current) {
+    if (!loading && !dirtyRef.current && !initialLoadDone.current) {
       setForm(empresa);
       initialLoadDone.current = true;
     }
@@ -59,14 +59,10 @@ export default function EmpresaDados() {
   const update = (field: keyof Empresa, value: string) => {
     if (!podeEditar) return;
     dirtyRef.current = true;
-    setForm(prev => {
-      const next = { ...prev, [field]: value };
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      setAutoSaveStatus("pending");
-      debounceRef.current = setTimeout(() => autoSave(next), 1500);
-      return next;
-    });
+    setAutoSaveStatus("pending");
+    setForm(prev => ({ ...prev, [field]: value }));
   };
+
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!podeEditar) { toast({ title: "Você não possui permissão para esta ação.", variant: "destructive" }); return; }

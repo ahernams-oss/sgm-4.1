@@ -1,10 +1,11 @@
 import * as React from 'react'
 import {
-  Body, Container, Head, Heading, Html, Preview, Text, Button, Hr, Section,
+  Body, Container, Head, Heading, Html, Preview, Text, Button, Hr, Section, Img,
 } from '@react-email/components'
 import type { TemplateEntry } from './registry'
 
 const SITE_NAME = "LASANT CONSTRUÇÕES"
+const LOGO_URL = "https://coordinate-finder.lovable.app/__l5e/assets-v1/5a89feaa-50bb-4659-ad17-c29629bff31f/logo-lasant.png"
 
 interface CotacaoConfirmationProps {
   fornecedorNome?: string
@@ -31,6 +32,7 @@ const CotacaoConfirmationEmail = ({
     <Body style={main}>
       <Container style={container}>
         <Section style={headerSection}>
+          <Img src={LOGO_URL} width="164" height="67" alt="Lasant Construções" style={logo} />
           <Heading style={h1}>{nomeEmpresa || SITE_NAME}</Heading>
           <Text style={subtitle}>Solicitação de Cotação</Text>
         </Section>
@@ -109,6 +111,7 @@ export const template = {
 const main = { backgroundColor: '#ffffff', fontFamily: "'Inter', Arial, sans-serif" }
 const container = { padding: '24px 32px', maxWidth: '580px', margin: '0 auto' }
 const headerSection = { textAlign: 'center' as const, paddingBottom: '8px' }
+const logo = { display: 'block', margin: '0 auto 16px', maxWidth: '164px', height: 'auto' }
 const h1 = {
   fontSize: '22px',
   fontWeight: '700' as const,

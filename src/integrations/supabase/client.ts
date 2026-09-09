@@ -44,7 +44,7 @@ function createSupabaseClient() {
     throw new Error(message);
   }
 
-  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  const client = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     global: {
       fetch: createSupabaseFetch(SUPABASE_PUBLISHABLE_KEY),
     },
@@ -54,7 +54,61 @@ function createSupabaseClient() {
       autoRefreshToken: true,
     },
   });
-}
+
+  // As funções de servidor do SGM rodam dentro deste app (src/lib/edge/fns),
+  // expostas em /api/public/edge/<nome>. Mantemos a mesma API de chamada.
+  const invoke = async (name: string, options: any = {}) => {
+    try {
+      const headers = new Headers(options?.headers ?? {});
+      headers.set('apikey', SUPABASE_PUBLISHABLE_KEY);
+      if (!headers.has('Authorization')) {
+        const { data } = await client.auth.getSession();
+        const token = data.session?.access_token;
+        headers.set('Authorization', `Bearer ${token ?? SUPABASE_PUBLISHABLE_KEY}`);
+      }
+
+      let body: BodyInit | undefined;
+      if (options?.body instanceof FormData || typeof options?.body === 'string') {
+        body = options.body;
+      } else if (options?.body !== undefined) {
+        headers.set('Content-Type', 'application/json');
+        body = JSON.stringify(options.body);
+      }
+
+      const method = options?.method ?? (body !== undefined ? 'POST' : 'GET');
+      const base =
+        typeof window !== 'undefined'
+          ? window.location.origin
+          : (process.env['APP_ORIGIN'] ?? '');
+      const response = await fetch(`${base}/api/public/edge/${name}`, {
+        method,
+        headers,
+        ...(body !== undefined ? { body } : {}),
+      });
+
+      const texto = await response.text();
+      let data: any = null;
+      try {
+        data = texto ? JSON.parse(texto) : null;
+      } catch {
+        data = texto;
+      }
+
+      if (!response.ok) {
+        const mensagem =
+          (data && (data.error || data.message)) || `Erro ${response.status} em ${name}`;
+        return { data, error: Object.assign(new Error(mensagem), { status: response.status }) };
+      }
+      return { data, error: null };
+    } catch (error) {
+      return { data: null, error: error instanceof Error ? error : new Error(String(error)) };
+    }
+  };
+
+  (client.functions as any).invoke = invoke;
+
+  return client;
+
 
 let _supabase: ReturnType<typeof createSupabaseClient> | undefined;
 

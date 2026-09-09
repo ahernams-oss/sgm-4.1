@@ -111,6 +111,7 @@ export const template = {
 const main = { backgroundColor: '#ffffff', fontFamily: "'Inter', Arial, sans-serif" }
 const container = { padding: '24px 32px', maxWidth: '580px', margin: '0 auto' }
 const headerSection = { textAlign: 'center' as const, paddingBottom: '8px' }
+const logo = { display: 'block', margin: '0 auto 16px', maxWidth: '164px', height: 'auto' }
 const h1 = {
   fontSize: '22px',
   fontWeight: '700' as const,

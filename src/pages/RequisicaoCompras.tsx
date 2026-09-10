@@ -160,11 +160,12 @@ export default function RequisicaoComprasPage() {
     urgencia: { label: "Urgência", className: "text-center" },
     itens: { label: "Itens", className: "text-center" },
     status: { label: "Status", className: "text-center" },
+    cotacao: { label: "Cotação", className: "text-center" },
     ordemCompra: { label: "Ordem de Compra", className: "text-center" },
   };
   const { order: colOrder, setOrder: setColOrder } = useColumnOrder(
     "compras.requisicoes",
-    ["numero", "data", "solicitante", "centroCusto", "urgencia", "itens", "status", "ordemCompra"]
+    ["numero", "data", "solicitante", "centroCusto", "urgencia", "itens", "status", "cotacao", "ordemCompra"]
   );
 
 
@@ -567,8 +568,9 @@ export default function RequisicaoComprasPage() {
             {filtered.length === 0 ? (
               <TableRow><TableCell colSpan={colOrder.length + 1} className="text-center text-muted-foreground py-8">Nenhuma requisição encontrada</TableCell></TableRow>
             ) : paginate(filtered, pageReq, 7).paginated.map((r, idx) => {
-              const cotacaoExist = cotacoes.find(c => c.requisicaoId === r.id);
-              const pedidosDaReq = pedidos.filter(p => p.requisicaoId === r.id || (cotacaoExist && p.cotacaoId === cotacaoExist.id));
+              const cotacoesDaReq = cotacoes.filter(c => c.requisicaoId === r.id);
+              const cotacaoExist = cotacoesDaReq[0];
+              const pedidosDaReq = pedidos.filter(p => p.requisicaoId === r.id || cotacoesDaReq.some(c => p.cotacaoId === c.id));
 
               const horasDesdeCriacao = (Date.now() - new Date(r.dataCriacao).getTime()) / 3600000;
               const diasDesdeCriacao = horasDesdeCriacao / 24;
@@ -606,6 +608,21 @@ export default function RequisicaoComprasPage() {
                 ),
                 itens: r.itens.length,
                 status: <Badge className={statusColors[r.status]}>{r.status}</Badge>,
+                cotacao: cotacoesDaReq.length > 0 ? (
+                  <div className="flex flex-col items-center gap-0.5">
+                    {cotacoesDaReq.map(c => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => navigate(`/compras/cotacoes?cotacaoId=${c.id}`)}
+                        className="font-mono text-xs text-primary underline underline-offset-2 hover:opacity-80"
+                        title={`Abrir cotação COT-${String(c.numero).padStart(4, "0")} — ${c.status}`}
+                      >
+                        COT-{String(c.numero).padStart(4, "0")}
+                      </button>
+                    ))}
+                  </div>
+                ) : <span className="text-muted-foreground text-xs">-</span>,
                 ordemCompra: pedidosDaReq.length > 0 ? (
                   <div className="flex flex-col items-center gap-0.5">
                     {pedidosDaReq.map(p => (

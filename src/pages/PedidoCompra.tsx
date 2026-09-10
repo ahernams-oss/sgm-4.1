@@ -616,7 +616,7 @@ export default function PedidoCompraPage() {
                 : undefined;
               const cellMap: Record<string, ReactNode> = {
                 numero: (
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center justify-center gap-1">
                     {atrasoEntrega && <AlertTriangle className="h-4 w-4 text-red-600 animate-blink-urgent" aria-label="entrega atrasada" />}
                     <a href={`/compras/pedidos?numero=${p.numero}`} title={atrasoTitle} className="font-mono font-bold text-primary hover:underline">OC-{String(p.numero).padStart(4, "0")}</a>
                   </span>

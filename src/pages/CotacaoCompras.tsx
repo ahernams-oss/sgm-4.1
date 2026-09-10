@@ -1,6 +1,7 @@
 import { isFornecedorSuspenso } from "@/lib/fornecedorSuspensao";
 import { useState, useMemo, useEffect, useCallback, type ReactNode } from "react";
 import { loadPersistedFilters, usePersistFilters } from "@/lib/persistedFilters";
+import { useSearchParams } from "@/lib/router-compat";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { useCotacaoCompras, CotacaoCompras, PropostaFornecedor, ItemCotacaoFornecedor, ItemVencedor } from "@/contexts/CotacaoComprasContext";
 import { useRequisicaoCompras, RequisicaoCompras } from "@/contexts/RequisicaoComprasContext";
@@ -146,6 +147,36 @@ export default function CotacaoComprasPage() {
   usePersistFilters("cotacao_compras_filters_v1", { search, filterStatus, filterPeriodo, filterComprador, filterCentroCusto, filterUrgencia, filterDataIni, filterDataFim });
   const [pageCot, setPageCot] = useState(1);
   const [pageSizeCot, setPageSizeCot] = useState(7);
+
+  // Link direto vindo de outra tela (ex.: grid de requisições): ?cotacaoId= ou ?rcsId=
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [focusCotacaoId, setFocusCotacaoId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const cotacaoId = searchParams.get("cotacaoId");
+    const rcsId = searchParams.get("rcsId");
+    if (!cotacaoId && !rcsId) return;
+    const alvo = cotacaoId
+      ? cotacoes.find(c => c.id === cotacaoId)
+      : cotacoes.find(c => c.requisicaoId === rcsId);
+    const limparParams = () => {
+      const limpo = new URLSearchParams(searchParams);
+      limpo.delete("cotacaoId");
+      limpo.delete("rcsId");
+      setSearchParams(limpo, { replace: true });
+    };
+    if (!alvo) {
+      // Os dados chegam de forma assíncrona: só descarta o link quando já há cotações carregadas.
+      if (cotacoes.length > 0) limparParams();
+      return;
+    }
+    setFocusCotacaoId(alvo.id);
+    setPageCot(1);
+    limparParams();
+  }, [searchParams, setSearchParams, cotacoes]);
+
+  // Qualquer nova busca manual abandona o recorte trazido pelo link.
+  useEffect(() => { setFocusCotacaoId(null); }, [search]);
 
   const colDefs: Record<string, { label: string; className?: string }> = {
     numero: { label: "Nº Cotação", className: "text-center" },
@@ -347,12 +378,13 @@ export default function CotacaoComprasPage() {
     return Array.from(set).sort();
   }, [cotacoes, requisicoes]);
 
-  const hasActiveFilters = filterStatus !== "Todos" || filterPeriodo !== "Todos" || filterComprador !== "Todos" || filterCentroCusto !== "Todos" || filterUrgencia !== "Todas" || search !== "" || filterDataIni !== "" || filterDataFim !== "";
+  const hasActiveFilters = filterStatus !== "Todos" || filterPeriodo !== "Todos" || filterComprador !== "Todos" || filterCentroCusto !== "Todos" || filterUrgencia !== "Todas" || search !== "" || filterDataIni !== "" || filterDataFim !== "" || !!focusCotacaoId;
 
-  const clearFilters = () => { setSearch(""); setFilterStatus("Todos"); setFilterPeriodo("Todos"); setFilterComprador("Todos"); setFilterCentroCusto("Todos"); setFilterUrgencia("Todas"); setFilterDataIni(""); setFilterDataFim(""); };
+  const clearFilters = () => { setSearch(""); setFocusCotacaoId(null); setFilterStatus("Todos"); setFilterPeriodo("Todos"); setFilterComprador("Todos"); setFilterCentroCusto("Todos"); setFilterUrgencia("Todas"); setFilterDataIni(""); setFilterDataFim(""); };
 
   const filtered = useMemo(() => {
     let list = cotacoes;
+    if (focusCotacaoId) list = list.filter(c => c.id === focusCotacaoId);
     if (filterStatus !== "Todos") list = list.filter(c => c.status === filterStatus);
     if (filterComprador !== "Todos") list = list.filter(c => c.comprador === filterComprador);
     if (filterCentroCusto !== "Todos") {
@@ -380,7 +412,7 @@ export default function CotacaoComprasPage() {
     }
 
     return list.sort((a, b) => b.numero - a.numero);
-  }, [cotacoes, requisicoes, search, filterStatus, filterPeriodo, filterComprador, filterCentroCusto, filterUrgencia, filterDataIni, filterDataFim]);
+  }, [cotacoes, requisicoes, search, filterStatus, filterPeriodo, filterComprador, filterCentroCusto, filterUrgencia, filterDataIni, filterDataFim, focusCotacaoId]);
 
   const notificarStatusReq = (reqId: string, statusLabel: string, dataExtraLabel?: string) => {
     const r = requisicoes.find(x => x.id === reqId);

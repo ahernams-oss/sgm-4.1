@@ -1,6 +1,7 @@
 import type { jsPDF } from "jspdf";
 import type { OrdemServico } from "@/contexts/OrdensServicoContext";
 import capaAsset from "@/assets/capa-relatorio-fotografico.jpg.asset.json";
+import finalAsset from "@/assets/final-relatorio-fotografico.jpg.asset.json";
 
 const getJsPDF = async () => (await import("jspdf")).jsPDF;
 const getAutoTable = async () => (await import("jspdf-autotable")).default;

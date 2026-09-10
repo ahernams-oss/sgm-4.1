@@ -1,0 +1,190 @@
+import type { jsPDF } from "jspdf";
+import type { OrdemServico } from "@/contexts/OrdensServicoContext";
+import capaAsset from "@/assets/capa-relatorio-fotografico.png.asset.json";
+
+const getJsPDF = async () => (await import("jspdf")).jsPDF;
+const getAutoTable = async () => (await import("jspdf-autotable")).default;
+
+const BORDER: [number, number, number] = [60, 60, 60];
+
+async function loadImage(url: string): Promise<{ dataUrl: string; w: number; h: number } | null> {
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return null;
+    const b = await r.blob();
+    const dataUrl = await new Promise<string>((resolve) => {
+      const fr = new FileReader();
+      fr.onloadend = () => resolve(fr.result as string);
+      fr.readAsDataURL(b);
+    });
+    const dims = await new Promise<{ w: number; h: number }>((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve({ w: img.naturalWidth || 4, h: img.naturalHeight || 3 });
+      img.onerror = () => resolve({ w: 4, h: 3 });
+      img.src = dataUrl;
+    });
+    return { dataUrl, ...dims };
+  } catch {
+    return null;
+  }
+}
+
+const fmtData = (d?: string) => {
+  if (!d) return "";
+  const dt = new Date(d);
+  if (isNaN(dt.getTime())) return d;
+  return dt.toLocaleDateString("pt-BR");
+};
+
+const fmtDateTime = (iso?: string) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+};
+
+export interface RelatorioFotograficoOptions {
+  ordens: OrdemServico[];
+  clienteNome?: string;
+  unidade?: string;
+  descricao?: string;
+  periodoInicio?: string;
+  periodoFim?: string;
+  fileName?: string;
+}
+
+async function renderCapa(doc: jsPDF, opt: RelatorioFotograficoOptions) {
+  const pw = doc.internal.pageSize.getWidth();
+  const ph = doc.internal.pageSize.getHeight();
+  const capa = await loadImage(capaAsset.url);
+  if (capa) {
+    try { doc.addImage(capa.dataUrl, "PNG", 0, 0, pw, ph); } catch { /* ignore */ }
+  }
+
+  doc.setTextColor(20, 33, 61);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+
+  const put = (text: string, x: number, y: number) => {
+    if (!text) return;
+    doc.text(text, x, y, { maxWidth: pw * 0.45 });
+  };
+
+  put(opt.clienteNome || "", 38, 129);
+  put(opt.unidade || "", 41, 138);
+  put(opt.descricao || "", 43, 147.5);
+  put(fmtData(opt.periodoInicio), 42, 171);
+  put(fmtData(opt.periodoFim), 42, 178.5);
+
+  doc.setTextColor(30, 30, 30);
+}
+
+async function renderCabecalhoOS(doc: jsPDF, os: OrdemServico, startY: number): Promise<number> {
+  const pw = doc.internal.pageSize.getWidth();
+  const ml = 12, mr = 12;
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(30, 58, 107);
+  doc.text(`ORDEM DE SERVIÇO Nº ${String(os.numero).padStart(2, "0")}`, ml, startY);
+  doc.setTextColor(30, 30, 30);
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "normal");
+  doc.text(os.clienteNome || "", pw - mr, startY, { align: "right", maxWidth: pw * 0.5 });
+
+  (await getAutoTable())(doc, {
+    startY: startY + 3,
+    margin: { left: ml, right: mr },
+    theme: "grid",
+    styles: { fontSize: 7.5, cellPadding: 1.8, lineColor: BORDER, lineWidth: 0.3, textColor: [30, 30, 30], valign: "middle" },
+    body: [
+      [
+        { content: "Unidade:", styles: { fontStyle: "bold" as const } }, os.localDescricao || "-",
+        { content: "Tipo de serviço:", styles: { fontStyle: "bold" as const } }, os.categoria || os.servico || "-",
+      ],
+      [
+        { content: "Pavimento:", styles: { fontStyle: "bold" as const } }, os.pavimentoDescricao || "-",
+        { content: "Setor:", styles: { fontStyle: "bold" as const } }, os.setorDescricao || "-",
+      ],
+      [
+        { content: "Solicitante:", styles: { fontStyle: "bold" as const } }, os.solicitante || "-",
+        { content: "Emissão:", styles: { fontStyle: "bold" as const } }, fmtDateTime(os.createdAt) || "-",
+      ],
+      [
+        { content: "Situação:", styles: { fontStyle: "bold" as const } }, os.situacao || "-",
+        { content: "Período:", styles: { fontStyle: "bold" as const } },
+        `${fmtData(os.dataInicio) || "-"} a ${fmtData(os.dataTermino) || "-"}`,
+      ],
+    ],
+    columnStyles: { 0: { cellWidth: 26 }, 2: { cellWidth: 26 } },
+  });
+
+  return ((doc as any).lastAutoTable?.finalY ?? startY + 30) + 4;
+}
+
+export async function gerarPdfRelatorioFotografico(opt: RelatorioFotograficoOptions) {
+  const JsPDF = await getJsPDF();
+  const doc = new JsPDF({ compress: true, orientation: "p", unit: "mm", format: "a4" });
+  const pw = doc.internal.pageSize.getWidth();
+  const ph = doc.internal.pageSize.getHeight();
+  const ml = 12, mr = 12;
+  const contentW = pw - ml - mr;
+
+  await renderCapa(doc, opt);
+
+  for (const os of opt.ordens) {
+    doc.addPage();
+    let y = await renderCabecalhoOS(doc, os, 16);
+
+    const fotos = Array.isArray(os.fotos) ? os.fotos : [];
+    if (fotos.length === 0) {
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(9);
+      doc.setTextColor(120, 120, 120);
+      doc.text("Nenhuma imagem registrada para esta Ordem de Serviço.", ml, y + 6);
+      doc.setTextColor(30, 30, 30);
+      continue;
+    }
+
+    const gap = 6;
+    const cellW = (contentW - gap) / 2;
+    const cellH = cellW * 0.75;
+    let col = 0;
+
+    for (const foto of fotos) {
+      const img = await loadImage(foto.url);
+      if (!img) continue;
+
+      if (y + cellH > ph - 14) {
+        doc.addPage();
+        y = 16;
+        col = 0;
+      }
+
+      const x = ml + col * (cellW + gap);
+      const ratio = Math.min(cellW / img.w, cellH / img.h);
+      const w = img.w * ratio;
+      const h = img.h * ratio;
+
+      doc.setDrawColor(...BORDER);
+      doc.setLineWidth(0.3);
+      doc.rect(x, y, cellW, cellH);
+      try {
+        doc.addImage(img.dataUrl, "JPEG", x + (cellW - w) / 2, y + (cellH - h) / 2, w, h);
+      } catch { /* ignore */ }
+
+      col += 1;
+      if (col === 2) { col = 0; y += cellH + gap; }
+    }
+  }
+
+  const pages = doc.getNumberOfPages();
+  for (let i = 2; i <= pages; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setTextColor(150);
+    doc.text(`Página ${i - 1} de ${pages - 1}`, pw / 2, ph - 6, { align: "center" });
+  }
+
+  doc.save(`${opt.fileName || "relatorio_fotografico"}.pdf`);
+}

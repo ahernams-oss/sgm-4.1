@@ -148,6 +148,36 @@ export default function CotacaoComprasPage() {
   const [pageCot, setPageCot] = useState(1);
   const [pageSizeCot, setPageSizeCot] = useState(7);
 
+  // Link direto vindo de outra tela (ex.: grid de requisições): ?cotacaoId= ou ?rcsId=
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [focusCotacaoId, setFocusCotacaoId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const cotacaoId = searchParams.get("cotacaoId");
+    const rcsId = searchParams.get("rcsId");
+    if (!cotacaoId && !rcsId) return;
+    const alvo = cotacaoId
+      ? cotacoes.find(c => c.id === cotacaoId)
+      : cotacoes.find(c => c.requisicaoId === rcsId);
+    const limparParams = () => {
+      const limpo = new URLSearchParams(searchParams);
+      limpo.delete("cotacaoId");
+      limpo.delete("rcsId");
+      setSearchParams(limpo, { replace: true });
+    };
+    if (!alvo) {
+      // Os dados chegam de forma assíncrona: só descarta o link quando já há cotações carregadas.
+      if (cotacoes.length > 0) limparParams();
+      return;
+    }
+    setFocusCotacaoId(alvo.id);
+    setPageCot(1);
+    limparParams();
+  }, [searchParams, setSearchParams, cotacoes]);
+
+  // Qualquer nova busca manual abandona o recorte trazido pelo link.
+  useEffect(() => { setFocusCotacaoId(null); }, [search]);
+
   const colDefs: Record<string, { label: string; className?: string }> = {
     numero: { label: "Nº Cotação", className: "text-center" },
     centroCusto: { label: "Centro de Custo" },

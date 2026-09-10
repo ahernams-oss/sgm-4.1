@@ -737,6 +737,11 @@ export type Database = {
           rel_linha2: string | null
           rel_linha3: string | null
           rel_linha4: string | null
+          suspensao_ate: string | null
+          suspensao_data: string | null
+          suspensao_motivo: string | null
+          suspensao_por: string | null
+          suspenso: boolean
           telefone_celular: string | null
           telefones: Json | null
           telefones_whatsapp: string | null
@@ -784,6 +789,11 @@ export type Database = {
           rel_linha2?: string | null
           rel_linha3?: string | null
           rel_linha4?: string | null
+          suspensao_ate?: string | null
+          suspensao_data?: string | null
+          suspensao_motivo?: string | null
+          suspensao_por?: string | null
+          suspenso?: boolean
           telefone_celular?: string | null
           telefones?: Json | null
           telefones_whatsapp?: string | null
@@ -831,6 +841,11 @@ export type Database = {
           rel_linha2?: string | null
           rel_linha3?: string | null
           rel_linha4?: string | null
+          suspensao_ate?: string | null
+          suspensao_data?: string | null
+          suspensao_motivo?: string | null
+          suspensao_por?: string | null
+          suspenso?: boolean
           telefone_celular?: string | null
           telefones?: Json | null
           telefones_whatsapp?: string | null

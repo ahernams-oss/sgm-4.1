@@ -135,8 +135,16 @@ export function OrdensServicoProvider({ children }: { children: ReactNode }) {
   });
   const invalidate = () => qc.invalidateQueries({ queryKey: QK });
 
-  const addOrdem = async (d: any) => { await insertRow("ordens_servico", d); invalidate(); };
-  const updateOrdem = async (id: string, d: any) => { await updateRow("ordens_servico", id, d); invalidate(); };
+  const addOrdem = async (d: any) => {
+    const saved = await insertRow("ordens_servico", d);
+    if (!saved) throw new Error("Não foi possível salvar a Ordem de Serviço.");
+    await invalidate();
+  };
+  const updateOrdem = async (id: string, d: any) => {
+    const saved = await updateRow("ordens_servico", id, d);
+    if (!saved) throw new Error("Não foi possível atualizar a Ordem de Serviço.");
+    await invalidate();
+  };
   const deleteOrdem = async (id: string) => {
     const stored = localStorage.getItem("usuarioLogado") || sessionStorage.getItem("usuarioLogado");
     const userId = stored ? (JSON.parse(stored)?.id ?? null) : null;

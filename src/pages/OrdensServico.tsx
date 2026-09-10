@@ -109,7 +109,7 @@ const prioridadeBadge = (p: string) => {
 
 const DEFAULT_PAGE_SIZE = 7;
 
-function FotosUploader({ disabled, onUploaded, currentCount }: { disabled: boolean; onUploaded: (url: string) => void; currentCount: number }) {
+function FotosUploader({ disabled, onUploaded, currentCount }: { disabled: boolean; onUploaded: (url: string) => void | Promise<void>; currentCount: number }) {
   const isMobile = useIsMobile();
   const galleryRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
@@ -139,8 +139,7 @@ function FotosUploader({ disabled, onUploaded, currentCount }: { disabled: boole
         return;
       }
       const { data: urlData } = supabase.storage.from("evidencias-anexos").getPublicUrl(path);
-      onUploaded(urlData.publicUrl);
-      toast.success("Foto anexada com sucesso!");
+      await onUploaded(urlData.publicUrl);
     } finally {
       setBusy(false);
       e.target.value = "";
@@ -1022,6 +1021,26 @@ export default function OrdensServicoPage() {
     }
     resetForm();
     setFormOpen(false);
+  };
+
+  const handleFotoUploaded = async (url: string) => {
+    const novaFoto: FotoOS = { id: crypto.randomUUID(), url, observacao: "" };
+    const fotosAtualizadas = [...fotos, novaFoto];
+    setFotos(fotosAtualizadas);
+
+    if (editingId) {
+      try {
+        await updateOrdem(editingId, { fotos: fotosAtualizadas });
+        toast.success("Foto adicionada e salva na Ordem de Serviço!");
+      } catch {
+        setFotos(fotos);
+        toast.error("A foto foi enviada, mas não pôde ser salva na Ordem de Serviço.");
+        throw new Error("Falha ao vincular foto à Ordem de Serviço.");
+      }
+      return;
+    }
+
+    toast.success("Foto adicionada. Salve a Ordem de Serviço para concluir.");
   };
 
   const handleDelete = async () => {
@@ -2422,7 +2441,7 @@ export default function OrdensServicoPage() {
                   {fotos.length < 6 && (
                     <FotosUploader
                       disabled={fotos.length >= 6}
-                      onUploaded={(url) => setFotos(prev => [...prev, { id: crypto.randomUUID(), url, observacao: "" }])}
+                      onUploaded={handleFotoUploaded}
                       currentCount={fotos.length}
                     />
                   )}

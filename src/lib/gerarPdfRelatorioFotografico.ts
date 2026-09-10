@@ -81,11 +81,13 @@ async function renderCapa(doc: jsPDF, opt: RelatorioFotograficoOptions) {
     };
 
     const periodo = [fmtData(opt.periodoInicio), fmtData(opt.periodoFim)].filter(Boolean).join(" a ");
-    put(opt.clienteNome || "", 210, 642, 340);
-    put(opt.descricao || "", 234, 697, 316);
-    put(opt.numeroProcesso || "", 414, 752, 136);
-    put(opt.numeroContrato || "", 386, 806, 164);
-    put(periodo, 210, 859, 340);
+    const valueX = 210;
+    const valueWidth = 340;
+    put(opt.clienteNome || "", valueX, 642, valueWidth);
+    put(opt.descricao || "", valueX, 697, valueWidth);
+    put(opt.numeroProcesso || "", valueX, 752, valueWidth);
+    put(opt.numeroContrato || "", valueX, 806, valueWidth);
+    put(periodo, valueX, 859, valueWidth);
   }
 
   doc.setTextColor(30, 30, 30);

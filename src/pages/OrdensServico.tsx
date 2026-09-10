@@ -3345,7 +3345,7 @@ export default function OrdensServicoPage() {
         open={relatorioOpen}
         onOpenChange={setRelatorioOpen}
         ordens={ordens}
-        clientes={clientesFiltrados.map(c => ({ id: c.id, nome: c.nome }))}
+        clientes={clientesFiltrados.map(c => ({ id: c.id, nome: c.nome, contratos: c.contratos }))}
       />
     </div>
   );

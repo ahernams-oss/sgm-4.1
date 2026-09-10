@@ -1,3 +1,4 @@
+import { isFornecedorSuspenso } from "@/lib/fornecedorSuspensao";
 import { useState, useMemo, useEffect, useCallback, type ReactNode } from "react";
 import { loadPersistedFilters, usePersistFilters } from "@/lib/persistedFilters";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
@@ -127,7 +128,9 @@ export default function CotacaoComprasPage() {
     });
   }, [requisicoes, clientes, empresa, usuarioLogado]);
 
-  const fornecedores = useMemo(() => clientes.filter(c => c.tipo === "Fornecedor"), [clientes]);
+  const todosFornecedores = useMemo(() => clientes.filter(c => c.tipo === "Fornecedor"), [clientes]);
+  // Fornecedores suspensos ficam fora de qualquer seleção de cotação.
+  const fornecedores = useMemo(() => todosFornecedores.filter(f => !isFornecedorSuspenso(f)), [todosFornecedores]);
   const reqDisponiveisParaCotacao = useMemo(() => requisicoes.filter(r => r.status === "Enviada" || r.status === "Em Cotação"), [requisicoes]);
 
   const _cotSavedFilters = loadPersistedFilters<{ search: string; filterStatus: string; filterPeriodo: string; filterComprador: string; filterCentroCusto: string; filterUrgencia: string; filterDataIni: string; filterDataFim: string; }>("cotacao_compras_filters_v1");
@@ -277,8 +280,8 @@ export default function CotacaoComprasPage() {
         const digits = (s: string) => (s || "").replace(/\D/g, "");
         const cnpj = digits(res.cnpj || "");
         const nome = String(res.fornecedorNome || "").toLowerCase().trim();
-        const achado = fornecedores.find((f: any) => (cnpj && digits(f.cnpj || "") === cnpj))
-          || (nome ? fornecedores.find((f: any) => f.nome?.toLowerCase().includes(nome) || nome.includes(f.nome?.toLowerCase() || "###")) : undefined);
+        const achado = todosFornecedores.find((f: any) => (cnpj && digits(f.cnpj || "") === cnpj))
+          || (nome ? todosFornecedores.find((f: any) => f.nome?.toLowerCase().includes(nome) || nome.includes(f.nome?.toLowerCase() || "###")) : undefined);
         if (achado) setPropFornecedorId(achado.id);
       }
 
@@ -441,7 +444,7 @@ export default function CotacaoComprasPage() {
   const handleAddProposta = () => {
     if (!propFornecedorId) { toast({ title: "Selecione um fornecedor", variant: "destructive" }); return; }
     if (propItens.some(i => i.precoUnitario <= 0)) { toast({ title: "Preencha todos os preços unitários", variant: "destructive" }); return; }
-    const forn = fornecedores.find(f => f.id === propFornecedorId);
+    const forn = todosFornecedores.find(f => f.id === propFornecedorId);
     const propostaData = {
       fornecedorId: propFornecedorId,
       fornecedorNome: forn?.nome || "",
@@ -874,7 +877,7 @@ export default function CotacaoComprasPage() {
     for (const c of lista) {
       const req = requisicoes.find(r => r.id === c.requisicaoId) || null;
       const fornsComProposta = c.propostas.map(p => {
-        const fData = fornecedores.find(f => f.id === p.fornecedorId);
+        const fData = todosFornecedores.find(f => f.id === p.fornecedorId);
         return {
           id: p.fornecedorId,
           nome: p.fornecedorNome,
@@ -909,7 +912,7 @@ export default function CotacaoComprasPage() {
 
   const handleSelectFornecedorEnviar = (fornId: string) => {
     setEnviarFornecedorId(fornId);
-    const forn = fornecedores.find(f => f.id === fornId);
+    const forn = todosFornecedores.find(f => f.id === fornId);
     setEnviarEmail(forn?.emailCompras || forn?.email || "");
     setEnviarTelefone(getTelefoneFornecedor(forn));
     setLinkGerado("");
@@ -921,7 +924,7 @@ export default function CotacaoComprasPage() {
     try {
       const cot = cotacoes.find(c => c.id === enviarCotacaoId);
       const req = requisicoes.find(r => r.id === cot?.requisicaoId);
-      const forn = fornecedores.find(f => f.id === enviarFornecedorId);
+      const forn = todosFornecedores.find(f => f.id === enviarFornecedorId);
       if (!cot || !req || !forn) throw new Error("Dados não encontrados");
 
       const itensConvite = req.itens.map(i => ({
@@ -1030,7 +1033,7 @@ export default function CotacaoComprasPage() {
   };
 
   const emailPadraoFornecedor = (fornId: string) => {
-    const forn = fornecedores.find(f => f.id === fornId);
+    const forn = todosFornecedores.find(f => f.id === fornId);
     return (forn as any)?.emailCompras || forn?.email || "";
   };
 
@@ -1061,7 +1064,7 @@ export default function CotacaoComprasPage() {
       const comprador = cot.comprador || usuarioLogado?.nome || "Departamento de Compras";
 
       for (const fornId of pdfFornecedorIds) {
-        const forn = fornecedores.find(f => f.id === fornId);
+        const forn = todosFornecedores.find(f => f.id === fornId);
         if (!forn) continue;
         const email = (pdfEmails[fornId] || "").trim();
         try {
@@ -1137,7 +1140,7 @@ export default function CotacaoComprasPage() {
     try {
       const cot = cotacoes.find(c => c.id === enviarCotacaoId);
       const req = requisicoes.find(r => r.id === cot?.requisicaoId);
-      const forn = fornecedores.find(f => f.id === enviarFornecedorId);
+      const forn = todosFornecedores.find(f => f.id === enviarFornecedorId);
       if (!cot || !req || !forn) throw new Error("Dados não encontrados");
 
       const itensConvite = req.itens.map(i => ({
@@ -1319,7 +1322,7 @@ export default function CotacaoComprasPage() {
     setEnviarEmailLoading(true);
     try {
       const cot = cotacoes.find(c => c.id === enviarCotacaoId);
-      const forn = fornecedores.find(f => f.id === enviarFornecedorId);
+      const forn = todosFornecedores.find(f => f.id === enviarFornecedorId);
       if (!cot || !forn) throw new Error("Dados não encontrados");
 
       const nomeEmpresa = empresa.nomeFantasia || empresa.razaoSocial || "SGM";
@@ -1367,7 +1370,7 @@ export default function CotacaoComprasPage() {
       let erros = 0;
 
       for (const item of comLink) {
-        const forn = fornecedores.find(f => f.nome === item.fornecedorNome);
+        const forn = todosFornecedores.find(f => f.nome === item.fornecedorNome);
         const emailForn = forn?.emailCompras || forn?.email || "";
         if (!emailForn) { erros++; continue; }
 
@@ -1667,7 +1670,7 @@ export default function CotacaoComprasPage() {
                       <DropdownMenuItem onClick={async () => {
                         const req = requisicoes.find(r => r.id === c.requisicaoId) || null;
                         const fornsComProposta = c.propostas.map(p => {
-                          const fData = fornecedores.find(f => f.id === p.fornecedorId);
+                          const fData = todosFornecedores.find(f => f.id === p.fornecedorId);
                           return {
                             id: p.fornecedorId,
                             nome: p.fornecedorNome,
@@ -1833,7 +1836,7 @@ export default function CotacaoComprasPage() {
               <div>
                 <Label>Fornecedor *</Label>
                 {editingPropostaId ? (
-                  <Input value={fornecedores.find(f => f.id === propFornecedorId)?.nome || ""} disabled />
+                  <Input value={todosFornecedores.find(f => f.id === propFornecedorId)?.nome || ""} disabled />
                 ) : (
                   <Select value={propFornecedorId} onValueChange={setPropFornecedorId}>
                     <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>

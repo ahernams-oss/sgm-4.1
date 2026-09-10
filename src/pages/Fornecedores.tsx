@@ -2,7 +2,10 @@ import { useState, useMemo } from "react";
 import { DoubleConfirmDelete, useDoubleConfirmDelete } from "@/components/DoubleConfirmDelete";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { toast } from "sonner";
-import { Truck, Trash2, Search, MessageCircle, ChevronDown, ChevronUp, FileBarChart, KeyRound, Copy, Mail } from "lucide-react";
+import { Truck, Trash2, Search, MessageCircle, ChevronDown, ChevronUp, FileBarChart, KeyRound, Copy, Mail, Ban, CheckCircle2 } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { isFornecedorSuspenso, textoSuspensao } from "@/lib/fornecedorSuspensao";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import RelatorioClienteFornecedorDialog from "@/components/RelatorioClienteFornecedorDialog";
@@ -21,7 +24,7 @@ import { usePermissao } from "@/hooks/usePermissao";
 
 const Fornecedores = () => {
   const { clientes, addCliente, updateCliente, deleteCliente } = useClientes();
-  const { tem } = usePermissao();
+  const { tem, isDiretor, usuarioLogado } = usePermissao();
   const podeCriar = tem("fornecedores.criar");
   const podeEditar = tem("fornecedores.editar");
   const podeExcluir = tem("fornecedores.excluir");
@@ -38,6 +41,41 @@ const Fornecedores = () => {
   const [relatorioOpen, setRelatorioOpen] = useState(false);
   const [senhaDialog, setSenhaDialog] = useState<{ fornecedor: Cliente; senha: string } | null>(null);
   const [gerandoSenhaId, setGerandoSenhaId] = useState<string | null>(null);
+  const [suspDialog, setSuspDialog] = useState<Cliente | null>(null);
+  const [suspMotivo, setSuspMotivo] = useState("");
+  const [suspAte, setSuspAte] = useState("");
+  const [suspSalvando, setSuspSalvando] = useState(false);
+
+  const abrirSuspensao = (f: Cliente) => {
+    setSuspMotivo(f.suspensaoMotivo || "");
+    setSuspAte(f.suspensaoAte || "");
+    setSuspDialog(f);
+  };
+
+  const confirmarSuspensao = async () => {
+    if (!suspDialog) return;
+    if (!suspMotivo.trim()) { toast.error("Informe o motivo da suspensão."); return; }
+    setSuspSalvando(true);
+    const ok = await updateCliente(suspDialog.id, {
+      suspenso: true,
+      suspensaoMotivo: suspMotivo.trim(),
+      suspensaoAte: suspAte || "",
+      suspensaoData: new Date().toISOString(),
+      suspensaoPor: usuarioLogado?.nome || "",
+    });
+    setSuspSalvando(false);
+    if (ok) { toast.success("Fornecedor suspenso. Ele não aparecerá nas cotações."); setSuspDialog(null); }
+    else toast.error("Não foi possível suspender o fornecedor.");
+  };
+
+  const reativarFornecedor = async (f: Cliente) => {
+    if (!isDiretor) { toast.error("Apenas Diretores podem alterar a suspensão."); return; }
+    const ok = await updateCliente(f.id, {
+      suspenso: false, suspensaoMotivo: "", suspensaoAte: "", suspensaoData: "", suspensaoPor: "",
+    });
+    if (ok) toast.success("Suspensão removida.");
+    else toast.error("Não foi possível reativar o fornecedor.");
+  };
 
   const portalUrl = `${window.location.origin}/portal-fornecedor`;
 
@@ -374,12 +412,28 @@ const Fornecedores = () => {
                     />
                     <div className="min-w-0 flex-1 grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-5 gap-x-4 gap-y-1">
                       <p className="text-sm font-semibold text-primary tabular-nums">Nº {fornecedor.codigo ?? "—"}</p>
-                      <p className="text-sm font-medium text-foreground truncate">{fornecedor.nome}</p>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{fornecedor.nome}</p>
+                        {isFornecedorSuspenso(fornecedor) && (
+                          <span className="mt-0.5 inline-flex items-center gap-1 rounded bg-destructive/10 px-1.5 py-0.5 text-[10px] font-semibold text-destructive" title={textoSuspensao(fornecedor)}>
+                            <Ban className="h-3 w-3" /> Suspenso
+                          </span>
+                        )}
+                      </div>
                       <p className="text-sm text-muted-foreground truncate tabular-nums">{fornecedor.cnpj || "—"}</p>
                       <p className="text-sm text-muted-foreground truncate">{fornecedor.contato || "—"}</p>
                       <p className="text-sm text-muted-foreground truncate">{fornecedor.cidade ? `${fornecedor.cidade}/${fornecedor.uf}` : "—"}</p>
                     </div>
                     <div className="flex gap-1 shrink-0">
+                      {isDiretor && (isFornecedorSuspenso(fornecedor) ? (
+                        <Button variant="ghost" size="sm" onClick={() => reativarFornecedor(fornecedor)} className="text-emerald-600" title="Remover suspensão">
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                        </Button>
+                      ) : (
+                        <Button variant="ghost" size="sm" onClick={() => abrirSuspensao(fornecedor)} className="text-destructive" title="Suspender fornecedor (bloqueia cotações)">
+                          <Ban className="h-3.5 w-3.5" />
+                        </Button>
+                      ))}
                       <Button variant="ghost" size="sm" onClick={() => handleGerarSenha(fornecedor)} disabled={gerandoSenhaId === fornecedor.id} className="text-primary" title="Gerar senha do Portal do Fornecedor">
                         <KeyRound className="h-3.5 w-3.5" />
                       </Button>
@@ -409,6 +463,33 @@ const Fornecedores = () => {
         filtrados={filteredFornecedores}
         selecionados={fornecedores.filter(f => selectedIds.includes(f.id))}
       />
+      <Dialog open={!!suspDialog} onOpenChange={(o) => !o && setSuspDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Suspender Fornecedor</DialogTitle>
+            <DialogDescription>
+              <strong>{suspDialog?.nome}</strong> deixará de aparecer nas seleções de cotação enquanto estiver suspenso.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Motivo da suspensão *</Label>
+              <Textarea value={suspMotivo} onChange={(e) => setSuspMotivo(e.target.value.slice(0, 500))} rows={3} placeholder="Descreva o motivo da punição" />
+            </div>
+            <div>
+              <Label>Suspender até (opcional)</Label>
+              <Input type="date" value={suspAte} onChange={(e) => setSuspAte(e.target.value)} />
+              <p className="mt-1 text-xs text-muted-foreground">Sem data, a suspensão vale por tempo indeterminado.</p>
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setSuspDialog(null)}>Cancelar</Button>
+            <Button variant="destructive" onClick={confirmarSuspensao} disabled={suspSalvando}>
+              <Ban className="h-4 w-4 mr-2" /> {suspSalvando ? "Suspendendo..." : "Confirmar suspensão"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog open={!!senhaDialog} onOpenChange={(o) => !o && setSenhaDialog(null)}>
         <DialogContent>
           <DialogHeader>

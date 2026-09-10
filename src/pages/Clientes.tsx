@@ -158,6 +158,7 @@ const Clientes = () => {
   const [contratoForm, setContratoForm] = useState(emptyContrato);
   const [contratoErrors, setContratoErrors] = useState<{ cbs?: string; ibs?: string; descontoLicitacao?: string }>({});
   const [editingContratoId, setEditingContratoId] = useState<string | null>(null);
+  const [salvandoContrato, setSalvandoContrato] = useState(false);
   const [faturamentoContratoId, setFaturamentoContratoId] = useState<string | null>(null);
   const [empenhoContratoId, setEmpenhoContratoId] = useState<string | null>(null);
 
@@ -488,25 +489,32 @@ const Clientes = () => {
           if (!cliente) return null;
           const contratos = cliente.contratos || [];
 
-          const handleSaveContrato = () => {
+          const handleSaveContrato = async () => {
             if (!contratoForm.numero.trim()) { toast.error("Informe o número do contrato."); return; }
             const cbsError = validarPercentual(contratoForm.cbs, "CBS");
             const ibsError = validarPercentual(contratoForm.ibs, "IBS");
             const descontoLicitacaoError = validarPercentual(contratoForm.descontoLicitacao, "Desconto Licitação");
             setContratoErrors({ cbs: cbsError, ibs: ibsError, descontoLicitacao: descontoLicitacaoError });
             if (cbsError || ibsError || descontoLicitacaoError) { toast.error("Corrija os campos de porcentagem antes de salvar."); return; }
-            if (editingContratoId) {
-              const updated = contratos.map(ct => ct.id === editingContratoId ? { ...ct, ...contratoForm } : ct);
-              updateCliente(contratosClienteId, { contratos: updated });
-              toast.success("Contrato atualizado!");
-            } else {
-              const novo: Contrato = { id: crypto.randomUUID(), ...contratoForm, faturamentos: [] };
-              updateCliente(contratosClienteId, { contratos: [...contratos, novo] });
-              toast.success("Contrato adicionado!");
+            setSalvandoContrato(true);
+            try {
+              const contratosAtualizados = editingContratoId
+                ? contratos.map(ct => ct.id === editingContratoId ? { ...ct, ...contratoForm } : ct)
+                : [...contratos, { id: crypto.randomUUID(), ...contratoForm, faturamentos: [] } as Contrato];
+              const salvo = await updateCliente(contratosClienteId, { contratos: contratosAtualizados });
+              if (!salvo) {
+                toast.error("Não foi possível salvar o contrato. Tente novamente.");
+                return;
+              }
+              toast.success(editingContratoId ? "Contrato atualizado!" : "Contrato adicionado!");
+              setContratoForm(emptyContrato);
+              setContratoErrors({});
+              setEditingContratoId(null);
+            } catch {
+              toast.error("Não foi possível salvar o contrato. Tente novamente.");
+            } finally {
+              setSalvandoContrato(false);
             }
-            setContratoForm(emptyContrato);
-            setContratoErrors({});
-            setEditingContratoId(null);
           };
 
           const handleEditContrato = (ct: Contrato) => {
@@ -582,9 +590,9 @@ const Clientes = () => {
               </div>
 
               <div className="flex gap-2 mb-4">
-                <Button size="sm" onClick={handleSaveContrato}>
+                <Button size="sm" onClick={handleSaveContrato} disabled={salvandoContrato}>
                   <Plus className="h-3.5 w-3.5 mr-1" />
-                  {editingContratoId ? "Salvar Alterações" : "Adicionar Contrato"}
+                  {salvandoContrato ? "Salvando..." : editingContratoId ? "Salvar Alterações" : "Adicionar Contrato"}
                 </Button>
                 {editingContratoId && (
                   <Button size="sm" variant="outline" onClick={() => { setContratoForm(emptyContrato); setEditingContratoId(null); }}>

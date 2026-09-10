@@ -177,6 +177,9 @@ export async function gerarPdfRelatorioFotografico(opt: RelatorioFotograficoOpti
   }
 
   const pages = doc.getNumberOfPages();
+  if (pages < 2) {
+    throw new Error("Não foi possível carregar as imagens das Ordens de Serviço filtradas.");
+  }
   for (let i = 2; i <= pages; i++) {
     doc.setPage(i);
     doc.setFontSize(8);

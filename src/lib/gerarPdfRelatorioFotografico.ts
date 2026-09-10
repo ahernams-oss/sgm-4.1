@@ -150,8 +150,8 @@ export async function gerarPdfRelatorioFotografico(opt: RelatorioFotograficoOpti
 
   for (const os of ordensComFotos) {
     const fotos = os.fotos;
-    const imagens = (await Promise.all(fotos.map((f) => loadImage(f.url)))).filter(
-      (i): i is { dataUrl: string; w: number; h: number } => i !== null
+    const imagens = (await Promise.all(fotos.map(async (foto) => ({ foto, imagem: await loadImage(foto.url) })))).filter(
+      (item): item is { foto: typeof fotos[number]; imagem: { dataUrl: string; w: number; h: number } } => item.imagem !== null
     );
     if (imagens.length === 0) continue;
 
@@ -162,29 +162,40 @@ export async function gerarPdfRelatorioFotografico(opt: RelatorioFotograficoOpti
     const gap = opt.orientation === "l" ? 5 : 6;
     const cellW = (contentW - gap * (columns - 1)) / columns;
     const cellH = cellW * 0.75;
+    const captionH = imagens.some(({ foto }) => foto.observacao?.trim()) ? 18 : 0;
+    const blockH = cellH + captionH;
     let col = 0;
 
-    for (const img of imagens) {
-      if (y + cellH > ph - 14) {
+    for (const { foto, imagem } of imagens) {
+      if (y + blockH > ph - 14) {
         doc.addPage();
         y = 16;
         col = 0;
       }
 
       const x = ml + col * (cellW + gap);
-      const ratio = Math.min(cellW / img.w, cellH / img.h);
-      const w = img.w * ratio;
-      const h = img.h * ratio;
+      const ratio = Math.min(cellW / imagem.w, cellH / imagem.h);
+      const w = imagem.w * ratio;
+      const h = imagem.h * ratio;
 
       doc.setDrawColor(...BORDER);
       doc.setLineWidth(0.3);
       doc.rect(x, y, cellW, cellH);
       try {
-        doc.addImage(img.dataUrl, "JPEG", x + (cellW - w) / 2, y + (cellH - h) / 2, w, h);
+        doc.addImage(imagem.dataUrl, "JPEG", x + (cellW - w) / 2, y + (cellH - h) / 2, w, h);
       } catch { /* ignore */ }
 
+      const observacao = foto.observacao?.trim().slice(0, 200);
+      if (observacao) {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(7);
+        doc.setTextColor(45, 45, 45);
+        const linhas = doc.splitTextToSize(observacao, cellW - 4).slice(0, 5);
+        doc.text(linhas, x + 2, y + cellH + 4, { maxWidth: cellW - 4 });
+      }
+
       col += 1;
-      if (col === columns) { col = 0; y += cellH + gap; }
+      if (col === columns) { col = 0; y += blockH + gap; }
     }
   }
 

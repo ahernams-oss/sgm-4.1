@@ -1,6 +1,6 @@
 import type { jsPDF } from "jspdf";
 import type { OrdemServico } from "@/contexts/OrdensServicoContext";
-import capaAsset from "@/assets/capa-relatorio-fotografico.png.asset.json";
+import capaAsset from "@/assets/capa-relatorio-fotografico.jpg.asset.json";
 
 const getJsPDF = async () => (await import("jspdf")).jsPDF;
 const getAutoTable = async () => (await import("jspdf-autotable")).default;
@@ -48,8 +48,11 @@ export interface RelatorioFotograficoOptions {
   clienteNome?: string;
   unidade?: string;
   descricao?: string;
+  numeroProcesso?: string;
+  numeroContrato?: string;
   periodoInicio?: string;
   periodoFim?: string;
+  orientation?: "p" | "l";
   fileName?: string;
 }
 
@@ -58,23 +61,31 @@ async function renderCapa(doc: jsPDF, opt: RelatorioFotograficoOptions) {
   const ph = doc.internal.pageSize.getHeight();
   const capa = await loadImage(capaAsset.url);
   if (capa) {
-    try { doc.addImage(capa.dataUrl, "PNG", 0, 0, pw, ph); } catch { /* ignore */ }
+    const scale = Math.min(pw / capa.w, ph / capa.h);
+    const coverW = capa.w * scale;
+    const coverH = capa.h * scale;
+    const coverX = (pw - coverW) / 2;
+    const coverY = (ph - coverH) / 2;
+
+    try { doc.addImage(capa.dataUrl, "JPEG", coverX, coverY, coverW, coverH); } catch { /* ignore */ }
+
+    doc.setTextColor(20, 33, 61);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(Math.max(7, 10 * scale));
+
+    const put = (text: string, imageX: number, imageY: number, maxImageWidth = 280) => {
+      if (!text) return;
+      doc.text(text, coverX + imageX * scale, coverY + imageY * scale, { maxWidth: maxImageWidth * scale });
+    };
+
+    const descricao = [opt.unidade, opt.descricao].filter(Boolean).join(" — ");
+    const periodo = [fmtData(opt.periodoInicio), fmtData(opt.periodoFim)].filter(Boolean).join(" a ");
+    put(opt.clienteNome || "", 118, 360);
+    put(descricao, 138, 393, 255);
+    put(opt.numeroProcesso || "", 188, 424, 205);
+    put(opt.numeroContrato || "", 188, 455, 205);
+    put(periodo, 119, 484, 205);
   }
-
-  doc.setTextColor(20, 33, 61);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
-
-  const put = (text: string, x: number, y: number) => {
-    if (!text) return;
-    doc.text(text, x, y, { maxWidth: pw * 0.45 });
-  };
-
-  put(opt.clienteNome || "", 38, 129);
-  put(opt.unidade || "", 41, 138);
-  put(opt.descricao || "", 43, 147.5);
-  put(fmtData(opt.periodoInicio), 42, 171);
-  put(fmtData(opt.periodoFim), 42, 178.5);
 
   doc.setTextColor(30, 30, 30);
 }
@@ -124,7 +135,7 @@ async function renderCabecalhoOS(doc: jsPDF, os: OrdemServico, startY: number): 
 
 export async function gerarPdfRelatorioFotografico(opt: RelatorioFotograficoOptions) {
   const JsPDF = await getJsPDF();
-  const doc = new JsPDF({ compress: true, orientation: "p", unit: "mm", format: "a4" });
+  const doc = new JsPDF({ compress: true, orientation: opt.orientation || "p", unit: "mm", format: "a4" });
   const pw = doc.internal.pageSize.getWidth();
   const ph = doc.internal.pageSize.getHeight();
   const ml = 12, mr = 12;
@@ -147,8 +158,9 @@ export async function gerarPdfRelatorioFotografico(opt: RelatorioFotograficoOpti
     doc.addPage();
     let y = await renderCabecalhoOS(doc, os, 16);
 
-    const gap = 6;
-    const cellW = (contentW - gap) / 2;
+    const columns = opt.orientation === "l" ? 3 : 2;
+    const gap = opt.orientation === "l" ? 5 : 6;
+    const cellW = (contentW - gap * (columns - 1)) / columns;
     const cellH = cellW * 0.75;
     let col = 0;
 
@@ -172,7 +184,7 @@ export async function gerarPdfRelatorioFotografico(opt: RelatorioFotograficoOpti
       } catch { /* ignore */ }
 
       col += 1;
-      if (col === 2) { col = 0; y += cellH + gap; }
+      if (col === columns) { col = 0; y += cellH + gap; }
     }
   }
 

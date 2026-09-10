@@ -53,15 +53,16 @@ export async function adicionarCapaELaminaOS(doc: jsPDF, info: CapaOSInfo) {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(Math.max(7, 10 * scale));
 
-    const put = (text: string, imageY: number) => {
+    const put = (text: string, imageX: number, imageY: number) => {
       if (!text) return;
-      doc.text(text, coverX + 152 * scale, coverY + imageY * scale, { maxWidth: 400 * scale });
+      doc.text(text, coverX + imageX * scale, coverY + imageY * scale, { maxWidth: 380 * scale });
     };
 
-    // Coordenadas medidas sobre a capa (1055x1491).
-    put(info.cliente || "", 608);
-    put(info.contrato || "", 668);
-    put(info.periodo || "", 727);
+    // Coordenadas medidas sobre a capa (1055x1491): valores iniciam
+    // logo após o rótulo, sobre a linha de preenchimento.
+    put(info.cliente || "", 170, 609);
+    put(info.contrato || "", 186, 668);
+    put(info.periodo || "", 174, 727);
 
     doc.setTextColor(30, 30, 30);
   }

@@ -87,8 +87,8 @@ async function renderCapa(doc: jsPDF, opt: RelatorioFotograficoOptions) {
     put(opt.descricao || "", 196, 688, 335);
     put(opt.numeroProcesso || "", 248, 739, 280);
     put(opt.numeroContrato || "", 242, 784, 296);
-    // Período deslocado para a direita para não encostar no rótulo "Período:".
-    put(periodo, 205, 831, 270);
+    // Período deslocado 3 espaços (≈8 px da capa) para a direita.
+    put(periodo, 213, 831, 262);
   }
 
   doc.setTextColor(30, 30, 30);

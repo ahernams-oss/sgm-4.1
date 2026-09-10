@@ -96,6 +96,11 @@ export interface Cliente {
   locaisEntrega: LocalEntrega[];
   contratos: Contrato[];
   linhasFornecimento?: LinhaFornecimento[];
+  suspenso?: boolean;
+  suspensaoMotivo?: string;
+  suspensaoData?: string;
+  suspensaoAte?: string;
+  suspensaoPor?: string;
 
 }
 
@@ -128,6 +133,11 @@ const rowToCliente = (r: any): Cliente => ({
   informacoesFinanceiras: r.informacoes_financeiras ?? [],
   locais: r.locais ?? [], locaisEntrega: r.locais_entrega ?? [], contratos: r.contratos ?? [],
   linhasFornecimento: r.linhas_fornecimento ?? [],
+  suspenso: !!r.suspenso,
+  suspensaoMotivo: r.suspensao_motivo ?? "",
+  suspensaoData: r.suspensao_data ?? "",
+  suspensaoAte: r.suspensao_ate ?? "",
+  suspensaoPor: r.suspensao_por ?? "",
 
 });
 
@@ -150,6 +160,11 @@ const clienteToRow = (c: Omit<Cliente, "id">) => ({
   informacoes_financeiras: c.informacoesFinanceiras as any,
   locais: c.locais as any, locais_entrega: c.locaisEntrega as any, contratos: c.contratos as any,
   linhas_fornecimento: (c.linhasFornecimento ?? []) as any,
+  suspenso: !!c.suspenso,
+  suspensao_motivo: c.suspensaoMotivo || null,
+  suspensao_data: c.suspensaoData || null,
+  suspensao_ate: c.suspensaoAte || null,
+  suspensao_por: c.suspensaoPor || null,
 
 });
 

@@ -43,6 +43,7 @@ import { format, subDays, isAfter } from "date-fns";
 import ConfirmacaoValoresDialog, { AjusteConfirmacao, AlternativaFornecedor, ItemConfirmacao, MetaConfirmacao } from "@/components/compras/ConfirmacaoValoresDialog";
 import { LIMITE_ALCADA_PERCENTUAL, calcularDiasAtraso, calcularImpactoAtraso } from "@/lib/alcadaReajuste";
 import { useConfirmacoesValores } from "@/hooks/useConfirmacoesValores";
+import FornecedorCombobox from "@/components/FornecedorCombobox";
 
 interface GrupoEmissao {
   fornecedorId: string;
@@ -1838,17 +1839,20 @@ export default function CotacaoComprasPage() {
                 {editingPropostaId ? (
                   <Input value={todosFornecedores.find(f => f.id === propFornecedorId)?.nome || ""} disabled />
                 ) : (
-                  <Select value={propFornecedorId} onValueChange={setPropFornecedorId}>
-                    <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                    <SelectContent>{(() => {
+                  (() => {
                       const cotAtual = cotacoes.find(c => c.id === propostaCotacaoId);
                       const idsJaComProposta = cotAtual?.propostas.map(p => p.fornecedorId) || [];
                       const disponiveis = fornecedores.filter(f => !idsJaComProposta.includes(f.id));
-                      return disponiveis.length > 0
-                        ? disponiveis.map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)
-                        : <div className="px-2 py-4 text-sm text-muted-foreground text-center">Todos os fornecedores já possuem proposta</div>;
-                    })()}</SelectContent>
-                  </Select>
+                      return (
+                        <FornecedorCombobox
+                          value={propFornecedorId}
+                          onChange={setPropFornecedorId}
+                          options={disponiveis}
+                          placeholder="Selecione..."
+                          emptyMessage="Todos os fornecedores disponíveis já possuem proposta."
+                        />
+                      );
+                    })()
                 )}
               </div>
               <div>
@@ -2529,14 +2533,11 @@ export default function CotacaoComprasPage() {
               <>
                 <div>
                   <Label>Fornecedor *</Label>
-                  <Select value={enviarFornecedorId} onValueChange={handleSelectFornecedorEnviar}>
-                    <SelectTrigger><SelectValue placeholder="Selecione um fornecedor..." /></SelectTrigger>
-                    <SelectContent>
-                      {fornecedores.map(f => (
-                        <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FornecedorCombobox
+                    value={enviarFornecedorId}
+                    onChange={handleSelectFornecedorEnviar}
+                    options={fornecedores}
+                  />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>

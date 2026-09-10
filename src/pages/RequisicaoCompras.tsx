@@ -486,7 +486,7 @@ export default function RequisicaoComprasPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-xl sm:text-2xl font-bold text-foreground mx-[7px]">Requisições de Compras e Serviços</h1>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground mx-[7px]">Requisições de Compras e Serviços</h1>
         {podeCriar && <Button onClick={() => { resetForm(); setDialogOpen(true); }}><Plus className="mr-2 h-4 w-4" />Nova Requisição</Button>}
       </div>
 
@@ -563,7 +563,7 @@ export default function RequisicaoComprasPage() {
               <TableHead className="w-36">Ações</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody className="[&_td]:text-[13px] [&_td]:leading-5">
             {filtered.length === 0 ? (
               <TableRow><TableCell colSpan={colOrder.length + 1} className="text-center text-muted-foreground py-8">Nenhuma requisição encontrada</TableCell></TableRow>
             ) : paginate(filtered, pageReq, 7).paginated.map((r, idx) => {

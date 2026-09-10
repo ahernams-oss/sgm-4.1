@@ -696,6 +696,7 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
     }
 
     addFooter(doc);
+    await adicionarCapaELaminaOS(doc, capaInfo());
     doc.save(`relatorio_fechamento_categoria.pdf`);
     toast.success("PDF gerado!");
     onOpenChange(false);
@@ -811,6 +812,7 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
       alternateRowStyles: { fillColor: [245, 247, 250] },
     });
     addFooter(doc);
+    await adicionarCapaELaminaOS(doc, capaInfo());
     doc.save("ciclo_vida_solicitacoes.pdf");
     toast.success("PDF gerado!");
     onOpenChange(false);
@@ -896,6 +898,7 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
       alternateRowStyles: { fillColor: [245, 247, 250] },
     });
     addFooter(doc);
+    await adicionarCapaELaminaOS(doc, capaInfo());
     doc.save("ciclo_vida_ordens_servico.pdf");
     toast.success("PDF gerado!");
     onOpenChange(false);
@@ -1099,6 +1102,7 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
     }
 
     addFooter(doc);
+    await adicionarCapaELaminaOS(doc, capaInfo());
     doc.save(`${fileBaseLoc}.pdf`);
     toast.success("PDF gerado!");
     onOpenChange(false);
@@ -1174,6 +1178,7 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
         alternateRowStyles: { fillColor: [245, 247, 250] },
       });
       addFooter(doc);
+      await adicionarCapaELaminaOS(doc, capaInfo());
       doc.save(`${fileBase}.pdf`);
       toast.success("PDF gerado!");
     } else {

@@ -486,7 +486,7 @@ export default function RequisicaoComprasPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-xl sm:text-2xl font-bold text-foreground mx-[7px]">Requisições de Compras e Serviços</h1>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground mx-[7px]">Requisições de Compras e Serviços</h1>
         {podeCriar && <Button onClick={() => { resetForm(); setDialogOpen(true); }}><Plus className="mr-2 h-4 w-4" />Nova Requisição</Button>}
       </div>
 
@@ -554,7 +554,7 @@ export default function RequisicaoComprasPage() {
       <div className="border rounded-lg">
         <SortableHeaderRow order={colOrder} onReorder={setColOrder}>
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/40 [&_th]:h-10 [&_th]:text-[11px] [&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-[0.09em] [&_th]:text-muted-foreground/80">
             <TableRow>
               {colOrder.map(key => {
                 const cd = colDefs[key];
@@ -563,7 +563,7 @@ export default function RequisicaoComprasPage() {
               <TableHead className="w-36">Ações</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody className="[&_td]:text-[13px] [&_td]:leading-5">
             {filtered.length === 0 ? (
               <TableRow><TableCell colSpan={colOrder.length + 1} className="text-center text-muted-foreground py-8">Nenhuma requisição encontrada</TableCell></TableRow>
             ) : paginate(filtered, pageReq, 7).paginated.map((r, idx) => {
@@ -587,7 +587,7 @@ export default function RequisicaoComprasPage() {
                 : "";
               const cellMap: Record<string, ReactNode> = {
                 numero: (
-                  <span className="font-mono font-bold inline-flex items-center gap-1">
+                  <span className="font-mono text-[12.5px] font-bold tracking-tight inline-flex items-center gap-1">
                     {alertaUrgente && (
                       <AlertTriangle className="h-4 w-4 text-red-600 animate-blink-urgent" aria-label="alerta urgente" />
                     )}
@@ -598,9 +598,9 @@ export default function RequisicaoComprasPage() {
                     RCS-{String(r.numero).padStart(4, "0")}
                   </span>
                 ),
-                data: format(new Date(r.dataCriacao), "dd/MM/yyyy HH:mm"),
-                solicitante: r.solicitante,
-                centroCusto: r.centroCustoNome,
+                data: <span className="tabular-nums text-muted-foreground">{format(new Date(r.dataCriacao), "dd/MM/yyyy HH:mm")}</span>,
+                solicitante: <span className="font-medium">{r.solicitante}</span>,
+                centroCusto: <span className="text-muted-foreground">{r.centroCustoNome}</span>,
                 urgencia: (
                   <Badge title={alertaTitle} className={`${r.urgencia === "Urgente" ? "bg-red-500 text-white hover:bg-red-500" : r.urgencia === "Alta" ? "bg-orange-500 text-white hover:bg-orange-500" : r.urgencia === "Normal" ? "bg-green-600 text-white hover:bg-green-600" : "bg-muted text-muted-foreground"} ${alertaUrgente || alertaAtrasoCotacao ? "animate-blink-urgent" : ""}`}>{r.urgencia}</Badge>
                 ),

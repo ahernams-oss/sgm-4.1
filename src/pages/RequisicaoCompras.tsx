@@ -587,7 +587,7 @@ export default function RequisicaoComprasPage() {
                 : "";
               const cellMap: Record<string, ReactNode> = {
                 numero: (
-                  <span className="font-mono text-[12.5px] font-bold tracking-tight inline-flex items-center gap-1">
+                  <span className="font-mono text-[16px] font-bold tracking-tight inline-flex items-center gap-1.5">
                     {alertaUrgente && (
                       <AlertTriangle className="h-4 w-4 text-red-600 animate-blink-urgent" aria-label="alerta urgente" />
                     )}

@@ -618,11 +618,11 @@ export default function PedidoCompraPage() {
                 numero: (
                   <span className="flex items-center justify-center gap-1">
                     {atrasoEntrega && <AlertTriangle className="h-4 w-4 text-red-600 animate-blink-urgent" aria-label="entrega atrasada" />}
-                    <a href={`/compras/pedidos?numero=${p.numero}`} title={atrasoTitle} className="font-mono font-bold text-primary hover:underline">OC-{String(p.numero).padStart(4, "0")}</a>
+                    <a href={`/compras/pedidos?numero=${p.numero}`} title={atrasoTitle} className="font-mono text-[16px] font-bold tracking-tight text-primary hover:underline">OC-{String(p.numero).padStart(4, "0")}</a>
                   </span>
                 ),
                 centroCusto: <span className="text-sm">{rcVinculada?.centroCustoNome || "-"}</span>,
-                rc: <a href={`/compras/requisicoes?numero=${p.requisicaoNumero}`} className="font-mono text-primary hover:underline">RCS-{String(p.requisicaoNumero).padStart(4, "0")}</a>,
+                rc: <a href={`/compras/requisicoes?numero=${p.requisicaoNumero}`} className="font-mono text-[16px] tracking-tight text-primary hover:underline">RCS-{String(p.requisicaoNumero).padStart(4, "0")}</a>,
                 data: format(new Date(p.dataCriacao), "dd/MM/yyyy"),
                 fornecedor: p.fornecedorNome,
                 valorTotal: <span className="font-medium">{formatCurrency(p.valorTotal)}</span>,

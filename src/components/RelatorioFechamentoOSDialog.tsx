@@ -1102,6 +1102,7 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
         descricao: "Ordens de Serviço",
         periodoInicio: intervalo.ini.toISOString(),
         periodoFim: intervalo.fim.toISOString(),
+        orientation: orientacao,
         fileName: "relatorio_fotografico_os",
       });
       toast.success("PDF gerado!");

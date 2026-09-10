@@ -1,6 +1,7 @@
 import type { jsPDF } from "jspdf";
 import type { OrdemServico } from "@/contexts/OrdensServicoContext";
 import capaAsset from "@/assets/capa-relatorio-fotografico.jpg.asset.json";
+import finalAsset from "@/assets/final-relatorio-fotografico.jpg.asset.json";
 
 const getJsPDF = async () => (await import("jspdf")).jsPDF;
 const getAutoTable = async () => (await import("jspdf-autotable")).default;
@@ -213,6 +214,15 @@ export async function gerarPdfRelatorioFotografico(opt: RelatorioFotograficoOpti
     doc.setFontSize(8);
     doc.setTextColor(150);
     doc.text(`Página ${i - 1} de ${pages - 1}`, pw / 2, ph - 6, { align: "center" });
+  }
+
+  const contracapa = await loadImage(finalAsset.url);
+  if (contracapa) {
+    doc.addPage();
+    const scale = Math.min(pw / contracapa.w, ph / contracapa.h);
+    const w = contracapa.w * scale;
+    const h = contracapa.h * scale;
+    try { doc.addImage(contracapa.dataUrl, "JPEG", (pw - w) / 2, (ph - h) / 2, w, h); } catch { /* ignore */ }
   }
 
   doc.save(`${opt.fileName || "relatorio_fotografico"}.pdf`);

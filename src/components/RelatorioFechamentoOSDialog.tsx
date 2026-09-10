@@ -149,6 +149,16 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
     return { ini, fim };
   }, [periodo, dataInicio, dataFim]);
 
+  const capaInfo = () => {
+    const cli = clienteSel !== "todos" ? clientes.find(c => c.id === clienteSel) : undefined;
+    const fmt = (d: Date) => d.toLocaleDateString("pt-BR");
+    return {
+      cliente: cli?.nome || "TODOS OS CLIENTES",
+      contrato: cli?.contratos?.[0]?.numero || "",
+      periodo: `${fmt(intervalo.ini)} a ${fmt(intervalo.fim)}`,
+    };
+  };
+
   const ordensFiltradas = useMemo(() => {
     const { ini, fim } = intervalo;
     const iniMs = ini.setHours(0, 0, 0, 0);

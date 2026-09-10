@@ -13,7 +13,7 @@ export interface MaterialOS {
 }
 
 export interface AnexoOS { id: string; titulo: string; url: string; }
-export interface FotoOS { id: string; url: string; }
+export interface FotoOS { id: string; url: string; observacao?: string; }
 export interface ProfissionalOS { id: string; funcionarioId: string; nome: string; cargo: string; }
 export interface ObservacaoOS { id: string; descricao: string; usuario: string; data: string; }
 export interface ObservacaoFiscalizacao { id: string; titulo: string; descricao: string; usuario: string; data: string; }

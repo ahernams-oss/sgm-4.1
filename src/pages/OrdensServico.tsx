@@ -964,6 +964,10 @@ export default function OrdensServicoPage() {
   const handleSubmit = async () => {
     if (!clienteId) { toast.error("Selecione um cliente."); return; }
     if (!descricaoServicos.trim()) { toast.error("Preencha a descrição dos serviços."); return; }
+    if (fotos.some(foto => (foto.observacao?.length || 0) > 200)) {
+      toast.error("A observação de cada foto deve ter no máximo 200 caracteres.");
+      return;
+    }
 
     const cliente = clientesFiltrados.find(c => c.id === clienteId);
     const local = (locais as any[]).find((l: any) => l.id === localId);
@@ -2418,16 +2422,31 @@ export default function OrdensServicoPage() {
                   {fotos.length < 6 && (
                     <FotosUploader
                       disabled={fotos.length >= 6}
-                      onUploaded={(url) => setFotos(prev => [...prev, { id: crypto.randomUUID(), url }])}
+                      onUploaded={(url) => setFotos(prev => [...prev, { id: crypto.randomUUID(), url, observacao: "" }])}
                       currentCount={fotos.length}
                     />
                   )}
                   {fotos.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                      {fotos.map(f => (
-                        <div key={f.id} className="relative group">
-                          <img src={f.url} alt="Foto" className="w-full h-24 object-cover rounded" />
-                          <Button variant="destructive" size="icon" className="h-6 w-6 absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => setFotos(fotos.filter(x => x.id !== f.id))}><Trash2 className="h-3 w-3" /></Button>
+                      {fotos.map((f, index) => (
+                        <div key={f.id} className="relative group border rounded-md overflow-hidden bg-background">
+                          <img src={f.url} alt={`Foto ${index + 1} da ordem de serviço`} className="w-full h-24 object-cover" />
+                          <Button type="button" variant="destructive" size="icon" className="h-6 w-6 absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => setFotos(fotos.filter(x => x.id !== f.id))}><Trash2 className="h-3 w-3" /></Button>
+                          <div className="p-2 space-y-1">
+                            <Textarea
+                              value={f.observacao || ""}
+                              onChange={(event) => {
+                                const observacao = event.target.value.slice(0, 200);
+                                setFotos(prev => prev.map(foto => foto.id === f.id ? { ...foto, observacao } : foto));
+                              }}
+                              maxLength={200}
+                              rows={3}
+                              aria-label={`Observação da foto ${index + 1}`}
+                              placeholder="Observação da foto (opcional)"
+                              className="min-h-16 resize-none text-xs"
+                            />
+                            <p className="text-right text-xs text-muted-foreground">{(f.observacao || "").length}/200</p>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -2740,10 +2759,15 @@ export default function OrdensServicoPage() {
                         <p className="text-sm text-muted-foreground">Nenhuma foto.</p>
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                          {fotosView.map((f: any) => (
-                            <a key={f.id} href={f.url} target="_blank" rel="noopener noreferrer" className="block border rounded overflow-hidden">
-                              <img src={f.url} alt="Foto da ordem de serviço" loading="lazy" className="w-full h-40 object-cover" />
-                            </a>
+                          {fotosView.map((f: FotoOS, index: number) => (
+                            <div key={f.id} className="border rounded overflow-hidden">
+                              <a href={f.url} target="_blank" rel="noopener noreferrer" className="block">
+                                <img src={f.url} alt={`Foto ${index + 1} da ordem de serviço`} loading="lazy" className="w-full h-40 object-cover" />
+                              </a>
+                              {f.observacao?.trim() && (
+                                <p className="p-2 text-xs whitespace-pre-wrap break-words">{f.observacao.slice(0, 200)}</p>
+                              )}
+                            </div>
                           ))}
                         </div>
                       )}

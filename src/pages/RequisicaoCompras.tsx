@@ -554,7 +554,7 @@ export default function RequisicaoComprasPage() {
       <div className="border rounded-lg">
         <SortableHeaderRow order={colOrder} onReorder={setColOrder}>
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/40 [&_th]:h-10 [&_th]:text-[11px] [&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-[0.09em] [&_th]:text-muted-foreground/80">
             <TableRow>
               {colOrder.map(key => {
                 const cd = colDefs[key];

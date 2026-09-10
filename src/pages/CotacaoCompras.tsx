@@ -378,12 +378,13 @@ export default function CotacaoComprasPage() {
     return Array.from(set).sort();
   }, [cotacoes, requisicoes]);
 
-  const hasActiveFilters = filterStatus !== "Todos" || filterPeriodo !== "Todos" || filterComprador !== "Todos" || filterCentroCusto !== "Todos" || filterUrgencia !== "Todas" || search !== "" || filterDataIni !== "" || filterDataFim !== "";
+  const hasActiveFilters = filterStatus !== "Todos" || filterPeriodo !== "Todos" || filterComprador !== "Todos" || filterCentroCusto !== "Todos" || filterUrgencia !== "Todas" || search !== "" || filterDataIni !== "" || filterDataFim !== "" || !!focusCotacaoId;
 
-  const clearFilters = () => { setSearch(""); setFilterStatus("Todos"); setFilterPeriodo("Todos"); setFilterComprador("Todos"); setFilterCentroCusto("Todos"); setFilterUrgencia("Todas"); setFilterDataIni(""); setFilterDataFim(""); };
+  const clearFilters = () => { setSearch(""); setFocusCotacaoId(null); setFilterStatus("Todos"); setFilterPeriodo("Todos"); setFilterComprador("Todos"); setFilterCentroCusto("Todos"); setFilterUrgencia("Todas"); setFilterDataIni(""); setFilterDataFim(""); };
 
   const filtered = useMemo(() => {
     let list = cotacoes;
+    if (focusCotacaoId) list = list.filter(c => c.id === focusCotacaoId);
     if (filterStatus !== "Todos") list = list.filter(c => c.status === filterStatus);
     if (filterComprador !== "Todos") list = list.filter(c => c.comprador === filterComprador);
     if (filterCentroCusto !== "Todos") {
@@ -411,7 +412,7 @@ export default function CotacaoComprasPage() {
     }
 
     return list.sort((a, b) => b.numero - a.numero);
-  }, [cotacoes, requisicoes, search, filterStatus, filterPeriodo, filterComprador, filterCentroCusto, filterUrgencia, filterDataIni, filterDataFim]);
+  }, [cotacoes, requisicoes, search, filterStatus, filterPeriodo, filterComprador, filterCentroCusto, filterUrgencia, filterDataIni, filterDataFim, focusCotacaoId]);
 
   const notificarStatusReq = (reqId: string, statusLabel: string, dataExtraLabel?: string) => {
     const r = requisicoes.find(x => x.id === reqId);

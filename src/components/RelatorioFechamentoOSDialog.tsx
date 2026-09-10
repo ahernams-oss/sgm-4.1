@@ -19,7 +19,7 @@ import type * as XLSXTypes from "xlsx";
 const getXLSX = async () => await import("xlsx");
 
 type Periodo = "semanal" | "quinzenal" | "mensal" | "personalizado";
-type TipoRelatorio = "fechamento_validadas" | "fechamento_local" | "fechamento_categoria" | "fechamento_faturadas" | "fechamento_faturadas_local" | "analitico" | "sintetico" | "financeiro" | "produtividade" | "situacao" | "ciclo_ss" | "ciclo_os";
+type TipoRelatorio = "fechamento_validadas" | "fechamento_local" | "fechamento_categoria" | "fechamento_faturadas" | "fechamento_faturadas_local" | "analitico" | "sintetico" | "financeiro" | "produtividade" | "situacao" | "ciclo_ss" | "ciclo_os" | "fotografico";
 
 /** Tipos que travam a situação da OS (Validada/Faturada). */
 const STATUS_FIXO: Partial<Record<TipoRelatorio, string>> = {
@@ -57,6 +57,7 @@ const TIPOS: { value: TipoRelatorio; label: string; desc: string }[] = [
   { value: "situacao", label: "Por Situação", desc: "Quantidade e percentual de OSs em cada situação no período." },
   { value: "ciclo_ss", label: "Ciclo de Vida — Solicitações (SS)", desc: "Tempo entre solicitação, aprovação e conclusão (baseado no workflow), com médias." },
   { value: "ciclo_os", label: "Ciclo de Vida — Ordens de Serviço (OS)", desc: "Tempo entre as situações do workflow até a confirmação/validação, com tempos médios." },
+  { value: "fotografico", label: "Relatório Fotográfico", desc: "Capa institucional, cabeçalho de cada OS e as imagens registradas na OS (somente PDF)." },
 ];
 
 const fmtBRL = (n: number) => `R$ ${(Number(n) || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -1090,7 +1091,29 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
     onOpenChange(false);
   };
 
+  const exportarFotografico = async () => {
+    const { gerarPdfRelatorioFotografico } = await import("@/lib/gerarPdfRelatorioFotografico");
+    toast.info("Gerando relatório fotográfico...");
+    await gerarPdfRelatorioFotografico({
+      ordens: ordensFiltradas,
+      clienteNome: clienteSel !== "todos" ? (clientes.find(c => c.id === clienteSel)?.nome || "") : (empresa?.nomeFantasia || empresa?.razaoSocial || ""),
+      unidade: localSel !== "todos" ? localSel : "",
+      descricao: "Ordens de Serviço",
+      periodoInicio: intervalo.ini.toISOString(),
+      periodoFim: intervalo.fim.toISOString(),
+      fileName: "relatorio_fotografico_os",
+    });
+    toast.success("PDF gerado!");
+    onOpenChange(false);
+  };
+
   const exportar = async (formato: "pdf" | "excel") => {
+    if (tipo === "fotografico") {
+      if (formato === "excel") { toast.error("O Relatório Fotográfico está disponível apenas em PDF."); return; }
+      if (ordensFiltradas.length === 0) { toast.error("Nenhuma OS encontrada no período/filtros selecionados."); return; }
+      await exportarFotografico();
+      return;
+    }
     if (tipo === "ciclo_ss") { await exportarCicloSS(formato); return; }
     if (tipo === "ciclo_os") { await exportarCicloOS(formato); return; }
     if (ordensFiltradas.length === 0) {

@@ -132,29 +132,27 @@ export async function gerarPdfRelatorioFotografico(opt: RelatorioFotograficoOpti
 
   await renderCapa(doc, opt);
 
-  for (const os of opt.ordens) {
+  const ordensComFotos = opt.ordens.filter((os) => Array.isArray(os.fotos) && os.fotos.length > 0);
+  if (ordensComFotos.length === 0) {
+    throw new Error("Nenhuma Ordem de Serviço com imagens anexadas no filtro selecionado.");
+  }
+
+  for (const os of ordensComFotos) {
+    const fotos = os.fotos;
+    const imagens = (await Promise.all(fotos.map((f) => loadImage(f.url)))).filter(
+      (i): i is { dataUrl: string; w: number; h: number } => i !== null
+    );
+    if (imagens.length === 0) continue;
+
     doc.addPage();
     let y = await renderCabecalhoOS(doc, os, 16);
-
-    const fotos = Array.isArray(os.fotos) ? os.fotos : [];
-    if (fotos.length === 0) {
-      doc.setFont("helvetica", "italic");
-      doc.setFontSize(9);
-      doc.setTextColor(120, 120, 120);
-      doc.text("Nenhuma imagem registrada para esta Ordem de Serviço.", ml, y + 6);
-      doc.setTextColor(30, 30, 30);
-      continue;
-    }
 
     const gap = 6;
     const cellW = (contentW - gap) / 2;
     const cellH = cellW * 0.75;
     let col = 0;
 
-    for (const foto of fotos) {
-      const img = await loadImage(foto.url);
-      if (!img) continue;
-
+    for (const img of imagens) {
       if (y + cellH > ph - 14) {
         doc.addPage();
         y = 16;
@@ -179,6 +177,9 @@ export async function gerarPdfRelatorioFotografico(opt: RelatorioFotograficoOpti
   }
 
   const pages = doc.getNumberOfPages();
+  if (pages < 2) {
+    throw new Error("Não foi possível carregar as imagens das Ordens de Serviço filtradas.");
+  }
   for (let i = 2; i <= pages; i++) {
     doc.setPage(i);
     doc.setFontSize(8);

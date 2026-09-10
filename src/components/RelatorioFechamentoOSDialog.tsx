@@ -1094,17 +1094,21 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
   const exportarFotografico = async () => {
     const { gerarPdfRelatorioFotografico } = await import("@/lib/gerarPdfRelatorioFotografico");
     toast.info("Gerando relatório fotográfico...");
-    await gerarPdfRelatorioFotografico({
-      ordens: ordensFiltradas,
-      clienteNome: clienteSel !== "todos" ? (clientes.find(c => c.id === clienteSel)?.nome || "") : (empresa?.nomeFantasia || empresa?.razaoSocial || ""),
-      unidade: localSel !== "todos" ? localSel : "",
-      descricao: "Ordens de Serviço",
-      periodoInicio: intervalo.ini.toISOString(),
-      periodoFim: intervalo.fim.toISOString(),
-      fileName: "relatorio_fotografico_os",
-    });
-    toast.success("PDF gerado!");
-    onOpenChange(false);
+    try {
+      await gerarPdfRelatorioFotografico({
+        ordens: ordensFiltradas,
+        clienteNome: clienteSel !== "todos" ? (clientes.find(c => c.id === clienteSel)?.nome || "") : (empresa?.nomeFantasia || empresa?.razaoSocial || ""),
+        unidade: localSel !== "todos" ? localSel : "",
+        descricao: "Ordens de Serviço",
+        periodoInicio: intervalo.ini.toISOString(),
+        periodoFim: intervalo.fim.toISOString(),
+        fileName: "relatorio_fotografico_os",
+      });
+      toast.success("PDF gerado!");
+      onOpenChange(false);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Falha ao gerar o relatório fotográfico.");
+    }
   };
 
   const exportar = async (formato: "pdf" | "excel") => {

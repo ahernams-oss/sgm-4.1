@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import type { OrdemServico } from "@/contexts/OrdensServicoContext";
+import type { Cliente } from "@/contexts/ClientesContext";
 import { useEmpresa } from "@/contexts/EmpresaContext";
 import { fetchAll } from "@/lib/supabaseHelper";
 import { formatNumeroAno } from "@/lib/formatNumero";
@@ -34,7 +35,7 @@ interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   ordens: OrdemServico[];
-  clientes: { id: string; nome: string }[];
+  clientes: Pick<Cliente, "id" | "nome" | "contratos">[];
 }
 
 const PERIODOS: { value: Periodo; label: string; desc: string }[] = [
@@ -1095,13 +1096,22 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
     const { gerarPdfRelatorioFotografico } = await import("@/lib/gerarPdfRelatorioFotografico");
     toast.info("Gerando relatório fotográfico...");
     try {
+      const clienteSelecionado = clienteSel !== "todos" ? clientes.find(c => c.id === clienteSel) : undefined;
+      const contrato = clienteSelecionado?.contratos?.[0];
+      const formatarDataFiltro = (data: Date) => {
+        const ano = data.getFullYear();
+        const mes = String(data.getMonth() + 1).padStart(2, "0");
+        const dia = String(data.getDate()).padStart(2, "0");
+        return `${ano}-${mes}-${dia}`;
+      };
       await gerarPdfRelatorioFotografico({
         ordens: ordensFiltradas,
-        clienteNome: clienteSel !== "todos" ? (clientes.find(c => c.id === clienteSel)?.nome || "") : (empresa?.nomeFantasia || empresa?.razaoSocial || ""),
-        unidade: localSel !== "todos" ? localSel : "",
-        descricao: "Ordens de Serviço",
-        periodoInicio: intervalo.ini.toISOString(),
-        periodoFim: intervalo.fim.toISOString(),
+        clienteNome: clienteSelecionado?.nome || "",
+        descricao: contrato?.descricao || (localSel !== "todos" ? localSel : "Ordens de Serviço"),
+        numeroProcesso: contrato?.numeroProcesso || "",
+        numeroContrato: contrato?.numero || "",
+        periodoInicio: periodo === "personalizado" && dataInicio ? dataInicio : formatarDataFiltro(intervalo.ini),
+        periodoFim: periodo === "personalizado" && dataFim ? dataFim : formatarDataFiltro(intervalo.fim),
         orientation: orientacao,
         fileName: "relatorio_fotografico_os",
       });

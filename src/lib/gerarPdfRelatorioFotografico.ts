@@ -31,6 +31,8 @@ async function loadImage(url: string): Promise<{ dataUrl: string; w: number; h: 
 
 const fmtData = (d?: string) => {
   if (!d) return "";
+  const dataSomente = d.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (dataSomente) return `${dataSomente[3]}/${dataSomente[2]}/${dataSomente[1]}`;
   const dt = new Date(d);
   if (isNaN(dt.getTime())) return d;
   return dt.toLocaleDateString("pt-BR");
@@ -78,13 +80,12 @@ async function renderCapa(doc: jsPDF, opt: RelatorioFotograficoOptions) {
       doc.text(text, coverX + imageX * scale, coverY + imageY * scale, { maxWidth: maxImageWidth * scale });
     };
 
-    const descricao = [opt.unidade, opt.descricao].filter(Boolean).join(" — ");
     const periodo = [fmtData(opt.periodoInicio), fmtData(opt.periodoFim)].filter(Boolean).join(" a ");
-    put(opt.clienteNome || "", 118, 360);
-    put(descricao, 138, 393, 255);
-    put(opt.numeroProcesso || "", 188, 424, 205);
-    put(opt.numeroContrato || "", 188, 455, 205);
-    put(periodo, 119, 484, 205);
+    put(opt.clienteNome || "", 210, 642, 340);
+    put(opt.descricao || "", 234, 697, 316);
+    put(opt.numeroProcesso || "", 414, 752, 136);
+    put(opt.numeroContrato || "", 386, 806, 164);
+    put(periodo, 210, 859, 340);
   }
 
   doc.setTextColor(30, 30, 30);

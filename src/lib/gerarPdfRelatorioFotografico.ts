@@ -152,10 +152,7 @@ export async function gerarPdfRelatorioFotografico(opt: RelatorioFotograficoOpti
     const cellH = cellW * 0.75;
     let col = 0;
 
-    for (const foto of fotos) {
-      const img = await loadImage(foto.url);
-      if (!img) continue;
-
+    for (const img of imagens) {
       if (y + cellH > ph - 14) {
         doc.addPage();
         y = 16;

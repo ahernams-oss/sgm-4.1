@@ -451,6 +451,7 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
     }
 
     addFooter(doc);
+    await adicionarCapaELaminaOS(doc, capaInfo());
     doc.save(`${fileBaseFech}.pdf`);
     toast.success("PDF gerado!");
     onOpenChange(false);

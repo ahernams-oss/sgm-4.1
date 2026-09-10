@@ -57,6 +57,7 @@ const TIPOS: { value: TipoRelatorio; label: string; desc: string }[] = [
   { value: "situacao", label: "Por Situação", desc: "Quantidade e percentual de OSs em cada situação no período." },
   { value: "ciclo_ss", label: "Ciclo de Vida — Solicitações (SS)", desc: "Tempo entre solicitação, aprovação e conclusão (baseado no workflow), com médias." },
   { value: "ciclo_os", label: "Ciclo de Vida — Ordens de Serviço (OS)", desc: "Tempo entre as situações do workflow até a confirmação/validação, com tempos médios." },
+  { value: "fotografico", label: "Relatório Fotográfico", desc: "Capa institucional, cabeçalho de cada OS e as imagens registradas na OS (somente PDF)." },
 ];
 
 const fmtBRL = (n: number) => `R$ ${(Number(n) || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

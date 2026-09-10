@@ -174,7 +174,10 @@ export async function gerarPdfRelatorioFotografico(opt: RelatorioFotograficoOpti
       }
 
       const x = ml + col * (cellW + gap);
-      const ratio = Math.min(cellW / imagem.w, cellH / imagem.h);
+      const imagePadding = 2;
+      const maxImageW = cellW - imagePadding * 2;
+      const maxImageH = cellH - imagePadding * 2;
+      const ratio = Math.min(maxImageW / imagem.w, maxImageH / imagem.h);
       const w = imagem.w * ratio;
       const h = imagem.h * ratio;
 

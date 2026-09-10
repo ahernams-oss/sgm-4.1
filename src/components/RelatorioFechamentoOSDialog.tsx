@@ -19,7 +19,7 @@ import type * as XLSXTypes from "xlsx";
 const getXLSX = async () => await import("xlsx");
 
 type Periodo = "semanal" | "quinzenal" | "mensal" | "personalizado";
-type TipoRelatorio = "fechamento_validadas" | "fechamento_local" | "fechamento_categoria" | "fechamento_faturadas" | "fechamento_faturadas_local" | "analitico" | "sintetico" | "financeiro" | "produtividade" | "situacao" | "ciclo_ss" | "ciclo_os";
+type TipoRelatorio = "fechamento_validadas" | "fechamento_local" | "fechamento_categoria" | "fechamento_faturadas" | "fechamento_faturadas_local" | "analitico" | "sintetico" | "financeiro" | "produtividade" | "situacao" | "ciclo_ss" | "ciclo_os" | "fotografico";
 
 /** Tipos que travam a situação da OS (Validada/Faturada). */
 const STATUS_FIXO: Partial<Record<TipoRelatorio, string>> = {

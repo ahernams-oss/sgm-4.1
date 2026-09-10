@@ -216,5 +216,14 @@ export async function gerarPdfRelatorioFotografico(opt: RelatorioFotograficoOpti
     doc.text(`Página ${i - 1} de ${pages - 1}`, pw / 2, ph - 6, { align: "center" });
   }
 
+  const contracapa = await loadImage(finalAsset.url);
+  if (contracapa) {
+    doc.addPage();
+    const scale = Math.min(pw / contracapa.w, ph / contracapa.h);
+    const w = contracapa.w * scale;
+    const h = contracapa.h * scale;
+    try { doc.addImage(contracapa.dataUrl, "JPEG", (pw - w) / 2, (ph - h) / 2, w, h); } catch { /* ignore */ }
+  }
+
   doc.save(`${opt.fileName || "relatorio_fotografico"}.pdf`);
 }

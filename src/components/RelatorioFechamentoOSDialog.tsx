@@ -1091,7 +1091,29 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
     onOpenChange(false);
   };
 
+  const exportarFotografico = async () => {
+    const { gerarPdfRelatorioFotografico } = await import("@/lib/gerarPdfRelatorioFotografico");
+    toast.info("Gerando relatório fotográfico...");
+    await gerarPdfRelatorioFotografico({
+      ordens: ordensFiltradas,
+      clienteNome: clienteSel !== "todos" ? (clientes.find(c => c.id === clienteSel)?.nome || "") : (empresa?.nomeFantasia || empresa?.razaoSocial || ""),
+      unidade: localSel !== "todos" ? localSel : "",
+      descricao: "Ordens de Serviço",
+      periodoInicio: intervalo.ini.toISOString(),
+      periodoFim: intervalo.fim.toISOString(),
+      fileName: "relatorio_fotografico_os",
+    });
+    toast.success("PDF gerado!");
+    onOpenChange(false);
+  };
+
   const exportar = async (formato: "pdf" | "excel") => {
+    if (tipo === "fotografico") {
+      if (formato === "excel") { toast.error("O Relatório Fotográfico está disponível apenas em PDF."); return; }
+      if (ordensFiltradas.length === 0) { toast.error("Nenhuma OS encontrada no período/filtros selecionados."); return; }
+      await exportarFotografico();
+      return;
+    }
     if (tipo === "ciclo_ss") { await exportarCicloSS(formato); return; }
     if (tipo === "ciclo_os") { await exportarCicloOS(formato); return; }
     if (ordensFiltradas.length === 0) {

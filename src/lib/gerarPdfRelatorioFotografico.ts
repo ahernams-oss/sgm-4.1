@@ -81,13 +81,12 @@ async function renderCapa(doc: jsPDF, opt: RelatorioFotograficoOptions) {
     };
 
     const periodo = [fmtData(opt.periodoInicio), fmtData(opt.periodoFim)].filter(Boolean).join(" a ");
-    const valueX = 210;
-    const valueWidth = 340;
-    put(opt.clienteNome || "", valueX, 642, valueWidth);
-    put(opt.descricao || "", valueX, 697, valueWidth);
-    put(opt.numeroProcesso || "", valueX, 752, valueWidth);
-    put(opt.numeroContrato || "", valueX, 806, valueWidth);
-    put(periodo, valueX, 859, valueWidth);
+    // Coordenadas medidas sobre a capa (1055x1491): início e fim de cada linha de preenchimento.
+    put(opt.clienteNome || "", 172, 636, 320);
+    put(opt.descricao || "", 196, 688, 335);
+    put(opt.numeroProcesso || "", 248, 739, 280);
+    put(opt.numeroContrato || "", 242, 784, 296);
+    put(periodo, 177, 831, 297);
   }
 
   doc.setTextColor(30, 30, 30);

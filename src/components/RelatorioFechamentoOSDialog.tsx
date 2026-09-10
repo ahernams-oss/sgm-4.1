@@ -14,6 +14,7 @@ import { fetchAll } from "@/lib/supabaseHelper";
 import { formatNumeroAno } from "@/lib/formatNumero";
 
 import type { jsPDF } from "jspdf";
+import { adicionarCapaELaminaOS } from "@/lib/relatorioCapaOS";
 const getJsPDF = async () => (await import("jspdf")).jsPDF;
 const getAutoTable = async () => (await import("jspdf-autotable")).default;
 import type * as XLSXTypes from "xlsx";

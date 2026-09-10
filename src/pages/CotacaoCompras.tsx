@@ -1,6 +1,7 @@
 import { isFornecedorSuspenso } from "@/lib/fornecedorSuspensao";
 import { useState, useMemo, useEffect, useCallback, type ReactNode } from "react";
 import { loadPersistedFilters, usePersistFilters } from "@/lib/persistedFilters";
+import { useSearchParams } from "@/lib/router-compat";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { useCotacaoCompras, CotacaoCompras, PropostaFornecedor, ItemCotacaoFornecedor, ItemVencedor } from "@/contexts/CotacaoComprasContext";
 import { useRequisicaoCompras, RequisicaoCompras } from "@/contexts/RequisicaoComprasContext";

@@ -4,6 +4,7 @@ import type { Cliente } from "@/contexts/ClientesContext";
 import type { RdoAssinatura } from "@/contexts/RdoAssinaturasContext";
 
 import type { jsPDF } from "jspdf";
+import capaRdoAsset from "@/assets/capa-rdo.jpg.asset.json";
 const getJsPDF = async () => (await import("jspdf")).jsPDF;
 const getAutoTable = async () => (await import("jspdf-autotable")).default;
 

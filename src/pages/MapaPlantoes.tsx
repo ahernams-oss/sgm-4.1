@@ -181,8 +181,8 @@ const MapaPlantoes = () => {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="sticky left-0 bg-table-header z-10 min-w-[180px]">Funcionário</TableHead>
+                <TableRow className="[&_th]:bg-muted [&_th]:text-foreground hover:bg-muted">
+                  <TableHead className="sticky left-0 z-10 min-w-[180px]">Funcionário</TableHead>
                   <TableHead className="min-w-[140px]">Cargo</TableHead>
                   <TableHead className="min-w-[140px]">Cliente</TableHead>
                   <TableHead className="min-w-[150px]">Jornada</TableHead>
@@ -193,7 +193,7 @@ const MapaPlantoes = () => {
                     return (
                       <TableHead
                         key={i}
-                        className={`text-center w-9 px-1 text-[11px] ${fimSemana ? "bg-muted/50" : ""}`}
+                        className={`text-center w-9 px-1 text-[11px] ${fimSemana ? "bg-muted-foreground/15" : ""}`}
                       >
                         <div className="flex flex-col items-center leading-tight">
                           <span className="text-[9px] font-normal text-muted-foreground uppercase">{siglasDow[dow]}</span>

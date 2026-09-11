@@ -730,7 +730,7 @@ export default function RequisicaoComprasPage() {
           </DialogHeader>
 
           <Tabs defaultValue="dados" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto gap-1">
               <TabsTrigger value="dados">Dados Gerais</TabsTrigger>
               <TabsTrigger value="itens">Itens ({itens.length})</TabsTrigger>
               <TabsTrigger value="anexos">Anexos ({anexos.length})</TabsTrigger>
@@ -806,7 +806,7 @@ export default function RequisicaoComprasPage() {
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-[400px] p-0" align="start">
+                        <PopoverContent className="w-[min(400px,calc(100vw-2rem))] p-0" align="start">
                           <Command>
                             <CommandInput placeholder="Buscar material/serviço..." />
                             <CommandList>

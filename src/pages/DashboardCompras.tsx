@@ -519,7 +519,7 @@ export default function DashboardCompras() {
             statusOptions={statusOptions}
           />
           <Select value={tipoFiltro} onValueChange={(v) => setTipoFiltro(v as typeof tipoFiltro)}>
-            <SelectTrigger className="h-9 w-[160px] text-xs">
+            <SelectTrigger className="h-9 w-full sm:w-[160px] text-xs">
               <SelectValue placeholder="Tipo" />
             </SelectTrigger>
             <SelectContent>
@@ -801,7 +801,7 @@ export default function DashboardCompras() {
 
       {/* Tabs with tables */}
       <Tabs defaultValue="pendentes">
-        <TabsList>
+        <TabsList className="flex flex-wrap h-auto gap-1">
           <TabsTrigger value="pendentes">Pendentes de Entrega ({pendentesFiltradas.length})</TabsTrigger>
           <TabsTrigger value="reprovadas">Reprovadas ({reprovadasFiltradas.length})</TabsTrigger>
           <TabsTrigger value="auditoria">Auditoria Recente ({auditoriaEventos.length})</TabsTrigger>
@@ -811,13 +811,13 @@ export default function DashboardCompras() {
           <Card>
             <CardContent className="p-4 space-y-3">
               <div className="flex flex-wrap gap-2 items-center">
-                <div className="relative flex-1 min-w-[220px]">
+                <div className="relative flex-1 w-full sm:w-auto min-w-0 sm:min-w-[220px]">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input className="pl-9 h-9" placeholder="Buscar por nº, solicitante ou centro de custo..."
                     value={pendBusca} onChange={(e) => { setPendBusca(e.target.value); setPendPage(1); }} />
                 </div>
                 <Select value={pendStatus} onValueChange={(v) => { setPendStatus(v); setPendPage(1); }}>
-                  <SelectTrigger className="w-[180px] h-9"><SelectValue placeholder="Status" /></SelectTrigger>
+                  <SelectTrigger className="w-full sm:w-[180px] h-9"><SelectValue placeholder="Status" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="todos">Todos os status</SelectItem>
                     <SelectItem value="Pedido Emitido">Pedido Emitido</SelectItem>
@@ -825,7 +825,7 @@ export default function DashboardCompras() {
                   </SelectContent>
                 </Select>
                 <Select value={pendUrgencia} onValueChange={(v) => { setPendUrgencia(v); setPendPage(1); }}>
-                  <SelectTrigger className="w-[160px] h-9"><SelectValue placeholder="Urgência" /></SelectTrigger>
+                  <SelectTrigger className="w-full sm:w-[160px] h-9"><SelectValue placeholder="Urgência" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="todas">Todas urgências</SelectItem>
                     <SelectItem value="Baixa">Baixa</SelectItem>
@@ -917,13 +917,13 @@ export default function DashboardCompras() {
           <Card>
             <CardContent className="p-4 space-y-3">
               <div className="flex flex-wrap gap-2 items-center">
-                <div className="relative flex-1 min-w-[220px]">
+                <div className="relative flex-1 w-full sm:w-auto min-w-0 sm:min-w-[220px]">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input className="pl-9 h-9" placeholder="Buscar por requisição, usuário ou observação..."
                     value={audBusca} onChange={(e) => { setAudBusca(e.target.value); setAudPage(1); }} />
                 </div>
                 <Select value={audStatus} onValueChange={(v) => { setAudStatus(v); setAudPage(1); }}>
-                  <SelectTrigger className="w-[200px] h-9"><SelectValue placeholder="Ação (Status)" /></SelectTrigger>
+                  <SelectTrigger className="w-full sm:w-[200px] h-9"><SelectValue placeholder="Ação (Status)" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="todos">Todas as ações</SelectItem>
                     {auditoriaStatusOpcoes.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}

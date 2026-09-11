@@ -197,7 +197,7 @@ export default function AssinarLotePc() {
       </div>
 
       <div className="flex flex-wrap gap-3 items-end">
-        <div className="relative flex-1 min-w-[220px]">
+        <div className="relative flex-1 w-full sm:w-auto min-w-0 sm:min-w-[220px]">
           <Label className="text-xs">Buscar</Label>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -209,7 +209,7 @@ export default function AssinarLotePc() {
             />
           </div>
         </div>
-        <div className="w-[260px]">
+        <div className="w-full sm:w-[260px]">
           <Label className="text-xs">Fornecedor</Label>
           <Select value={filterFornecedor} onValueChange={(v) => { setFilterFornecedor(v); setPage(1); }}>
             <SelectTrigger><SelectValue placeholder="Todos" /></SelectTrigger>

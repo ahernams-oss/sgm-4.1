@@ -301,7 +301,7 @@ export default function RelatoriosEstoquePage() {
       <Label className="text-xs">{label}</Label>
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm" className={cn("w-[140px] justify-start text-left text-xs", !date && "text-muted-foreground")}>
+          <Button variant="outline" size="sm" className={cn("w-full sm:w-[140px] justify-start text-left text-xs", !date && "text-muted-foreground")}>
             <CalendarIcon className="mr-1 h-3 w-3" />
             {date ? format(date, "dd/MM/yyyy") : "Selecionar"}
           </Button>
@@ -344,7 +344,7 @@ export default function RelatoriosEstoquePage() {
             <div className="space-y-1">
               <Label className="text-xs">Unidade/Local</Label>
               <Select value={filtroUnidade} onValueChange={setFiltroUnidade}>
-                <SelectTrigger className="h-8 text-xs w-[160px]"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-8 text-xs w-full sm:w-[160px]"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__all__">Todos</SelectItem>
                   {locais.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
@@ -354,7 +354,7 @@ export default function RelatoriosEstoquePage() {
             <div className="space-y-1">
               <Label className="text-xs">Centro de Custo</Label>
               <Select value={filtroCC} onValueChange={setFiltroCC}>
-                <SelectTrigger className="h-8 text-xs w-[160px]"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-8 text-xs w-full sm:w-[160px]"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__all__">Todos</SelectItem>
                   {centrosCusto.map(cc => <SelectItem key={cc} value={cc}>{cc}</SelectItem>)}
@@ -364,7 +364,7 @@ export default function RelatoriosEstoquePage() {
             <div className="space-y-1">
               <Label className="text-xs">Usuário</Label>
               <Select value={filtroUsuario} onValueChange={setFiltroUsuario}>
-                <SelectTrigger className="h-8 text-xs w-[140px]"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-8 text-xs w-full sm:w-[140px]"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="__all__">Todos</SelectItem>
                   {usuarios.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}
@@ -805,7 +805,7 @@ export default function RelatoriosEstoquePage() {
             <div className="space-y-1">
               <Label className="text-xs">Selecione o Material</Label>
               <Select value={itemHistoricoId} onValueChange={setItemHistoricoId}>
-                <SelectTrigger className="h-8 text-xs w-[300px]"><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                <SelectTrigger className="h-8 text-xs w-full sm:w-[300px]"><SelectValue placeholder="Selecione..." /></SelectTrigger>
                 <SelectContent>
                   {materiais.map(m => <SelectItem key={m.id} value={m.id}>{m.codigo} - {m.descricao}</SelectItem>)}
                 </SelectContent>

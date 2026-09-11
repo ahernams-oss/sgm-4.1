@@ -615,14 +615,14 @@ export default function RequisicaoComprasPage() {
                         key={c.id}
                         type="button"
                         onClick={() => navigate(`/compras/cotacoes?cotacaoId=${c.id}`)}
-                        className="font-mono text-xs text-primary underline underline-offset-2 hover:opacity-80"
+                        className="font-mono text-sm text-primary underline underline-offset-2 hover:opacity-80"
                         title={`Abrir cotação COT-${String(c.numero).padStart(4, "0")} — ${c.status}`}
                       >
                         COT-{String(c.numero).padStart(4, "0")}
                       </button>
                     ))}
                   </div>
-                ) : <span className="text-muted-foreground text-xs">-</span>,
+                ) : <span className="text-muted-foreground text-sm">-</span>,
                 ordemCompra: pedidosDaReq.length > 0 ? (
                   <div className="flex flex-col items-center gap-0.5">
                     {pedidosDaReq.map(p => (

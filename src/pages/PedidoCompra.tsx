@@ -212,7 +212,7 @@ export default function PedidoCompraPage() {
     setFilterComprador("Todos"); setFilterCentroCusto("Todos"); setFilterCategoria("Todos"); setFilterDataIni(""); setFilterDataFim("");
   };
 
-  const formatCurrency = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const formatCurrency = (v?: number | null) => Number(v ?? 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   const getFornecedor = (fornecedorId: string) => clientes.find(c => c.id === fornecedorId) || null;
 

@@ -203,24 +203,28 @@ export default function RdoPage() {
 
   const pagedObras = obrasFiltradas.slice((page - 1) * pageSize, page * pageSize);
 
-  // RDOs filtrados da obra selecionada (dentro do dialog)
-  const rdosDaObra = useMemo(() => {
+  // Todos os RDOs da obra selecionada. A evolução não pode depender da busca da grade.
+  const todosRdosDaObra = useMemo(() => {
     if (!selectedObra) return [];
     return rdosList
       .filter((r) => r.obra_id === selectedObra.id ||
         (!r.obra_id && r.cliente_id === selectedObra.cliente_id && (r.obra || "").toLowerCase().trim() === (selectedObra.nome || "").toLowerCase().trim()))
-      .filter((r) => !obraRdoSearch ||
+      .sort((a, b) => (b.data_rdo || "").localeCompare(a.data_rdo || ""));
+  }, [rdosList, selectedObra]);
+
+  // A busca afeta somente as linhas exibidas, nunca o avanço acumulado da obra.
+  const rdosDaObra = useMemo(() => {
+    return todosRdosDaObra.filter((r) => !obraRdoSearch ||
         String(r.numero).includes(obraRdoSearch) ||
         r.responsavel?.toLowerCase().includes(obraRdoSearch.toLowerCase()) ||
-        (r.data_rdo || "").includes(obraRdoSearch))
-      .sort((a, b) => (b.data_rdo || "").localeCompare(a.data_rdo || ""));
-  }, [rdosList, selectedObra, obraRdoSearch]);
+        (r.data_rdo || "").includes(obraRdoSearch));
+  }, [todosRdosDaObra, obraRdoSearch]);
 
   // Evolução acumulada da obra: soma do avanço físico geral de todas as RDOs, limitada a 100%
   const evolucaoObra = useMemo(() => {
-    const total = rdosDaObra.reduce((acc, r) => acc + (Number(r.avanco_fisico_geral) || 0), 0);
+    const total = todosRdosDaObra.reduce((acc, r) => acc + (Number(r.avanco_fisico_geral) || 0), 0);
     return Math.min(100, total);
-  }, [rdosDaObra]);
+  }, [todosRdosDaObra]);
 
   const openObraRdos = (o: ObraType) => {
     setSelectedObra(o);
@@ -337,7 +341,7 @@ export default function RdoPage() {
     setSaving(true);
 
     try {
-      const payload = { ...form };
+      const payload = { ...form, avanco_fisico_geral: atual };
       let ok = false;
       if (editing) {
         ok = await updateRdo(editing.id, payload);

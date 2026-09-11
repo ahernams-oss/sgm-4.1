@@ -39,7 +39,10 @@ const ObrasContext = createContext<Ctx>({
   add: async () => null, update: async () => false, remove: async () => false,
   porCliente: () => [], refresh: async () => {},
 });
-export const useObras = () => useContext(ObrasContext);
+export const useObras = () => {
+  useActivateProvider("Obras");
+  return useContext(ObrasContext);
+};
 const QK = ["obras"] as const;
 
 export function ObrasProvider({ children }: { children: ReactNode }) {

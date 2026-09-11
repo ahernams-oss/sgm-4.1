@@ -122,7 +122,7 @@ export default function Pregoes() {
               <Input placeholder="Buscar por objeto ou número..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-full sm:w-[200px]"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todos os status</SelectItem>
                 {(["Rascunho","Publicado","Credenciamento","Propostas","Disputa","Habilitacao","Adjudicado","Homologado","Suspenso","Cancelado","Encerrado"] as PregaoStatus[]).map(s => (

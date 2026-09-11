@@ -575,7 +575,7 @@ export default function EstoquePage() {
         </div>
 
         <Select value={filtroCentroCusto} onValueChange={(v) => { setFiltroCentroCusto(v); setPageSaldos(1); setPageMov(1); }}>
-          <SelectTrigger className="w-[220px]"><SelectValue placeholder="Centro de Custo" /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[220px]"><SelectValue placeholder="Centro de Custo" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="todos">Todos os centros de custo</SelectItem>
             {centrosCustoDisponiveis.map(cc => <SelectItem key={cc} value={cc}>{cc}</SelectItem>)}
@@ -583,7 +583,7 @@ export default function EstoquePage() {
         </Select>
 
         <Select value={filtroMaterial} onValueChange={(v) => { setFiltroMaterial(v); setPageSaldos(1); setPageMov(1); }}>
-          <SelectTrigger className="w-[260px]"><SelectValue placeholder="Material" /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[260px]"><SelectValue placeholder="Material" /></SelectTrigger>
           <SelectContent className="max-h-72">
             <SelectItem value="todos">Todos os materiais</SelectItem>
             {materiais.map(m => <SelectItem key={m.id} value={m.id}>{m.codigo} — {m.descricao}</SelectItem>)}
@@ -591,7 +591,7 @@ export default function EstoquePage() {
         </Select>
 
         <Select value={filtroLocal} onValueChange={(v) => { setFiltroLocal(v); setPageSaldos(1); setPageMov(1); }}>
-          <SelectTrigger className="w-[200px]"><SelectValue placeholder="Local" /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[200px]"><SelectValue placeholder="Local" /></SelectTrigger>
           <SelectContent className="max-h-72">
             <SelectItem value="todos">Todos os locais</SelectItem>
             {locaisDisponiveis.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
@@ -819,7 +819,7 @@ export default function EstoquePage() {
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[400px] p-0" align="start">
+                <PopoverContent className="w-[min(400px,calc(100vw-2rem))] p-0" align="start">
                   <Command>
                     <CommandInput placeholder="Buscar material/serviço..." />
                     <CommandList>
@@ -990,7 +990,7 @@ export default function EstoquePage() {
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-[400px] p-0" align="start">
+                <PopoverContent className="w-[min(400px,calc(100vw-2rem))] p-0" align="start">
                   <Command>
                     <CommandInput placeholder="Buscar material/serviço..." />
                     <CommandList>

@@ -182,7 +182,7 @@ const MapaPlantoes = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="sticky left-0 bg-muted/30 z-10 min-w-[180px]">Funcionário</TableHead>
+                  <TableHead className="sticky left-0 bg-table-header z-10 min-w-[180px]">Funcionário</TableHead>
                   <TableHead className="min-w-[140px]">Cargo</TableHead>
                   <TableHead className="min-w-[140px]">Cliente</TableHead>
                   <TableHead className="min-w-[150px]">Jornada</TableHead>

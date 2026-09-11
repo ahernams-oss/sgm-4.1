@@ -537,13 +537,13 @@ const ProcessoSeletivoPage = () => {
             <CardContent>
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
-                  <thead className="bg-muted/60">
+                  <thead className="bg-table-header/85 text-table-header-foreground">
                     <tr className="border-b">
-                      <th className="text-left py-2 pr-4 font-medium text-muted-foreground">Candidato</th>
-                      <th className="text-center py-2 px-3 font-medium text-muted-foreground">Ent. Psicológica</th>
-                      <th className="text-center py-2 px-3 font-medium text-muted-foreground">Ent. Técnica</th>
-                      <th className="text-center py-2 px-3 font-medium text-muted-foreground">Liberação</th>
-                      <th className="text-center py-2 pl-3 font-medium text-muted-foreground">Contratação</th>
+                      <th className="text-left py-2 pr-4 font-medium text-table-header-foreground/85">Candidato</th>
+                      <th className="text-center py-2 px-3 font-medium text-table-header-foreground/85">Ent. Psicológica</th>
+                      <th className="text-center py-2 px-3 font-medium text-table-header-foreground/85">Ent. Técnica</th>
+                      <th className="text-center py-2 px-3 font-medium text-table-header-foreground/85">Liberação</th>
+                      <th className="text-center py-2 pl-3 font-medium text-table-header-foreground/85">Contratação</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -726,7 +726,7 @@ const ProcessoSeletivoPage = () => {
                       <CardContent className="space-y-3">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
-                            <label className="text-xs font-medium text-muted-foreground">Idade</label>
+                            <label className="text-xs font-medium text-table-header-foreground/85">Idade</label>
                             <DebouncedInput
                               value={c.idade}
                               onChange={(e) => handleSalvarParecer(c.id, "idade", e.target.value)}
@@ -736,7 +736,7 @@ const ProcessoSeletivoPage = () => {
                             />
                           </div>
                           <div>
-                            <label className="text-xs font-medium text-muted-foreground">Estado Civil</label>
+                            <label className="text-xs font-medium text-table-header-foreground/85">Estado Civil</label>
                             <Select
                               value={c.estadoCivil || ""}
                               onValueChange={(v) => handleSalvarParecer(c.id, "estadoCivil", v)}
@@ -750,7 +750,7 @@ const ProcessoSeletivoPage = () => {
                           </div>
                         </div>
                         <div>
-                          <label className="text-xs font-medium text-muted-foreground">Experiências Anteriores</label>
+                          <label className="text-xs font-medium text-table-header-foreground/85">Experiências Anteriores</label>
                           <DebouncedTextarea
                             value={c.experienciasAnteriores}
                             onChange={(e) => handleSalvarParecer(c.id, "experienciasAnteriores", e.target.value)}
@@ -761,7 +761,7 @@ const ProcessoSeletivoPage = () => {
                           />
                         </div>
                         <div>
-                          <label className="text-xs font-medium text-muted-foreground">Parecer da Psicóloga</label>
+                          <label className="text-xs font-medium text-table-header-foreground/85">Parecer da Psicóloga</label>
                           <DebouncedTextarea
                             value={c.parecerPsicologo}
                             onChange={(e) => handleSalvarParecer(c.id, "parecerPsicologo", e.target.value)}
@@ -853,7 +853,7 @@ const ProcessoSeletivoPage = () => {
                           </CardHeader>
                           <CardContent className="space-y-3">
                             <div>
-                              <label className="text-xs font-medium text-muted-foreground">Nome do Avaliador</label>
+                              <label className="text-xs font-medium text-table-header-foreground/85">Nome do Avaliador</label>
                               <DebouncedInput
                                 value={c.avaliadorTecnico}
                                 onChange={(e) => handleSalvarParecer(c.id, "avaliadorTecnico", e.target.value)}
@@ -863,7 +863,7 @@ const ProcessoSeletivoPage = () => {
                               />
                             </div>
                             <div>
-                              <label className="text-xs font-medium text-muted-foreground">Parecer Técnico</label>
+                              <label className="text-xs font-medium text-table-header-foreground/85">Parecer Técnico</label>
                               <DebouncedTextarea
                                 value={c.parecerTecnico}
                                 onChange={(e) => handleSalvarParecer(c.id, "parecerTecnico", e.target.value)}
@@ -1185,7 +1185,7 @@ const ProcessoSeletivoPage = () => {
             </DialogHeader>
             <div className="space-y-3">
               <div>
-                <label className="text-xs font-medium text-muted-foreground">Nome *</label>
+                <label className="text-xs font-medium text-table-header-foreground/85">Nome *</label>
                 <Input
                   value={newCandidato.nome}
                   onChange={(e) => setNewCandidato((p) => ({ ...p, nome: e.target.value }))}
@@ -1193,7 +1193,7 @@ const ProcessoSeletivoPage = () => {
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground">E-mail</label>
+                <label className="text-xs font-medium text-table-header-foreground/85">E-mail</label>
                 <Input
                   value={newCandidato.email}
                   onChange={(e) => setNewCandidato((p) => ({ ...p, email: e.target.value }))}
@@ -1201,7 +1201,7 @@ const ProcessoSeletivoPage = () => {
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground">Telefone</label>
+                <label className="text-xs font-medium text-table-header-foreground/85">Telefone</label>
                 <Input
                   value={newCandidato.telefone}
                   onChange={(e) => setNewCandidato((p) => ({ ...p, telefone: e.target.value }))}
@@ -1210,7 +1210,7 @@ const ProcessoSeletivoPage = () => {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground">CPF *</label>
+                  <label className="text-xs font-medium text-table-header-foreground/85">CPF *</label>
                   <Input
                     value={newCandidato.cpf}
                     onChange={(e) => {
@@ -1225,7 +1225,7 @@ const ProcessoSeletivoPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground">Data de Nascimento *</label>
+                  <label className="text-xs font-medium text-table-header-foreground/85">Data de Nascimento *</label>
                   <Input
                     type="date"
                     value={newCandidato.dataNascimento}
@@ -1234,7 +1234,7 @@ const ProcessoSeletivoPage = () => {
                 </div>
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground">Anexos (máx. 2MB cada)</label>
+                <label className="text-xs font-medium text-table-header-foreground/85">Anexos (máx. 2MB cada)</label>
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -1293,7 +1293,7 @@ const ProcessoSeletivoPage = () => {
             {editingCandidato && (
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground">Nome *</label>
+                  <label className="text-xs font-medium text-table-header-foreground/85">Nome *</label>
                   <Input
                     value={editingCandidato.nome}
                     onChange={(e) => setEditingCandidato((p) => p ? { ...p, nome: e.target.value } : p)}
@@ -1301,7 +1301,7 @@ const ProcessoSeletivoPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground">E-mail</label>
+                  <label className="text-xs font-medium text-table-header-foreground/85">E-mail</label>
                   <Input
                     value={editingCandidato.email}
                     onChange={(e) => setEditingCandidato((p) => p ? { ...p, email: e.target.value } : p)}
@@ -1309,7 +1309,7 @@ const ProcessoSeletivoPage = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground">Telefone</label>
+                  <label className="text-xs font-medium text-table-header-foreground/85">Telefone</label>
                   <Input
                     value={editingCandidato.telefone}
                     onChange={(e) => setEditingCandidato((p) => p ? { ...p, telefone: e.target.value } : p)}
@@ -1318,7 +1318,7 @@ const ProcessoSeletivoPage = () => {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground">CPF *</label>
+                    <label className="text-xs font-medium text-table-header-foreground/85">CPF *</label>
                     <Input
                       value={editingCandidato.cpf || ""}
                       onChange={(e) => {
@@ -1335,7 +1335,7 @@ const ProcessoSeletivoPage = () => {
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground">Data de Nascimento *</label>
+                    <label className="text-xs font-medium text-table-header-foreground/85">Data de Nascimento *</label>
                     <Input
                       type="date"
                       value={editingCandidato.dataNascimento || ""}
@@ -1344,7 +1344,7 @@ const ProcessoSeletivoPage = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground">Anexos</label>
+                  <label className="text-xs font-medium text-table-header-foreground/85">Anexos</label>
                   <input
                     type="file"
                     ref={editFileInputRef}

@@ -135,7 +135,7 @@ export default function ImportClientesFornecedores({ tipo }: Props) {
           </DialogHeader>
           <div className="overflow-auto max-h-[50vh] border rounded">
             <table className="w-full text-xs">
-              <thead className="bg-muted sticky top-0">
+              <thead className="bg-table-header/85 text-table-header-foreground sticky top-0">
                 <tr>
                   <th className="p-2 text-left">#</th>
                   <th className="p-2 text-left">Nome</th>

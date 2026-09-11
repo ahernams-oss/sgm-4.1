@@ -731,7 +731,7 @@ export default function PregaoSalaFornecedorPage() {
                   </h4>
                   <div className="border rounded-lg overflow-hidden">
                     <table className="w-full text-sm">
-                      <thead className="bg-muted">
+                      <thead className="bg-table-header/85 text-table-header-foreground">
                         <tr>
                           <th className="px-3 py-2 text-left text-xs">Pos</th>
                           <th className="px-3 py-2 text-left text-xs">Participante</th>

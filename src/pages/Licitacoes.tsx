@@ -1005,7 +1005,7 @@ export default function LicitacoesPage() {
               </div>
 
               {viewAnalise.analiseIaMarkdown ? (
-                <div className="border rounded-lg p-4 bg-muted/30 prose prose-sm max-w-none dark:prose-invert prose-table:text-xs prose-th:bg-muted prose-th:p-2 prose-td:p-2 prose-th:border prose-td:border">
+                <div className="border rounded-lg p-4 bg-muted/30 prose prose-sm max-w-none dark:prose-invert prose-table:text-xs prose-th:bg-table-header/85 prose-th:text-table-header-foreground prose-th:p-2 prose-td:p-2 prose-th:border prose-td:border">
                   <ReactMarkdown>{viewAnalise.analiseIaMarkdown}</ReactMarkdown>
                 </div>
               ) : (

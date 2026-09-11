@@ -2131,7 +2131,7 @@ export default function OrdensServicoPage() {
                     <div className="border rounded-md">
                       <div className="max-h-[420px] overflow-y-auto">
                         <Table>
-                          <TableHeader className="sticky top-0 bg-background z-10">
+                          <TableHeader className="sticky top-0 bg-table-header/85 backdrop-blur-sm z-10">
                             <TableRow>
                               <TableHead>Código</TableHead>
                               <TableHead>Descrição</TableHead>

@@ -141,7 +141,7 @@ export default function PainelFaturamentoClientes() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="sticky left-0 bg-background min-w-[180px]">Cliente</TableHead>
+                <TableHead className="sticky left-0 bg-table-header min-w-[180px]">Cliente</TableHead>
                 {MESES_PT.map((m) => (
                   <TableHead key={m} className="text-right whitespace-nowrap">{m.slice(0, 3)}</TableHead>
                 ))}

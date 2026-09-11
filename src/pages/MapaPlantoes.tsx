@@ -193,7 +193,7 @@ const MapaPlantoes = () => {
                     return (
                       <TableHead
                         key={i}
-                        className={`text-center w-9 px-1 text-[11px] ${fimSemana ? "bg-table-header-light-foreground/12!" : ""}`}
+                        className={`text-center w-9 px-1 text-[11px] ${fimSemana ? "bg-table-header-light-strong!" : ""}`}
                       >
                         <div className="flex flex-col items-center leading-tight">
                           <span className="text-[9px] font-normal text-muted-foreground uppercase">{siglasDow[dow]}</span>

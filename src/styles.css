@@ -58,6 +58,8 @@
   --color-login-panel-accent: hsl(var(--login-panel-accent));
   --color-login-field: hsl(var(--login-field));
   --color-login-field-foreground: hsl(var(--login-field-foreground));
+  --color-table-header: hsl(var(--table-header));
+  --color-table-header-foreground: hsl(var(--table-header-foreground));
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
@@ -112,6 +114,8 @@
   --login-panel-accent: 348 42% 48%;
   --login-field: 0 0% 92%;
   --login-field-foreground: 218 18% 42%;
+  --table-header: 220 58% 19%;
+  --table-header-foreground: 210 40% 96%;
 }
 
 .dark {
@@ -142,6 +146,8 @@
   --sidebar-accent-foreground: 240 4.8% 95.9%;
   --sidebar-border: 240 3.7% 15.9%;
   --sidebar-ring: 217.2 91.2% 59.8%;
+  --table-header: 217 45% 24%;
+  --table-header-foreground: 210 40% 96%;
 }
 
 @layer base {

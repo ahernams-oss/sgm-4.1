@@ -1213,7 +1213,7 @@ export default function RelatoriosMultidimensional() {
           ) : (
             <div className="overflow-auto max-h-[70vh]">
               <table className="w-full border-collapse text-sm">
-                <thead className="sticky top-0 z-10">
+                <thead className="sticky top-0 z-10 bg-muted/60">
                   <tr className="bg-muted">
                     {cube.rowDefs.map((d) => (
                       <th key={d.key} className="border px-3 py-2 text-left font-semibold whitespace-nowrap bg-muted">
@@ -1278,7 +1278,7 @@ export default function RelatoriosMultidimensional() {
           </DialogHeader>
           <ScrollArea className="max-h-[60vh]">
             <table className="w-full border-collapse text-xs">
-              <thead>
+              <thead className="bg-muted/60">
                 <tr className="bg-muted">
                   {ds.dimensions.map((d) => (
                     <th key={d.key} className="border px-2 py-1.5 text-left whitespace-nowrap">{d.label}</th>

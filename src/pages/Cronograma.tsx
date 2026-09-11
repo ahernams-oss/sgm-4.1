@@ -521,7 +521,7 @@ function CronogramaInner() {
                   </div>
                   <div className="overflow-x-auto border rounded-lg">
                     <table className="text-xs w-full">
-                      <thead className="bg-primary text-primary-foreground sticky top-0">
+                      <thead className="bg-table-header/85 text-table-header-foreground sticky top-0">
                         <tr>
                           <th className="p-2 text-left">#</th>
                           <th className="p-2 text-left min-w-[200px]">Atividade</th>

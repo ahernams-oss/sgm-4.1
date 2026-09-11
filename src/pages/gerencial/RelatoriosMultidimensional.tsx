@@ -1213,19 +1213,19 @@ export default function RelatoriosMultidimensional() {
           ) : (
             <div className="overflow-auto max-h-[70vh]">
               <table className="w-full border-collapse text-sm">
-                <thead className="sticky top-0 z-10 bg-muted/60">
-                  <tr className="bg-muted">
+                <thead className="sticky top-0 z-10 bg-table-header/85 text-table-header-foreground backdrop-blur-sm">
+                  <tr>
                     {cube.rowDefs.map((d) => (
-                      <th key={d.key} className="border px-3 py-2 text-left font-semibold whitespace-nowrap bg-muted">
+                      <th key={d.key} className="border px-3 py-2 text-left font-semibold whitespace-nowrap bg-table-header/85">
                         {d.label}
                       </th>
                     ))}
                     {cube.cols.map((c) => (
-                      <th key={c} className="border px-3 py-2 text-right font-semibold whitespace-nowrap bg-muted">
+                      <th key={c} className="border px-3 py-2 text-right font-semibold whitespace-nowrap bg-table-header/85">
                         {c}
                       </th>
                     ))}
-                    <th className="border px-3 py-2 text-right font-semibold bg-primary/10">Total</th>
+                    <th className="border px-3 py-2 text-right font-semibold bg-table-header/85">Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1278,8 +1278,8 @@ export default function RelatoriosMultidimensional() {
           </DialogHeader>
           <ScrollArea className="max-h-[60vh]">
             <table className="w-full border-collapse text-xs">
-              <thead className="bg-muted/60">
-                <tr className="bg-muted">
+              <thead className="bg-table-header/85 text-table-header-foreground">
+                <tr>
                   {ds.dimensions.map((d) => (
                     <th key={d.key} className="border px-2 py-1.5 text-left whitespace-nowrap">{d.label}</th>
                   ))}

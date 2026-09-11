@@ -564,7 +564,7 @@ export default function RequisicaoComprasPage() {
               <TableHead className="w-36">Ações</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody className="[&_td]:text-[13px] [&_td]:leading-5">
+          <TableBody className="[&_td]:text-[13px] [&_td]:leading-5 [&_td]:font-semibold [&_td]:text-foreground">
             {filtered.length === 0 ? (
               <TableRow><TableCell colSpan={colOrder.length + 1} className="text-center text-muted-foreground py-8">Nenhuma requisição encontrada</TableCell></TableRow>
             ) : paginate(filtered, pageReq, 7).paginated.map((r, idx) => {

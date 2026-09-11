@@ -61,6 +61,7 @@
   --color-table-header: hsl(var(--table-header));
   --color-table-header-foreground: hsl(var(--table-header-foreground));
   --color-table-header-light: hsl(var(--table-header-light));
+  --color-table-header-light-strong: hsl(var(--table-header-light-strong));
   --color-table-header-light-foreground: hsl(var(--table-header-light-foreground));
 
   --animate-accordion-down: accordion-down 0.2s ease-out;
@@ -119,6 +120,7 @@
   --table-header: 220 58% 19%;
   --table-header-foreground: 210 40% 96%;
   --table-header-light: 205 88% 91%;
+  --table-header-light-strong: 205 72% 82%;
   --table-header-light-foreground: 217 62% 22%;
 }
 
@@ -153,6 +155,7 @@
   --table-header: 217 45% 24%;
   --table-header-foreground: 210 40% 96%;
   --table-header-light: 208 55% 76%;
+  --table-header-light-strong: 208 45% 62%;
   --table-header-light-foreground: 217 70% 12%;
 }
 

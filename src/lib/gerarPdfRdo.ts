@@ -4,6 +4,7 @@ import type { Cliente } from "@/contexts/ClientesContext";
 import type { RdoAssinatura } from "@/contexts/RdoAssinaturasContext";
 
 import type { jsPDF } from "jspdf";
+import capaRdoAsset from "@/assets/capa-rdo.jpg.asset.json";
 const getJsPDF = async () => (await import("jspdf")).jsPDF;
 const getAutoTable = async () => (await import("jspdf-autotable")).default;
 
@@ -321,6 +322,35 @@ export async function gerarPdfRdo({ rdo, empresa, cliente, assinaturas = [], inc
     doc.text(`Página ${i} de ${pages}`, pw / 2, ph - 5, { align: "center" });
     doc.text(`RDO Nº ${rdo.numero}`, pw - mr, ph - 5, { align: "right" });
   }
+
+  // ===== CAPA (página 1) =====
+  try {
+    const capa = await loadImageAsDataUrl(capaRdoAsset.url);
+    if (capa) {
+      const phFull = doc.internal.pageSize.getHeight();
+      const IMG_W = 1055, IMG_H = 1491;
+      const scale = Math.min(pw / IMG_W, phFull / IMG_H);
+      const cW = IMG_W * scale, cH = IMG_H * scale;
+      const cX = (pw - cW) / 2, cY = (phFull - cH) / 2;
+      doc.insertPage(1);
+      doc.setPage(1);
+      try { doc.addImage(capa, "JPEG", cX, cY, cW, cH); } catch { /* ignore */ }
+
+      doc.setTextColor(20, 33, 61);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(Math.max(7, 11 * scale));
+      const put = (text: string, iy: number) => {
+        if (!text) return;
+        doc.text(text, cX + 215 * scale, cY + iy * scale, { maxWidth: 320 * scale });
+      };
+      put(rdo.cliente_nome || "", 628);
+      put(rdo.obra || "", 674);
+      put((cliente as any)?.contrato || (rdo as any)?.contrato || "", 720);
+      put(fmtDate(rdo.data_rdo), 766);
+      put(numeroFormatado, 813);
+      doc.setTextColor(30, 30, 30);
+    }
+  } catch { /* ignore */ }
 
   const sufixo = incluirImagens ? "_com_imagens" : "";
   doc.save(`RDO_${rdo.numero}_${(rdo.cliente_nome || "").replace(/\s+/g, "_")}${sufixo}.pdf`);

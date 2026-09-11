@@ -311,7 +311,7 @@ export default function InteligenciaComprasPage() {
       </div>
 
       <Tabs defaultValue="itens" className="space-y-4">
-        <TabsList>
+        <TabsList className="flex flex-wrap h-auto gap-1">
           <TabsTrigger value="itens"><Layers className="h-4 w-4 mr-2" />Por Item (Cotações abertas)</TabsTrigger>
           <TabsTrigger value="rcs"><Building2 className="h-4 w-4 mr-2" />Por Centro de Custo + Grupo</TabsTrigger>
         </TabsList>

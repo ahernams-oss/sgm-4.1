@@ -801,7 +801,7 @@ export default function DashboardCompras() {
 
       {/* Tabs with tables */}
       <Tabs defaultValue="pendentes">
-        <TabsList>
+        <TabsList className="flex flex-wrap h-auto gap-1">
           <TabsTrigger value="pendentes">Pendentes de Entrega ({pendentesFiltradas.length})</TabsTrigger>
           <TabsTrigger value="reprovadas">Reprovadas ({reprovadasFiltradas.length})</TabsTrigger>
           <TabsTrigger value="auditoria">Auditoria Recente ({auditoriaEventos.length})</TabsTrigger>

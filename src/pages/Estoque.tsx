@@ -606,7 +606,7 @@ export default function EstoquePage() {
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList>
+        <TabsList className="flex flex-wrap h-auto gap-1">
 
           <TabsTrigger value="saldos"><Warehouse className="mr-1 h-4 w-4" />Saldos por Local</TabsTrigger>
           <TabsTrigger value="movimentacoes"><Package className="mr-1 h-4 w-4" />Movimentações</TabsTrigger>

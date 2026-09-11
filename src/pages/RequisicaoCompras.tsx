@@ -730,7 +730,7 @@ export default function RequisicaoComprasPage() {
           </DialogHeader>
 
           <Tabs defaultValue="dados" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto gap-1">
               <TabsTrigger value="dados">Dados Gerais</TabsTrigger>
               <TabsTrigger value="itens">Itens ({itens.length})</TabsTrigger>
               <TabsTrigger value="anexos">Anexos ({anexos.length})</TabsTrigger>

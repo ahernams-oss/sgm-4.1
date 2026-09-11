@@ -533,7 +533,7 @@ export default function TransferirClienteDialog({ open, onOpenChange, funcionari
                 <div className="p-3 text-xs text-muted-foreground text-center">Nenhuma transferência registrada.</div>
               ) : (
                 <table className="w-full text-xs">
-                  <thead className="bg-muted/30">
+                  <thead className="bg-muted/60">
                     <tr className="text-left">
                       <th className="px-3 py-2 font-medium">Cliente/Unidade</th>
                       <th className="px-3 py-2 font-medium">Início</th>

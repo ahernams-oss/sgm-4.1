@@ -56,12 +56,22 @@ export function RdosProvider({ children }: { children: ReactNode }) {
 
   const addRdo = async (r: Partial<Rdo>) => {
     const data = await insertRow("rdos", r);
-    if (data) { await invalidate(); toast.success("RDO registrado com sucesso!"); }
+    if (data) {
+      qc.setQueryData<Rdo[]>(QK, (current = []) => [data as Rdo, ...current.filter((item) => item.id !== data.id)]);
+      await invalidate();
+      toast.success("RDO registrado com sucesso!");
+    }
     return data;
   };
   const updateRdo = async (id: string, r: Partial<Rdo>) => {
     const ok = await updateRow("rdos", id, { ...r, updated_at: new Date().toISOString() });
-    if (ok) { await invalidate(); toast.success("RDO atualizado!"); }
+    if (ok) {
+      qc.setQueryData<Rdo[]>(QK, (current = []) =>
+        current.map((item) => item.id === id ? { ...item, ...r, id } : item),
+      );
+      await invalidate();
+      toast.success("RDO atualizado!");
+    }
     return ok;
   };
   const deleteRdo = async (id: string) => {

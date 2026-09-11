@@ -424,7 +424,7 @@ const RequisicaoGrid = () => {
                       );
 
                     })(),
-                    className: "pl-5 text-xs font-medium tabular-nums",
+                    className: "pl-5 text-sm font-semibold tabular-nums",
                   },
                   data: { node: req.dataCriacao, className: "text-xs tabular-nums whitespace-nowrap" },
                   unidade: { node: req.unidade, className: "text-sm" },

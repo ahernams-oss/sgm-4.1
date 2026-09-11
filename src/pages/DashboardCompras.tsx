@@ -811,7 +811,7 @@ export default function DashboardCompras() {
           <Card>
             <CardContent className="p-4 space-y-3">
               <div className="flex flex-wrap gap-2 items-center">
-                <div className="relative flex-1 min-w-[220px]">
+                <div className="relative flex-1 w-full sm:w-auto min-w-0 sm:min-w-[220px]">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input className="pl-9 h-9" placeholder="Buscar por nº, solicitante ou centro de custo..."
                     value={pendBusca} onChange={(e) => { setPendBusca(e.target.value); setPendPage(1); }} />
@@ -917,7 +917,7 @@ export default function DashboardCompras() {
           <Card>
             <CardContent className="p-4 space-y-3">
               <div className="flex flex-wrap gap-2 items-center">
-                <div className="relative flex-1 min-w-[220px]">
+                <div className="relative flex-1 w-full sm:w-auto min-w-0 sm:min-w-[220px]">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input className="pl-9 h-9" placeholder="Buscar por requisição, usuário ou observação..."
                     value={audBusca} onChange={(e) => { setAudBusca(e.target.value); setAudPage(1); }} />

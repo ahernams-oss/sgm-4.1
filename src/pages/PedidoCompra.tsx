@@ -504,14 +504,14 @@ export default function PedidoCompraPage() {
       </div>
 
       <div className="flex flex-wrap gap-3 items-end">
-        <div className="relative flex-1 min-w-[220px] max-w-sm">
+        <div className="relative flex-1 w-full sm:w-auto min-w-0 sm:min-w-[220px] max-w-sm">
           <Label className="text-xs">Buscar</Label>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Nº, fornecedor, comprador..." value={search} onChange={e => { setSearch(e.target.value); setPagePed(1); }} className="pl-9" />
           </div>
         </div>
-        <div className="w-56">
+        <div className="w-full sm:w-56">
           <Label className="text-xs">Centro de Custo</Label>
           <Select value={filterCentroCusto} onValueChange={v => { setFilterCentroCusto(v); setPagePed(1); }}>
             <SelectTrigger><SelectValue /></SelectTrigger>
@@ -521,7 +521,7 @@ export default function PedidoCompraPage() {
             </SelectContent>
           </Select>
         </div>
-        <div className="w-44">
+        <div className="w-full sm:w-44">
           <Label className="text-xs">Status</Label>
           <Select value={filterStatus} onValueChange={v => { setFilterStatus(v); setPagePed(1); }}>
             <SelectTrigger><SelectValue /></SelectTrigger>
@@ -531,7 +531,7 @@ export default function PedidoCompraPage() {
             </SelectContent>
           </Select>
         </div>
-        <div className="w-52">
+        <div className="w-full sm:w-52">
           <Label className="text-xs">Fornecedor</Label>
           <Select value={filterFornecedor} onValueChange={v => { setFilterFornecedor(v); setPagePed(1); }}>
             <SelectTrigger><SelectValue /></SelectTrigger>
@@ -541,7 +541,7 @@ export default function PedidoCompraPage() {
             </SelectContent>
           </Select>
         </div>
-        <div className="w-44">
+        <div className="w-full sm:w-44">
           <Label className="text-xs">Categoria</Label>
           <Select value={filterCategoria} onValueChange={v => { setFilterCategoria(v); setPagePed(1); }}>
             <SelectTrigger><SelectValue /></SelectTrigger>
@@ -551,11 +551,11 @@ export default function PedidoCompraPage() {
             </SelectContent>
           </Select>
         </div>
-        <div className="w-40">
+        <div className="w-full sm:w-40">
           <Label className="text-xs">Data inicial</Label>
           <Input type="date" value={filterDataIni} onChange={e => { setFilterDataIni(e.target.value); setPagePed(1); }} />
         </div>
-        <div className="w-40">
+        <div className="w-full sm:w-40">
           <Label className="text-xs">Data final</Label>
           <Input type="date" value={filterDataFim} onChange={e => { setFilterDataFim(e.target.value); setPagePed(1); }} />
         </div>

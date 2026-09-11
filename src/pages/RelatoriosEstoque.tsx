@@ -301,7 +301,7 @@ export default function RelatoriosEstoquePage() {
       <Label className="text-xs">{label}</Label>
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant="outline" size="sm" className={cn("w-[140px] justify-start text-left text-xs", !date && "text-muted-foreground")}>
+          <Button variant="outline" size="sm" className={cn("w-full sm:w-[140px] justify-start text-left text-xs", !date && "text-muted-foreground")}>
             <CalendarIcon className="mr-1 h-3 w-3" />
             {date ? format(date, "dd/MM/yyyy") : "Selecionar"}
           </Button>

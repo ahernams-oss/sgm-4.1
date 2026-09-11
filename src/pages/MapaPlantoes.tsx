@@ -181,7 +181,7 @@ const MapaPlantoes = () => {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="[&_th]:bg-muted [&_th]:text-foreground hover:bg-muted">
+                <TableRow className="[&_th]:bg-table-header-light [&_th]:text-table-header-light-foreground [&_th]:border-table-header-light-foreground/15 hover:bg-table-header-light">
                   <TableHead className="sticky left-0 z-10 min-w-[180px]">Funcionário</TableHead>
                   <TableHead className="min-w-[140px]">Cargo</TableHead>
                   <TableHead className="min-w-[140px]">Cliente</TableHead>

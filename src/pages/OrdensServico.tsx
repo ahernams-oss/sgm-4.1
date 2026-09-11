@@ -1520,6 +1520,7 @@ export default function OrdensServicoPage() {
           <Table>
             <TableHeader>
               <SortableHeaderRow order={colOrder} onReorder={setColOrder}>
+               <TableRow className="hover:bg-table-header/85">
                 <TableHead className="w-[40px]">
                   <Checkbox
                     checked={allAbertasSelected}
@@ -1537,6 +1538,7 @@ export default function OrdensServicoPage() {
                   );
                 })}
                 <TableHead className="w-[50px]"></TableHead>
+               </TableRow>
               </SortableHeaderRow>
             </TableHeader>
             <TableBody>

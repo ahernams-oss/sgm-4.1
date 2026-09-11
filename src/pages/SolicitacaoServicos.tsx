@@ -1169,6 +1169,7 @@ export default function SolicitacaoServicosPage() {
         <Table>
           <TableHeader>
             <SortableHeaderRow order={colOrder} onReorder={setColOrder}>
+             <TableRow className="hover:bg-table-header/85">
               <TableHead className="w-10 text-center">
                 <Checkbox
                   checked={allPageSelected}
@@ -1186,6 +1187,7 @@ export default function SolicitacaoServicosPage() {
                 );
               })}
               <TableHead className="w-16">Ações</TableHead>
+             </TableRow>
             </SortableHeaderRow>
           </TableHeader>
           <TableBody>

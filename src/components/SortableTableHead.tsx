@@ -14,7 +14,7 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { TableHead, TableRow } from "@/components/ui/table";
+import { TableHead } from "@/components/ui/table";
 import { GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 

@@ -34,7 +34,10 @@ interface RdosContextType {
 }
 
 const RdosContext = createContext<RdosContextType>({} as RdosContextType);
-export const useRdos = () => useContext(RdosContext);
+export const useRdos = () => {
+  useActivateProvider("Rdos");
+  return useContext(RdosContext);
+};
 const QK = ["rdos"] as const;
 
 export function RdosProvider({ children }: { children: ReactNode }) {
@@ -53,17 +56,17 @@ export function RdosProvider({ children }: { children: ReactNode }) {
 
   const addRdo = async (r: Partial<Rdo>) => {
     const data = await insertRow("rdos", r);
-    if (data) { invalidate(); toast.success("RDO registrado com sucesso!"); }
+    if (data) { await invalidate(); toast.success("RDO registrado com sucesso!"); }
     return data;
   };
   const updateRdo = async (id: string, r: Partial<Rdo>) => {
     const ok = await updateRow("rdos", id, { ...r, updated_at: new Date().toISOString() });
-    if (ok) { invalidate(); toast.success("RDO atualizado!"); }
+    if (ok) { await invalidate(); toast.success("RDO atualizado!"); }
     return ok;
   };
   const deleteRdo = async (id: string) => {
     const ok = await deleteRow("rdos", id);
-    if (ok) { invalidate(); toast.success("RDO removido!"); }
+    if (ok) { await invalidate(); toast.success("RDO removido!"); }
     return ok;
   };
   const uploadAnexo = async (file: File, rdoId: string): Promise<string | null> => {

@@ -73,7 +73,7 @@ export function SortableTableWrapper({ order, onReorder, children }: SortableTab
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext items={order} strategy={horizontalListSortingStrategy}>
-        <TableRow className="hover:bg-table-header/85">{children}</TableRow>
+        {children}
       </SortableContext>
     </DndContext>
   );

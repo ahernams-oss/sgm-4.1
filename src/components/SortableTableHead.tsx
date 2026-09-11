@@ -14,7 +14,7 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { TableHead, TableRow } from "@/components/ui/table";
+import { TableHead } from "@/components/ui/table";
 import { GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -73,7 +73,7 @@ export function SortableTableWrapper({ order, onReorder, children }: SortableTab
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext items={order} strategy={horizontalListSortingStrategy}>
-        <TableRow className="hover:bg-table-header/85">{children}</TableRow>
+        {children}
       </SortableContext>
     </DndContext>
   );

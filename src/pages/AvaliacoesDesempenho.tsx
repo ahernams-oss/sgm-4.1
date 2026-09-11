@@ -258,6 +258,7 @@ function PageInner() {
           <Table>
             <TableHeader>
               <SortableHeaderRow order={colOrder} onReorder={setColOrder}>
+               <TableRow className="hover:bg-table-header/85">
                 {colOrder.map((key) => {
                   const c = colDefs[key];
                   if (!c) return null;
@@ -268,6 +269,7 @@ function PageInner() {
                   );
                 })}
                 <TableHead className="text-right w-[180px]">Ações</TableHead>
+               </TableRow>
               </SortableHeaderRow>
             </TableHeader>
             <TableBody>

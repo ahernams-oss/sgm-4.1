@@ -170,7 +170,7 @@ const MapaPlantoes = () => {
 
       {/* Mapa */}
       <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-        <div className="px-4 sm:px-6 py-4 border-b border-border bg-muted/30">
+        <div className="px-4 sm:px-6 py-4 border-b border-border bg-table-header-light/45">
           <h2 className="text-sm font-semibold text-foreground">
             {MESES[mes]}/{ano} — {funcionariosFiltrados.length} funcionário(s)
           </h2>
@@ -181,7 +181,7 @@ const MapaPlantoes = () => {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="[&_th]:bg-muted [&_th]:text-foreground hover:bg-muted">
+                <TableRow className="[&_th]:bg-table-header-light [&_th]:text-table-header-light-foreground! [&_th]:border-table-header-light-foreground/20! hover:bg-table-header-light">
                   <TableHead className="sticky left-0 z-10 min-w-[180px]">Funcionário</TableHead>
                   <TableHead className="min-w-[140px]">Cargo</TableHead>
                   <TableHead className="min-w-[140px]">Cliente</TableHead>
@@ -193,7 +193,7 @@ const MapaPlantoes = () => {
                     return (
                       <TableHead
                         key={i}
-                        className={`text-center w-9 px-1 text-[11px] ${fimSemana ? "bg-muted-foreground/15" : ""}`}
+                        className={`text-center w-9 px-1 text-[11px] ${fimSemana ? "bg-table-header-light-strong!" : ""}`}
                       >
                         <div className="flex flex-col items-center leading-tight">
                           <span className="text-[9px] font-normal text-muted-foreground uppercase">{siglasDow[dow]}</span>
@@ -221,7 +221,7 @@ const MapaPlantoes = () => {
                         return (
                           <TableCell
                             key={i}
-                            className={`text-center px-1 py-1 ${fimSemana ? "bg-muted/30" : ""}`}
+                            className={`text-center px-1 py-1 ${fimSemana ? "bg-table-header-light/45" : ""}`}
                           >
                             {trabalha && sigla ? (
                               <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold ${cor}`}>

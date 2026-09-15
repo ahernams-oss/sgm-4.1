@@ -2309,7 +2309,7 @@ export default function OrdensServicoPage() {
                   {materiaisEstoque.length > 0 && (
                     <Table>
                        <TableHeader><TableRow>
-                        <TableHead>Código</TableHead><TableHead>Descrição</TableHead><TableHead className="text-center">Qtd.</TableHead><TableHead className="text-right">Vlr. Item</TableHead><TableHead className="text-right">Vlr. Total</TableHead><TableHead className="w-[50px]"></TableHead>
+                        <TableHead>Código</TableHead><TableHead>Descrição</TableHead><TableHead className="text-center">Qtd.</TableHead><TableHead className="text-right">Vlr. Item</TableHead><TableHead className="text-right">Vlr. Total</TableHead><TableHead className="w-[180px]">NF Origem</TableHead><TableHead className="w-[50px]"></TableHead>
                       </TableRow></TableHeader>
                       <TableBody>
                         {materiaisEstoque.map((m, idx) => {

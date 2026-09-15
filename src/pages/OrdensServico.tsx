@@ -2184,6 +2184,7 @@ export default function OrdensServicoPage() {
                             <TableHead className="w-[100px]">Vl. Unit.</TableHead>
                             <TableHead className="w-[80px]">Qtd.</TableHead>
                             <TableHead className="w-[100px]">Vl. Total</TableHead>
+                            <TableHead className="w-[180px]">NF Origem</TableHead>
                             <TableHead className="w-[50px]"></TableHead>
                           </TableRow>
                         </TableHeader>

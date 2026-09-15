@@ -2764,17 +2764,28 @@ export default function OrdensServicoPage() {
                             <TableHead>Vl. Unit.</TableHead>
                             <TableHead>Qtd.</TableHead>
                             <TableHead>Vl. Total</TableHead>
+                            <TableHead>NF Origem</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {viewOS.materiais.map((m: any, i: number) => (
+                          {[...(viewOS.materiais || []), ...(viewOS.materiaisEstoque || [])].map((m: any, i: number) => (
                             <TableRow key={i}>
                               <TableCell>{m.codigo}</TableCell>
                               <TableCell>{m.descricao}</TableCell>
                               <TableCell>{m.unidade}</TableCell>
-                              <TableCell>R$ {Number(m.valorUnitario).toFixed(2)}</TableCell>
+                              <TableCell>R$ {Number(m.valorVenda ?? m.valorUnitario ?? 0).toFixed(2)}</TableCell>
                               <TableCell>{m.quantidade}</TableCell>
-                              <TableCell>R$ {Number(m.valorTotal).toFixed(2)}</TableCell>
+                              <TableCell>R$ {Number(m.valorTotal || 0).toFixed(2)}</TableCell>
+                              <TableCell className="text-xs">
+                                {m.nfeId ? (
+                                  <span title={m.nfeChave || ""}>
+                                    NF {m.nfeNumero || m.nfeChave?.slice(-6)}
+                                    {m.nfeEmitente ? ` — ${m.nfeEmitente}` : ""}
+                                  </span>
+                                ) : (
+                                  <span className="text-muted-foreground">-</span>
+                                )}
+                              </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>

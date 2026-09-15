@@ -2206,6 +2206,17 @@ export default function OrdensServicoPage() {
                               </TableCell>
                               <TableCell className="text-xs font-medium">R$ {m.valorTotal.toFixed(2)}</TableCell>
                               <TableCell>
+                                <NfeOrigemPicker
+                                  value={m}
+                                  onChange={(v) => {
+                                    const updated = [...materiais];
+                                    updated[idx] = { ...m, ...v };
+                                    setMateriais(updated);
+                                    autoSaveMateriais(updated);
+                                  }}
+                                />
+                              </TableCell>
+                              <TableCell>
                                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { const updated = materiais.filter(x => x.id !== m.id); setMateriais(updated); autoSaveMateriais(updated); }}><Trash2 className="h-3 w-3" /></Button>
                               </TableCell>
                             </TableRow>

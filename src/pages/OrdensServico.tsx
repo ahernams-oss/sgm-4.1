@@ -54,6 +54,7 @@ import RelatorioFechamentoOSDialog from "@/components/RelatorioFechamentoOSDialo
 import { AssinaturaEletronicaOs } from "@/components/AssinaturaEletronicaOs";
 import { AvaliacaoOs } from "@/components/AvaliacaoOs";
 import MemoriaCalculoView from "@/components/orcamento/MemoriaCalculoView";
+import NfeOrigemPicker from "@/components/NfeOrigemPicker";
 
 import { useOsAssinaturas } from "@/contexts/OsAssinaturasContext";
 import { BarChart3, Camera, ImagePlus } from "lucide-react";
@@ -2184,6 +2185,7 @@ export default function OrdensServicoPage() {
                             <TableHead className="w-[100px]">Vl. Unit.</TableHead>
                             <TableHead className="w-[80px]">Qtd.</TableHead>
                             <TableHead className="w-[100px]">Vl. Total</TableHead>
+                            <TableHead className="w-[180px]">NF Origem</TableHead>
                             <TableHead className="w-[50px]"></TableHead>
                           </TableRow>
                         </TableHeader>
@@ -2204,6 +2206,17 @@ export default function OrdensServicoPage() {
                                 }} onBlur={() => autoSaveMateriais(materiais)} />
                               </TableCell>
                               <TableCell className="text-xs font-medium">R$ {m.valorTotal.toFixed(2)}</TableCell>
+                              <TableCell>
+                                <NfeOrigemPicker
+                                  value={m}
+                                  onChange={(v) => {
+                                    const updated = [...materiais];
+                                    updated[idx] = { ...m, ...v };
+                                    setMateriais(updated);
+                                    autoSaveMateriais(updated);
+                                  }}
+                                />
+                              </TableCell>
                               <TableCell>
                                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { const updated = materiais.filter(x => x.id !== m.id); setMateriais(updated); autoSaveMateriais(updated); }}><Trash2 className="h-3 w-3" /></Button>
                               </TableCell>
@@ -2297,7 +2310,7 @@ export default function OrdensServicoPage() {
                   {materiaisEstoque.length > 0 && (
                     <Table>
                        <TableHeader><TableRow>
-                        <TableHead>Código</TableHead><TableHead>Descrição</TableHead><TableHead className="text-center">Qtd.</TableHead><TableHead className="text-right">Vlr. Item</TableHead><TableHead className="text-right">Vlr. Total</TableHead><TableHead className="w-[50px]"></TableHead>
+                        <TableHead>Código</TableHead><TableHead>Descrição</TableHead><TableHead className="text-center">Qtd.</TableHead><TableHead className="text-right">Vlr. Item</TableHead><TableHead className="text-right">Vlr. Total</TableHead><TableHead className="w-[180px]">NF Origem</TableHead><TableHead className="w-[50px]"></TableHead>
                       </TableRow></TableHeader>
                       <TableBody>
                         {materiaisEstoque.map((m, idx) => {
@@ -2324,6 +2337,17 @@ export default function OrdensServicoPage() {
                               }} onBlur={() => autoSaveMateriaisEstoque(materiaisEstoque)} />
                             </TableCell>
                             <TableCell className="text-xs text-right font-semibold">{(venda * m.quantidade).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</TableCell>
+                            <TableCell>
+                              <NfeOrigemPicker
+                                value={m}
+                                onChange={(v) => {
+                                  const updated = [...materiaisEstoque];
+                                  updated[idx] = { ...m, ...v };
+                                  setMateriaisEstoque(updated);
+                                  autoSaveMateriaisEstoque(updated);
+                                }}
+                              />
+                            </TableCell>
                             <TableCell><Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
                               const updated = materiaisEstoque.filter(x => x.id !== m.id);
                               setMateriaisEstoque(updated);
@@ -2740,17 +2764,28 @@ export default function OrdensServicoPage() {
                             <TableHead>Vl. Unit.</TableHead>
                             <TableHead>Qtd.</TableHead>
                             <TableHead>Vl. Total</TableHead>
+                            <TableHead>NF Origem</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {viewOS.materiais.map((m: any, i: number) => (
+                          {[...(viewOS.materiais || []), ...(viewOS.materiaisEstoque || [])].map((m: any, i: number) => (
                             <TableRow key={i}>
                               <TableCell>{m.codigo}</TableCell>
                               <TableCell>{m.descricao}</TableCell>
                               <TableCell>{m.unidade}</TableCell>
-                              <TableCell>R$ {Number(m.valorUnitario).toFixed(2)}</TableCell>
+                              <TableCell>R$ {Number(m.valorVenda ?? m.valorUnitario ?? 0).toFixed(2)}</TableCell>
                               <TableCell>{m.quantidade}</TableCell>
-                              <TableCell>R$ {Number(m.valorTotal).toFixed(2)}</TableCell>
+                              <TableCell>R$ {Number(m.valorTotal || 0).toFixed(2)}</TableCell>
+                              <TableCell className="text-xs">
+                                {m.nfeId ? (
+                                  <span title={m.nfeChave || ""}>
+                                    NF {m.nfeNumero || m.nfeChave?.slice(-6)}
+                                    {m.nfeEmitente ? ` — ${m.nfeEmitente}` : ""}
+                                  </span>
+                                ) : (
+                                  <span className="text-muted-foreground">-</span>
+                                )}
+                              </TableCell>
                             </TableRow>
                           ))}
                         </TableBody>

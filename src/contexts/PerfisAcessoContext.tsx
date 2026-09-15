@@ -474,6 +474,7 @@ export const MODULOS_SISTEMA: GrupoPermissao[] = [
           { key: "ordem_servico.gerenciar_orcamento", label: "Pode Gerenciar Orçamento da OS" },
           { key: "ordem_servico.gerenciar_anexos", label: "Pode Gerenciar Anexos da OS" },
           { key: "ordem_servico.gerenciar_historico", label: "Pode Visualizar Histórico/Workflow da OS" },
+          { key: "ordem_servico.nf_origem", label: "Pode Visualizar/Vincular NF de Origem dos Materiais" },
         ],
         statusTransicoes: [
           { key: "ordem_servico.status.aberta", label: "Pode Abrir OS" },

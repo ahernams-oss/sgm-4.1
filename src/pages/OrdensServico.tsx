@@ -2336,6 +2336,17 @@ export default function OrdensServicoPage() {
                               }} onBlur={() => autoSaveMateriaisEstoque(materiaisEstoque)} />
                             </TableCell>
                             <TableCell className="text-xs text-right font-semibold">{(venda * m.quantidade).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</TableCell>
+                            <TableCell>
+                              <NfeOrigemPicker
+                                value={m}
+                                onChange={(v) => {
+                                  const updated = [...materiaisEstoque];
+                                  updated[idx] = { ...m, ...v };
+                                  setMateriaisEstoque(updated);
+                                  autoSaveMateriaisEstoque(updated);
+                                }}
+                              />
+                            </TableCell>
                             <TableCell><Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => {
                               const updated = materiaisEstoque.filter(x => x.id !== m.id);
                               setMateriaisEstoque(updated);

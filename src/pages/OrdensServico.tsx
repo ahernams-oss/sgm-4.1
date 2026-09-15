@@ -190,6 +190,7 @@ export default function OrdensServicoPage() {
   const { empresa } = useEmpresa();
   const { usuarioLogado } = useAuth();
   const { tem } = usePermissao();
+  const podeVerNfOrigem = tem("ordem_servico.nf_origem");
   const podeExcluirOS = tem("ordem_servico.excluir");
   const podeEditarOS = tem("ordem_servico.editar");
   const podeWorkflowOS = tem("ordem_servico.gerenciar_historico");

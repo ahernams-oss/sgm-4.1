@@ -2769,7 +2769,7 @@ export default function OrdensServicoPage() {
                             <TableHead>Vl. Unit.</TableHead>
                             <TableHead>Qtd.</TableHead>
                             <TableHead>Vl. Total</TableHead>
-                            <TableHead>NF Origem</TableHead>
+                            {podeVerNfOrigem && <TableHead>NF Origem</TableHead>}
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -2781,6 +2781,7 @@ export default function OrdensServicoPage() {
                               <TableCell>R$ {Number(m.valorVenda ?? m.valorUnitario ?? 0).toFixed(2)}</TableCell>
                               <TableCell>{m.quantidade}</TableCell>
                               <TableCell>R$ {Number(m.valorTotal || 0).toFixed(2)}</TableCell>
+                              {podeVerNfOrigem && (
                               <TableCell className="text-xs">
                                 {m.nfeId ? (
                                   <span title={m.nfeChave || ""}>
@@ -2791,6 +2792,7 @@ export default function OrdensServicoPage() {
                                   <span className="text-muted-foreground">-</span>
                                 )}
                               </TableCell>
+                              )}
                             </TableRow>
                           ))}
                         </TableBody>

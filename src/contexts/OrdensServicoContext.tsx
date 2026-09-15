@@ -10,6 +10,8 @@ export interface MaterialOS {
   unidade: string; valorUnitario: number;
   quantidade: number; valorTotal: number;
   valorVenda?: number;
+  /** Vínculo com a nota fiscal de origem do material */
+  nfeId?: string; nfeNumero?: string; nfeChave?: string; nfeEmitente?: string;
 }
 
 export interface AnexoOS { id: string; titulo: string; url: string; }

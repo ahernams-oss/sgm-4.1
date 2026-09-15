@@ -54,6 +54,7 @@ import RelatorioFechamentoOSDialog from "@/components/RelatorioFechamentoOSDialo
 import { AssinaturaEletronicaOs } from "@/components/AssinaturaEletronicaOs";
 import { AvaliacaoOs } from "@/components/AvaliacaoOs";
 import MemoriaCalculoView from "@/components/orcamento/MemoriaCalculoView";
+import NfeOrigemPicker from "@/components/NfeOrigemPicker";
 
 import { useOsAssinaturas } from "@/contexts/OsAssinaturasContext";
 import { BarChart3, Camera, ImagePlus } from "lucide-react";

@@ -361,7 +361,7 @@ export default function DashboardMedicoes() {
       </Card>
 
       {/* KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <GradientKpiCard icon={Ruler} label="Total Medições" value={totalMedicoes} gradientIdx={0} />
         <GradientKpiCard icon={Wallet} label="Valor Contratado" value={fmt(valorContratado)} gradientIdx={5} />
         <GradientKpiCard icon={TrendingUp} label="Valor Medido" value={fmt(valorMedido)} gradientIdx={1} />

@@ -243,7 +243,7 @@ export default function AprovarLoteSS() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-10 text-center">
+              <TableHead className="w-10 text-center bg-card [&:has([role=checkbox])]:pr-3">
                 <Checkbox
                   checked={allPageSelected}
                   onCheckedChange={toggleSelectAll}

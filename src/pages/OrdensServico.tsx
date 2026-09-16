@@ -1523,7 +1523,7 @@ export default function OrdensServicoPage() {
             <TableHeader>
               <SortableHeaderRow order={colOrder} onReorder={setColOrder}>
                <TableRow className="hover:bg-table-header/85">
-                <TableHead className="w-[40px]">
+                <TableHead className="w-[40px] bg-card [&:has([role=checkbox])]:pr-3">
                   <Checkbox
                     checked={allAbertasSelected}
                     onCheckedChange={toggleSelectAll}

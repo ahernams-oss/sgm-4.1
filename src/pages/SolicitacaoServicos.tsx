@@ -1169,8 +1169,8 @@ export default function SolicitacaoServicosPage() {
         <Table>
           <TableHeader>
             <SortableHeaderRow order={colOrder} onReorder={setColOrder}>
-             <TableRow className="hover:bg-table-header/85">
-              <TableHead className="w-10 text-center">
+              <TableRow className="hover:bg-table-header/85">
+               <TableHead className="w-10 text-center bg-card [&:has([role=checkbox])]:pr-3">
                 <Checkbox
                   checked={allPageSelected}
                   onCheckedChange={toggleSelectAll}

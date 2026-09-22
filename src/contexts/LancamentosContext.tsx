@@ -36,6 +36,7 @@ const rowToLancamento = (r: any): Lancamento => ({
   anexos: r.anexos ?? [], horasExtras: r.horas_extras ? Number(r.horas_extras) : undefined,
   percentual: r.percentual ? Number(r.percentual) : undefined,
   unidadeHe: r.unidade_he != null ? String(r.unidade_he) : undefined,
+  totalVaVt: r.total_va_vt != null ? Number(r.total_va_vt) : undefined,
   valorVa: r.valor_va != null ? Number(r.valor_va) : undefined,
   valorVt: r.valor_vt != null ? Number(r.valor_vt) : undefined,
   observacao: r.observacao ?? "", criadoEm: r.criado_em ?? "",

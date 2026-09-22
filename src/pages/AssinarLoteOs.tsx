@@ -117,7 +117,7 @@ export default function AssinarLoteOs() {
       );
     }
     return result;
-  }, [validadasDisponiveis, search, filterCliente]);
+  }, [validadasDisponiveis, search, filterCliente, filterDataIni, filterDataFim]);
 
   const { paginated } = paginate(filtered, page, pageSize);
   const allPageIds = paginated.map((s) => s.id);
@@ -322,6 +322,41 @@ export default function AssinarLoteOs() {
             </SelectContent>
           </Select>
         </div>
+        <div className="w-[160px]">
+          <Label className="text-xs">Data inicial</Label>
+          <Input
+            type="date"
+            value={filterDataIni}
+            onChange={(e) => {
+              setFilterDataIni(e.target.value);
+              setPage(1);
+            }}
+          />
+        </div>
+        <div className="w-[160px]">
+          <Label className="text-xs">Data final</Label>
+          <Input
+            type="date"
+            value={filterDataFim}
+            onChange={(e) => {
+              setFilterDataFim(e.target.value);
+              setPage(1);
+            }}
+          />
+        </div>
+        {(filterDataIni || filterDataFim) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setFilterDataIni("");
+              setFilterDataFim("");
+              setPage(1);
+            }}
+          >
+            Limpar período
+          </Button>
+        )}
       </div>
 
       {!podePapel && (

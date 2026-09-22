@@ -133,7 +133,9 @@ export default function SolicitacaoServicosPage() {
   const [filterImpresso, setFilterImpresso] = useState(_ssSavedFilters?.filterImpresso ?? "all");
   const [filterPrioridade, setFilterPrioridade] = useState(_ssSavedFilters?.filterPrioridade ?? "all");
   const [filterSetorCritico, setFilterSetorCritico] = useState(_ssSavedFilters?.filterSetorCritico ?? "all");
-  usePersistFilters("solicitacao_servicos_filters_v1", { search, filterTipo, filterSituacao, filterVisitado, filterOrigem, filterImpresso, filterPrioridade, filterSetorCritico });
+  const [filterDataIni, setFilterDataIni] = useState((_ssSavedFilters as any)?.filterDataIni ?? "");
+  const [filterDataFim, setFilterDataFim] = useState((_ssSavedFilters as any)?.filterDataFim ?? "");
+  usePersistFilters("solicitacao_servicos_filters_v1", { search, filterTipo, filterSituacao, filterVisitado, filterOrigem, filterImpresso, filterPrioridade, filterSetorCritico, filterDataIni, filterDataFim });
   const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
     const numero = searchParams.get("numero");
@@ -147,6 +149,8 @@ export default function SolicitacaoServicosPage() {
       setFilterImpresso("all");
       setFilterPrioridade("all");
       setFilterSetorCritico("all");
+      setFilterDataIni("");
+      setFilterDataFim("");
       setPage(1);
       const next = new URLSearchParams(searchParams);
       next.delete("numero");
@@ -716,6 +720,22 @@ export default function SolicitacaoServicosPage() {
     if (filterSetorCritico !== "all") {
       result = result.filter(s => filterSetorCritico === "sim" ? setoresCriticosIds.has(s.setorId) : !setoresCriticosIds.has(s.setorId));
     }
+    if (filterDataIni || filterDataFim) {
+      const diaDa = (s: any) => {
+        const raw = s.dataHoraSolicitacao || s.createdAt || "";
+        if (!raw) return "";
+        const d = new Date(raw);
+        if (isNaN(d.getTime())) return String(raw).slice(0, 10);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      };
+      result = result.filter(s => {
+        const dia = diaDa(s);
+        if (!dia) return false;
+        if (filterDataIni && dia < filterDataIni) return false;
+        if (filterDataFim && dia > filterDataFim) return false;
+        return true;
+      });
+    }
 
     // Ordenação por coluna (padrão: prioridade → número decrescente)
     result = [...result].sort((a, b) => {
@@ -780,7 +800,7 @@ export default function SolicitacaoServicosPage() {
     });
 
     return result;
-  }, [solicitacoes, search, filterCliente, filterTipo, filterSituacao, filterPrioridade, filterVisitado, filterOrigem, filterImpresso, filterSetorCritico, setoresCriticosIds, orcamentos, sortField, sortDir]);
+  }, [solicitacoes, search, filterCliente, filterTipo, filterSituacao, filterPrioridade, filterVisitado, filterOrigem, filterImpresso, filterSetorCritico, filterDataIni, filterDataFim, setoresCriticosIds, orcamentos, sortField, sortDir]);
 
   const clientesUnicos = useMemo(() => {
     const map = new Map<string, string>();
@@ -1142,6 +1162,29 @@ export default function SolicitacaoServicosPage() {
             <SelectItem value="nao">Não impressas</SelectItem>
           </SelectContent>
         </Select>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">Data inicial</span>
+          <Input
+            type="date"
+            value={filterDataIni}
+            onChange={e => { setFilterDataIni(e.target.value); setPage(1); }}
+            className="w-[160px]"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">Data final</span>
+          <Input
+            type="date"
+            value={filterDataFim}
+            onChange={e => { setFilterDataFim(e.target.value); setPage(1); }}
+            className="w-[160px]"
+          />
+        </div>
+        {(filterDataIni || filterDataFim) && (
+          <Button variant="ghost" size="sm" onClick={() => { setFilterDataIni(""); setFilterDataFim(""); setPage(1); }}>
+            Limpar período
+          </Button>
+        )}
       </div>
 
       {/* Batch action bar */}

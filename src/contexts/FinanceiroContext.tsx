@@ -195,6 +195,7 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
   const contasReceber = (results[4].data as ContaReceber[]) || [];
   const lancamentos = (results[5].data as Lancamento[]) || [];
   const movimentosOfx = (results[6].data as MovimentoOfx[]) || [];
+  const fluxoAjustes = (results[7].data as FluxoAjuste[]) || [];
   const loading = results.some((r) => r.isLoading);
 
   const invCB = () => qc.invalidateQueries({ queryKey: QK_CB });

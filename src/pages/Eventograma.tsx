@@ -151,8 +151,10 @@ export default function EventogramaPage() {
 
   const salvar = async () => {
     if (!form.cliente_id || !form.obra) { toast.error("Selecione cliente e obra"); return; }
-    if (editing) await updateEventograma(editing.id, form);
-    else await addEventograma(form);
+    const payload: any = { ...form };
+    ["data_assinatura"].forEach((k) => { if (!payload[k]) payload[k] = null; });
+    if (editing) await updateEventograma(editing.id, payload);
+    else await addEventograma(payload);
     setOpen(false); resetForm();
   };
 

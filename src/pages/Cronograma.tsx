@@ -235,7 +235,12 @@ function CronogramaInner() {
       return;
     }
     const valorTotal = (form.atividades || []).reduce((s, a) => s + (Number(a.valor_total) || 0), 0);
-    const payload = { ...form, valor_total: valorTotal };
+    const payload: any = {
+      ...form,
+      valor_total: valorTotal,
+      data_inicio: form.data_inicio ? form.data_inicio : null,
+      data_fim: form.data_fim ? form.data_fim : null,
+    };
     if (editing) await updateCronograma(editing.id, payload);
     else await addCronograma(payload);
     setOpen(false);

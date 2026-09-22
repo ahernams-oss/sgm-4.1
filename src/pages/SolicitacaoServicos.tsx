@@ -1065,6 +1065,30 @@ export default function SolicitacaoServicosPage() {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl sm:text-2xl font-bold mx-[7px]">Solicitação de Serviços</h1>
         {!formOpen && (
+          <div className="flex flex-wrap items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <FileText className="mr-2 h-4 w-4" />
+                Relatórios
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-72">
+              {RELATORIOS.map(r => (
+                <div key={r.key} className="flex items-center justify-between gap-2 px-2 py-1 text-sm">
+                  <span className="truncate">{r.label}</span>
+                  <span className="flex gap-1 shrink-0">
+                    <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => exportarRelatorio(r.key, "pdf")}>PDF</Button>
+                    <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => exportarRelatorio(r.key, "excel")}>Excel</Button>
+                  </span>
+                </div>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          </div>
+        )}
+        {!formOpen && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button>

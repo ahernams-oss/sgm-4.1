@@ -800,7 +800,7 @@ export default function SolicitacaoServicosPage() {
     });
 
     return result;
-  }, [solicitacoes, search, filterCliente, filterTipo, filterSituacao, filterPrioridade, filterVisitado, filterOrigem, filterImpresso, filterSetorCritico, setoresCriticosIds, orcamentos, sortField, sortDir]);
+  }, [solicitacoes, search, filterCliente, filterTipo, filterSituacao, filterPrioridade, filterVisitado, filterOrigem, filterImpresso, filterSetorCritico, filterDataIni, filterDataFim, setoresCriticosIds, orcamentos, sortField, sortDir]);
 
   const clientesUnicos = useMemo(() => {
     const map = new Map<string, string>();

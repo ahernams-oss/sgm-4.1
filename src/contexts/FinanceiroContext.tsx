@@ -232,7 +232,10 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
     <FinanceiroContext.Provider
       value={{
         loading, contasBancarias, planoContas, centrosCusto,
-        contasPagar, contasReceber, lancamentos, movimentosOfx, reload,
+        contasPagar, contasReceber, lancamentos, movimentosOfx, fluxoAjustes, reload,
+        addFluxoAjuste: async (r) => { await insertRow("fin_fluxo_ajustes", r); invFA(); },
+        updateFluxoAjuste: async (id, r) => { await updateRow("fin_fluxo_ajustes", id, r); invFA(); },
+        deleteFluxoAjuste: async (id) => { await deleteRow("fin_fluxo_ajustes", id); invFA(); },
         addContaBancaria: async (r) => { const created = await insertRow("fin_contas_bancarias", r); invCB(); return created as ContaBancaria | null; },
         updateContaBancaria: async (id, r) => { await updateRow("fin_contas_bancarias", id, r); invCB(); },
         deleteContaBancaria: async (id) => { await deleteRow("fin_contas_bancarias", id); invCB(); },

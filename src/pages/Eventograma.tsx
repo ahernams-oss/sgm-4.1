@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Trash2, FileDown, FileSpreadsheet, Pencil, CalendarRange, ListChecks, GanttChartSquare } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useEventogramas, type Eventograma, type EventogramaEvento } from "@/contexts/EventogramasContext";
+import { useActivateProvider } from "@/lib/providerGate";
 import { useClientes } from "@/contexts/ClientesContext";
 import { useEmpresa } from "@/contexts/EmpresaContext";
 import { useRdos } from "@/contexts/RdosContext";
@@ -58,6 +59,7 @@ function novoEvento(ordem: number): EventogramaEvento {
 }
 
 export default function EventogramaPage() {
+  useActivateProvider("Eventogramas");
   const { eventogramas, loading, addEventograma, updateEventograma, deleteEventograma } = useEventogramas();
   const { clientes } = useClientes();
   const { empresa } = useEmpresa();

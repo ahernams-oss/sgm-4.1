@@ -550,6 +550,18 @@ const MapaFuncionarios = () => {
                         </SelectContent>
                       </Select>
                     </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-foreground/80">Unidade de H.E (R$)</Label>
+                      <Input type="number" min="0" step="0.01" value={unidadeHe} onChange={(e) => setUnidadeHe(e.target.value)} placeholder="Ex: 12,50" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-foreground/80">Valor VA (R$)</Label>
+                      <Input type="number" min="0" step="0.01" value={valorVa} onChange={(e) => setValorVa(e.target.value)} placeholder="Ex: 25,00" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-foreground/80">Valor VT (R$)</Label>
+                      <Input type="number" min="0" step="0.01" value={valorVt} onChange={(e) => setValorVt(e.target.value)} placeholder="Ex: 10,00" />
+                    </div>
                   </>
                 )}
                 {activeTab === "atestados" && (

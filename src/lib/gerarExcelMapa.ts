@@ -68,10 +68,14 @@ export async function exportarExcelMapa(params: ExcelMapaParams) {
     "Cliente": getClienteNome(l.funcionarioId),
     "Horas": l.horasExtras || 0,
     "Percentual (%)": l.percentual || 50,
+    "Unidade de H.E": l.unidadeHe || "",
+    "Valor VA (R$)": l.valorVa ?? 0,
+    "Valor VT (R$)": l.valorVt ?? 0,
+    "Total VA + VT (R$)": l.totalVaVt ?? ((l.valorVa ?? 0) + (l.valorVt ?? 0)),
     "Observação": l.observacao || "",
   }));
-  const wsHoras = (await getXLSX()).utils.json_to_sheet(horasData.length > 0 ? horasData : [{ "Data": "", "Funcionário": "", "Cargo": "", "Cliente": "", "Horas": "", "Percentual (%)": "", "Observação": "" }]);
-  wsHoras["!cols"] = [{ wch: 12 }, { wch: 30 }, { wch: 20 }, { wch: 20 }, { wch: 10 }, { wch: 14 }, { wch: 40 }];
+  const wsHoras = (await getXLSX()).utils.json_to_sheet(horasData.length > 0 ? horasData : [{ "Data": "", "Funcionário": "", "Cargo": "", "Cliente": "", "Horas": "", "Percentual (%)": "", "Unidade de H.E": "", "Valor VA (R$)": "", "Valor VT (R$)": "", "Total VA + VT (R$)": "", "Observação": "" }]);
+  wsHoras["!cols"] = [{ wch: 12 }, { wch: 30 }, { wch: 20 }, { wch: 20 }, { wch: 10 }, { wch: 14 }, { wch: 24 }, { wch: 14 }, { wch: 14 }, { wch: 18 }, { wch: 40 }];
   (await getXLSX()).utils.book_append_sheet(wb, wsHoras, "Horas Extras");
 
   // Advertências sheet

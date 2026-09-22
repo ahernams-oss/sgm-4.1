@@ -97,6 +97,9 @@ export async function gerarPdfMapaFuncionarios(params: MapaPdfParams) {
   const funcComHE = new Set(horasExtras.map((l) => l.funcionarioId)).size;
   const totalAdv = advertencias.length;
   const funcComAdv = new Set(advertencias.map((l) => l.funcionarioId)).size;
+  const totalVa = horasExtras.reduce((s, l) => s + (l.valorVa || 0), 0);
+  const totalVt = horasExtras.reduce((s, l) => s + (l.valorVt || 0), 0);
+  const totalVaVt = horasExtras.reduce((s, l) => s + (l.totalVaVt ?? ((l.valorVa || 0) + (l.valorVt || 0))), 0);
 
   // Summary table
   (await getAutoTable())(doc, {
@@ -106,6 +109,12 @@ export async function gerarPdfMapaFuncionarios(params: MapaPdfParams) {
     body: [
       [`Total de Faltas: ${totalFaltas}`, `Justificadas: ${faltasJust}`, `Injustificadas: ${faltasInjust}`, `Suspensões: ${faltasSusp}`],
       [`Total Horas Extras: ${totalHE.toFixed(1)}h`, `Funcionários c/ HE: ${funcComHE}`, `Total Advertências: ${totalAdv}`, `Funcionários c/ adv: ${funcComAdv}`],
+      [
+        `Total Valor VA: ${totalVa.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`,
+        `Total Valor VT: ${totalVt.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`,
+        `Total VA + VT: ${totalVaVt.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`,
+        "",
+      ],
     ],
     theme: "plain",
     styles: { fontSize: 8.5, cellPadding: 3 },
@@ -156,20 +165,29 @@ export async function gerarPdfMapaFuncionarios(params: MapaPdfParams) {
     (await getAutoTable())(doc, {
       startY: y,
       margin: { left: 14, right: 14 },
-      head: [["Data", "Funcionário", "Cargo", "Cliente", "Horas", "Percentual", "Observação"]],
-      body: horasExtras.map((l) => [
-        formatData(l.data),
-        getFuncNome(l.funcionarioId),
-        getCargoNome(l.funcionarioId),
-        getClienteNome(l.funcionarioId),
-        `${l.horasExtras}h`,
-        `${l.percentual}%`,
-        l.observacao || "—",
-      ]),
+      head: [["Data", "Funcionário", "Cargo", "Cliente", "Horas", "Percentual", "Unidade de H.E", "Valor VA", "Valor VT", "Total VA+VT", "Observação"]],
+      body: horasExtras.map((l) => {
+        const va = l.valorVa ?? 0;
+        const vt = l.valorVt ?? 0;
+        const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+        return [
+          formatData(l.data),
+          getFuncNome(l.funcionarioId),
+          getCargoNome(l.funcionarioId),
+          getClienteNome(l.funcionarioId),
+          `${l.horasExtras}h`,
+          `${l.percentual}%`,
+          l.unidadeHe || "—",
+          fmt(va),
+          fmt(vt),
+          fmt(l.totalVaVt ?? va + vt),
+          l.observacao || "—",
+        ];
+      }),
       theme: "striped",
-      styles: { fontSize: 8, cellPadding: 2.5 },
+      styles: { fontSize: 7, cellPadding: 2 },
       headStyles: { fillColor: [30, 58, 107], textColor: [255, 255, 255], fontStyle: "bold" },
-      columnStyles: { 6: { cellWidth: 60 } },
+      columnStyles: { 10: { cellWidth: 35 } },
     });
   }
 

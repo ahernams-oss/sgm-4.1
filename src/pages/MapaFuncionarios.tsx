@@ -976,6 +976,10 @@ const MapaFuncionarios = () => {
                     } else if (l.tipo === "hora_extra") {
                       cellMap.horas = { node: `${l.horasExtras}h`, className: "font-medium" };
                       cellMap.percentual = { node: <Badge className="bg-primary/10 text-primary text-xs">{l.percentual}%</Badge> };
+                      const fmtBRL = (v?: number) => (v ? Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—");
+                      cellMap.unidadeHe = { node: fmtBRL(l.unidadeHe), className: "text-xs whitespace-nowrap" };
+                      cellMap.valorVa = { node: fmtBRL(l.valorVa), className: "text-xs whitespace-nowrap" };
+                      cellMap.valorVt = { node: fmtBRL(l.valorVt), className: "text-xs whitespace-nowrap" };
                     } else if (l.tipo === "advertencia") {
                       cellMap.tipo = { node: (
                         <Badge variant={l.tipoAdvertencia === "escrita" ? "destructive" : "secondary"} className="text-xs">

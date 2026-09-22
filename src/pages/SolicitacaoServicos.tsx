@@ -1162,6 +1162,29 @@ export default function SolicitacaoServicosPage() {
             <SelectItem value="nao">Não impressas</SelectItem>
           </SelectContent>
         </Select>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">Data inicial</span>
+          <Input
+            type="date"
+            value={filterDataIni}
+            onChange={e => { setFilterDataIni(e.target.value); setPage(1); }}
+            className="w-[160px]"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">Data final</span>
+          <Input
+            type="date"
+            value={filterDataFim}
+            onChange={e => { setFilterDataFim(e.target.value); setPage(1); }}
+            className="w-[160px]"
+          />
+        </div>
+        {(filterDataIni || filterDataFim) && (
+          <Button variant="ghost" size="sm" onClick={() => { setFilterDataIni(""); setFilterDataFim(""); setPage(1); }}>
+            Limpar período
+          </Button>
+        )}
       </div>
 
       {/* Batch action bar */}

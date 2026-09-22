@@ -156,20 +156,29 @@ export async function gerarPdfMapaFuncionarios(params: MapaPdfParams) {
     (await getAutoTable())(doc, {
       startY: y,
       margin: { left: 14, right: 14 },
-      head: [["Data", "Funcionário", "Cargo", "Cliente", "Horas", "Percentual", "Observação"]],
-      body: horasExtras.map((l) => [
-        formatData(l.data),
-        getFuncNome(l.funcionarioId),
-        getCargoNome(l.funcionarioId),
-        getClienteNome(l.funcionarioId),
-        `${l.horasExtras}h`,
-        `${l.percentual}%`,
-        l.observacao || "—",
-      ]),
+      head: [["Data", "Funcionário", "Cargo", "Cliente", "Horas", "Percentual", "Unidade de H.E", "Valor VA", "Valor VT", "Total VA+VT", "Observação"]],
+      body: horasExtras.map((l) => {
+        const va = l.valorVa ?? 0;
+        const vt = l.valorVt ?? 0;
+        const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+        return [
+          formatData(l.data),
+          getFuncNome(l.funcionarioId),
+          getCargoNome(l.funcionarioId),
+          getClienteNome(l.funcionarioId),
+          `${l.horasExtras}h`,
+          `${l.percentual}%`,
+          l.unidadeHe || "—",
+          fmt(va),
+          fmt(vt),
+          fmt(l.totalVaVt ?? va + vt),
+          l.observacao || "—",
+        ];
+      }),
       theme: "striped",
-      styles: { fontSize: 8, cellPadding: 2.5 },
+      styles: { fontSize: 7, cellPadding: 2 },
       headStyles: { fillColor: [30, 58, 107], textColor: [255, 255, 255], fontStyle: "bold" },
-      columnStyles: { 6: { cellWidth: 60 } },
+      columnStyles: { 10: { cellWidth: 35 } },
     });
   }
 

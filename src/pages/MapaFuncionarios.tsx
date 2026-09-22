@@ -74,6 +74,9 @@ const MapaFuncionarios = () => {
   const [horasExtras, setHorasExtras] = useState("");
   const [percentual, setPercentual] = useState("50");
   const [municipioHE, setMunicipioHE] = useState("Rio de Janeiro");
+  const [unidadeHe, setUnidadeHe] = useState("");
+  const [valorVa, setValorVa] = useState("");
+  const [valorVt, setValorVt] = useState("");
   const [observacao, setObservacao] = useState("");
   const [anexos, setAnexos] = useState<AnexoFalta[]>([]);
   const [tipoAdvertencia, setTipoAdvertencia] = useState<TipoAdvertencia>("verbal");
@@ -94,7 +97,9 @@ const MapaFuncionarios = () => {
     },
     horas_extras: {
       data: { label: "Data" }, funcionario: { label: "Funcionário" }, cargo: { label: "Cargo" }, cliente: { label: "Cliente" },
-      horas: { label: "Horas" }, percentual: { label: "Percentual" }, observacao: { label: "Observação" },
+      horas: { label: "Horas" }, percentual: { label: "Percentual" },
+      unidadeHe: { label: "Unidade de H.E" }, valorVa: { label: "Valor VA" }, valorVt: { label: "Valor VT" },
+      observacao: { label: "Observação" },
     },
     advertencias: {
       data: { label: "Data" }, funcionario: { label: "Funcionário" }, cargo: { label: "Cargo" }, cliente: { label: "Cliente" },

@@ -169,6 +169,7 @@ const QK_CP = ["fin_contas_pagar"] as const;
 const QK_CR = ["fin_contas_receber"] as const;
 const QK_LN = ["fin_lancamentos"] as const;
 const QK_OFX = ["fin_movimentos_ofx"] as const;
+const QK_FA = ["fin_fluxo_ajustes"] as const;
 
 export function FinanceiroProvider({ children }: { children: ReactNode }) {
   const __active = useProviderGate("Financeiro");

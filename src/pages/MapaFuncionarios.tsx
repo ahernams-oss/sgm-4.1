@@ -996,6 +996,7 @@ const MapaFuncionarios = () => {
                       cellMap.unidadeHe = { node: l.unidadeHe || "—", className: "text-xs whitespace-nowrap" };
                       cellMap.valorVa = { node: fmtBRL(l.valorVa), className: "text-xs whitespace-nowrap" };
                       cellMap.valorVt = { node: fmtBRL(l.valorVt), className: "text-xs whitespace-nowrap" };
+                      cellMap.totalVaVt = { node: fmtBRL(l.totalVaVt ?? ((l.valorVa ?? 0) + (l.valorVt ?? 0))), className: "text-xs whitespace-nowrap font-semibold" };
                     } else if (l.tipo === "advertencia") {
                       cellMap.tipo = { node: (
                         <Badge variant={l.tipoAdvertencia === "escrita" ? "destructive" : "secondary"} className="text-xs">

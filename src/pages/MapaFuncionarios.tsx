@@ -112,7 +112,7 @@ const MapaFuncionarios = () => {
   };
   const defaultsByTab: Record<string, string[]> = {
     faltas: ["data", "funcionario", "cargo", "cliente", "tipo", "anexos", "observacao"],
-    horas_extras: ["data", "funcionario", "cargo", "cliente", "horas", "percentual", "unidadeHe", "valorVa", "valorVt", "observacao"],
+    horas_extras: ["data", "funcionario", "cargo", "cliente", "horas", "percentual", "unidadeHe", "valorVa", "valorVt", "totalVaVt", "observacao"],
     advertencias: ["data", "funcionario", "cargo", "cliente", "tipo", "motivo", "anexos", "observacao"],
     atestados: ["data", "dataFim", "funcionario", "cargo", "cliente", "dias", "anexos", "observacao"],
   };

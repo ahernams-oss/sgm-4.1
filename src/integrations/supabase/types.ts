@@ -4400,6 +4400,9 @@ export type Database = {
           tipo: string | null
           tipo_advertencia: string | null
           tipo_falta: string | null
+          unidade_he: number
+          valor_va: number
+          valor_vt: number
         }
         Insert: {
           anexos?: Json | null
@@ -4417,6 +4420,9 @@ export type Database = {
           tipo?: string | null
           tipo_advertencia?: string | null
           tipo_falta?: string | null
+          unidade_he?: number
+          valor_va?: number
+          valor_vt?: number
         }
         Update: {
           anexos?: Json | null
@@ -4434,6 +4440,9 @@ export type Database = {
           tipo?: string | null
           tipo_advertencia?: string | null
           tipo_falta?: string | null
+          unidade_he?: number
+          valor_va?: number
+          valor_vt?: number
         }
         Relationships: []
       }

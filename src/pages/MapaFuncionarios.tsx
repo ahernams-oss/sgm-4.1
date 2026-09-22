@@ -74,6 +74,9 @@ const MapaFuncionarios = () => {
   const [horasExtras, setHorasExtras] = useState("");
   const [percentual, setPercentual] = useState("50");
   const [municipioHE, setMunicipioHE] = useState("Rio de Janeiro");
+  const [unidadeHe, setUnidadeHe] = useState("");
+  const [valorVa, setValorVa] = useState("");
+  const [valorVt, setValorVt] = useState("");
   const [observacao, setObservacao] = useState("");
   const [anexos, setAnexos] = useState<AnexoFalta[]>([]);
   const [tipoAdvertencia, setTipoAdvertencia] = useState<TipoAdvertencia>("verbal");
@@ -94,7 +97,9 @@ const MapaFuncionarios = () => {
     },
     horas_extras: {
       data: { label: "Data" }, funcionario: { label: "Funcionário" }, cargo: { label: "Cargo" }, cliente: { label: "Cliente" },
-      horas: { label: "Horas" }, percentual: { label: "Percentual" }, observacao: { label: "Observação" },
+      horas: { label: "Horas" }, percentual: { label: "Percentual" },
+      unidadeHe: { label: "Unidade de H.E" }, valorVa: { label: "Valor VA" }, valorVt: { label: "Valor VT" },
+      observacao: { label: "Observação" },
     },
     advertencias: {
       data: { label: "Data" }, funcionario: { label: "Funcionário" }, cargo: { label: "Cargo" }, cliente: { label: "Cliente" },
@@ -107,7 +112,7 @@ const MapaFuncionarios = () => {
   };
   const defaultsByTab: Record<string, string[]> = {
     faltas: ["data", "funcionario", "cargo", "cliente", "tipo", "anexos", "observacao"],
-    horas_extras: ["data", "funcionario", "cargo", "cliente", "horas", "percentual", "observacao"],
+    horas_extras: ["data", "funcionario", "cargo", "cliente", "horas", "percentual", "unidadeHe", "valorVa", "valorVt", "observacao"],
     advertencias: ["data", "funcionario", "cargo", "cliente", "tipo", "motivo", "anexos", "observacao"],
     atestados: ["data", "dataFim", "funcionario", "cargo", "cliente", "dias", "anexos", "observacao"],
   };
@@ -155,6 +160,9 @@ const MapaFuncionarios = () => {
     setTipoFalta("injustificada");
     setHorasExtras("");
     setPercentual("50");
+    setUnidadeHe("");
+    setValorVa("");
+    setValorVt("");
     setObservacao("");
     setAnexos([]);
     setTipoAdvertencia("verbal");
@@ -186,6 +194,7 @@ const MapaFuncionarios = () => {
       const payload = {
         funcionarioId, tipo: "hora_extra" as const, data,
         horasExtras: Number(horasExtras), percentual: Number(percentual), observacao,
+        unidadeHe: Number(unidadeHe) || 0, valorVa: Number(valorVa) || 0, valorVt: Number(valorVt) || 0,
       };
       if (editingId) {
         updateLancamento(editingId, payload);
@@ -237,6 +246,9 @@ const MapaFuncionarios = () => {
       setActiveTab("horas_extras");
       setHorasExtras(String(l.horasExtras || ""));
       setPercentual(String(l.percentual || 50));
+      setUnidadeHe(l.unidadeHe ? String(l.unidadeHe) : "");
+      setValorVa(l.valorVa ? String(l.valorVa) : "");
+      setValorVt(l.valorVt ? String(l.valorVt) : "");
     } else if (l.tipo === "advertencia") {
       setActiveTab("advertencias");
       setTipoAdvertencia(l.tipoAdvertencia || "verbal");
@@ -537,6 +549,18 @@ const MapaFuncionarios = () => {
                           ))}
                         </SelectContent>
                       </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-foreground/80">Unidade de H.E (R$)</Label>
+                      <Input type="number" min="0" step="0.01" value={unidadeHe} onChange={(e) => setUnidadeHe(e.target.value)} placeholder="Ex: 12,50" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-foreground/80">Valor VA (R$)</Label>
+                      <Input type="number" min="0" step="0.01" value={valorVa} onChange={(e) => setValorVa(e.target.value)} placeholder="Ex: 25,00" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-foreground/80">Valor VT (R$)</Label>
+                      <Input type="number" min="0" step="0.01" value={valorVt} onChange={(e) => setValorVt(e.target.value)} placeholder="Ex: 10,00" />
                     </div>
                   </>
                 )}
@@ -952,6 +976,10 @@ const MapaFuncionarios = () => {
                     } else if (l.tipo === "hora_extra") {
                       cellMap.horas = { node: `${l.horasExtras}h`, className: "font-medium" };
                       cellMap.percentual = { node: <Badge className="bg-primary/10 text-primary text-xs">{l.percentual}%</Badge> };
+                      const fmtBRL = (v?: number) => (v ? Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—");
+                      cellMap.unidadeHe = { node: fmtBRL(l.unidadeHe), className: "text-xs whitespace-nowrap" };
+                      cellMap.valorVa = { node: fmtBRL(l.valorVa), className: "text-xs whitespace-nowrap" };
+                      cellMap.valorVt = { node: fmtBRL(l.valorVt), className: "text-xs whitespace-nowrap" };
                     } else if (l.tipo === "advertencia") {
                       cellMap.tipo = { node: (
                         <Badge variant={l.tipoAdvertencia === "escrita" ? "destructive" : "secondary"} className="text-xs">

@@ -1,0 +1,4 @@
+ALTER TABLE public.lancamentos
+  ADD COLUMN IF NOT EXISTS unidade_he numeric NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS valor_va numeric NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS valor_vt numeric NOT NULL DEFAULT 0;

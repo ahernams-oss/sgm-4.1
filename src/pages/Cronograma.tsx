@@ -21,6 +21,7 @@ import { baixarModeloAtividades, exportarAtividadesExcel, importarAtividadesExce
 import { DoubleConfirmDelete, useDoubleConfirmDelete } from "@/components/DoubleConfirmDelete";
 import { usePermissao } from "@/hooks/usePermissao";
 import { toast } from "sonner";
+import { useActivateProvider } from "@/lib/providerGate";
 
 const fmtMoney = (n: number) =>
   (Number(n) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -41,6 +42,7 @@ function novaAtividade(ordem: number): CronogramaAtividade {
 }
 
 function CronogramaInner() {
+  useActivateProvider("Cronogramas");
   const { cronogramas, loading, addCronograma, updateCronograma, deleteCronograma } = useCronogramas();
   const { clientes } = useClientes();
   const { empresa } = useEmpresa();

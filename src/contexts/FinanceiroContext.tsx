@@ -131,6 +131,10 @@ interface Ctx {
   contasReceber: ContaReceber[];
   lancamentos: Lancamento[];
   movimentosOfx: MovimentoOfx[];
+  fluxoAjustes: FluxoAjuste[];
+  addFluxoAjuste: (a: Omit<FluxoAjuste, "id">) => Promise<void>;
+  updateFluxoAjuste: (id: string, a: Partial<FluxoAjuste>) => Promise<void>;
+  deleteFluxoAjuste: (id: string) => Promise<void>;
   reload: () => Promise<void>;
   // CRUD
   addContaBancaria: (c: Omit<ContaBancaria, "id">) => Promise<ContaBancaria | null>;

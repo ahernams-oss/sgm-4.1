@@ -98,7 +98,7 @@ const MapaFuncionarios = () => {
     horas_extras: {
       data: { label: "Data" }, funcionario: { label: "Funcionário" }, cargo: { label: "Cargo" }, cliente: { label: "Cliente" },
       horas: { label: "Horas" }, percentual: { label: "Percentual" },
-      unidadeHe: { label: "Unidade de H.E" }, valorVa: { label: "Valor VA" }, valorVt: { label: "Valor VT" },
+      unidadeHe: { label: "Unidade de H.E" }, valorVa: { label: "Valor VA" }, valorVt: { label: "Valor VT" }, totalVaVt: { label: "Total VA + VT" },
       observacao: { label: "Observação" },
     },
     advertencias: {

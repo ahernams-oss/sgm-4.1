@@ -910,6 +910,154 @@ export default function SolicitacaoServicosPage() {
     }
   };
 
+  // ---- Conjunto de relatórios (PDF / Excel) ----
+  const relFiltrosTexto = () => {
+    const p: string[] = [];
+    if (search) p.push(`Busca: ${search}`);
+    if (filterCliente !== "all") p.push(`Cliente: ${clientes.find(c => c.id === filterCliente)?.nome || filterCliente}`);
+    if (filterTipo !== "all") p.push(`Tipo: ${filterTipo}`);
+    if (filterSituacao !== "all") p.push(`Situação: ${filterSituacao}`);
+    if (filterPrioridade !== "all") p.push(`Prioridade: ${filterPrioridade}`);
+    if (filterVisitado !== "all") p.push(`Visitado: ${filterVisitado}`);
+    if (filterOrigem !== "all") p.push(`Origem: ${filterOrigem}`);
+    if (filterImpresso !== "all") p.push(`Impresso: ${filterImpresso}`);
+    if (filterSetorCritico !== "all") p.push(`Setor crítico: ${filterSetorCritico}`);
+    if (filterDataIni) p.push(`De: ${new Date(filterDataIni + "T12:00:00").toLocaleDateString("pt-BR")}`);
+    if (filterDataFim) p.push(`Até: ${new Date(filterDataFim + "T12:00:00").toLocaleDateString("pt-BR")}`);
+    return p.length ? `Filtros: ${p.join("  |  ")}` : "Filtros: nenhum (todas as solicitações)";
+  };
+
+  const relData = (s: SolicitacaoServico) => {
+    const d = s.dataHoraSolicitacao || s.createdAt;
+    return d ? new Date(d).toLocaleDateString("pt-BR") : "-";
+  };
+
+  const agrupar = (chave: (s: SolicitacaoServico) => string, rotulo: string) => {
+    const mapa = new Map<string, number>();
+    filtered.forEach(s => {
+      const k = chave(s) || "(não informado)";
+      mapa.set(k, (mapa.get(k) || 0) + 1);
+    });
+    const total = filtered.length || 1;
+    const rows = Array.from(mapa.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([k, v]) => [k, String(v), `${((v / total) * 100).toFixed(1)}%`]);
+    return { cols: [rotulo, "Qtd.", "% do total"], rows };
+  };
+
+  type RelKey = "analitico" | "sintetico" | "situacao" | "cliente" | "prioridade" | "tipo" | "pendentes" | "fotos";
+
+  const montarRelatorio = (key: RelKey): { titulo: string; cols: string[]; rows: string[][] } => {
+    switch (key) {
+      case "analitico":
+        return {
+          titulo: "Solicitações de Serviço - Analítico",
+          cols: ["Nº", "Data", "Tipo", "Cliente", "Local", "Pavimento", "Setor", "Equipamento", "Prioridade", "Situação", "Solicitante", "Visitado", "Descrição"],
+          rows: filtered.map(s => [
+            formatNumeroAno(s.numero, s.createdAt),
+            relData(s),
+            s.tipo || "-",
+            s.clienteNome || "-",
+            s.localDescricao || "-",
+            s.pavimentoDescricao || "-",
+            s.setorDescricao || "-",
+            s.equipamentoNome || "-",
+            s.prioridade || "-",
+            s.situacao || "-",
+            s.solicitanteNome || "-",
+            s.visitado ? "Sim" : "Não",
+            (s.descricaoServicos || "-").slice(0, 300),
+          ]),
+        };
+      case "sintetico":
+        return {
+          titulo: "Solicitações de Serviço - Sintético",
+          cols: ["Nº", "Data", "Cliente", "Tipo", "Prioridade", "Situação"],
+          rows: filtered.map(s => [
+            formatNumeroAno(s.numero, s.createdAt),
+            relData(s),
+            s.clienteNome || "-",
+            s.tipo || "-",
+            s.prioridade || "-",
+            s.situacao || "-",
+          ]),
+        };
+      case "situacao": {
+        const g = agrupar(s => s.situacao, "Situação");
+        return { titulo: "Solicitações de Serviço - Por Situação", cols: g.cols, rows: g.rows };
+      }
+      case "cliente": {
+        const g = agrupar(s => s.clienteNome, "Cliente");
+        return { titulo: "Solicitações de Serviço - Por Cliente", cols: g.cols, rows: g.rows };
+      }
+      case "prioridade": {
+        const g = agrupar(s => s.prioridade, "Prioridade");
+        return { titulo: "Solicitações de Serviço - Por Prioridade", cols: g.cols, rows: g.rows };
+      }
+      case "tipo": {
+        const g = agrupar(s => s.tipo, "Tipo");
+        return { titulo: "Solicitações de Serviço - Por Tipo", cols: g.cols, rows: g.rows };
+      }
+      case "pendentes": {
+        const pend = filtered.filter(s => !/(conclu|cancel|rejeit)/i.test(s.situacao || ""));
+        return {
+          titulo: "Solicitações de Serviço - Pendentes",
+          cols: ["Nº", "Data", "Cliente", "Local", "Prioridade", "Situação", "Dias em aberto"],
+          rows: pend.map(s => {
+            const base = s.dataHoraSolicitacao || s.createdAt;
+            const dias = base ? Math.max(0, Math.floor((Date.now() - new Date(base).getTime()) / 86400000)) : 0;
+            return [
+              formatNumeroAno(s.numero, s.createdAt),
+              relData(s),
+              s.clienteNome || "-",
+              s.localDescricao || "-",
+              s.prioridade || "-",
+              s.situacao || "-",
+              String(dias),
+            ];
+          }),
+        };
+      }
+      case "fotos": {
+        const comFotos = filtered.filter(s => (s.imagens || []).length > 0);
+        return {
+          titulo: "Solicitações de Serviço - Com Fotos",
+          cols: ["Nº", "Data", "Cliente", "Local", "Situação", "Qtd. Fotos"],
+          rows: comFotos.map(s => [
+            formatNumeroAno(s.numero, s.createdAt),
+            relData(s),
+            s.clienteNome || "-",
+            s.localDescricao || "-",
+            s.situacao || "-",
+            String((s.imagens || []).length),
+          ]),
+        };
+      }
+    }
+  };
+
+  const exportarRelatorio = async (key: RelKey, tipo: "pdf" | "excel") => {
+    const { titulo, cols, rows } = montarRelatorio(key);
+    if (rows.length === 0) {
+      toast({ title: "Nada para exportar", description: "Nenhum registro na listagem atual.", variant: "destructive" });
+      return;
+    }
+    const mod = await import("@/lib/gerarRelatorioEstoque");
+    if (tipo === "pdf") await mod.gerarPdfEstoque(titulo, cols, rows, relFiltrosTexto());
+    else await mod.gerarExcelEstoque(titulo, cols, rows, relFiltrosTexto());
+  };
+
+  const RELATORIOS: { key: RelKey; label: string }[] = [
+    { key: "analitico", label: "Analítico (detalhado)" },
+    { key: "sintetico", label: "Sintético (resumido)" },
+    { key: "situacao", label: "Resumo por Situação" },
+    { key: "cliente", label: "Resumo por Cliente" },
+    { key: "prioridade", label: "Resumo por Prioridade" },
+    { key: "tipo", label: "Resumo por Tipo" },
+    { key: "pendentes", label: "Pendentes (em aberto)" },
+    { key: "fotos", label: "Com fotos anexadas" },
+  ];
+
   const showForm = formOpen && form.tipo !== "";
 
   return (

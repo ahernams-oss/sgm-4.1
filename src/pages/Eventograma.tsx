@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Plus, Trash2, FileDown, FileSpreadsheet, Pencil, CalendarRange, ListChecks, GanttChartSquare } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useEventogramas, type Eventograma, type EventogramaEvento } from "@/contexts/EventogramasContext";
+import { useActivateProvider } from "@/lib/providerGate";
 import { useClientes } from "@/contexts/ClientesContext";
 import { useEmpresa } from "@/contexts/EmpresaContext";
 import { useRdos } from "@/contexts/RdosContext";
@@ -58,6 +59,7 @@ function novoEvento(ordem: number): EventogramaEvento {
 }
 
 export default function EventogramaPage() {
+  useActivateProvider("Eventogramas");
   const { eventogramas, loading, addEventograma, updateEventograma, deleteEventograma } = useEventogramas();
   const { clientes } = useClientes();
   const { empresa } = useEmpresa();
@@ -151,8 +153,10 @@ export default function EventogramaPage() {
 
   const salvar = async () => {
     if (!form.cliente_id || !form.obra) { toast.error("Selecione cliente e obra"); return; }
-    if (editing) await updateEventograma(editing.id, form);
-    else await addEventograma(form);
+    const payload: any = { ...form };
+    ["data_assinatura"].forEach((k) => { if (!payload[k]) payload[k] = null; });
+    if (editing) await updateEventograma(editing.id, payload);
+    else await addEventograma(payload);
     setOpen(false); resetForm();
   };
 

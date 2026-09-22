@@ -133,7 +133,9 @@ export default function SolicitacaoServicosPage() {
   const [filterImpresso, setFilterImpresso] = useState(_ssSavedFilters?.filterImpresso ?? "all");
   const [filterPrioridade, setFilterPrioridade] = useState(_ssSavedFilters?.filterPrioridade ?? "all");
   const [filterSetorCritico, setFilterSetorCritico] = useState(_ssSavedFilters?.filterSetorCritico ?? "all");
-  usePersistFilters("solicitacao_servicos_filters_v1", { search, filterTipo, filterSituacao, filterVisitado, filterOrigem, filterImpresso, filterPrioridade, filterSetorCritico });
+  const [filterDataIni, setFilterDataIni] = useState((_ssSavedFilters as any)?.filterDataIni ?? "");
+  const [filterDataFim, setFilterDataFim] = useState((_ssSavedFilters as any)?.filterDataFim ?? "");
+  usePersistFilters("solicitacao_servicos_filters_v1", { search, filterTipo, filterSituacao, filterVisitado, filterOrigem, filterImpresso, filterPrioridade, filterSetorCritico, filterDataIni, filterDataFim });
   const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
     const numero = searchParams.get("numero");

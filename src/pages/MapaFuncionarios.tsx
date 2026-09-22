@@ -98,7 +98,7 @@ const MapaFuncionarios = () => {
     horas_extras: {
       data: { label: "Data" }, funcionario: { label: "Funcionário" }, cargo: { label: "Cargo" }, cliente: { label: "Cliente" },
       horas: { label: "Horas" }, percentual: { label: "Percentual" },
-      unidadeHe: { label: "Unidade de H.E" }, valorVa: { label: "Valor VA" }, valorVt: { label: "Valor VT" },
+      unidadeHe: { label: "Unidade de H.E" }, valorVa: { label: "Valor VA" }, valorVt: { label: "Valor VT" }, totalVaVt: { label: "Total VA + VT" },
       observacao: { label: "Observação" },
     },
     advertencias: {
@@ -112,7 +112,7 @@ const MapaFuncionarios = () => {
   };
   const defaultsByTab: Record<string, string[]> = {
     faltas: ["data", "funcionario", "cargo", "cliente", "tipo", "anexos", "observacao"],
-    horas_extras: ["data", "funcionario", "cargo", "cliente", "horas", "percentual", "unidadeHe", "valorVa", "valorVt", "observacao"],
+    horas_extras: ["data", "funcionario", "cargo", "cliente", "horas", "percentual", "unidadeHe", "valorVa", "valorVt", "totalVaVt", "observacao"],
     advertencias: ["data", "funcionario", "cargo", "cliente", "tipo", "motivo", "anexos", "observacao"],
     atestados: ["data", "dataFim", "funcionario", "cargo", "cliente", "dias", "anexos", "observacao"],
   };
@@ -195,6 +195,7 @@ const MapaFuncionarios = () => {
         funcionarioId, tipo: "hora_extra" as const, data,
         horasExtras: Number(horasExtras), percentual: Number(percentual), observacao,
         unidadeHe: unidadeHe || "", valorVa: Number(valorVa) || 0, valorVt: Number(valorVt) || 0,
+        totalVaVt: (Number(valorVa) || 0) + (Number(valorVt) || 0),
       };
       if (editingId) {
         updateLancamento(editingId, payload);
@@ -551,7 +552,7 @@ const MapaFuncionarios = () => {
                       </Select>
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-xs font-semibold text-foreground/80">Unidade de H.E (R$)</Label>
+                      <Label className="text-xs font-semibold text-foreground/80">Unidade de H.E</Label>
                       <Select value={unidadeHe} onValueChange={setUnidadeHe}>
                         <SelectTrigger><SelectValue placeholder="Selecione o cliente" /></SelectTrigger>
                         <SelectContent>
@@ -568,6 +569,14 @@ const MapaFuncionarios = () => {
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-foreground/80">Valor VT (R$)</Label>
                       <Input type="number" min="0" step="0.01" value={valorVt} onChange={(e) => setValorVt(e.target.value)} placeholder="Ex: 10,00" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-foreground/80">Total VA + VT (R$)</Label>
+                      <Input
+                        readOnly
+                        className="bg-muted font-semibold"
+                        value={((Number(valorVa) || 0) + (Number(valorVt) || 0)).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      />
                     </div>
                   </>
                 )}
@@ -987,6 +996,7 @@ const MapaFuncionarios = () => {
                       cellMap.unidadeHe = { node: l.unidadeHe || "—", className: "text-xs whitespace-nowrap" };
                       cellMap.valorVa = { node: fmtBRL(l.valorVa), className: "text-xs whitespace-nowrap" };
                       cellMap.valorVt = { node: fmtBRL(l.valorVt), className: "text-xs whitespace-nowrap" };
+                      cellMap.totalVaVt = { node: fmtBRL(l.totalVaVt ?? ((l.valorVa ?? 0) + (l.valorVt ?? 0))), className: "text-xs whitespace-nowrap font-semibold" };
                     } else if (l.tipo === "advertencia") {
                       cellMap.tipo = { node: (
                         <Badge variant={l.tipoAdvertencia === "escrita" ? "destructive" : "secondary"} className="text-xs">

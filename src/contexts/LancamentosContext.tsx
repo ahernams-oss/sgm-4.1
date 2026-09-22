@@ -13,7 +13,7 @@ export interface Lancamento {
   id: string; funcionarioId: string; tipo: TipoLancamento; data: string;
   tipoFalta?: TipoFalta; diasFalta?: number; anexos?: AnexoFalta[];
   horasExtras?: number; percentual?: number; observacao: string; criadoEm: string;
-  unidadeHe?: string; valorVa?: number; valorVt?: number;
+  unidadeHe?: string; valorVa?: number; valorVt?: number; totalVaVt?: number;
   tipoAdvertencia?: TipoAdvertencia; motivo?: string;
   dataFim?: string;
 }
@@ -36,6 +36,7 @@ const rowToLancamento = (r: any): Lancamento => ({
   anexos: r.anexos ?? [], horasExtras: r.horas_extras ? Number(r.horas_extras) : undefined,
   percentual: r.percentual ? Number(r.percentual) : undefined,
   unidadeHe: r.unidade_he != null ? String(r.unidade_he) : undefined,
+  totalVaVt: r.total_va_vt != null ? Number(r.total_va_vt) : undefined,
   valorVa: r.valor_va != null ? Number(r.valor_va) : undefined,
   valorVt: r.valor_vt != null ? Number(r.valor_vt) : undefined,
   observacao: r.observacao ?? "", criadoEm: r.criado_em ?? "",
@@ -49,6 +50,7 @@ const lancamentoToRow = (l: Omit<Lancamento, "id">) => ({
   anexos: (l.anexos ?? []) as any, horas_extras: l.horasExtras ?? 0,
   percentual: l.percentual ?? 0, observacao: l.observacao, criado_em: l.criadoEm,
   unidade_he: l.unidadeHe ?? "", valor_va: l.valorVa ?? 0, valor_vt: l.valorVt ?? 0,
+  total_va_vt: l.totalVaVt ?? ((l.valorVa ?? 0) + (l.valorVt ?? 0)),
   tipo_advertencia: l.tipoAdvertencia ?? "", motivo: l.motivo ?? "",
   data_fim: l.dataFim ?? null,
 });

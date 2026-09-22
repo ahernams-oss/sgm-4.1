@@ -102,7 +102,8 @@ export function RequisicaoProvider({ children }: { children: ReactNode }) {
       status: "Pendente",
       historicoStatus: [{ status: "Pendente", dataHora: agora }],
     };
-    await insertRow("requisicoes", reqToRow(full));
+    const inserted = await insertRow("requisicoes", reqToRow(full));
+    if (inserted?.numero) full.numero = inserted.numero;
     await load();
 
     const msg =

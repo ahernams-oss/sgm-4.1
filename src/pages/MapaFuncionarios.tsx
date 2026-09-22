@@ -924,6 +924,27 @@ const MapaFuncionarios = () => {
                   <Input placeholder="Pesquisar..." value={search} onChange={(e) => { setSearch(e.target.value); setPageLanc(1); }} className="pl-9 h-9" />
                 </div>
               </div>
+
+              <div className="flex items-center gap-3 pt-3 border-t border-border/60">
+                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "faltas" | "horas_extras" | "advertencias" | "atestados")}>
+                  <TabsList className="h-9">
+                    <TabsTrigger value="faltas" className="text-xs gap-1">
+                      <XCircle className="h-3 w-3" /> Faltas
+                    </TabsTrigger>
+                    <TabsTrigger value="horas_extras" className="text-xs gap-1">
+                      <Clock className="h-3 w-3" /> Horas Extras
+                    </TabsTrigger>
+                    <TabsTrigger value="advertencias" className="text-xs gap-1">
+                      <AlertTriangle className="h-3 w-3" /> Advertências
+                    </TabsTrigger>
+                    <TabsTrigger value="atestados" className="text-xs gap-1">
+                      <Stethoscope className="h-3 w-3" /> Atestados
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+
+                <span className="text-sm font-semibold text-foreground">({filteredLancamentos.length})</span>
+              </div>
             </div>
           </div>
 

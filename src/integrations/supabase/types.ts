@@ -3324,6 +3324,50 @@ export type Database = {
           },
         ]
       }
+      fin_fluxo_ajustes: {
+        Row: {
+          conta_bancaria_id: string | null
+          created_at: string
+          data: string
+          descricao: string
+          id: string
+          observacao: string | null
+          tipo: string
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          conta_bancaria_id?: string | null
+          created_at?: string
+          data?: string
+          descricao?: string
+          id?: string
+          observacao?: string | null
+          tipo?: string
+          updated_at?: string
+          valor?: number
+        }
+        Update: {
+          conta_bancaria_id?: string | null
+          created_at?: string
+          data?: string
+          descricao?: string
+          id?: string
+          observacao?: string | null
+          tipo?: string
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_fluxo_ajustes_conta_bancaria_id_fkey"
+            columns: ["conta_bancaria_id"]
+            isOneToOne: false
+            referencedRelation: "fin_contas_bancarias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fin_lancamentos: {
         Row: {
           anexos: Json

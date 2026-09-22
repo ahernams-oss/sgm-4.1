@@ -4400,6 +4400,7 @@ export type Database = {
           tipo: string | null
           tipo_advertencia: string | null
           tipo_falta: string | null
+          total_va_vt: number
           unidade_he: string
           valor_va: number
           valor_vt: number
@@ -4420,6 +4421,7 @@ export type Database = {
           tipo?: string | null
           tipo_advertencia?: string | null
           tipo_falta?: string | null
+          total_va_vt?: number
           unidade_he?: string
           valor_va?: number
           valor_vt?: number
@@ -4440,6 +4442,7 @@ export type Database = {
           tipo?: string | null
           tipo_advertencia?: string | null
           tipo_falta?: string | null
+          total_va_vt?: number
           unidade_he?: string
           valor_va?: number
           valor_vt?: number

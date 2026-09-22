@@ -1,0 +1,1 @@
+ALTER TABLE public.lancamentos ADD COLUMN IF NOT EXISTS total_va_vt numeric NOT NULL DEFAULT 0;

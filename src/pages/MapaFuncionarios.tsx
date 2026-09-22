@@ -194,7 +194,7 @@ const MapaFuncionarios = () => {
       const payload = {
         funcionarioId, tipo: "hora_extra" as const, data,
         horasExtras: Number(horasExtras), percentual: Number(percentual), observacao,
-        unidadeHe: Number(unidadeHe) || 0, valorVa: Number(valorVa) || 0, valorVt: Number(valorVt) || 0,
+        unidadeHe: unidadeHe || "", valorVa: Number(valorVa) || 0, valorVt: Number(valorVt) || 0,
       };
       if (editingId) {
         updateLancamento(editingId, payload);
@@ -552,7 +552,14 @@ const MapaFuncionarios = () => {
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-foreground/80">Unidade de H.E (R$)</Label>
-                      <Input type="number" min="0" step="0.01" value={unidadeHe} onChange={(e) => setUnidadeHe(e.target.value)} placeholder="Ex: 12,50" />
+                      <Select value={unidadeHe} onValueChange={setUnidadeHe}>
+                        <SelectTrigger><SelectValue placeholder="Selecione o cliente" /></SelectTrigger>
+                        <SelectContent>
+                          {clientes.filter((c) => c.tipo === "Cliente").map((c) => (
+                            <SelectItem key={c.id} value={c.nome}>{c.nome}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-foreground/80">Valor VA (R$)</Label>
@@ -977,7 +984,7 @@ const MapaFuncionarios = () => {
                       cellMap.horas = { node: `${l.horasExtras}h`, className: "font-medium" };
                       cellMap.percentual = { node: <Badge className="bg-primary/10 text-primary text-xs">{l.percentual}%</Badge> };
                       const fmtBRL = (v?: number) => (v ? Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—");
-                      cellMap.unidadeHe = { node: fmtBRL(l.unidadeHe), className: "text-xs whitespace-nowrap" };
+                      cellMap.unidadeHe = { node: l.unidadeHe || "—", className: "text-xs whitespace-nowrap" };
                       cellMap.valorVa = { node: fmtBRL(l.valorVa), className: "text-xs whitespace-nowrap" };
                       cellMap.valorVt = { node: fmtBRL(l.valorVt), className: "text-xs whitespace-nowrap" };
                     } else if (l.tipo === "advertencia") {

@@ -760,27 +760,7 @@ const MapaFuncionarios = () => {
         {/* Tabela de lançamentos */}
         <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
           <div className="px-4 sm:px-6 py-4 border-b border-border bg-muted/30">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "faltas" | "horas_extras" | "advertencias" | "atestados")}>
-                  <TabsList className="h-9">
-                    <TabsTrigger value="faltas" className="text-xs gap-1">
-                      <XCircle className="h-3 w-3" /> Faltas
-                    </TabsTrigger>
-                    <TabsTrigger value="horas_extras" className="text-xs gap-1">
-                      <Clock className="h-3 w-3" /> Horas Extras
-                    </TabsTrigger>
-                    <TabsTrigger value="advertencias" className="text-xs gap-1">
-                      <AlertTriangle className="h-3 w-3" /> Advertências
-                    </TabsTrigger>
-                    <TabsTrigger value="atestados" className="text-xs gap-1">
-                      <Stethoscope className="h-3 w-3" /> Atestados
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-
-                <span className="text-sm font-semibold text-foreground">({filteredLancamentos.length})</span>
-              </div>
+            <div className="flex flex-col gap-3">
               <div className="flex items-center gap-2 flex-wrap">
                 <div className="flex items-center gap-1 rounded-md border border-input bg-background px-1">
                   <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { const [y, m] = filterMes.split("-").map(Number); const d = new Date(y, m - 2, 1); setFilterMes(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`); setPageLanc(1); setDateFrom(undefined); setDateTo(undefined); }}>
@@ -943,6 +923,27 @@ const MapaFuncionarios = () => {
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input placeholder="Pesquisar..." value={search} onChange={(e) => { setSearch(e.target.value); setPageLanc(1); }} className="pl-9 h-9" />
                 </div>
+              </div>
+
+              <div className="flex items-center gap-3 pt-3 border-t border-border/60">
+                <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "faltas" | "horas_extras" | "advertencias" | "atestados")}>
+                  <TabsList className="h-9">
+                    <TabsTrigger value="faltas" className="text-xs gap-1">
+                      <XCircle className="h-3 w-3" /> Faltas
+                    </TabsTrigger>
+                    <TabsTrigger value="horas_extras" className="text-xs gap-1">
+                      <Clock className="h-3 w-3" /> Horas Extras
+                    </TabsTrigger>
+                    <TabsTrigger value="advertencias" className="text-xs gap-1">
+                      <AlertTriangle className="h-3 w-3" /> Advertências
+                    </TabsTrigger>
+                    <TabsTrigger value="atestados" className="text-xs gap-1">
+                      <Stethoscope className="h-3 w-3" /> Atestados
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+
+                <span className="text-sm font-semibold text-foreground">({filteredLancamentos.length})</span>
               </div>
             </div>
           </div>

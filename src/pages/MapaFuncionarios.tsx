@@ -194,6 +194,7 @@ const MapaFuncionarios = () => {
       const payload = {
         funcionarioId, tipo: "hora_extra" as const, data,
         horasExtras: Number(horasExtras), percentual: Number(percentual), observacao,
+        unidadeHe: Number(unidadeHe) || 0, valorVa: Number(valorVa) || 0, valorVt: Number(valorVt) || 0,
       };
       if (editingId) {
         updateLancamento(editingId, payload);

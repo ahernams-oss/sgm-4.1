@@ -551,6 +551,7 @@ const MapaFuncionarios = () => {
                       </Select>
                     </div>
                     <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-foreground/80">Unidade de H.E</Label>
                       <Label className="text-xs font-semibold text-foreground/80">Unidade de H.E (R$)</Label>
                       <Select value={unidadeHe} onValueChange={setUnidadeHe}>
                         <SelectTrigger><SelectValue placeholder="Selecione o cliente" /></SelectTrigger>

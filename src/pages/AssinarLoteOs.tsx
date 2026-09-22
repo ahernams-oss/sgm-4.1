@@ -61,10 +61,12 @@ export default function AssinarLoteOs() {
   const { tem } = usePermissao();
   const { assinaturas, registrar, refresh } = useOsAssinaturas();
 
-  const _saved = loadPersistedFilters<{ search: string; filterCliente: string; }>("assinar_lote_os_filters_v1");
+  const _saved = loadPersistedFilters<{ search: string; filterCliente: string; filterDataIni: string; filterDataFim: string; }>("assinar_lote_os_filters_v1");
   const [search, setSearch] = useState(_saved?.search ?? "");
   const [filterCliente, setFilterCliente] = useState(_saved?.filterCliente ?? "all");
-  usePersistFilters("assinar_lote_os_filters_v1", { search, filterCliente });
+  const [filterDataIni, setFilterDataIni] = useState(_saved?.filterDataIni ?? "");
+  const [filterDataFim, setFilterDataFim] = useState(_saved?.filterDataFim ?? "");
+  usePersistFilters("assinar_lote_os_filters_v1", { search, filterCliente, filterDataIni, filterDataFim });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -93,6 +95,15 @@ export default function AssinarLoteOs() {
     let result = validadasDisponiveis;
     if (filterCliente !== "all") {
       result = result.filter((s) => s.clienteId === filterCliente);
+    }
+    if (filterDataIni || filterDataFim) {
+      result = result.filter((s) => {
+        const d = (s.createdAt || "").slice(0, 10);
+        if (!d) return false;
+        if (filterDataIni && d < filterDataIni) return false;
+        if (filterDataFim && d > filterDataFim) return false;
+        return true;
+      });
     }
     if (search.trim()) {
       const q = search.toLowerCase();

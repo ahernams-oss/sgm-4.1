@@ -160,6 +160,9 @@ const MapaFuncionarios = () => {
     setTipoFalta("injustificada");
     setHorasExtras("");
     setPercentual("50");
+    setUnidadeHe("");
+    setValorVa("");
+    setValorVt("");
     setObservacao("");
     setAnexos([]);
     setTipoAdvertencia("verbal");

@@ -552,7 +552,6 @@ const MapaFuncionarios = () => {
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-foreground/80">Unidade de H.E</Label>
-                      <Label className="text-xs font-semibold text-foreground/80">Unidade de H.E (R$)</Label>
                       <Select value={unidadeHe} onValueChange={setUnidadeHe}>
                         <SelectTrigger><SelectValue placeholder="Selecione o cliente" /></SelectTrigger>
                         <SelectContent>
@@ -569,6 +568,14 @@ const MapaFuncionarios = () => {
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-foreground/80">Valor VT (R$)</Label>
                       <Input type="number" min="0" step="0.01" value={valorVt} onChange={(e) => setValorVt(e.target.value)} placeholder="Ex: 10,00" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-semibold text-foreground/80">Total VA + VT (R$)</Label>
+                      <Input
+                        readOnly
+                        className="bg-muted font-semibold"
+                        value={((Number(valorVa) || 0) + (Number(valorVt) || 0)).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      />
                     </div>
                   </>
                 )}

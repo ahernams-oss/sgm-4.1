@@ -246,6 +246,9 @@ const MapaFuncionarios = () => {
       setActiveTab("horas_extras");
       setHorasExtras(String(l.horasExtras || ""));
       setPercentual(String(l.percentual || 50));
+      setUnidadeHe(l.unidadeHe ? String(l.unidadeHe) : "");
+      setValorVa(l.valorVa ? String(l.valorVa) : "");
+      setValorVt(l.valorVt ? String(l.valorVt) : "");
     } else if (l.tipo === "advertencia") {
       setActiveTab("advertencias");
       setTipoAdvertencia(l.tipoAdvertencia || "verbal");

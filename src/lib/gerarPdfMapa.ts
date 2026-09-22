@@ -97,6 +97,9 @@ export async function gerarPdfMapaFuncionarios(params: MapaPdfParams) {
   const funcComHE = new Set(horasExtras.map((l) => l.funcionarioId)).size;
   const totalAdv = advertencias.length;
   const funcComAdv = new Set(advertencias.map((l) => l.funcionarioId)).size;
+  const totalVa = horasExtras.reduce((s, l) => s + (l.valorVa || 0), 0);
+  const totalVt = horasExtras.reduce((s, l) => s + (l.valorVt || 0), 0);
+  const totalVaVt = horasExtras.reduce((s, l) => s + (l.totalVaVt ?? ((l.valorVa || 0) + (l.valorVt || 0))), 0);
 
   // Summary table
   (await getAutoTable())(doc, {

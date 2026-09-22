@@ -552,7 +552,14 @@ const MapaFuncionarios = () => {
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-foreground/80">Unidade de H.E (R$)</Label>
-                      <Input type="number" min="0" step="0.01" value={unidadeHe} onChange={(e) => setUnidadeHe(e.target.value)} placeholder="Ex: 12,50" />
+                      <Select value={unidadeHe} onValueChange={setUnidadeHe}>
+                        <SelectTrigger><SelectValue placeholder="Selecione o cliente" /></SelectTrigger>
+                        <SelectContent>
+                          {clientes.filter((c) => c.tipo === "Cliente").map((c) => (
+                            <SelectItem key={c.id} value={c.nome}>{c.nome}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-1.5">
                       <Label className="text-xs font-semibold text-foreground/80">Valor VA (R$)</Label>

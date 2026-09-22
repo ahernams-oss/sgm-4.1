@@ -106,6 +106,12 @@ export async function gerarPdfMapaFuncionarios(params: MapaPdfParams) {
     body: [
       [`Total de Faltas: ${totalFaltas}`, `Justificadas: ${faltasJust}`, `Injustificadas: ${faltasInjust}`, `Suspensões: ${faltasSusp}`],
       [`Total Horas Extras: ${totalHE.toFixed(1)}h`, `Funcionários c/ HE: ${funcComHE}`, `Total Advertências: ${totalAdv}`, `Funcionários c/ adv: ${funcComAdv}`],
+      [
+        `Total Valor VA: ${totalVa.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`,
+        `Total Valor VT: ${totalVt.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`,
+        `Total VA + VT: ${totalVaVt.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`,
+        "",
+      ],
     ],
     theme: "plain",
     styles: { fontSize: 8.5, cellPadding: 3 },

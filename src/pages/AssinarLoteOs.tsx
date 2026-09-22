@@ -61,10 +61,12 @@ export default function AssinarLoteOs() {
   const { tem } = usePermissao();
   const { assinaturas, registrar, refresh } = useOsAssinaturas();
 
-  const _saved = loadPersistedFilters<{ search: string; filterCliente: string; }>("assinar_lote_os_filters_v1");
+  const _saved = loadPersistedFilters<{ search: string; filterCliente: string; filterDataIni: string; filterDataFim: string; }>("assinar_lote_os_filters_v1");
   const [search, setSearch] = useState(_saved?.search ?? "");
   const [filterCliente, setFilterCliente] = useState(_saved?.filterCliente ?? "all");
-  usePersistFilters("assinar_lote_os_filters_v1", { search, filterCliente });
+  const [filterDataIni, setFilterDataIni] = useState(_saved?.filterDataIni ?? "");
+  const [filterDataFim, setFilterDataFim] = useState(_saved?.filterDataFim ?? "");
+  usePersistFilters("assinar_lote_os_filters_v1", { search, filterCliente, filterDataIni, filterDataFim });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -94,6 +96,15 @@ export default function AssinarLoteOs() {
     if (filterCliente !== "all") {
       result = result.filter((s) => s.clienteId === filterCliente);
     }
+    if (filterDataIni || filterDataFim) {
+      result = result.filter((s) => {
+        const d = (s.createdAt || "").slice(0, 10);
+        if (!d) return false;
+        if (filterDataIni && d < filterDataIni) return false;
+        if (filterDataFim && d > filterDataFim) return false;
+        return true;
+      });
+    }
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter(
@@ -106,7 +117,7 @@ export default function AssinarLoteOs() {
       );
     }
     return result;
-  }, [validadasDisponiveis, search, filterCliente]);
+  }, [validadasDisponiveis, search, filterCliente, filterDataIni, filterDataFim]);
 
   const { paginated } = paginate(filtered, page, pageSize);
   const allPageIds = paginated.map((s) => s.id);
@@ -311,6 +322,41 @@ export default function AssinarLoteOs() {
             </SelectContent>
           </Select>
         </div>
+        <div className="w-[160px]">
+          <Label className="text-xs">Data inicial</Label>
+          <Input
+            type="date"
+            value={filterDataIni}
+            onChange={(e) => {
+              setFilterDataIni(e.target.value);
+              setPage(1);
+            }}
+          />
+        </div>
+        <div className="w-[160px]">
+          <Label className="text-xs">Data final</Label>
+          <Input
+            type="date"
+            value={filterDataFim}
+            onChange={(e) => {
+              setFilterDataFim(e.target.value);
+              setPage(1);
+            }}
+          />
+        </div>
+        {(filterDataIni || filterDataFim) && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setFilterDataIni("");
+              setFilterDataFim("");
+              setPage(1);
+            }}
+          >
+            Limpar período
+          </Button>
+        )}
       </div>
 
       {!podePapel && (

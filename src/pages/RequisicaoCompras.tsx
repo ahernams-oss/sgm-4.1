@@ -474,6 +474,41 @@ export default function RequisicaoComprasPage() {
     }
   };
 
+  const REL_COLS = ["Nº", "Data", "Solicitante", "Centro de Custo", "Local de Entrega", "Urgência", "Prazo Desejado", "Status", "Qtd. Itens", "Itens"];
+  const relRows = () => filtered.map(r => [
+    `RCS-${String(r.numero).padStart(4, "0")}`,
+    r.dataCriacao ? new Date(r.dataCriacao).toLocaleDateString("pt-BR") : "-",
+    r.solicitante || "-",
+    r.centroCustoNome || "-",
+    r.localEntrega || "-",
+    r.urgencia || "-",
+    r.prazoDesejado ? new Date(r.prazoDesejado + "T12:00:00").toLocaleDateString("pt-BR") : "-",
+    r.status || "-",
+    String((r.itens || []).length),
+    (r.itens || []).map(i => `${i.quantidade} ${i.unidadeMedida} - ${i.descricao}`).join(" | ") || "-",
+  ]);
+  const relFiltros = () => {
+    const p: string[] = [];
+    if (search) p.push(`Busca: ${search}`);
+    if (filterCentroCusto !== "Todos") p.push(`Centro de Custo: ${centrosUnicos.find(([id]) => id === filterCentroCusto)?.[1] || filterCentroCusto}`);
+    if (filterStatus !== "Todos") p.push(`Status: ${filterStatus}`);
+    if (filterUrgencia !== "Todas") p.push(`Urgência: ${filterUrgencia}`);
+    if (filterSolicitante !== "Todos") p.push(`Solicitante: ${filterSolicitante}`);
+    if (filterDataIni) p.push(`De: ${new Date(filterDataIni + "T12:00:00").toLocaleDateString("pt-BR")}`);
+    if (filterDataFim) p.push(`Até: ${new Date(filterDataFim + "T12:00:00").toLocaleDateString("pt-BR")}`);
+    return p.length ? `Filtros: ${p.join("  |  ")}` : "Filtros: nenhum (todas as requisições)";
+  };
+  const exportarRelatorio = async (tipo: "pdf" | "excel") => {
+    if (filtered.length === 0) {
+      toast({ title: "Nada para exportar", description: "Nenhuma requisição na listagem atual.", variant: "destructive" });
+      return;
+    }
+    const mod = await import("@/lib/gerarRelatorioEstoque");
+    const titulo = "Requisições de Compras e Serviços";
+    if (tipo === "pdf") await mod.gerarPdfEstoque(titulo, REL_COLS, relRows(), relFiltros());
+    else await mod.gerarExcelEstoque(titulo, REL_COLS, relRows(), relFiltros());
+  };
+
   const handleMaterialSelect = (materialId: string) => {
     setItemMaterialId(materialId);
     const mat = materiais.find(m => m.id === materialId);
@@ -488,7 +523,15 @@ export default function RequisicaoComprasPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground mx-[7px]">Requisições de Compras e Serviços</h1>
-        {podeCriar && <Button onClick={() => { resetForm(); setDialogOpen(true); }}><Plus className="mr-2 h-4 w-4" />Nova Requisição</Button>}
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" onClick={() => exportarRelatorio("pdf")}>
+            <FileText className="mr-2 h-4 w-4" />Relatório PDF
+          </Button>
+          <Button variant="outline" onClick={() => exportarRelatorio("excel")}>
+            <FileSpreadsheet className="mr-2 h-4 w-4" />Relatório Excel
+          </Button>
+          {podeCriar && <Button onClick={() => { resetForm(); setDialogOpen(true); }}><Plus className="mr-2 h-4 w-4" />Nova Requisição</Button>}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 items-end">

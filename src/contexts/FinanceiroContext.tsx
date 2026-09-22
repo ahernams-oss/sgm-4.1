@@ -208,7 +208,7 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
   const invFA = () => qc.invalidateQueries({ queryKey: QK_FA });
 
   const reload = async () => {
-    invCB(); invPC(); invCC(); invCP(); invCR(); invLN(); invOFX();
+    invCB(); invPC(); invCC(); invCP(); invCR(); invLN(); invOFX(); invFA();
   };
 
   const saldoConta = (contaId: string) => {

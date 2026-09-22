@@ -720,6 +720,22 @@ export default function SolicitacaoServicosPage() {
     if (filterSetorCritico !== "all") {
       result = result.filter(s => filterSetorCritico === "sim" ? setoresCriticosIds.has(s.setorId) : !setoresCriticosIds.has(s.setorId));
     }
+    if (filterDataIni || filterDataFim) {
+      const diaDa = (s: any) => {
+        const raw = s.dataHoraSolicitacao || s.createdAt || "";
+        if (!raw) return "";
+        const d = new Date(raw);
+        if (isNaN(d.getTime())) return String(raw).slice(0, 10);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      };
+      result = result.filter(s => {
+        const dia = diaDa(s);
+        if (!dia) return false;
+        if (filterDataIni && dia < filterDataIni) return false;
+        if (filterDataFim && dia > filterDataFim) return false;
+        return true;
+      });
+    }
 
     // Ordenação por coluna (padrão: prioridade → número decrescente)
     result = [...result].sort((a, b) => {

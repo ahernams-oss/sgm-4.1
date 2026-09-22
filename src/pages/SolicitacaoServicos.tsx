@@ -149,6 +149,8 @@ export default function SolicitacaoServicosPage() {
       setFilterImpresso("all");
       setFilterPrioridade("all");
       setFilterSetorCritico("all");
+      setFilterDataIni("");
+      setFilterDataFim("");
       setPage(1);
       const next = new URLSearchParams(searchParams);
       next.delete("numero");

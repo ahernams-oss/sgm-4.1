@@ -33,7 +33,15 @@ export default function PortalHolerites() {
     return URL.createObjectURL(await resp.blob());
   };
 
+  const exigirAssinatura = (h: H) => {
+    if (h.assinado_em) return false;
+    toast.info("Assine eletronicamente o holerite para poder abrir ou imprimir.");
+    setAssinar(h);
+    return true;
+  };
+
   const download = async (h: H) => {
+    if (exigirAssinatura(h)) return;
     setBusy(h.id + "d");
     try {
       const href = await blobDoHolerite(h.id);
@@ -46,6 +54,7 @@ export default function PortalHolerites() {
   };
 
   const imprimir = async (h: H) => {
+    if (exigirAssinatura(h)) return;
     setBusy(h.id + "p");
     try {
       const href = await blobDoHolerite(h.id);

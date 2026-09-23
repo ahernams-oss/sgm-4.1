@@ -113,13 +113,24 @@ export default function PortalHolerites() {
               <div className="flex gap-2">
                 {!h.assinado_em && (
                   <Button size="sm" variant="secondary" onClick={() => setAssinar(h)}>
-                    <PenLine className="w-4 h-4 mr-1" />Assinar
+                    <PenLine className="w-4 h-4 mr-1" />Assinar para liberar
                   </Button>
                 )}
-                <Button size="sm" variant="outline" disabled={busy === h.id + "p"} onClick={() => imprimir(h)}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  title={h.assinado_em ? undefined : "Assine o holerite para liberar a impressão"}
+                  disabled={busy === h.id + "p" || !h.assinado_em}
+                  onClick={() => imprimir(h)}
+                >
                   {busy === h.id + "p" ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Printer className="w-4 h-4 mr-1" />}Imprimir
                 </Button>
-                <Button size="sm" disabled={busy === h.id + "d"} onClick={() => download(h)}>
+                <Button
+                  size="sm"
+                  title={h.assinado_em ? undefined : "Assine o holerite para liberar o download"}
+                  disabled={busy === h.id + "d" || !h.assinado_em}
+                  onClick={() => download(h)}
+                >
                   {busy === h.id + "d" ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Download className="w-4 h-4 mr-1" />}Baixar
                 </Button>
               </div>

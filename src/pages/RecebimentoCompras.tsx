@@ -25,6 +25,7 @@ import { useColumnOrder } from "@/hooks/useColumnOrder";
 import { SortableHeaderRow, SortableTableHead } from "@/components/SortableTableHead";
 import type { ReactNode } from "react";
 import { usePermissao } from "@/hooks/usePermissao";
+import { relatorioRecebimentosAnalitico, relatorioRecebimentosPorPedido, relatorioPendenciasRecebimento } from "@/lib/gerarRelatorioRecebimentos";
 
 const statusColors: Record<string, string> = {
   Emitido: "bg-blue-100 text-blue-800",
@@ -215,6 +216,36 @@ export default function RecebimentoComprasPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl sm:text-2xl font-bold text-foreground">Recebimento de Materiais</h1>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm">
+              <FileText className="h-4 w-4 mr-2" />
+              Relatórios
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => relatorioRecebimentosAnalitico(recebimentos, "pdf", `Busca: ${search || "-"} | Status: ${filterStatus}`)}>
+              Recebimentos Analítico (PDF)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => relatorioRecebimentosAnalitico(recebimentos, "excel", `Busca: ${search || "-"} | Status: ${filterStatus}`)}>
+              Recebimentos Analítico (Excel)
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => relatorioRecebimentosPorPedido(recebimentos, "pdf", `Busca: ${search || "-"} | Status: ${filterStatus}`)}>
+              Recebimentos por Pedido (PDF)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => relatorioRecebimentosPorPedido(recebimentos, "excel", `Busca: ${search || "-"} | Status: ${filterStatus}`)}>
+              Recebimentos por Pedido (Excel)
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => relatorioPendenciasRecebimento(pedidos, getTotalRecebidoPorItem, "pdf")}>
+              Pendências de Recebimento (PDF)
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => relatorioPendenciasRecebimento(pedidos, getTotalRecebidoPorItem, "excel")}>
+              Pendências de Recebimento (Excel)
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Stats Cards */}

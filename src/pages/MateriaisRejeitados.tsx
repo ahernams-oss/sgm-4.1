@@ -71,7 +71,7 @@ export default function MateriaisRejeitadosPage() {
         const precoUnit = Number(itemPedido?.precoUnitario ?? 0);
         out.push({
           recebimentoId: r.id,
-          situacao: pedido?.status === "Rejeição Parcial" ? "Rejeição Parcial" : "Recebimento Rejeitado",
+          situacao: (pedido?.status as string) === "Rejeição Parcial" ? "Rejeição Parcial" : "Recebimento Rejeitado",
           pedidoNumero: r.pedidoNumero,
           requisicaoNumero: r.requisicaoNumero,
           departamento,

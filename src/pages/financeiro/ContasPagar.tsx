@@ -425,6 +425,32 @@ export default function ContasPagar() {
       </Card>
 
       <BaixaDialog open={!!baixaConta} onOpenChange={(o) => !o && setBaixaConta(null)} conta={baixaConta} modo="pagar" />
+
+      <Dialog open={!!liberaConta} onOpenChange={(o) => { if (!o) { setLiberaConta(null); setLiberaMotivo(""); } }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Liberar pagamento bloqueado</DialogTitle></DialogHeader>
+          {liberaConta && (
+            <div className="space-y-3 text-sm">
+              <div className="rounded-md border bg-muted/40 p-3 space-y-1">
+                <p><span className="font-semibold">Conta:</span> {liberaConta.descricao}</p>
+                <p><span className="font-semibold">Fornecedor:</span> {liberaConta.fornecedor_nome || "—"}</p>
+                <p><span className="font-semibold">Valor:</span> {formatBRL(Number(liberaConta.valor_total))}</p>
+                <p className="text-destructive"><span className="font-semibold text-foreground">Motivo do bloqueio:</span> {(liberaConta as any).motivo_bloqueio || "Recebimento rejeitado"}</p>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium">Motivo da liberação *</label>
+                <Textarea value={liberaMotivo} onChange={(e) => setLiberaMotivo(e.target.value)} rows={3} maxLength={500} placeholder="Ex.: fornecedor repos o material rejeitado e a nota foi regularizada" />
+                <p className="text-[11px] text-muted-foreground text-right">{liberaMotivo.length}/500</p>
+              </div>
+              <p className="text-xs text-muted-foreground">Ao liberar, a marca "NÃO PAGAR" é removida e a conta volta a poder ser baixada normalmente. A liberação fica registrada no histórico da conta.</p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setLiberaConta(null); setLiberaMotivo(""); }}>Cancelar</Button>
+            <Button onClick={liberarPagamento} disabled={liberando}>{liberando ? "Liberando..." : "Liberar pagamento"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <EstornoCancelamentoDialog
         open={!!estornoConta}
         onOpenChange={(o) => !o && setEstornoConta(null)}

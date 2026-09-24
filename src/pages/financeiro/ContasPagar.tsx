@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { usePermissao } from "@/hooks/usePermissao";
 import { useNavigate } from "@/lib/router-compat";
 import { usePedidoCompra } from "@/contexts/PedidoCompraContext";
+import { gerarContasPagarDePC } from "@/lib/financeiroFromPC";
 
 const empty = {
   descricao: "", fornecedor_id: null as string | null, fornecedor_nome: "",
@@ -47,6 +48,21 @@ export default function ContasPagar() {
       qcRefresh.invalidateQueries({ queryKey: ["fin_lancamentos"] }),
     ]);
   }, 30 * 60 * 1000);
+
+  // Gera automaticamente as contas das OCs emitidas que ainda não têm lançamento
+  useEffect(() => {
+    if (!pedidosCompra.length) return;
+    let cancel = false;
+    (async () => {
+      const { data } = await (supabase as any).from("fin_contas_pagar").select("pedido_compra_id").not("pedido_compra_id", "is", null);
+      const comConta = new Set((data || []).map((r: any) => r.pedido_compra_id));
+      const faltando = pedidosCompra.filter(p => !comConta.has(p.id) && !["Cancelado", "Pendente"].includes(p.status as string) && (p.valorTotal || 0) > 0);
+      let n = 0;
+      for (const p of faltando) { if (cancel) return; n += await gerarContasPagarDePC(p as any, { silent: true }); }
+      if (n > 0) { qcRefresh.invalidateQueries({ queryKey: ["fin_contas_pagar"] }); toast.success(`${n} lançamento(s) de Ordens de Compra sincronizado(s).`); }
+    })();
+    return () => { cancel = true; };
+  }, [pedidosCompra]);
 
   // Sincronização em tempo real: OC emitida/alterada ou conta criada/alterada
   useEffect(() => {
@@ -226,7 +242,10 @@ export default function ContasPagar() {
         if (filtroStatus === "vencida") { if (!isVencida(c)) return false; }
         else if (c.status !== filtroStatus) return false;
       }
-      if (fFornecedor !== "todos" && c.fornecedor_id !== fFornecedor) return false;
+      if (fFornecedor !== "todos") {
+        if (fFornecedor.startsWith("nome:")) { if ((c.fornecedor_nome || "") !== fFornecedor.slice(5)) return false; }
+        else if (c.fornecedor_id !== fFornecedor) return false;
+      }
       if (fPlanoConta !== "todos" && c.plano_conta_id !== fPlanoConta) return false;
       if (fCentroCusto !== "todos" && c.centro_custo_id !== fCentroCusto) return false;
       if (fContaBanc !== "todos" && c.conta_bancaria_id !== fContaBanc) return false;
@@ -379,7 +398,12 @@ export default function ContasPagar() {
               <label className="text-[10px] text-muted-foreground">Fornecedor</label>
               <SearchableFilter className="w-52" value={fFornecedor} placeholder="Nome, fantasia ou CNPJ..."
                 onChange={(v) => { setFFornecedor(v); setPage(1); }}
-                options={fornecedores.map((f: any) => ({ value: f.id, label: f.nome, extra: `${f.nome_fantasia ?? ""} ${f.cnpj ?? ""} ${f.codigo ?? ""}` }))} />
+                options={[
+                  ...fornecedores.map((f: any) => ({ value: f.id, label: f.nome, extra: `${f.nome_fantasia ?? ""} ${f.cnpj ?? ""} ${f.codigo ?? ""}` })),
+                  ...Array.from(new Set(contasPagar.filter(c => !c.fornecedor_id && c.fornecedor_nome).map(c => c.fornecedor_nome as string)))
+                    .filter(n => !fornecedores.some((f: any) => f.nome === n))
+                    .map(n => ({ value: `nome:${n}`, label: n })),
+                ].sort((a, b) => a.label.localeCompare(b.label, "pt-BR", { numeric: true }))} />
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-[10px] text-muted-foreground">Categoria DRE</label>

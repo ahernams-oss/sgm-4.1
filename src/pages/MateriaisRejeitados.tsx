@@ -20,6 +20,7 @@ const brl = (v: number) => v.toLocaleString("pt-BR", { style: "currency", curren
 
 interface LinhaRejeitada {
   recebimentoId: string;
+  situacao: "Recebimento Rejeitado" | "Rejeição Parcial";
   pedidoNumero: number;
   requisicaoNumero: number;
   departamento: string;
@@ -50,7 +51,8 @@ export default function MateriaisRejeitadosPage() {
   const [busca, setBusca] = useState<string>((persisted.busca as string) ?? "");
   const [dataIni, setDataIni] = useState<string>((persisted.dataIni as string) ?? "");
   const [dataFim, setDataFim] = useState<string>((persisted.dataFim as string) ?? "");
-  usePersistFilters(FILTERS_KEY, { busca, dataIni, dataFim });
+  const [situacao, setSituacao] = useState<string>((persisted.situacao as string) ?? "Todas");
+  usePersistFilters(FILTERS_KEY, { busca, dataIni, dataFim, situacao });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 

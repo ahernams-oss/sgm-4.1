@@ -129,6 +129,7 @@ export default function RequisicaoComprasPage() {
       setFilterSolicitante("Todos");
       setFilterDataIni("");
       setFilterDataFim("");
+      setFilterGrupo("Todos");
       setPageReq(1);
       searchParams.delete("numero");
       setSearchParams(searchParams, { replace: true });
@@ -139,10 +140,10 @@ export default function RequisicaoComprasPage() {
     try {
       localStorage.setItem(FILTERS_KEY, JSON.stringify({
         search, filterStatus, filterCentroCusto, filterUrgencia,
-        filterSolicitante, filterDataIni, filterDataFim,
+        filterSolicitante, filterDataIni, filterDataFim, filterGrupo,
       }));
     } catch { /* ignore */ }
-  }, [search, filterStatus, filterCentroCusto, filterUrgencia, filterSolicitante, filterDataIni, filterDataFim]);
+  }, [search, filterStatus, filterCentroCusto, filterUrgencia, filterSolicitante, filterDataIni, filterDataFim, filterGrupo]);
 
 
   const loadJustificativas = async () => {

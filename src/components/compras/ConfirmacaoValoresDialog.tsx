@@ -173,6 +173,12 @@ export default function ConfirmacaoValoresDialog({ open, onOpenChange, itens, on
   const totalAditivo = useMemo(() => linhasDiretoria.reduce((s, l) => s + Math.max(0, l.variacao), 0), [linhasDiretoria]);
   const semJustificativa = useMemo(() => linhasDiretoria.some(l => !(justificativas[l.key] ?? "").trim()), [linhasDiretoria, justificativas]);
   const linhasRedirecionadas = useMemo(() => linhas.filter(l => l.redirecionado), [linhas]);
+  /** Fornecedores finais (após redirecionamentos) — cada um gera uma OC com sua condição de pagamento. */
+  const fornecedoresFinais = useMemo(() => {
+    const map = new Map<string, string>();
+    linhas.forEach(l => { if (!map.has(l.fornecedorIdFinal)) map.set(l.fornecedorIdFinal, l.fornecedorNomeFinal); });
+    return [...map.entries()].map(([id, nome]) => ({ id, nome }));
+  }, [linhas]);
   const semMotivo = useMemo(() => linhasRedirecionadas.some(l => !(motivos[l.key] ?? "").trim()), [linhasRedirecionadas, motivos]);
   const bloqueado = (linhasDiretoria.length > 0 && (!aceiteDiretoria || semJustificativa)) || semMotivo;
 
@@ -281,7 +287,7 @@ export default function ConfirmacaoValoresDialog({ open, onOpenChange, itens, on
       };
     });
     try {
-      await onConfirm(ajustes, { aceiteDiretoria, aprovadoPorAlcada: responsavel });
+      await onConfirm(ajustes, { aceiteDiretoria, aprovadoPorAlcada: responsavel, condicoesPagamento: condicoes });
     } finally {
       setSalvando(false);
     }
@@ -399,6 +405,23 @@ export default function ConfirmacaoValoresDialog({ open, onOpenChange, itens, on
             </AlertDescription>
           </Alert>
         )}
+
+        <div className="rounded-lg border p-3 space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">Condição de pagamento por fornecedor</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {fornecedoresFinais.map(f => (
+              <div key={f.id} className="flex items-center gap-2">
+                <span className="text-xs w-40 truncate" title={f.nome}>{f.nome}</span>
+                <Input
+                  value={condicoes[f.id] ?? ""}
+                  onChange={e => setCondicoes(prev => ({ ...prev, [f.id]: e.target.value }))}
+                  placeholder="Ex: 30/60/90 dias"
+                  className="h-8 text-sm flex-1"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
 
         {linhasRedirecionadas.length > 0 && (
           <Alert>

@@ -485,7 +485,7 @@ export default function RequisicaoComprasPage() {
     }
   };
 
-  const REL_COLS = ["Nº", "Data", "Solicitante", "Centro de Custo", "Local de Entrega", "Urgência", "Prazo Desejado", "Status", "Qtd. Itens", "Itens"];
+  const REL_COLS = ["Nº", "Data", "Solicitante", "Centro de Custo", "Local de Entrega", "Urgência", "Grupo de Mercadoria", "Prazo Desejado", "Status", "Qtd. Itens", "Itens"];
   const relRows = () => filtered.map(r => [
     `RCS-${String(r.numero).padStart(4, "0")}`,
     r.dataCriacao ? new Date(r.dataCriacao).toLocaleDateString("pt-BR") : "-",
@@ -493,6 +493,7 @@ export default function RequisicaoComprasPage() {
     r.centroCustoNome || "-",
     r.localEntrega || "-",
     r.urgencia || "-",
+    gruposDaReq(r).map(grupoLabel).join(", ") || "-",
     r.prazoDesejado ? new Date(r.prazoDesejado + "T12:00:00").toLocaleDateString("pt-BR") : "-",
     r.status || "-",
     String((r.itens || []).length),

@@ -261,7 +261,7 @@ export default function MateriaisRejeitadosPage() {
             <TableBody>
               {pag.paginated.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={12} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={13} className="text-center text-muted-foreground py-8">
                     Nenhum material rejeitado encontrado.
                   </TableCell>
                 </TableRow>

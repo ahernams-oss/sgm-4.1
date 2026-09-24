@@ -245,6 +245,7 @@ export default function MateriaisRejeitadosPage() {
               <TableRow>
                 <TableHead>Ordem de Compra</TableHead>
                 <TableHead>Requisição</TableHead>
+                <TableHead>Situação</TableHead>
                 <TableHead>Departamento</TableHead>
                 <TableHead>Fornecedor</TableHead>
                 <TableHead>Item</TableHead>
@@ -269,6 +270,11 @@ export default function MateriaisRejeitadosPage() {
                 <TableRow key={`${l.recebimentoId}-${i}`}>
                   <TableCell className="font-semibold">{formatarPedido(l.pedidoNumero)}</TableCell>
                   <TableCell className="font-semibold">RCS-{String(l.requisicaoNumero).padStart(4, "0")}</TableCell>
+                  <TableCell>
+                    <Badge variant={l.situacao === "Recebimento Rejeitado" ? "destructive" : "outline"} className={l.situacao === "Rejeição Parcial" ? "border-amber-500 text-amber-600" : ""}>
+                      {l.situacao}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="font-semibold">{l.departamento}</TableCell>
                   <TableCell>{l.fornecedorNome}</TableCell>
                   <TableCell>{l.itemDescricao}{l.unidadeMedida ? ` (${l.unidadeMedida})` : ""}</TableCell>

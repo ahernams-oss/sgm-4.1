@@ -91,6 +91,7 @@ export default function CotacaoComprasPage() {
   const { tem } = usePermissao();
   const podeCriarCot = tem("cotacoes.criar");
   const podeFinalizarCot = tem("cotacoes.status.finalizada");
+  const podeAlterarQtd = tem("cotacoes.alterar_quantidade");
 
   const assinarPedidoAutomatico = useCallback(async (pedido: PedidoCompra) => {
     if (!usuarioLogado) return;
@@ -1940,7 +1941,14 @@ export default function CotacaoComprasPage() {
                     {propItens.map((item, idx) => (
                       <TableRow key={item.itemId}>
                         <TableCell className="text-sm">{item.descricao}</TableCell>
-                        <TableCell>{item.quantidade}</TableCell>
+                        <TableCell>
+                          {podeAlterarQtd ? (
+                            <Input type="number" min="0" step="0.01" value={item.quantidade || ""} onChange={e => {
+                              const val = Number(e.target.value);
+                              setPropItens(prev => prev.map((it, i) => i === idx ? { ...it, quantidade: val } : it));
+                            }} className="h-8 w-24" />
+                          ) : item.quantidade}
+                        </TableCell>
                         <TableCell>{item.unidadeMedida}</TableCell>
                         <TableCell>
                           <Input type="number" min="0" step="0.01" value={item.precoUnitario || ""} onChange={e => {

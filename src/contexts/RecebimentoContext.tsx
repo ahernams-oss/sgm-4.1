@@ -24,7 +24,7 @@ export interface Recebimento {
 interface RecebimentoContextType {
   recebimentos: Recebimento[];
   registrarRecebimento: (data: Omit<Recebimento, "id" | "dataRecebimento" | "tipo">) => void;
-  rejeitarRecebimento: (pedidoId: string, justificativa: string, usuario: string, notaFiscal: string) => Promise<void>;
+  rejeitarRecebimento: (pedidoId: string, justificativa: string, usuario: string, notaFiscal: string, itensRej?: { itemId: string; quantidade: number; motivo: string }[]) => Promise<void>;
   getRecebimentosByPedido: (pedidoId: string) => Recebimento[];
   getTotalRecebidoPorItem: (pedidoId: string, itemId: string) => number;
 }

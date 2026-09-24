@@ -268,6 +268,32 @@ const ExamesPage = () => {
             <SelectItem value="ok">Em Dia</SelectItem>
           </SelectContent>
         </Select>
+        <div className="flex items-center gap-2">
+          <Input
+            type="date"
+            aria-label="Data inicial"
+            className="w-[150px]"
+            value={filterDataIni}
+            onChange={(e) => { setFilterDataIni(e.target.value); resetPage(); }}
+          />
+          <span className="text-xs text-muted-foreground">até</span>
+          <Input
+            type="date"
+            aria-label="Data final"
+            className="w-[150px]"
+            value={filterDataFim}
+            onChange={(e) => { setFilterDataFim(e.target.value); resetPage(); }}
+          />
+          {(filterDataIni || filterDataFim) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => { setFilterDataIni(""); setFilterDataFim(""); resetPage(); }}
+            >
+              Limpar
+            </Button>
+          )}
+        </div>
       </div>
 
       {loading ? (

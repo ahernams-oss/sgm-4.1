@@ -6,11 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useFuncionarios } from "@/contexts/FuncionariosContext";
 import { useCargos } from "@/contexts/CargosContext";
 import { useClientes } from "@/contexts/ClientesContext";
+import { usePersistFilters } from "@/lib/persistedFilters";
 import { toast } from "sonner";
-import { Eye, Search, FileDown, Download } from "lucide-react";
+import { Eye, Search, FileDown, Download, X } from "lucide-react";
 import { gerarPdfEpiFacial } from "@/lib/gerarPdfEpiFacial";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
 
@@ -29,6 +31,10 @@ export default function RelatorioRecebimentoEpis() {
   const { clientes } = useClientes();
   const [rows, setRows] = useState<Recebimento[]>([]);
   const [filtro, setFiltro] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState("todos");
+  const [filtroDataIni, setFiltroDataIni] = useState("");
+  const [filtroDataFim, setFiltroDataFim] = useState("");
+  usePersistFilters("epis_facial_filters_v1", { filtroStatus, filtroDataIni, filtroDataFim });
   const [preview, setPreview] = useState<{ urls: string[]; row: Recebimento } | null>(null);
   const [loading, setLoading] = useState(false);
   const [gerandoPdf, setGerandoPdf] = useState<string | null>(null);
@@ -114,9 +120,25 @@ export default function RelatorioRecebimentoEpis() {
     }
   };
 
+  const limparFiltros = () => {
+    setFiltro("");
+    setFiltroStatus("todos");
+    setFiltroDataIni("");
+    setFiltroDataFim("");
+    setPage(1);
+  };
+
+  const statusesDisponiveis = Array.from(new Set(rows.map((r) => r.status).filter(Boolean))).sort();
+
   const filtered = rows.filter((r) => {
     const nome = nomeFunc(r.funcionario_id).toLowerCase();
-    return !filtro || nome.includes(filtro.toLowerCase()) || r.status.includes(filtro.toLowerCase());
+    const buscaOk = !filtro || nome.includes(filtro.toLowerCase()) || r.status.includes(filtro.toLowerCase());
+    const statusOk = filtroStatus === "todos" || r.status === filtroStatus;
+    const data = (r.created_at || "").slice(0, 10);
+    const dataOk =
+      (!filtroDataIni || data >= filtroDataIni) &&
+      (!filtroDataFim || data <= filtroDataFim);
+    return buscaOk && statusOk && dataOk;
   });
 
   const { paginated, safePage } = paginate(filtered, page, pageSize);
@@ -129,12 +151,31 @@ export default function RelatorioRecebimentoEpis() {
           <CardTitle>Relatório de Recebimento de EPIs (Reconhecimento Facial)</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="relative flex-1 max-w-sm">
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            <div className="relative flex-1 min-w-[200px] max-w-sm">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input className="pl-8" placeholder="Buscar funcionário/status..." value={filtro} onChange={(e) => { setFiltro(e.target.value); setPage(1); }} />
             </div>
+            <Select value={filtroStatus} onValueChange={(v) => { setFiltroStatus(v); setPage(1); }}>
+              <SelectTrigger className="h-9 w-[170px] text-xs">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os status</SelectItem>
+                {statusesDisponiveis.map((s) => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="flex items-center gap-1.5">
+              <Input type="date" className="h-9 w-[150px] text-xs" aria-label="Data inicial" value={filtroDataIni} onChange={(e) => { setFiltroDataIni(e.target.value); setPage(1); }} />
+              <span className="text-xs text-muted-foreground">até</span>
+              <Input type="date" className="h-9 w-[150px] text-xs" aria-label="Data final" value={filtroDataFim} onChange={(e) => { setFiltroDataFim(e.target.value); setPage(1); }} />
+            </div>
             <Button variant="outline" size="sm" onClick={carregar} disabled={loading}>Atualizar</Button>
+            <Button variant="ghost" size="sm" className="h-9 gap-1 text-xs text-muted-foreground" onClick={limparFiltros}>
+              <X className="h-3.5 w-3.5" /> Limpar
+            </Button>
           </div>
 
           <div className="rounded-md border">

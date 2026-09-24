@@ -5,7 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, CheckCircle2, AlertCircle, Paperclip, X, Filter, Undo2, Ban } from "lucide-react";
+import { Plus, Pencil, Trash2, CheckCircle2, AlertCircle, Paperclip, X, Filter, Undo2, Ban, LockOpen } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
 import { useFinanceiro, formatBRL, formatDate, isVencida, ContaPagar } from "@/contexts/FinanceiroContext";
 import { useClientes } from "@/contexts/ClientesContext";
 import { DoubleConfirmDelete, useDoubleConfirmDelete } from "@/components/DoubleConfirmDelete";
@@ -35,6 +39,31 @@ export default function ContasPagar() {
   const podeEditar = tem("financeiro.contas_pagar.editar");
   const podeExcluir = tem("financeiro.contas_pagar.excluir");
   const podeBaixar = tem("financeiro.contas_pagar.baixar");
+  const podeLiberarBloqueio = tem("financeiro.contas_pagar.liberar_bloqueio");
+  const { usuarioLogado } = useAuth();
+  const qc = useQueryClient();
+  const [liberaConta, setLiberaConta] = useState<ContaPagar | null>(null);
+  const [liberaMotivo, setLiberaMotivo] = useState("");
+  const [liberando, setLiberando] = useState(false);
+
+  const liberarPagamento = async () => {
+    if (!liberaConta) return;
+    if (liberaMotivo.trim().length < 10) { toast.error("Informe o motivo da liberação (mínimo de 10 caracteres)."); return; }
+    setLiberando(true);
+    try {
+      const usuario = usuarioLogado?.nome || usuarioLogado?.email || "Usuário";
+      const registro = `${(liberaConta as any).motivo_bloqueio || ""} | LIBERADO em ${new Date().toLocaleString("pt-BR")} por ${usuario}: ${liberaMotivo.trim()}`;
+      const { error } = await (supabase as any).from("fin_contas_pagar")
+        .update({ bloqueado_pagamento: false, motivo_bloqueio: registro })
+        .eq("id", liberaConta.id);
+      if (error) throw error;
+      toast.success("Pagamento liberado. A conta voltou à situação normal e já pode ser baixada.");
+      setLiberaConta(null); setLiberaMotivo("");
+      qc.invalidateQueries({ queryKey: ["fin_contas_pagar"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Erro ao liberar pagamento.");
+    } finally { setLiberando(false); }
+  };
   const [form, setForm] = useState<any>(empty);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
@@ -377,6 +406,9 @@ export default function ContasPagar() {
                     {podeBaixar && (c.status === "paga" || c.status === "parcial") && (
                       <Button size="sm" variant="ghost" onClick={() => setEstornoConta({ conta: c, acao: "estornar" })} title="Estornar pagamento"><Undo2 className="h-3.5 w-3.5 text-amber-600" /></Button>
                     )}
+                    {podeLiberarBloqueio && (c as any).bloqueado_pagamento && c.status !== "paga" && c.status !== "cancelada" && (
+                      <Button size="sm" variant="ghost" onClick={() => { setLiberaConta(c); setLiberaMotivo(""); }} title="Liberar pagamento bloqueado"><LockOpen className="h-3.5 w-3.5 text-blue-600" /></Button>
+                    )}
                     {podeEditar && c.status !== "paga" && c.status !== "cancelada" && (
                       <Button size="sm" variant="ghost" onClick={() => setEstornoConta({ conta: c, acao: "cancelar" })} title="Cancelar com motivo"><Ban className="h-3.5 w-3.5 text-orange-600" /></Button>
                     )}
@@ -393,6 +425,32 @@ export default function ContasPagar() {
       </Card>
 
       <BaixaDialog open={!!baixaConta} onOpenChange={(o) => !o && setBaixaConta(null)} conta={baixaConta} modo="pagar" />
+
+      <Dialog open={!!liberaConta} onOpenChange={(o) => { if (!o) { setLiberaConta(null); setLiberaMotivo(""); } }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader><DialogTitle>Liberar pagamento bloqueado</DialogTitle></DialogHeader>
+          {liberaConta && (
+            <div className="space-y-3 text-sm">
+              <div className="rounded-md border bg-muted/40 p-3 space-y-1">
+                <p><span className="font-semibold">Conta:</span> {liberaConta.descricao}</p>
+                <p><span className="font-semibold">Fornecedor:</span> {liberaConta.fornecedor_nome || "—"}</p>
+                <p><span className="font-semibold">Valor:</span> {formatBRL(Number(liberaConta.valor_total))}</p>
+                <p className="text-destructive"><span className="font-semibold text-foreground">Motivo do bloqueio:</span> {(liberaConta as any).motivo_bloqueio || "Recebimento rejeitado"}</p>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium">Motivo da liberação *</label>
+                <Textarea value={liberaMotivo} onChange={(e) => setLiberaMotivo(e.target.value)} rows={3} maxLength={500} placeholder="Ex.: fornecedor repos o material rejeitado e a nota foi regularizada" />
+                <p className="text-[11px] text-muted-foreground text-right">{liberaMotivo.length}/500</p>
+              </div>
+              <p className="text-xs text-muted-foreground">Ao liberar, a marca "NÃO PAGAR" é removida e a conta volta a poder ser baixada normalmente. A liberação fica registrada no histórico da conta.</p>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setLiberaConta(null); setLiberaMotivo(""); }}>Cancelar</Button>
+            <Button onClick={liberarPagamento} disabled={liberando}>{liberando ? "Liberando..." : "Liberar pagamento"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <EstornoCancelamentoDialog
         open={!!estornoConta}
         onOpenChange={(o) => !o && setEstornoConta(null)}

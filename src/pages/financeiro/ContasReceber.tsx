@@ -37,6 +37,20 @@ export default function ContasReceber() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
   const [busca, setBusca] = useState("");
+  const [filtroCliente, setFiltroCliente] = useState<string>("todos");
+  const [filtroCategoria, setFiltroCategoria] = useState<string>("todos");
+  const [filtroCentroCusto, setFiltroCentroCusto] = useState<string>("todos");
+  const [filtroContaBancaria, setFiltroContaBancaria] = useState<string>("todos");
+  const [filtroVencIni, setFiltroVencIni] = useState("");
+  const [filtroVencFim, setFiltroVencFim] = useState("");
+  const [filtroValorMin, setFiltroValorMin] = useState("");
+  const [filtroValorMax, setFiltroValorMax] = useState("");
+  const limparFiltros = () => {
+    setBusca(""); setFiltroStatus("todos"); setFiltroCliente("todos"); setFiltroCategoria("todos");
+    setFiltroCentroCusto("todos"); setFiltroContaBancaria("todos");
+    setFiltroVencIni(""); setFiltroVencFim(""); setFiltroValorMin(""); setFiltroValorMax("");
+    setPage(1);
+  };
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [baixaConta, setBaixaConta] = useState<ContaReceber | null>(null);
@@ -86,10 +100,22 @@ export default function ContasReceber() {
 
   const filtradas = useMemo(() => contasReceber.filter((c) => {
     if (busca && !c.descricao.toLowerCase().includes(busca.toLowerCase()) && !(c.cliente_nome || "").toLowerCase().includes(busca.toLowerCase())) return false;
-    if (filtroStatus === "todos") return true;
-    if (filtroStatus === "vencida") return isVencida(c);
-    return c.status === filtroStatus;
-  }).sort((a, b) => a.data_vencimento.localeCompare(b.data_vencimento)), [contasReceber, busca, filtroStatus]);
+    if (filtroStatus !== "todos") {
+      if (filtroStatus === "vencida") { if (!isVencida(c)) return false; }
+      else if (c.status !== filtroStatus) return false;
+    }
+    if (filtroCliente !== "todos" && c.cliente_id !== filtroCliente) return false;
+    if (filtroCategoria !== "todos" && c.plano_conta_id !== filtroCategoria) return false;
+    if (filtroCentroCusto !== "todos" && c.centro_custo_id !== filtroCentroCusto) return false;
+    if (filtroContaBancaria !== "todos" && c.conta_bancaria_id !== filtroContaBancaria) return false;
+    if (filtroVencIni && c.data_vencimento < filtroVencIni) return false;
+    if (filtroVencFim && c.data_vencimento > filtroVencFim) return false;
+    const vMin = parseFloat(filtroValorMin.replace(",", "."));
+    if (filtroValorMin && !isNaN(vMin) && Number(c.valor_total) < vMin) return false;
+    const vMax = parseFloat(filtroValorMax.replace(",", "."));
+    if (filtroValorMax && !isNaN(vMax) && Number(c.valor_total) > vMax) return false;
+    return true;
+  }).sort((a, b) => a.data_vencimento.localeCompare(b.data_vencimento)), [contasReceber, busca, filtroStatus, filtroCliente, filtroCategoria, filtroCentroCusto, filtroContaBancaria, filtroVencIni, filtroVencFim, filtroValorMin, filtroValorMax]);
 
   const { paginated } = paginate(filtradas, page, pageSize);
   const totais = useMemo(() => ({
@@ -173,7 +199,66 @@ export default function ContasReceber() {
             </Select>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
+          <div className="flex flex-wrap items-end gap-2 rounded-md border bg-muted/30 p-3">
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">Cliente</span>
+              <Select value={filtroCliente} onValueChange={(v) => { setFiltroCliente(v); setPage(1); }}>
+                <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {clientesLista.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">Categoria DRE</span>
+              <Select value={filtroCategoria} onValueChange={(v) => { setFiltroCategoria(v); setPage(1); }}>
+                <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todas</SelectItem>
+                  {planoContas.filter(p => p.tipo === "receita" && p.ativo).map(p => <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">Centro de custo</span>
+              <Select value={filtroCentroCusto} onValueChange={(v) => { setFiltroCentroCusto(v); setPage(1); }}>
+                <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {centrosCusto.filter(c => c.ativo).map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">Conta bancária</span>
+              <Select value={filtroContaBancaria} onValueChange={(v) => { setFiltroContaBancaria(v); setPage(1); }}>
+                <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todas</SelectItem>
+                  {contasBancarias.filter(c => c.ativo).map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">Vencimento de</span>
+              <Input type="date" value={filtroVencIni} onChange={(e) => { setFiltroVencIni(e.target.value); setPage(1); }} className="w-[150px]" />
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">Vencimento até</span>
+              <Input type="date" value={filtroVencFim} onChange={(e) => { setFiltroVencFim(e.target.value); setPage(1); }} className="w-[150px]" />
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">Valor mín.</span>
+              <Input placeholder="0,00" value={filtroValorMin} onChange={(e) => { setFiltroValorMin(e.target.value); setPage(1); }} className="w-28" />
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">Valor máx.</span>
+              <Input placeholder="0,00" value={filtroValorMax} onChange={(e) => { setFiltroValorMax(e.target.value); setPage(1); }} className="w-28" />
+            </div>
+            <Button variant="outline" size="sm" onClick={limparFiltros}>Limpar filtros</Button>
+          </div>
           <Table>
             <TableHeader>
               <TableRow>

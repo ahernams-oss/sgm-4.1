@@ -25,6 +25,8 @@ export interface ItemConfirmacao {
   precoAprovado: number;
   fornecedorId: string;
   fornecedorNome: string;
+  /** Condição de pagamento negociada na proposta do fornecedor aprovado. */
+  condicaoPagamento?: string;
   /** Fornecedores que cotaram este item (permite redirecionamento pós-aprovação). */
   alternativas?: AlternativaFornecedor[];
 }
@@ -65,6 +67,8 @@ export interface MetaConfirmacao {
   /** Diretoria notificada para aceite do aditivo de verba. */
   aceiteDiretoria: boolean;
   aprovadoPorAlcada: string;
+  /** Condição de pagamento final por fornecedor (chave: fornecedorId). */
+  condicoesPagamento: Record<string, string>;
 }
 
 const CATEGORIAS: CategoriaVariacao[] = ["Saving", "Cost Avoidance", "Reajuste"];
@@ -115,6 +119,7 @@ export default function ConfirmacaoValoresDialog({ open, onOpenChange, itens, on
   const [manualCategoria, setManualCategoria] = useState<Record<string, boolean>>({});
   const [fornecedores, setFornecedores] = useState<Record<string, string>>({});
   const [motivos, setMotivos] = useState<Record<string, string>>({});
+  const [condicoes, setCondicoes] = useState<Record<string, string>>({});
   const [salvando, setSalvando] = useState(false);
   const { visibility: visibilidadeColunas, toggle: toggleColuna, reset: resetColunas } = useColumnVisibility("confirmacao-valores", COLUNAS);
   const [fullscreen, setFullscreen] = useState(false);
@@ -125,13 +130,15 @@ export default function ConfirmacaoValoresDialog({ open, onOpenChange, itens, on
     const p: Record<string, string> = {};
     const c: Record<string, CategoriaVariacao> = {};
     const f: Record<string, string> = {};
+    const cond: Record<string, string> = {};
     itens.forEach(i => {
       p[i.key] = String(i.precoAprovado).replace(".", ",");
       c[i.key] = "Cost Avoidance";
       f[i.key] = i.fornecedorId;
+      if (!(i.fornecedorId in cond)) cond[i.fornecedorId] = i.condicaoPagamento ?? "";
     });
     setPrecos(p); setCategorias(c); setJustificativas({}); setManualCategoria({});
-    setFornecedores(f); setMotivos({});
+    setFornecedores(f); setMotivos({}); setCondicoes(cond);
     setSalvando(false); setAceiteDiretoria(false);
   }, [open, itens]);
 

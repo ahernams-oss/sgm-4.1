@@ -31,6 +31,10 @@ export default function RelatorioRecebimentoEpis() {
   const { clientes } = useClientes();
   const [rows, setRows] = useState<Recebimento[]>([]);
   const [filtro, setFiltro] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState("todos");
+  const [filtroDataIni, setFiltroDataIni] = useState("");
+  const [filtroDataFim, setFiltroDataFim] = useState("");
+  usePersistFilters("epis_facial_filters_v1", { filtroStatus, filtroDataIni, filtroDataFim });
   const [preview, setPreview] = useState<{ urls: string[]; row: Recebimento } | null>(null);
   const [loading, setLoading] = useState(false);
   const [gerandoPdf, setGerandoPdf] = useState<string | null>(null);

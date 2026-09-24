@@ -17,7 +17,7 @@ export interface Recebimento {
   requisicaoId: string; requisicaoNumero: number; fornecedorNome: string;
   localEntrega: string; dataRecebimento: string; usuario: string;
   itens: ItemRecebimento[]; observacaoGeral: string;
-  tipo: "Total" | "Parcial" | "Rejeitado"; notaFiscal: string; anexosNF: AnexoNF[];
+  tipo: "Total" | "Parcial" | "Rejeitado"; notaFiscal: string; anexosNF: AnexoNF[]; valorNF?: number;
   rejeitado?: boolean; justificativaRejeicao?: string; rejeitadoPor?: string; rejeitadoEm?: string;
 }
 
@@ -38,7 +38,7 @@ const rowToRecebimento = (r: any): Recebimento => ({
   fornecedorNome: r.fornecedor_nome ?? "", localEntrega: r.local_entrega ?? "",
   dataRecebimento: r.data_recebimento ?? "", usuario: r.usuario ?? "",
   itens: r.itens ?? [], observacaoGeral: r.observacao_geral ?? "",
-  tipo: r.tipo ?? "Total", notaFiscal: r.nota_fiscal ?? "", anexosNF: r.anexos_nf ?? [],
+  tipo: r.tipo ?? "Total", notaFiscal: r.nota_fiscal ?? "", anexosNF: r.anexos_nf ?? [], valorNF: r.valor_nf != null ? Number(r.valor_nf) : undefined,
   rejeitado: !!r.rejeitado, justificativaRejeicao: r.justificativa_rejeicao ?? "",
   rejeitadoPor: r.rejeitado_por ?? "", rejeitadoEm: r.rejeitado_em ?? "",
 });
@@ -49,7 +49,7 @@ const recebimentoToRow = (r: Recebimento) => ({
   fornecedor_nome: r.fornecedorNome, local_entrega: r.localEntrega,
   data_recebimento: r.dataRecebimento, usuario: r.usuario,
   itens: r.itens as any, observacao_geral: r.observacaoGeral,
-  tipo: r.tipo, nota_fiscal: r.notaFiscal, anexos_nf: r.anexosNF as any,
+  tipo: r.tipo, nota_fiscal: r.notaFiscal, anexos_nf: r.anexosNF as any, valor_nf: r.valorNF ?? null,
 });
 
 export function RecebimentoProvider({ children }: { children: ReactNode }) {

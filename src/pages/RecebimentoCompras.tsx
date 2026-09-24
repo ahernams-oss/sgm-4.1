@@ -103,6 +103,7 @@ export default function RecebimentoComprasPage() {
   const [recPedido, setRecPedido] = useState<PedidoCompra | null>(null);
   const [recItens, setRecItens] = useState<ItemRecebimento[]>([]);
   const [recNotaFiscal, setRecNotaFiscal] = useState("");
+  const [recValorNF, setRecValorNF] = useState("");
   const [recObservacao, setRecObservacao] = useState("");
   const [recAnexos, setRecAnexos] = useState<AnexoNF[]>([]);
 
@@ -165,7 +166,7 @@ export default function RecebimentoComprasPage() {
         };
       })
     );
-    setRecNotaFiscal("");
+    setRecNotaFiscal(""); setRecValorNF("");
     setRecObservacao("");
     setRecAnexos([]);
     setRecDialogOpen(true);
@@ -201,6 +202,7 @@ export default function RecebimentoComprasPage() {
       observacaoGeral: recObservacao,
       notaFiscal: recNotaFiscal,
       anexosNF: recAnexos,
+      valorNF: recValorNF ? Number(recValorNF.replace(/\./g, "").replace(",", ".")) || undefined : undefined,
     });
 
     // Notifica cliente via WhatsApp
@@ -434,6 +436,10 @@ export default function RecebimentoComprasPage() {
                 <div>
                   <Label>Nota Fiscal</Label>
                   <Input value={recNotaFiscal} onChange={e => setRecNotaFiscal(e.target.value)} placeholder="Nº da nota fiscal..." />
+                </div>
+                <div>
+                  <Label>Valor da Nota Fiscal (R$)</Label>
+                  <Input inputMode="decimal" value={recValorNF} onChange={e => setRecValorNF(e.target.value.replace(/[^0-9.,]/g, ""))} placeholder="0,00" />
                 </div>
                 <div>
                   <Label>Recebido por</Label>
@@ -670,7 +676,7 @@ export default function RecebimentoComprasPage() {
                   </Table>
                   {r.observacaoGeral && <p className="text-xs text-muted-foreground mt-2">Obs: {r.observacaoGeral}</p>}
                   <div className="mt-3 rounded-md border p-2 space-y-1">
-                    <p className="text-xs font-semibold">Nota Fiscal: {r.notaFiscal || "não informada"} — Anexos ({r.anexosNF?.length || 0})</p>
+                    <p className="text-xs font-semibold">Nota Fiscal: {r.notaFiscal || "não informada"} — Valor NF: {r.valorNF != null ? formatCurrency(r.valorNF) : "não informado"} — Valor recebido: {formatCurrency(r.itens.reduce((s, i) => s + (i.quantidadeRecebida || 0) * ((pedidos.find(p => p.id === r.pedidoId)?.itens.find(pi => pi.itemId === i.itemId) as any)?.precoUnitario || 0), 0))} — Anexos ({r.anexosNF?.length || 0})</p>
                     {(!r.anexosNF || r.anexosNF.length === 0) && <p className="text-xs text-muted-foreground">Nenhum documento anexado.</p>}
                     {r.anexosNF?.map((a, i) => (
                       <div key={i} className="flex items-center justify-between gap-2">

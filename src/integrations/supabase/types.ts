@@ -8429,6 +8429,7 @@ export type Database = {
           requisicao_numero: number | null
           tipo: string | null
           usuario: string | null
+          valor_nf: number | null
         }
         Insert: {
           anexos_nf?: Json | null
@@ -8450,6 +8451,7 @@ export type Database = {
           requisicao_numero?: number | null
           tipo?: string | null
           usuario?: string | null
+          valor_nf?: number | null
         }
         Update: {
           anexos_nf?: Json | null
@@ -8471,6 +8473,7 @@ export type Database = {
           requisicao_numero?: number | null
           tipo?: string | null
           usuario?: string | null
+          valor_nf?: number | null
         }
         Relationships: []
       }

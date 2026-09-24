@@ -533,11 +533,11 @@ export default function RecebimentoComprasPage() {
 
               {/* Anexo NF */}
               <div className="space-y-2">
-                <Label className="flex items-center gap-2"><Paperclip className="h-4 w-4" />Anexar Nota Fiscal (PDF, Imagem)</Label>
+                <Label className="flex items-center gap-2"><Paperclip className="h-4 w-4" />Anexar Nota Fiscal (PDF, Imagem ou Foto da Câmera)</Label>
                 <div className="flex items-center gap-2">
                   <Input
                     type="file"
-                    accept=".pdf,.jpg,.jpeg,.png,.webp"
+                    accept="image/*,application/pdf,.pdf"
                     multiple
                     className="flex-1"
                     onChange={e => {

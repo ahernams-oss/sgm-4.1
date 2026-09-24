@@ -389,7 +389,7 @@ export default function ContasPagar() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Vencimento</TableHead><TableHead>Descrição</TableHead><TableHead>Fornecedor</TableHead>
+                <TableHead>Vencimento</TableHead><TableHead>Descrição</TableHead><TableHead className="text-center">OC</TableHead><TableHead>Fornecedor</TableHead>
                 <TableHead className="text-right">Valor</TableHead><TableHead className="text-right">Pago</TableHead>
                 <TableHead>Status</TableHead><TableHead></TableHead>
               </TableRow>
@@ -399,6 +399,24 @@ export default function ContasPagar() {
                 <TableRow key={c.id} className={isVencida(c) ? "bg-red-50/50" : ""}>
                   <TableCell className="tabular-nums">{formatDate(c.data_vencimento)}</TableCell>
                   <TableCell className="font-medium">{c.descricao}</TableCell>
+                  <TableCell className="text-center">
+                    {(() => {
+                      const pcId = (c as any).pedido_compra_id as string | null | undefined;
+                      if (!pcId) return <span className="text-muted-foreground">—</span>;
+                      const oc = pedidosCompra.find(p => p.id === pcId);
+                      if (!oc) return <span className="text-muted-foreground">—</span>;
+                      return (
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/compras/recebimento?ocId=${pcId}`)}
+                          className="font-mono text-sm text-primary underline underline-offset-2 hover:opacity-80"
+                          title={`Abrir a OC-${String(oc.numero).padStart(4, "0")} na tela de Recebimento de Materiais`}
+                        >
+                          OC-{String(oc.numero).padStart(4, "0")}
+                        </button>
+                      );
+                    })()}
+                  </TableCell>
                   <TableCell>{c.fornecedor_nome || "—"}</TableCell>
                   <TableCell className="text-right tabular-nums">{formatBRL(Number(c.valor_total))}</TableCell>
                   <TableCell className="text-right tabular-nums">{formatBRL(Number(c.valor_pago))}</TableCell>

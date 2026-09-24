@@ -70,6 +70,7 @@ export default function MateriaisRejeitadosPage() {
         const precoUnit = Number(itemPedido?.precoUnitario ?? 0);
         out.push({
           recebimentoId: r.id,
+          situacao: pedido?.status === "Rejeição Parcial" ? "Rejeição Parcial" : "Recebimento Rejeitado",
           pedidoNumero: r.pedidoNumero,
           requisicaoNumero: r.requisicaoNumero,
           departamento,
@@ -99,9 +100,10 @@ export default function MateriaisRejeitadosPage() {
       const dia = (l.rejeitadoEm || "").slice(0, 10);
       if (dataIni && dia < dataIni) return false;
       if (dataFim && dia > dataFim) return false;
+      if (situacao !== "Todas" && l.situacao !== situacao) return false;
       return true;
     });
-  }, [linhas, busca, dataIni, dataFim]);
+  }, [linhas, busca, dataIni, dataFim, situacao]);
 
   const totalRejeitado = filtradas.reduce((s, l) => s + l.quantidadeRejeitada, 0);
   const valorRejeitado = filtradas.reduce((s, l) => s + l.valorRejeitado, 0);

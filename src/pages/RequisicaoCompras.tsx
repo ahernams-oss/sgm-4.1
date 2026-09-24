@@ -160,6 +160,7 @@ export default function RequisicaoComprasPage() {
     solicitante: { label: "Solicitante" },
     centroCusto: { label: "Centro de Custo" },
     urgencia: { label: "Urgência", className: "text-center" },
+    grupo: { label: "Grupo de Mercadoria" },
     itens: { label: "Itens", className: "text-center" },
     status: { label: "Status", className: "text-center" },
     cotacao: { label: "Cotação", className: "text-center" },
@@ -167,7 +168,7 @@ export default function RequisicaoComprasPage() {
   };
   const { order: colOrder, setOrder: setColOrder } = useColumnOrder(
     "compras.requisicoes",
-    ["numero", "data", "solicitante", "centroCusto", "urgencia", "itens", "status", "cotacao", "ordemCompra"]
+    ["numero", "data", "solicitante", "centroCusto", "urgencia", "grupo", "itens", "status", "cotacao", "ordemCompra"]
   );
 
 
@@ -231,7 +232,7 @@ export default function RequisicaoComprasPage() {
     }
 
     return list.sort((a, b) => b.numero - a.numero);
-  }, [requisicoes, search, filterStatus, filterCentroCusto, filterUrgencia, filterSolicitante, filterDataIni, filterDataFim]);
+  }, [requisicoes, search, filterStatus, filterCentroCusto, filterUrgencia, filterSolicitante, filterDataIni, filterDataFim, filterGrupo]);
 
   const solicitantesUnicos = useMemo(() =>
     Array.from(new Set(requisicoes.map(r => r.solicitante).filter(Boolean))).sort(),

@@ -199,7 +199,66 @@ export default function ContasReceber() {
             </Select>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
+          <div className="flex flex-wrap items-end gap-2 rounded-md border bg-muted/30 p-3">
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">Cliente</span>
+              <Select value={filtroCliente} onValueChange={(v) => { setFiltroCliente(v); setPage(1); }}>
+                <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {clientesLista.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">Categoria DRE</span>
+              <Select value={filtroCategoria} onValueChange={(v) => { setFiltroCategoria(v); setPage(1); }}>
+                <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todas</SelectItem>
+                  {planoContas.filter(p => p.tipo === "receita" && p.ativo).map(p => <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">Centro de custo</span>
+              <Select value={filtroCentroCusto} onValueChange={(v) => { setFiltroCentroCusto(v); setPage(1); }}>
+                <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  {centrosCusto.filter(c => c.ativo).map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">Conta bancária</span>
+              <Select value={filtroContaBancaria} onValueChange={(v) => { setFiltroContaBancaria(v); setPage(1); }}>
+                <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todas</SelectItem>
+                  {contasBancarias.filter(c => c.ativo).map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">Vencimento de</span>
+              <Input type="date" value={filtroVencIni} onChange={(e) => { setFiltroVencIni(e.target.value); setPage(1); }} className="w-[150px]" />
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">Vencimento até</span>
+              <Input type="date" value={filtroVencFim} onChange={(e) => { setFiltroVencFim(e.target.value); setPage(1); }} className="w-[150px]" />
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">Valor mín.</span>
+              <Input placeholder="0,00" value={filtroValorMin} onChange={(e) => { setFiltroValorMin(e.target.value); setPage(1); }} className="w-28" />
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground">Valor máx.</span>
+              <Input placeholder="0,00" value={filtroValorMax} onChange={(e) => { setFiltroValorMax(e.target.value); setPage(1); }} className="w-28" />
+            </div>
+            <Button variant="outline" size="sm" onClick={limparFiltros}>Limpar filtros</Button>
+          </div>
           <Table>
             <TableHeader>
               <TableRow>

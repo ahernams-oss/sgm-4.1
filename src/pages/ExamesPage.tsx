@@ -169,8 +169,17 @@ const ExamesPage = () => {
           (e.clinica && e.clinica.toLowerCase().includes(s))
       );
     }
+    if (filterDataIni || filterDataFim) {
+      result = result.filter((e) => {
+        const data = (e.data_realizacao || e.data_vencimento || "").slice(0, 10);
+        if (!data) return false;
+        if (filterDataIni && data < filterDataIni) return false;
+        if (filterDataFim && data > filterDataFim) return false;
+        return true;
+      });
+    }
     return result;
-  }, [exames, search, filtroStatus, filtroTipo]);
+  }, [exames, search, filtroStatus, filtroTipo, filterDataIni, filterDataFim]);
 
   const { paginated, totalPages, safePage } = paginate(filtered, page, pageSize);
   const resetPage = () => setPage(1);

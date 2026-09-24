@@ -122,14 +122,14 @@ export default function RecebimentoComprasPage() {
   const pedidosRecebimento = useMemo(() => {
     // Pedidos que podem receber: status ativo OU "Entregue" com itens ainda pendentes
     return pedidos.filter(p =>
-      ["Comprado", "Em Entrega", "Entregue Parcial"].includes(p.status) ||
+      ["Comprado", "Em Entrega", "Entregue Parcial", "Rejeição Parcial"].includes(p.status) ||
       (p.status === "Entregue" && pedidoTemItensPendentes(p))
     );
   }, [pedidos, recebimentos]);
 
   const filtered = useMemo(() => {
     let list = filterStatus === "Pendentes"
-      ? pedidos.filter(p => ["Comprado", "Em Entrega", "Entregue Parcial"].includes(p.status) || (p.status === "Entregue" && pedidoTemItensPendentes(p)))
+      ? pedidos.filter(p => ["Comprado", "Em Entrega", "Entregue Parcial", "Rejeição Parcial"].includes(p.status) || (p.status === "Entregue" && pedidoTemItensPendentes(p)))
       : filterStatus === "Recebidos"
         ? pedidos.filter(p => p.status === "Entregue" && !pedidoTemItensPendentes(p))
         : pedidos.filter(p => p.status !== "Cancelado");
@@ -237,7 +237,7 @@ export default function RecebimentoComprasPage() {
   const recebimentosDoPedido = histPedidoId ? getRecebimentosByPedido(histPedidoId) : [];
 
   // Stats
-  const totalPendentes = pedidos.filter(p => ["Comprado", "Em Entrega", "Entregue Parcial"].includes(p.status)).length;
+  const totalPendentes = pedidos.filter(p => ["Comprado", "Em Entrega", "Entregue Parcial", "Rejeição Parcial"].includes(p.status)).length;
   const totalRecebidosHoje = recebimentos.filter(r => {
     const hoje = new Date().toDateString();
     return new Date(r.dataRecebimento).toDateString() === hoje;
@@ -386,7 +386,7 @@ export default function RecebimentoComprasPage() {
                             <History className="mr-2 h-4 w-4" />Histórico de Recebimentos
                           </DropdownMenuItem>
                         )}
-                        {podeRegistrar && (["Comprado", "Em Entrega", "Entregue Parcial"].includes(p.status) || (p.status === "Entregue" && pedidoTemItensPendentes(p))) && (
+                        {podeRegistrar && (["Comprado", "Em Entrega", "Entregue Parcial", "Rejeição Parcial"].includes(p.status) || (p.status === "Entregue" && pedidoTemItensPendentes(p))) && (
                           <>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => openRecebimentoDialog(p)}>
@@ -402,7 +402,7 @@ export default function RecebimentoComprasPage() {
                             <ClipboardList className="mr-2 h-4 w-4" />Corrigir Status (Entregue Parcial)
                           </DropdownMenuItem>
                         )}
-                        {podeRegistrar && ["Comprado", "Em Entrega", "Entregue Parcial", "Entregue"].includes(p.status) && (
+                        {podeRegistrar && ["Comprado", "Em Entrega", "Entregue Parcial", "Entregue", "Rejeição Parcial"].includes(p.status) && (
                           <DropdownMenuItem className="text-destructive" onClick={() => { setRejPedido(p); setRejJust(""); setRejSenha(""); setRejNF(""); setRejItens({}); }}>
                             <Ban className="mr-2 h-4 w-4" />Rejeitar Recebimento
                           </DropdownMenuItem>

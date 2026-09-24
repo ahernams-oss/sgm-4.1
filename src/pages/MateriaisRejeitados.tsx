@@ -34,7 +34,7 @@ export default function MateriaisRejeitadosPage() {
   const { recebimentos } = useRecebimento();
   const { requisicoes } = useRequisicaoCompras();
 
-  const persisted = loadPersistedFilters(FILTERS_KEY);
+  const persisted = loadPersistedFilters(FILTERS_KEY) ?? {};
   const [busca, setBusca] = useState<string>((persisted.busca as string) ?? "");
   const [dataIni, setDataIni] = useState<string>((persisted.dataIni as string) ?? "");
   const [dataFim, setDataFim] = useState<string>((persisted.dataFim as string) ?? "");
@@ -156,14 +156,14 @@ export default function MateriaisRejeitadosPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {pag.items.length === 0 && (
+              {pag.paginated.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={11} className="text-center text-muted-foreground py-8">
                     Nenhum material rejeitado encontrado.
                   </TableCell>
                 </TableRow>
               )}
-              {pag.items.map((l, i) => (
+              {pag.paginated.map((l, i) => (
                 <TableRow key={`${l.recebimentoId}-${i}`}>
                   <TableCell className="font-semibold">{formatarPedido(l.pedidoNumero)}</TableCell>
                   <TableCell className="font-semibold">RCS-{String(l.requisicaoNumero).padStart(4, "0")}</TableCell>

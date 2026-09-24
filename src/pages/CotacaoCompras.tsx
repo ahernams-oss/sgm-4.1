@@ -253,6 +253,7 @@ export default function CotacaoComprasPage() {
         precoAprovado: i.precoUnitario,
         fornecedorId: g.fornecedorId,
         fornecedorNome: g.fornecedorNome,
+        condicaoPagamento: g.condicaoPagamento,
         alternativas,
       };
     }));
@@ -754,7 +755,7 @@ export default function CotacaoComprasPage() {
         linhasFinais.push({
           fornecedorId: destinoId,
           fornecedorNome: aj?.fornecedorNomeFinal || propDestino?.fornecedorNome || grupo.fornecedorNome,
-          condicaoPagamento: propDestino?.condicaoPagamento ?? grupo.condicaoPagamento,
+          condicaoPagamento: meta.condicoesPagamento?.[destinoId] ?? propDestino?.condicaoPagamento ?? grupo.condicaoPagamento,
           prazoEntrega: propDestino?.prazoEntrega ?? grupo.prazoEntrega,
           item: i,
           precoFinal,

@@ -168,9 +168,16 @@ const OsModelosPage = () => {
             </TableHeader>
             <TableBody>
               {filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground">Nenhum modelo encontrado</TableCell></TableRow>
+                <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">Nenhum modelo encontrado</TableCell></TableRow>
               ) : filtered.map(m => (
                 <TableRow key={m.id}>
+                  <TableCell>
+                    <Checkbox
+                      aria-label={`Selecionar modelo ${m.nome}`}
+                      checked={selecionados.has(m.id)}
+                      onCheckedChange={() => toggleSelecionado(m.id)}
+                    />
+                  </TableCell>
                   <TableCell className="font-medium">{m.nome}</TableCell>
                   <TableCell className="text-muted-foreground">{m.descricao || "—"}</TableCell>
                   <TableCell>

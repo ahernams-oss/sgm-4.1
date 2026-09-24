@@ -151,12 +151,31 @@ export default function RelatorioRecebimentoEpis() {
           <CardTitle>Relatório de Recebimento de EPIs (Reconhecimento Facial)</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-2 mb-4">
-            <div className="relative flex-1 max-w-sm">
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            <div className="relative flex-1 min-w-[200px] max-w-sm">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input className="pl-8" placeholder="Buscar funcionário/status..." value={filtro} onChange={(e) => { setFiltro(e.target.value); setPage(1); }} />
             </div>
+            <Select value={filtroStatus} onValueChange={(v) => { setFiltroStatus(v); setPage(1); }}>
+              <SelectTrigger className="h-9 w-[170px] text-xs">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os status</SelectItem>
+                {statusesDisponiveis.map((s) => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="flex items-center gap-1.5">
+              <Input type="date" className="h-9 w-[150px] text-xs" aria-label="Data inicial" value={filtroDataIni} onChange={(e) => { setFiltroDataIni(e.target.value); setPage(1); }} />
+              <span className="text-xs text-muted-foreground">até</span>
+              <Input type="date" className="h-9 w-[150px] text-xs" aria-label="Data final" value={filtroDataFim} onChange={(e) => { setFiltroDataFim(e.target.value); setPage(1); }} />
+            </div>
             <Button variant="outline" size="sm" onClick={carregar} disabled={loading}>Atualizar</Button>
+            <Button variant="ghost" size="sm" className="h-9 gap-1 text-xs text-muted-foreground" onClick={limparFiltros}>
+              <X className="h-3.5 w-3.5" /> Limpar
+            </Button>
           </div>
 
           <div className="rounded-md border">

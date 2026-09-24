@@ -147,7 +147,7 @@ export default function RecebimentoComprasPage() {
     return list.sort((a, b) => b.numero - a.numero);
   }, [pedidos, search, filterStatus]);
 
-  const formatCurrency = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const formatCurrency = (v: number | null | undefined) => (Number(v) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   const openRecebimentoDialog = (pedido: PedidoCompra) => {
     setRecPedido(pedido);

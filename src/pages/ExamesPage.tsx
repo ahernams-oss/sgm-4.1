@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { usePersistFilters } from "@/lib/persistedFilters";
 import { DoubleConfirmDelete, useDoubleConfirmDelete } from "@/components/DoubleConfirmDelete";
 import { Stethoscope, Search, Trash2, Upload, FileText, Bell, AlertTriangle, Plus, FileDown, FileSpreadsheet, Download } from "lucide-react";
 import { gerarPdfExames } from "@/lib/gerarPdfExames";
@@ -59,6 +60,9 @@ const ExamesPage = () => {
   const [search, setSearch] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("todos");
   const [filtroTipo, setFiltroTipo] = useState("todos");
+  const [filterDataIni, setFilterDataIni] = useState("");
+  const [filterDataFim, setFilterDataFim] = useState("");
+  usePersistFilters("exames_filters_v1", { filtroStatus, filtroTipo, filterDataIni, filterDataFim });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [uploading, setUploading] = useState(false);

@@ -154,6 +154,13 @@ const OsModelosPage = () => {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[50px]">
+                  <Checkbox
+                    aria-label="Selecionar todos os modelos"
+                    checked={filtered.length > 0 && selecionados.size === filtered.length}
+                    onCheckedChange={toggleTodos}
+                  />
+                </TableHead>
                 <TableHead>Nome</TableHead>
                 <TableHead>Descrição</TableHead>
                 <TableHead className="w-[100px]">Ações</TableHead>

@@ -505,6 +505,7 @@ export default function RequisicaoComprasPage() {
     if (filterCentroCusto !== "Todos") p.push(`Centro de Custo: ${centrosUnicos.find(([id]) => id === filterCentroCusto)?.[1] || filterCentroCusto}`);
     if (filterStatus !== "Todos") p.push(`Status: ${filterStatus}`);
     if (filterUrgencia !== "Todas") p.push(`Urgência: ${filterUrgencia}`);
+    if (filterGrupo !== "Todos") p.push(`Grupo de Mercadoria: ${grupoLabel(filterGrupo)}`);
     if (filterSolicitante !== "Todos") p.push(`Solicitante: ${filterSolicitante}`);
     if (filterDataIni) p.push(`De: ${new Date(filterDataIni + "T12:00:00").toLocaleDateString("pt-BR")}`);
     if (filterDataFim) p.push(`Até: ${new Date(filterDataFim + "T12:00:00").toLocaleDateString("pt-BR")}`);

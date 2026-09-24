@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Ban, XCircle, FileText, FileSpreadsheet } from "lucide-react";
 import { formatarPedido } from "@/lib/notificacoesCompras";
@@ -20,6 +21,7 @@ const brl = (v: number) => v.toLocaleString("pt-BR", { style: "currency", curren
 
 interface LinhaRejeitada {
   recebimentoId: string;
+  situacao: "Recebimento Rejeitado" | "Rejeição Parcial";
   pedidoNumero: number;
   requisicaoNumero: number;
   departamento: string;
@@ -36,7 +38,7 @@ interface LinhaRejeitada {
 }
 
 const REL_COLS = [
-  "Ordem de Compra", "Requisição", "Departamento", "Fornecedor", "Item",
+  "Ordem de Compra", "Requisição", "Situação", "Departamento", "Fornecedor", "Item",
   "Qtd. Pedida", "Qtd. Rejeitada", "Valor Rejeitado", "Motivo do Item",
   "Justificativa Geral", "Rejeitado por", "Data",
 ];
@@ -50,7 +52,8 @@ export default function MateriaisRejeitadosPage() {
   const [busca, setBusca] = useState<string>((persisted.busca as string) ?? "");
   const [dataIni, setDataIni] = useState<string>((persisted.dataIni as string) ?? "");
   const [dataFim, setDataFim] = useState<string>((persisted.dataFim as string) ?? "");
-  usePersistFilters(FILTERS_KEY, { busca, dataIni, dataFim });
+  const [situacao, setSituacao] = useState<string>((persisted.situacao as string) ?? "Todas");
+  usePersistFilters(FILTERS_KEY, { busca, dataIni, dataFim, situacao });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
@@ -68,6 +71,7 @@ export default function MateriaisRejeitadosPage() {
         const precoUnit = Number(itemPedido?.precoUnitario ?? 0);
         out.push({
           recebimentoId: r.id,
+          situacao: (pedido?.status as string) === "Rejeição Parcial" ? "Rejeição Parcial" : "Recebimento Rejeitado",
           pedidoNumero: r.pedidoNumero,
           requisicaoNumero: r.requisicaoNumero,
           departamento,
@@ -97,9 +101,10 @@ export default function MateriaisRejeitadosPage() {
       const dia = (l.rejeitadoEm || "").slice(0, 10);
       if (dataIni && dia < dataIni) return false;
       if (dataFim && dia > dataFim) return false;
+      if (situacao !== "Todas" && l.situacao !== situacao) return false;
       return true;
     });
-  }, [linhas, busca, dataIni, dataFim]);
+  }, [linhas, busca, dataIni, dataFim, situacao]);
 
   const totalRejeitado = filtradas.reduce((s, l) => s + l.quantidadeRejeitada, 0);
   const valorRejeitado = filtradas.reduce((s, l) => s + l.valorRejeitado, 0);
@@ -109,6 +114,7 @@ export default function MateriaisRejeitadosPage() {
   const relFiltros = () => {
     const p: string[] = [];
     if (busca.trim()) p.push(`Busca: ${busca.trim()}`);
+    if (situacao !== "Todas") p.push(`Situação: ${situacao}`);
     if (dataIni) p.push(`De: ${new Date(dataIni + "T12:00:00").toLocaleDateString("pt-BR")}`);
     if (dataFim) p.push(`Até: ${new Date(dataFim + "T12:00:00").toLocaleDateString("pt-BR")}`);
     return p.length ? `Filtros: ${p.join("  |  ")}` : "Filtros: nenhum (todos os rejeitados)";
@@ -116,6 +122,7 @@ export default function MateriaisRejeitadosPage() {
   const relRows = () => filtradas.map(l => [
     formatarPedido(l.pedidoNumero),
     `RCS-${String(l.requisicaoNumero).padStart(4, "0")}`,
+    l.situacao,
     l.departamento,
     l.fornecedorNome,
     `${l.itemDescricao}${l.unidadeMedida ? ` (${l.unidadeMedida})` : ""}`,
@@ -212,8 +219,19 @@ export default function MateriaisRejeitadosPage() {
             <Label>Data final</Label>
             <Input type="date" value={dataFim} onChange={e => { setDataFim(e.target.value); setPage(1); }} />
           </div>
-          {(dataIni || dataFim || busca) && (
-            <Button variant="ghost" size="sm" onClick={() => { setBusca(""); setDataIni(""); setDataFim(""); setPage(1); }}>
+          <div className="w-[210px]">
+            <Label>Situação</Label>
+            <Select value={situacao} onValueChange={v => { setSituacao(v); setPage(1); }}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Todas">Todas</SelectItem>
+                <SelectItem value="Recebimento Rejeitado">Recebimento Rejeitado</SelectItem>
+                <SelectItem value="Rejeição Parcial">Rejeição Parcial</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {(dataIni || dataFim || busca || situacao !== "Todas") && (
+            <Button variant="ghost" size="sm" onClick={() => { setBusca(""); setDataIni(""); setDataFim(""); setSituacao("Todas"); setPage(1); }}>
               <XCircle className="h-4 w-4 mr-1" /> Limpar filtros
             </Button>
           )}
@@ -227,6 +245,7 @@ export default function MateriaisRejeitadosPage() {
               <TableRow>
                 <TableHead>Ordem de Compra</TableHead>
                 <TableHead>Requisição</TableHead>
+                <TableHead>Situação</TableHead>
                 <TableHead>Departamento</TableHead>
                 <TableHead>Fornecedor</TableHead>
                 <TableHead>Item</TableHead>
@@ -242,7 +261,7 @@ export default function MateriaisRejeitadosPage() {
             <TableBody>
               {pag.paginated.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={12} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={13} className="text-center text-muted-foreground py-8">
                     Nenhum material rejeitado encontrado.
                   </TableCell>
                 </TableRow>
@@ -251,6 +270,11 @@ export default function MateriaisRejeitadosPage() {
                 <TableRow key={`${l.recebimentoId}-${i}`}>
                   <TableCell className="font-semibold">{formatarPedido(l.pedidoNumero)}</TableCell>
                   <TableCell className="font-semibold">RCS-{String(l.requisicaoNumero).padStart(4, "0")}</TableCell>
+                  <TableCell>
+                    <Badge variant={l.situacao === "Recebimento Rejeitado" ? "destructive" : "outline"} className={l.situacao === "Rejeição Parcial" ? "border-amber-500 text-amber-600" : ""}>
+                      {l.situacao}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="font-semibold">{l.departamento}</TableCell>
                   <TableCell>{l.fornecedorNome}</TableCell>
                   <TableCell>{l.itemDescricao}{l.unidadeMedida ? ` (${l.unidadeMedida})` : ""}</TableCell>

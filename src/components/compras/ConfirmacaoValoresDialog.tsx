@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ALCADA_BADGE, Alcada, LIMITE_ALCADA_PERCENTUAL, classificarAlcada } from "@/lib/alcadaReajuste";
 import { supabase } from "@/integrations/supabase/client";
+import { usePermissao } from "@/hooks/usePermissao";
 import { toast } from "sonner";
 import { useColumnVisibility, ColumnDef } from "@/hooks/useColumnVisibility";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -120,6 +121,14 @@ export default function ConfirmacaoValoresDialog({ open, onOpenChange, itens, on
   const [fornecedores, setFornecedores] = useState<Record<string, string>>({});
   const [motivos, setMotivos] = useState<Record<string, string>>({});
   const [condicoes, setCondicoes] = useState<Record<string, string>>({});
+  const [condicoesPagamento, setCondicoesPagamento] = useState<{ id: string; nome: string }[]>([]);
+  const { tem } = usePermissao();
+  const podeAlterarCondicao = tem("cotacoes.alterar_condicao_pagamento");
+
+  useEffect(() => {
+    (supabase as any).from("fin_condicoes_pagamento").select("id, nome").eq("ativo", true).order("nome")
+      .then(({ data, error }: any) => { if (!error && data) setCondicoesPagamento(data); });
+  }, []);
   const [salvando, setSalvando] = useState(false);
   const { visibility: visibilidadeColunas, toggle: toggleColuna, reset: resetColunas } = useColumnVisibility("confirmacao-valores", COLUNAS);
   const [fullscreen, setFullscreen] = useState(false);
@@ -412,12 +421,24 @@ export default function ConfirmacaoValoresDialog({ open, onOpenChange, itens, on
             {fornecedoresFinais.map(f => (
               <div key={f.id} className="flex items-center gap-2">
                 <span className="text-xs w-40 truncate" title={f.nome}>{f.nome}</span>
-                <Input
-                  value={condicoes[f.id] ?? ""}
-                  onChange={e => setCondicoes(prev => ({ ...prev, [f.id]: e.target.value }))}
-                  placeholder="Ex: 30/60/90 dias"
-                  className="h-8 text-sm flex-1"
-                />
+                {podeAlterarCondicao ? (
+                  <Select
+                    value={condicoes[f.id] ?? ""}
+                    onValueChange={v => setCondicoes(prev => ({ ...prev, [f.id]: v }))}
+                  >
+                    <SelectTrigger className="h-8 text-sm flex-1">
+                      <SelectValue placeholder="Selecione a condição" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {condicoes[f.id] && !condicoesPagamento.some(c => c.nome === condicoes[f.id]) && (
+                        <SelectItem value={condicoes[f.id]}>{condicoes[f.id]} (atual)</SelectItem>
+                      )}
+                      {condicoesPagamento.map(c => <SelectItem key={c.id} value={c.nome}>{c.nome}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <span className="text-sm flex-1 px-2 py-1 rounded-md border bg-muted/40">{condicoes[f.id] || "—"}</span>
+                )}
               </div>
             ))}
           </div>

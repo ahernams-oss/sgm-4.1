@@ -216,6 +216,7 @@ export const MODULOS_SISTEMA: GrupoPermissao[] = [
           { key: "cotacoes.editar_proposta", label: "Pode Editar Proposta de Fornecedor" },
           { key: "cotacoes.remover_proposta", label: "Pode Remover Proposta de Fornecedor" },
           { key: "cotacoes.alterar_quantidade", label: "Pode Alterar Quantidade Solicitada na Proposta" },
+          { key: "cotacoes.alterar_condicao_pagamento", label: "Pode Alterar a Condição de Pagamento na Confirmação de Valores" },
           { key: "cotacoes.finalizar", label: "Pode Finalizar Cotação" },
           { key: "cotacoes.enviar_convite", label: "Pode Enviar Convite a Fornecedor" },
         ],

@@ -37,6 +37,7 @@ const statusColors: Record<string, string> = {
   Entregue: "bg-green-100 text-green-800",
   Cancelado: "bg-red-200 text-red-900",
   "Recebimento Rejeitado": "bg-destructive text-destructive-foreground",
+  "Rejeição Parcial": "bg-orange-100 text-orange-800",
 };
 
 export default function RecebimentoComprasPage() {
@@ -54,8 +55,11 @@ export default function RecebimentoComprasPage() {
   const [rejSenha, setRejSenha] = useState("");
   const [rejNF, setRejNF] = useState("");
   const [rejSalvando, setRejSalvando] = useState(false);
+  const [rejItens, setRejItens] = useState<Record<string, { qtd: number; motivo: string }>>({});
   const confirmarRejeicao = async () => {
     if (!rejPedido) return;
+    const itensRej = rejPedido.itens.map(i => ({ itemId: i.itemId, quantidade: rejItens[i.itemId]?.qtd || 0, motivo: (rejItens[i.itemId]?.motivo || "").trim() }));
+    if (!itensRej.some(i => i.quantidade > 0)) { toast({ title: "Informe a quantidade rejeitada de ao menos um item.", variant: "destructive" }); return; }
     if (rejJust.trim().length < 10) { toast({ title: "Informe a justificativa (mínimo 10 caracteres).", variant: "destructive" }); return; }
     if (!rejSenha) { toast({ title: "Confirme sua senha.", variant: "destructive" }); return; }
     if (!usuarioLogado?.email) { toast({ title: "Usuário não identificado. Faça login novamente.", variant: "destructive" }); return; }
@@ -63,8 +67,8 @@ export default function RecebimentoComprasPage() {
     try {
       const ok = await verificarSenhaUsuario(usuarioLogado.email, rejSenha);
       if (!ok) { toast({ title: "Senha incorreta.", variant: "destructive" }); return; }
-      await rejeitarRecebimento(rejPedido.id, rejJust.trim(), usuarioLogado.nome || usuarioLogado.email, rejNF.trim());
-      toast({ title: "Recebimento rejeitado", description: "O financeiro foi avisado para não pagar." });
+      await rejeitarRecebimento(rejPedido.id, rejJust.trim(), usuarioLogado.nome || usuarioLogado.email, rejNF.trim(), itensRej);
+      toast({ title: "Rejeição registrada", description: "O financeiro foi avisado para não pagar." });
       setRejPedido(null);
     } catch (e: any) {
       toast({ title: "Erro ao rejeitar recebimento", description: e?.message, variant: "destructive" });
@@ -399,7 +403,7 @@ export default function RecebimentoComprasPage() {
                           </DropdownMenuItem>
                         )}
                         {podeRegistrar && ["Comprado", "Em Entrega", "Entregue Parcial", "Entregue"].includes(p.status) && (
-                          <DropdownMenuItem className="text-destructive" onClick={() => { setRejPedido(p); setRejJust(""); setRejSenha(""); setRejNF(""); }}>
+                          <DropdownMenuItem className="text-destructive" onClick={() => { setRejPedido(p); setRejJust(""); setRejSenha(""); setRejNF(""); setRejItens({}); }}>
                             <Ban className="mr-2 h-4 w-4" />Rejeitar Recebimento
                           </DropdownMenuItem>
                         )}
@@ -695,6 +699,47 @@ export default function RecebimentoComprasPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
+            {rejPedido && (
+              <div className="border rounded-md max-h-64 overflow-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Item</TableHead>
+                      <TableHead className="w-20 text-center">Pedido</TableHead>
+                      <TableHead className="w-24 text-center">Rejeitar</TableHead>
+                      <TableHead>Motivo do item</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {rejPedido.itens.map(i => (
+                      <TableRow key={i.itemId}>
+                        <TableCell className="text-sm">{i.descricao}</TableCell>
+                        <TableCell className="text-center">{i.quantidade}</TableCell>
+                        <TableCell>
+                          <Input type="number" min={0} max={i.quantidade} className="h-8"
+                            value={rejItens[i.itemId]?.qtd ?? 0}
+                            onChange={(e) => {
+                              const v = Math.max(0, Math.min(i.quantidade, Number(e.target.value) || 0));
+                              setRejItens(s => ({ ...s, [i.itemId]: { qtd: v, motivo: s[i.itemId]?.motivo ?? "" } }));
+                            }} />
+                        </TableCell>
+                        <TableCell>
+                          <Input className="h-8" maxLength={120} placeholder="Ex.: avariado"
+                            value={rejItens[i.itemId]?.motivo ?? ""}
+                            onChange={(e) => setRejItens(s => ({ ...s, [i.itemId]: { qtd: s[i.itemId]?.qtd ?? 0, motivo: e.target.value } }))} />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+            {rejPedido && (
+              <div className="flex gap-2">
+                <Button type="button" size="sm" variant="outline" onClick={() => setRejItens(Object.fromEntries(rejPedido.itens.map(i => [i.itemId, { qtd: i.quantidade, motivo: rejItens[i.itemId]?.motivo ?? "" }])))}>Rejeitar tudo</Button>
+                <Button type="button" size="sm" variant="ghost" onClick={() => setRejItens({})}>Zerar</Button>
+              </div>
+            )}
             <div>
               <Label>Nota fiscal (opcional)</Label>
               <Input value={rejNF} onChange={(e) => setRejNF(e.target.value)} />

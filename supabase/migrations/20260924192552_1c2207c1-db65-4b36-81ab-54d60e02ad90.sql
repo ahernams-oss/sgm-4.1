@@ -1,0 +1,1 @@
+ALTER TABLE public.recebimentos ADD COLUMN IF NOT EXISTS valor_nf numeric;

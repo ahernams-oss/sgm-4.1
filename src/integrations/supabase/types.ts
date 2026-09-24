@@ -3125,6 +3125,7 @@ export type Database = {
         Row: {
           anexo_nome: string | null
           anexo_url: string | null
+          bloqueado_pagamento: boolean
           centro_custo_id: string | null
           conta_bancaria_id: string | null
           created_at: string
@@ -3136,6 +3137,7 @@ export type Database = {
           fornecedor_nome: string | null
           id: string
           juridico_parcela_id: string | null
+          motivo_bloqueio: string | null
           observacao: string | null
           origem: string | null
           parcela_num: number
@@ -3151,6 +3153,7 @@ export type Database = {
         Insert: {
           anexo_nome?: string | null
           anexo_url?: string | null
+          bloqueado_pagamento?: boolean
           centro_custo_id?: string | null
           conta_bancaria_id?: string | null
           created_at?: string
@@ -3162,6 +3165,7 @@ export type Database = {
           fornecedor_nome?: string | null
           id?: string
           juridico_parcela_id?: string | null
+          motivo_bloqueio?: string | null
           observacao?: string | null
           origem?: string | null
           parcela_num?: number
@@ -3177,6 +3181,7 @@ export type Database = {
         Update: {
           anexo_nome?: string | null
           anexo_url?: string | null
+          bloqueado_pagamento?: boolean
           centro_custo_id?: string | null
           conta_bancaria_id?: string | null
           created_at?: string
@@ -3188,6 +3193,7 @@ export type Database = {
           fornecedor_nome?: string | null
           id?: string
           juridico_parcela_id?: string | null
+          motivo_bloqueio?: string | null
           observacao?: string | null
           origem?: string | null
           parcela_num?: number
@@ -8410,11 +8416,15 @@ export type Database = {
           fornecedor_nome: string | null
           id: string
           itens: Json | null
+          justificativa_rejeicao: string | null
           local_entrega: string | null
           nota_fiscal: string | null
           observacao_geral: string | null
           pedido_id: string | null
           pedido_numero: number | null
+          rejeitado: boolean
+          rejeitado_em: string | null
+          rejeitado_por: string | null
           requisicao_id: string | null
           requisicao_numero: number | null
           tipo: string | null
@@ -8427,11 +8437,15 @@ export type Database = {
           fornecedor_nome?: string | null
           id?: string
           itens?: Json | null
+          justificativa_rejeicao?: string | null
           local_entrega?: string | null
           nota_fiscal?: string | null
           observacao_geral?: string | null
           pedido_id?: string | null
           pedido_numero?: number | null
+          rejeitado?: boolean
+          rejeitado_em?: string | null
+          rejeitado_por?: string | null
           requisicao_id?: string | null
           requisicao_numero?: number | null
           tipo?: string | null
@@ -8444,11 +8458,15 @@ export type Database = {
           fornecedor_nome?: string | null
           id?: string
           itens?: Json | null
+          justificativa_rejeicao?: string | null
           local_entrega?: string | null
           nota_fiscal?: string | null
           observacao_geral?: string | null
           pedido_id?: string | null
           pedido_numero?: number | null
+          rejeitado?: boolean
+          rejeitado_em?: string | null
+          rejeitado_por?: string | null
           requisicao_id?: string | null
           requisicao_numero?: number | null
           tipo?: string | null

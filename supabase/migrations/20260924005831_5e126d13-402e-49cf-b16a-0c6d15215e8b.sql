@@ -1,0 +1,2 @@
+ALTER TABLE public.recebimentos ADD COLUMN IF NOT EXISTS rejeitado boolean NOT NULL DEFAULT false, ADD COLUMN IF NOT EXISTS justificativa_rejeicao text, ADD COLUMN IF NOT EXISTS rejeitado_por text, ADD COLUMN IF NOT EXISTS rejeitado_em timestamptz;
+ALTER TABLE public.fin_contas_pagar ADD COLUMN IF NOT EXISTS bloqueado_pagamento boolean NOT NULL DEFAULT false, ADD COLUMN IF NOT EXISTS motivo_bloqueio text;

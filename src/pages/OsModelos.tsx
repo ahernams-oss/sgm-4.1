@@ -19,8 +19,23 @@ const OsModelosPage = () => {
   const [descricao, setDescricao] = useState("");
   const [search, setSearch] = useState("");
   const [deleteOpen, setDeleteOpen] = useState<string | null>(null);
+  const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
   const fileRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
+
+  const toggleSelecionado = (id: string) => {
+    setSelecionados((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleTodos = () => {
+    setSelecionados((prev) => (prev.size === filtered.length && filtered.length > 0 ? new Set() : new Set(filtered.map((m) => m.id))));
+  };
+
+  const modelosExportacao = selecionados.size > 0 ? modelos.filter((m) => selecionados.has(m.id)) : modelos;
 
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

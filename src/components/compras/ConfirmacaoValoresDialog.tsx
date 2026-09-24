@@ -12,6 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ALCADA_BADGE, Alcada, LIMITE_ALCADA_PERCENTUAL, classificarAlcada } from "@/lib/alcadaReajuste";
 import { supabase } from "@/integrations/supabase/client";
+import { usePermissao } from "@/hooks/usePermissao";
 import { toast } from "sonner";
 import { useColumnVisibility, ColumnDef } from "@/hooks/useColumnVisibility";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";

@@ -37,6 +37,20 @@ export default function ContasReceber() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
   const [busca, setBusca] = useState("");
+  const [filtroCliente, setFiltroCliente] = useState<string>("todos");
+  const [filtroCategoria, setFiltroCategoria] = useState<string>("todos");
+  const [filtroCentroCusto, setFiltroCentroCusto] = useState<string>("todos");
+  const [filtroContaBancaria, setFiltroContaBancaria] = useState<string>("todos");
+  const [filtroVencIni, setFiltroVencIni] = useState("");
+  const [filtroVencFim, setFiltroVencFim] = useState("");
+  const [filtroValorMin, setFiltroValorMin] = useState("");
+  const [filtroValorMax, setFiltroValorMax] = useState("");
+  const limparFiltros = () => {
+    setBusca(""); setFiltroStatus("todos"); setFiltroCliente("todos"); setFiltroCategoria("todos");
+    setFiltroCentroCusto("todos"); setFiltroContaBancaria("todos");
+    setFiltroVencIni(""); setFiltroVencFim(""); setFiltroValorMin(""); setFiltroValorMax("");
+    setPage(1);
+  };
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [baixaConta, setBaixaConta] = useState<ContaReceber | null>(null);

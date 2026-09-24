@@ -6,11 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useFuncionarios } from "@/contexts/FuncionariosContext";
 import { useCargos } from "@/contexts/CargosContext";
 import { useClientes } from "@/contexts/ClientesContext";
+import { usePersistFilters } from "@/lib/persistedFilters";
 import { toast } from "sonner";
-import { Eye, Search, FileDown, Download } from "lucide-react";
+import { Eye, Search, FileDown, Download, X } from "lucide-react";
 import { gerarPdfEpiFacial } from "@/lib/gerarPdfEpiFacial";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
 

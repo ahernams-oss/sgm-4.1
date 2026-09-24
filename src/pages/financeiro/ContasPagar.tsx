@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SearchableFilter } from "@/components/SearchableFilter";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, CheckCircle2, AlertCircle, Paperclip, X, Filter, Undo2, Ban, LockOpen, RefreshCw } from "lucide-react";
@@ -376,43 +377,27 @@ export default function ContasPagar() {
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-[10px] text-muted-foreground">Fornecedor</label>
-              <Select value={fFornecedor} onValueChange={(v) => { setFFornecedor(v); setPage(1); }}>
-                <SelectTrigger className="h-9 w-52 text-xs"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos</SelectItem>
-                  {fornecedores.map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <SearchableFilter className="w-52" value={fFornecedor} placeholder="Nome, fantasia ou CNPJ..."
+                onChange={(v) => { setFFornecedor(v); setPage(1); }}
+                options={fornecedores.map((f: any) => ({ value: f.id, label: f.nome, extra: `${f.nome_fantasia ?? ""} ${f.cnpj ?? ""} ${f.codigo ?? ""}` }))} />
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-[10px] text-muted-foreground">Categoria DRE</label>
-              <Select value={fPlanoConta} onValueChange={(v) => { setFPlanoConta(v); setPage(1); }}>
-                <SelectTrigger className="h-9 w-48 text-xs"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todas</SelectItem>
-                  {planoContas.filter(p => p.tipo === "despesa").map(p => <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <SearchableFilter className="w-48" allLabel="Todas" value={fPlanoConta}
+                onChange={(v) => { setFPlanoConta(v); setPage(1); }}
+                options={planoContas.filter(p => p.tipo === "despesa").map((p: any) => ({ value: p.id, label: p.nome, extra: p.codigo ?? "" }))} />
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-[10px] text-muted-foreground">Centro de custo</label>
-              <Select value={fCentroCusto} onValueChange={(v) => { setFCentroCusto(v); setPage(1); }}>
-                <SelectTrigger className="h-9 w-48 text-xs"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos</SelectItem>
-                  {centrosCusto.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <SearchableFilter className="w-48" value={fCentroCusto}
+                onChange={(v) => { setFCentroCusto(v); setPage(1); }}
+                options={centrosCusto.map((c: any) => ({ value: c.id, label: c.nome, extra: c.codigo ?? "" }))} />
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-[10px] text-muted-foreground">Conta bancária</label>
-              <Select value={fContaBanc} onValueChange={(v) => { setFContaBanc(v); setPage(1); }}>
-                <SelectTrigger className="h-9 w-48 text-xs"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todas</SelectItem>
-                  {contasBancarias.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <SearchableFilter className="w-48" allLabel="Todas" value={fContaBanc}
+                onChange={(v) => { setFContaBanc(v); setPage(1); }}
+                options={contasBancarias.map((c: any) => ({ value: c.id, label: c.nome, extra: `${c.banco ?? ""} ${c.agencia ?? ""} ${c.conta ?? ""}` }))} />
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-[10px] text-muted-foreground">Valor mín</label>

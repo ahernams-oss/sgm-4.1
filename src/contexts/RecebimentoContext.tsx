@@ -24,7 +24,7 @@ export interface Recebimento {
 interface RecebimentoContextType {
   recebimentos: Recebimento[];
   registrarRecebimento: (data: Omit<Recebimento, "id" | "dataRecebimento" | "tipo">) => void;
-  rejeitarRecebimento: (pedidoId: string, justificativa: string, usuario: string, notaFiscal: string) => Promise<void>;
+  rejeitarRecebimento: (pedidoId: string, justificativa: string, usuario: string, notaFiscal: string, itensRej?: { itemId: string; quantidade: number; motivo: string }[]) => Promise<void>;
   getRecebimentosByPedido: (pedidoId: string) => Recebimento[];
   getTotalRecebidoPorItem: (pedidoId: string, itemId: string) => number;
 }
@@ -147,17 +147,26 @@ export function RecebimentoProvider({ children }: { children: ReactNode }) {
     qc.invalidateQueries({ queryKey: QK });
   };
 
-  const rejeitarRecebimento = async (pedidoId: string, justificativa: string, usuario: string, notaFiscal: string) => {
+  const rejeitarRecebimento = async (pedidoId: string, justificativa: string, usuario: string, notaFiscal: string, itensRej?: { itemId: string; quantidade: number; motivo: string }[]) => {
     const pedido = pedidos.find(p => p.id === pedidoId);
     if (!pedido) throw new Error("Pedido não encontrado");
     const agora = new Date().toISOString();
-    const motivo = `Recebimento rejeitado em ${new Date().toLocaleString("pt-BR")} por ${usuario}: ${justificativa}`;
+    const lista = itensRej ?? pedido.itens.map(i => ({ itemId: i.itemId, quantidade: i.quantidade, motivo: "" }));
+    const total = pedido.itens.every(i => (lista.find(l => l.itemId === i.itemId)?.quantidade || 0) >= i.quantidade);
+    const detalhe = lista.filter(l => l.quantidade > 0).map(l => {
+      const it = pedido.itens.find(i => i.itemId === l.itemId);
+      return `${it?.descricao ?? l.itemId}: ${l.quantidade}${l.motivo ? ` (${l.motivo})` : ""}`;
+    }).join("; ");
+    const motivo = `Recebimento ${total ? "rejeitado" : "rejeitado parcialmente"} em ${new Date().toLocaleString("pt-BR")} por ${usuario}: ${justificativa}. Itens: ${detalhe}`;
     await insertRow("recebimentos", {
       ...recebimentoToRow({
         id: "", pedidoId: pedido.id, pedidoNumero: pedido.numero, requisicaoId: pedido.requisicaoId,
         requisicaoNumero: pedido.requisicaoNumero, fornecedorNome: pedido.fornecedorNome,
         localEntrega: pedido.localEntrega || "", dataRecebimento: agora, usuario,
-        itens: pedido.itens.map(i => ({ itemId: i.itemId, descricao: i.descricao, quantidadePedida: i.quantidade, quantidadeRecebida: 0, unidadeMedida: (i as any).unidadeMedida || "", observacao: "" })),
+        itens: pedido.itens.map(i => {
+          const l = lista.find(x => x.itemId === i.itemId);
+          return { itemId: i.itemId, descricao: i.descricao, quantidadePedida: i.quantidade, quantidadeRecebida: 0, quantidadeRejeitada: l?.quantidade || 0, unidadeMedida: (i as any).unidadeMedida || "", observacao: l?.motivo || "" } as any;
+        }),
         observacaoGeral: justificativa, tipo: "Rejeitado" as any, notaFiscal, anexosNF: [],
       }),
       rejeitado: true, justificativa_rejeicao: justificativa, rejeitado_por: usuario, rejeitado_em: agora,
@@ -167,11 +176,11 @@ export function RecebimentoProvider({ children }: { children: ReactNode }) {
       .update({ bloqueado_pagamento: true, motivo_bloqueio: motivo })
       .eq("pedido_compra_id", pedido.id).neq("status", "paga");
     await (supabase as any).from("comunicacao_notificacoes").insert({
-      titulo: `NÃO PAGAR — Recebimento rejeitado OC-${String(pedido.numero).padStart(4, "0")}`,
+      titulo: `NÃO PAGAR — Recebimento ${total ? "rejeitado" : "rejeitado parcialmente"} OC-${String(pedido.numero).padStart(4, "0")}`,
       descricao: `Fornecedor: ${pedido.fornecedorNome}. NF: ${notaFiscal || "N/A"}. ${motivo}`,
       destinatario_nome: "Financeiro", tipo: "financeiro", criado_por: usuario, lida: false,
     });
-    updatePedidoStatus(pedido.id, "Recebimento Rejeitado" as any, usuario, `Recebimento rejeitado: ${justificativa}`);
+    updatePedidoStatus(pedido.id, (total ? "Recebimento Rejeitado" : "Rejeição Parcial") as any, usuario, motivo);
     qc.invalidateQueries({ queryKey: QK });
     qc.invalidateQueries({ queryKey: ["fin_contas_pagar"] });
   };

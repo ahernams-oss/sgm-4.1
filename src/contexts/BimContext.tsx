@@ -135,4 +135,4 @@ export function BimProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export const useBim = () => useContext(BimContext);
+export const useBim = () => { useActivateProvider("Bim"); return useContext(BimContext); };

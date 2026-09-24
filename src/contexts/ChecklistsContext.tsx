@@ -56,7 +56,7 @@ interface ChecklistsContextType {
 }
 
 const ChecklistsContext = createContext<ChecklistsContextType>({} as ChecklistsContextType);
-export const useChecklists = () => useContext(ChecklistsContext);
+export const useChecklists = () => { useActivateProvider("Checklists"); return useContext(ChecklistsContext); };
 
 const QK_C = ["checklists"] as const;
 const QK_P = ["checklist_preenchimentos"] as const;

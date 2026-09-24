@@ -28,7 +28,7 @@ interface Ctx {
 }
 
 const ResponsaveisTecnicosContext = createContext<Ctx>({} as Ctx);
-export const useResponsaveisTecnicos = () => useContext(ResponsaveisTecnicosContext);
+export const useResponsaveisTecnicos = () => { useActivateProvider("ResponsaveisTecnicos"); return useContext(ResponsaveisTecnicosContext); };
 const QK = ["responsaveis_tecnicos"] as const;
 
 export function ResponsaveisTecnicosProvider({ children }: { children: ReactNode }) {

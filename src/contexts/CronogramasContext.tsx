@@ -41,7 +41,7 @@ interface CronogramasContextType {
 }
 
 const CronogramasContext = createContext<CronogramasContextType>({} as CronogramasContextType);
-export const useCronogramas = () => useContext(CronogramasContext);
+export const useCronogramas = () => { useActivateProvider("Cronogramas"); return useContext(CronogramasContext); };
 const QK = ["cronogramas"] as const;
 
 export function CronogramasProvider({ children }: { children: ReactNode }) {

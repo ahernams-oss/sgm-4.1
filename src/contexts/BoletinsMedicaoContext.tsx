@@ -51,7 +51,7 @@ interface Ctx {
 }
 
 const BoletinsMedicaoContext = createContext<Ctx>({} as Ctx);
-export const useBoletinsMedicao = () => useContext(BoletinsMedicaoContext);
+export const useBoletinsMedicao = () => { useActivateProvider("BoletinsMedicao"); return useContext(BoletinsMedicaoContext); };
 
 const QK = ["boletins_medicao"] as const;
 

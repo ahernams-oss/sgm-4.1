@@ -25,7 +25,7 @@ interface EvidenciasContextType {
 }
 
 const EvidenciasContext = createContext<EvidenciasContextType>({} as EvidenciasContextType);
-export const useEvidencias = () => useContext(EvidenciasContext);
+export const useEvidencias = () => { useActivateProvider("Evidencias"); return useContext(EvidenciasContext); };
 const QK = ["evidencias"] as const;
 
 export function EvidenciasProvider({ children }: { children: ReactNode }) {

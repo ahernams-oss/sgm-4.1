@@ -46,6 +46,27 @@ export default function ContasPagar() {
       qcRefresh.invalidateQueries({ queryKey: ["fin_lancamentos"] }),
     ]);
   }, 30 * 60 * 1000);
+
+  // Sincronização em tempo real: OC emitida/alterada ou conta criada/alterada
+  useEffect(() => {
+    let timer: number | undefined;
+    const sync = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        qcRefresh.invalidateQueries({ queryKey: ["fin_contas_pagar"] });
+        qcRefresh.invalidateQueries({ queryKey: ["pedidos_compra"] });
+      }, 800);
+    };
+    const channel = supabase
+      .channel("contas_pagar_sync")
+      .on("postgres_changes", { event: "*", schema: "public", table: "fin_contas_pagar" }, sync)
+      .on("postgres_changes", { event: "*", schema: "public", table: "pedidos_compra" }, sync)
+      .subscribe();
+    return () => {
+      window.clearTimeout(timer);
+      supabase.removeChannel(channel);
+    };
+  }, [qcRefresh]);
   const { tem } = usePermissao();
   const podeCriar = tem("financeiro.contas_pagar.criar");
   const podeEditar = tem("financeiro.contas_pagar.editar");

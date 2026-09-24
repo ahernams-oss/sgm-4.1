@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "@/lib/router-compat";
 import { loadPersistedFilters, usePersistFilters } from "@/lib/persistedFilters";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { matchNumero } from "@/lib/matchNumero";

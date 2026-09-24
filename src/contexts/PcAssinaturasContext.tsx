@@ -37,7 +37,7 @@ const PcAssinaturasContext = createContext<Ctx>({
   registrar: async () => null,
   refresh: async () => {},
 });
-export const usePcAssinaturas = () => useContext(PcAssinaturasContext);
+export const usePcAssinaturas = () => { useActivateProvider("PcAssinaturas"); return useContext(PcAssinaturasContext); };
 
 const QK = ["pc_assinaturas"] as const;
 

@@ -32,7 +32,7 @@ const OsAssinaturasContext = createContext<Ctx>({
   buscarPorCodigo: async () => null,
   refresh: async () => {},
 });
-export const useOsAssinaturas = () => useContext(OsAssinaturasContext);
+export const useOsAssinaturas = () => { useActivateProvider("OsAssinaturas"); return useContext(OsAssinaturasContext); };
 const QK = ["os_assinaturas"] as const;
 
 export function OsAssinaturasProvider({ children }: { children: ReactNode }) {

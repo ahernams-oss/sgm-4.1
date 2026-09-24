@@ -49,7 +49,7 @@ interface Ctx {
 }
 
 const PlanosManutencaoContext = createContext<Ctx>({} as Ctx);
-export const usePlanosManutencao = () => useContext(PlanosManutencaoContext);
+export const usePlanosManutencao = () => { useActivateProvider("PlanosManutencao"); return useContext(PlanosManutencaoContext); };
 
 const QK_P = ["planos_manutencao"] as const;
 const QK_A = ["plano_manutencao_atividades"] as const;

@@ -47,7 +47,7 @@ const ContratosTerceirosContext = createContext<Ctx>({
   add: async () => null, update: async () => false, remove: async () => false,
   refresh: async () => {},
 });
-export const useContratosTerceiros = () => useContext(ContratosTerceirosContext);
+export const useContratosTerceiros = () => { useActivateProvider("ContratosTerceiros"); return useContext(ContratosTerceirosContext); };
 const QK = ["contratos_terceiros"] as const;
 
 export function ContratosTerceirosProvider({ children }: { children: ReactNode }) {

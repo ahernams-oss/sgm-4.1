@@ -32,7 +32,7 @@ const BoletimAssinaturasContext = createContext<Ctx>({
   buscarPorCodigo: async () => null,
   refresh: async () => {},
 });
-export const useBoletimAssinaturas = () => useContext(BoletimAssinaturasContext);
+export const useBoletimAssinaturas = () => { useActivateProvider("BoletimAssinaturas"); return useContext(BoletimAssinaturasContext); };
 const QK = ["boletim_assinaturas"] as const;
 
 export function BoletimAssinaturasProvider({ children }: { children: ReactNode }) {

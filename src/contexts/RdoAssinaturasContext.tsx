@@ -24,7 +24,7 @@ interface Ctx {
 }
 
 const RdoAssinaturasContext = createContext<Ctx>({} as Ctx);
-export const useRdoAssinaturas = () => useContext(RdoAssinaturasContext);
+export const useRdoAssinaturas = () => { useActivateProvider("RdoAssinaturas"); return useContext(RdoAssinaturasContext); };
 const QK = ["rdo_assinaturas"] as const;
 
 export function RdoAssinaturasProvider({ children }: { children: ReactNode }) {

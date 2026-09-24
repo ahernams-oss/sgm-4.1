@@ -192,7 +192,7 @@ interface PmocContextType {
 }
 
 const PmocContext = createContext<PmocContextType>({} as PmocContextType);
-export const usePmoc = () => useContext(PmocContext);
+export const usePmoc = () => { useActivateProvider("Pmoc"); return useContext(PmocContext); };
 
 const TABLES = [
   { table: "pmoc_planos", order: "titulo", key: ["pmoc_planos"] as const, mapper: rowToPlano },

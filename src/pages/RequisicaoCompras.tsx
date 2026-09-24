@@ -63,7 +63,7 @@ export default function RequisicaoComprasPage() {
   const { pedidos } = usePedidoCompra();
 
   const { materiais } = useMateriaisServicos();
-  const { getCodigoCompleto } = useCategoriasCompras();
+  const { getCodigoCompleto, grupos: gruposMercadoria } = useCategoriasCompras();
   const codigoComposto = (m: any) => {
     const cat = m?.categoriaId ? getCodigoCompleto(m.categoriaId) : "";
     return cat ? `${cat}.${m.codigo}` : m.codigo;
@@ -101,7 +101,7 @@ export default function RequisicaoComprasPage() {
       return JSON.parse(raw) as {
         search: string; filterStatus: string; filterCentroCusto: string;
         filterUrgencia: string; filterSolicitante: string;
-        filterDataIni: string; filterDataFim: string;
+        filterDataIni: string; filterDataFim: string; filterGrupo?: string;
       };
     } catch { return null; }
   };
@@ -113,6 +113,7 @@ export default function RequisicaoComprasPage() {
   const [filterSolicitante, setFilterSolicitante] = useState<string>(_savedFilters?.filterSolicitante ?? "Todos");
   const [filterDataIni, setFilterDataIni] = useState(_savedFilters?.filterDataIni ?? "");
   const [filterDataFim, setFilterDataFim] = useState(_savedFilters?.filterDataFim ?? "");
+  const [filterGrupo, setFilterGrupo] = useState<string>(_savedFilters?.filterGrupo ?? "Todos");
 
   const [pageReq, setPageReq] = useState(1);
   const fileInputRef = useRef<HTMLInputElement>(null);

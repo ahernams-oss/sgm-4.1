@@ -17,12 +17,14 @@ export interface Recebimento {
   requisicaoId: string; requisicaoNumero: number; fornecedorNome: string;
   localEntrega: string; dataRecebimento: string; usuario: string;
   itens: ItemRecebimento[]; observacaoGeral: string;
-  tipo: "Total" | "Parcial"; notaFiscal: string; anexosNF: AnexoNF[];
+  tipo: "Total" | "Parcial" | "Rejeitado"; notaFiscal: string; anexosNF: AnexoNF[];
+  rejeitado?: boolean; justificativaRejeicao?: string; rejeitadoPor?: string; rejeitadoEm?: string;
 }
 
 interface RecebimentoContextType {
   recebimentos: Recebimento[];
   registrarRecebimento: (data: Omit<Recebimento, "id" | "dataRecebimento" | "tipo">) => void;
+  rejeitarRecebimento: (pedidoId: string, justificativa: string, usuario: string, notaFiscal: string) => Promise<void>;
   getRecebimentosByPedido: (pedidoId: string) => Recebimento[];
   getTotalRecebidoPorItem: (pedidoId: string, itemId: string) => number;
 }
@@ -37,6 +39,8 @@ const rowToRecebimento = (r: any): Recebimento => ({
   dataRecebimento: r.data_recebimento ?? "", usuario: r.usuario ?? "",
   itens: r.itens ?? [], observacaoGeral: r.observacao_geral ?? "",
   tipo: r.tipo ?? "Total", notaFiscal: r.nota_fiscal ?? "", anexosNF: r.anexos_nf ?? [],
+  rejeitado: !!r.rejeitado, justificativaRejeicao: r.justificativa_rejeicao ?? "",
+  rejeitadoPor: r.rejeitado_por ?? "", rejeitadoEm: r.rejeitado_em ?? "",
 });
 
 const recebimentoToRow = (r: Recebimento) => ({
@@ -143,8 +147,37 @@ export function RecebimentoProvider({ children }: { children: ReactNode }) {
     qc.invalidateQueries({ queryKey: QK });
   };
 
+  const rejeitarRecebimento = async (pedidoId: string, justificativa: string, usuario: string, notaFiscal: string) => {
+    const pedido = pedidos.find(p => p.id === pedidoId);
+    if (!pedido) throw new Error("Pedido não encontrado");
+    const agora = new Date().toISOString();
+    const motivo = `Recebimento rejeitado em ${new Date().toLocaleString("pt-BR")} por ${usuario}: ${justificativa}`;
+    await insertRow("recebimentos", {
+      ...recebimentoToRow({
+        id: "", pedidoId: pedido.id, pedidoNumero: pedido.numero, requisicaoId: pedido.requisicaoId,
+        requisicaoNumero: pedido.requisicaoNumero, fornecedorNome: pedido.fornecedorNome,
+        localEntrega: pedido.localEntrega || "", dataRecebimento: agora, usuario,
+        itens: pedido.itens.map(i => ({ itemId: i.itemId, descricao: i.descricao, quantidadePedida: i.quantidade, quantidadeRecebida: 0, unidadeMedida: (i as any).unidadeMedida || "", observacao: "" })),
+        observacaoGeral: justificativa, tipo: "Rejeitado" as any, notaFiscal, anexosNF: [],
+      }),
+      rejeitado: true, justificativa_rejeicao: justificativa, rejeitado_por: usuario, rejeitado_em: agora,
+    } as any);
+    const { supabase } = await import("@/integrations/supabase/client");
+    await (supabase as any).from("fin_contas_pagar")
+      .update({ bloqueado_pagamento: true, motivo_bloqueio: motivo })
+      .eq("pedido_compra_id", pedido.id).neq("status", "paga");
+    await (supabase as any).from("comunicacao_notificacoes").insert({
+      titulo: `NÃO PAGAR — Recebimento rejeitado OC-${String(pedido.numero).padStart(4, "0")}`,
+      descricao: `Fornecedor: ${pedido.fornecedorNome}. NF: ${notaFiscal || "N/A"}. ${motivo}`,
+      destinatario_nome: "Financeiro", tipo: "financeiro", criado_por: usuario, lida: false,
+    });
+    updatePedidoStatus(pedido.id, "Recebimento Rejeitado" as any, usuario, `Recebimento rejeitado: ${justificativa}`);
+    qc.invalidateQueries({ queryKey: QK });
+    qc.invalidateQueries({ queryKey: ["fin_contas_pagar"] });
+  };
+
   return (
-    <RecebimentoContext.Provider value={{ recebimentos, registrarRecebimento, getRecebimentosByPedido, getTotalRecebidoPorItem }}>
+    <RecebimentoContext.Provider value={{ recebimentos, registrarRecebimento, rejeitarRecebimento, getRecebimentosByPedido, getTotalRecebidoPorItem }}>
       {children}
     </RecebimentoContext.Provider>
   );

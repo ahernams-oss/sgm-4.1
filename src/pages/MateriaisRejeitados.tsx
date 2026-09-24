@@ -186,9 +186,9 @@ export default function MateriaisRejeitadosPage() {
       </Card>
 
       <PaginationControls
-        page={page}
+        currentPage={page}
         pageSize={pageSize}
-        total={filtradas.length}
+        totalItems={filtradas.length}
         onPageChange={setPage}
         onPageSizeChange={s => { setPageSize(s); setPage(1); }}
       />

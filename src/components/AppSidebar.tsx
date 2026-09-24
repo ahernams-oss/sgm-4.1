@@ -1,4 +1,5 @@
 import {
+  Ban,
   BookOpen,
   ChevronDown,
   ClipboardList,

@@ -102,9 +102,15 @@ const OsModelosPage = () => {
                 <Button variant="outline" className="gap-2" disabled={modelos.length === 0}><Download className="h-4 w-4" /> Exportar</Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => exportarModelosJson(modelos)}>JSON (padrão SGM)</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => exportarModelosExcel(modelos)}>Excel (.xlsx)</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => exportarModelosCsv(modelos)}>CSV</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportarModelosJson(modelosExportacao)}>
+                  {selecionados.size > 0 ? `JSON (padrão SGM) — ${selecionados.size} selecionado(s)` : "JSON (padrão SGM) — todos"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportarModelosExcel(modelosExportacao)}>
+                  {selecionados.size > 0 ? `Excel (.xlsx) — ${selecionados.size} selecionado(s)` : "Excel (.xlsx) — todos"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportarModelosCsv(modelosExportacao)}>
+                  {selecionados.size > 0 ? `CSV — ${selecionados.size} selecionado(s)` : "CSV — todos"}
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <Button variant="outline" className="gap-2" disabled={importing} onClick={() => fileRef.current?.click()}>

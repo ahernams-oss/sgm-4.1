@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Plus, Pencil, Trash2, FileText, Download, Upload } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,8 +19,23 @@ const OsModelosPage = () => {
   const [descricao, setDescricao] = useState("");
   const [search, setSearch] = useState("");
   const [deleteOpen, setDeleteOpen] = useState<string | null>(null);
+  const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
   const fileRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
+
+  const toggleSelecionado = (id: string) => {
+    setSelecionados((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleTodos = () => {
+    setSelecionados((prev) => (prev.size === filtered.length && filtered.length > 0 ? new Set() : new Set(filtered.map((m) => m.id))));
+  };
+
+  const modelosExportacao = selecionados.size > 0 ? modelos.filter((m) => selecionados.has(m.id)) : modelos;
 
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -86,9 +102,15 @@ const OsModelosPage = () => {
                 <Button variant="outline" className="gap-2" disabled={modelos.length === 0}><Download className="h-4 w-4" /> Exportar</Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => exportarModelosJson(modelos)}>JSON (padrão SGM)</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => exportarModelosExcel(modelos)}>Excel (.xlsx)</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => exportarModelosCsv(modelos)}>CSV</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportarModelosJson(modelosExportacao)}>
+                  {selecionados.size > 0 ? `JSON (padrão SGM) — ${selecionados.size} selecionado(s)` : "JSON (padrão SGM) — todos"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportarModelosExcel(modelosExportacao)}>
+                  {selecionados.size > 0 ? `Excel (.xlsx) — ${selecionados.size} selecionado(s)` : "Excel (.xlsx) — todos"}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportarModelosCsv(modelosExportacao)}>
+                  {selecionados.size > 0 ? `CSV — ${selecionados.size} selecionado(s)` : "CSV — todos"}
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <Button variant="outline" className="gap-2" disabled={importing} onClick={() => fileRef.current?.click()}>
@@ -132,6 +154,13 @@ const OsModelosPage = () => {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-[50px]">
+                  <Checkbox
+                    aria-label="Selecionar todos os modelos"
+                    checked={filtered.length > 0 && selecionados.size === filtered.length}
+                    onCheckedChange={toggleTodos}
+                  />
+                </TableHead>
                 <TableHead>Nome</TableHead>
                 <TableHead>Descrição</TableHead>
                 <TableHead className="w-[100px]">Ações</TableHead>
@@ -139,9 +168,16 @@ const OsModelosPage = () => {
             </TableHeader>
             <TableBody>
               {filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground">Nenhum modelo encontrado</TableCell></TableRow>
+                <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">Nenhum modelo encontrado</TableCell></TableRow>
               ) : filtered.map(m => (
                 <TableRow key={m.id}>
+                  <TableCell>
+                    <Checkbox
+                      aria-label={`Selecionar modelo ${m.nome}`}
+                      checked={selecionados.has(m.id)}
+                      onCheckedChange={() => toggleSelecionado(m.id)}
+                    />
+                  </TableCell>
                   <TableCell className="font-medium">{m.nome}</TableCell>
                   <TableCell className="text-muted-foreground">{m.descricao || "—"}</TableCell>
                   <TableCell>

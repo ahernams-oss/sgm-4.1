@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, CheckCircle2, AlertCircle, Paperclip, X, Filter, Undo2, Ban, LockOpen } from "lucide-react";
+import { Plus, Pencil, Trash2, CheckCircle2, AlertCircle, Paperclip, X, Filter, Undo2, Ban, LockOpen, RefreshCw } from "lucide-react";
+import { useDashboardRefresh } from "@/hooks/useDashboardRefresh";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useQueryClient } from "@tanstack/react-query";
@@ -38,6 +39,13 @@ export default function ContasPagar() {
   const fornecedores = useMemo(() => clientes.filter(c => c.tipo === "Fornecedor"), [clientes]);
   const navigate = useNavigate();
   const { pedidos: pedidosCompra } = usePedidoCompra();
+  const qcRefresh = useQueryClient();
+  const { lastUpdated, isRefreshing, refresh } = useDashboardRefresh(async () => {
+    await Promise.all([
+      qcRefresh.invalidateQueries({ queryKey: ["fin_contas_pagar"] }),
+      qcRefresh.invalidateQueries({ queryKey: ["fin_lancamentos"] }),
+    ]);
+  }, 30 * 60 * 1000);
   const { tem } = usePermissao();
   const podeCriar = tem("financeiro.contas_pagar.criar");
   const podeEditar = tem("financeiro.contas_pagar.editar");
@@ -224,7 +232,17 @@ export default function ContasPagar() {
 
   return (
     <div className="p-4 sm:p-6 space-y-4">
-      <h1 className="text-xl sm:text-2xl font-serif font-semibold">Contas a Pagar</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-xl sm:text-2xl font-serif font-semibold">Contas a Pagar</h1>
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <span className="tabular-nums">
+            Atualizado às {lastUpdated.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} · automático a cada 30 min
+          </span>
+          <Button size="sm" variant="outline" onClick={() => { void refresh().then(() => toast.success("Contas a pagar atualizadas")); }} disabled={isRefreshing}>
+            <RefreshCw className={`h-4 w-4 mr-1 ${isRefreshing ? "animate-spin" : ""}`} /> Atualizar
+          </Button>
+        </div>
+      </div>
 
       {(podeCriar || (editingId && podeEditar)) && (
       <Card>

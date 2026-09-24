@@ -669,20 +669,28 @@ export default function RecebimentoComprasPage() {
                     </TableBody>
                   </Table>
                   {r.observacaoGeral && <p className="text-xs text-muted-foreground mt-2">Obs: {r.observacaoGeral}</p>}
-                  {r.anexosNF && r.anexosNF.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {r.anexosNF.map((a, i) => (
-                        <a
-                          key={i}
-                          href={a.dados}
-                          download={a.nome}
-                          className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                        >
-                          <Download className="h-3 w-3" />{a.nome}
-                        </a>
-                      ))}
-                    </div>
-                  )}
+                  <div className="mt-3 rounded-md border p-2 space-y-1">
+                    <p className="text-xs font-semibold">Nota Fiscal: {r.notaFiscal || "não informada"} — Anexos ({r.anexosNF?.length || 0})</p>
+                    {(!r.anexosNF || r.anexosNF.length === 0) && <p className="text-xs text-muted-foreground">Nenhum documento anexado.</p>}
+                    {r.anexosNF?.map((a, i) => (
+                      <div key={i} className="flex items-center justify-between gap-2">
+                        <span className="flex items-center gap-1 text-xs truncate"><FileText className="h-3 w-3 shrink-0" />{a.nome}</span>
+                        <span className="flex gap-3 shrink-0">
+                          <button
+                            type="button"
+                            className="text-xs text-primary hover:underline"
+                            onClick={async () => {
+                              const blob = await (await fetch(a.dados)).blob();
+                              window.open(URL.createObjectURL(blob), "_blank");
+                            }}
+                          >Visualizar</button>
+                          <a href={a.dados} download={a.nome} className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                            <Download className="h-3 w-3" />Baixar
+                          </a>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </CardContent>
               </Card>
             ))}

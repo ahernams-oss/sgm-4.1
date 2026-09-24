@@ -100,10 +100,22 @@ export default function ContasReceber() {
 
   const filtradas = useMemo(() => contasReceber.filter((c) => {
     if (busca && !c.descricao.toLowerCase().includes(busca.toLowerCase()) && !(c.cliente_nome || "").toLowerCase().includes(busca.toLowerCase())) return false;
-    if (filtroStatus === "todos") return true;
-    if (filtroStatus === "vencida") return isVencida(c);
-    return c.status === filtroStatus;
-  }).sort((a, b) => a.data_vencimento.localeCompare(b.data_vencimento)), [contasReceber, busca, filtroStatus]);
+    if (filtroStatus !== "todos") {
+      if (filtroStatus === "vencida") { if (!isVencida(c)) return false; }
+      else if (c.status !== filtroStatus) return false;
+    }
+    if (filtroCliente !== "todos" && c.cliente_id !== filtroCliente) return false;
+    if (filtroCategoria !== "todos" && c.plano_conta_id !== filtroCategoria) return false;
+    if (filtroCentroCusto !== "todos" && c.centro_custo_id !== filtroCentroCusto) return false;
+    if (filtroContaBancaria !== "todos" && c.conta_bancaria_id !== filtroContaBancaria) return false;
+    if (filtroVencIni && c.data_vencimento < filtroVencIni) return false;
+    if (filtroVencFim && c.data_vencimento > filtroVencFim) return false;
+    const vMin = parseFloat(filtroValorMin.replace(",", "."));
+    if (filtroValorMin && !isNaN(vMin) && Number(c.valor_total) < vMin) return false;
+    const vMax = parseFloat(filtroValorMax.replace(",", "."));
+    if (filtroValorMax && !isNaN(vMax) && Number(c.valor_total) > vMax) return false;
+    return true;
+  }).sort((a, b) => a.data_vencimento.localeCompare(b.data_vencimento)), [contasReceber, busca, filtroStatus, filtroCliente, filtroCategoria, filtroCentroCusto, filtroContaBancaria, filtroVencIni, filtroVencFim, filtroValorMin, filtroValorMax]);
 
   const { paginated } = paginate(filtradas, page, pageSize);
   const totais = useMemo(() => ({

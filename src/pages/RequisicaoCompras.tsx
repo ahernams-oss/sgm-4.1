@@ -594,6 +594,16 @@ export default function RequisicaoComprasPage() {
           </Select>
         </div>
         <div className="min-w-0">
+          <Label className="text-xs">Grupo de Mercadoria</Label>
+          <Select value={filterGrupo} onValueChange={v => { setFilterGrupo(v); setPageReq(1); }}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Todos">Todos</SelectItem>
+              {gruposMercadoria.map(g => <SelectItem key={g.id} value={g.codigo}>{g.codigo} - {g.nome}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="min-w-0">
           <Label className="text-xs">Data inicial</Label>
           <Input type="date" value={filterDataIni} onChange={e => { setFilterDataIni(e.target.value); setPageReq(1); }} />
         </div>
@@ -660,6 +670,12 @@ export default function RequisicaoComprasPage() {
                 urgencia: (
                   <Badge title={alertaTitle} className={`${r.urgencia === "Urgente" ? "bg-red-500 text-white hover:bg-red-500" : r.urgencia === "Alta" ? "bg-orange-500 text-white hover:bg-orange-500" : r.urgencia === "Normal" ? "bg-green-600 text-white hover:bg-green-600" : "bg-muted text-muted-foreground"} ${alertaUrgente || alertaAtrasoCotacao ? "animate-blink-urgent" : ""}`}>{r.urgencia}</Badge>
                 ),
+                grupo: (() => {
+                  const gs = gruposDaReq(r);
+                  return gs.length > 0
+                    ? <span className="text-muted-foreground">{gs.map(grupoLabel).join(", ")}</span>
+                    : <span className="text-muted-foreground">-</span>;
+                })(),
                 itens: r.itens.length,
                 status: <Badge className={statusColors[r.status]}>{r.status}</Badge>,
                 cotacao: cotacoesDaReq.length > 0 ? (

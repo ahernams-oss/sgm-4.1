@@ -63,7 +63,7 @@ export default function RequisicaoComprasPage() {
   const { pedidos } = usePedidoCompra();
 
   const { materiais } = useMateriaisServicos();
-  const { getCodigoCompleto } = useCategoriasCompras();
+  const { getCodigoCompleto, grupos: gruposMercadoria } = useCategoriasCompras();
   const codigoComposto = (m: any) => {
     const cat = m?.categoriaId ? getCodigoCompleto(m.categoriaId) : "";
     return cat ? `${cat}.${m.codigo}` : m.codigo;
@@ -101,7 +101,7 @@ export default function RequisicaoComprasPage() {
       return JSON.parse(raw) as {
         search: string; filterStatus: string; filterCentroCusto: string;
         filterUrgencia: string; filterSolicitante: string;
-        filterDataIni: string; filterDataFim: string;
+        filterDataIni: string; filterDataFim: string; filterGrupo?: string;
       };
     } catch { return null; }
   };
@@ -113,6 +113,7 @@ export default function RequisicaoComprasPage() {
   const [filterSolicitante, setFilterSolicitante] = useState<string>(_savedFilters?.filterSolicitante ?? "Todos");
   const [filterDataIni, setFilterDataIni] = useState(_savedFilters?.filterDataIni ?? "");
   const [filterDataFim, setFilterDataFim] = useState(_savedFilters?.filterDataFim ?? "");
+  const [filterGrupo, setFilterGrupo] = useState<string>(_savedFilters?.filterGrupo ?? "Todos");
 
   const [pageReq, setPageReq] = useState(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -128,6 +129,7 @@ export default function RequisicaoComprasPage() {
       setFilterSolicitante("Todos");
       setFilterDataIni("");
       setFilterDataFim("");
+      setFilterGrupo("Todos");
       setPageReq(1);
       searchParams.delete("numero");
       setSearchParams(searchParams, { replace: true });
@@ -138,10 +140,10 @@ export default function RequisicaoComprasPage() {
     try {
       localStorage.setItem(FILTERS_KEY, JSON.stringify({
         search, filterStatus, filterCentroCusto, filterUrgencia,
-        filterSolicitante, filterDataIni, filterDataFim,
+        filterSolicitante, filterDataIni, filterDataFim, filterGrupo,
       }));
     } catch { /* ignore */ }
-  }, [search, filterStatus, filterCentroCusto, filterUrgencia, filterSolicitante, filterDataIni, filterDataFim]);
+  }, [search, filterStatus, filterCentroCusto, filterUrgencia, filterSolicitante, filterDataIni, filterDataFim, filterGrupo]);
 
 
   const loadJustificativas = async () => {
@@ -158,6 +160,7 @@ export default function RequisicaoComprasPage() {
     solicitante: { label: "Solicitante" },
     centroCusto: { label: "Centro de Custo" },
     urgencia: { label: "Urgência", className: "text-center" },
+    grupo: { label: "Grupo de Mercadoria" },
     itens: { label: "Itens", className: "text-center" },
     status: { label: "Status", className: "text-center" },
     cotacao: { label: "Cotação", className: "text-center" },
@@ -165,7 +168,7 @@ export default function RequisicaoComprasPage() {
   };
   const { order: colOrder, setOrder: setColOrder } = useColumnOrder(
     "compras.requisicoes",
-    ["numero", "data", "solicitante", "centroCusto", "urgencia", "itens", "status", "cotacao", "ordemCompra"]
+    ["numero", "data", "solicitante", "centroCusto", "urgencia", "grupo", "itens", "status", "cotacao", "ordemCompra"]
   );
 
 
@@ -198,9 +201,17 @@ export default function RequisicaoComprasPage() {
     return cliente?.locaisEntrega || [];
   }, [centroCusto, clientesLista]);
 
+  const grupoLabel = (codigo: string) => {
+    const g = gruposMercadoria.find(x => x.codigo === codigo);
+    return g ? `${g.codigo} - ${g.nome}` : codigo;
+  };
+  const gruposDaReq = (r: RequisicaoCompras): string[] =>
+    Array.from(new Set(r.itens.map(i => getGrupoCodigo(i.materialId)).filter(Boolean)));
+
   const filtered = useMemo(() => {
     let list = requisicoes;
     if (filterStatus !== "Todos") list = list.filter(r => r.status === filterStatus);
+    if (filterGrupo !== "Todos") list = list.filter(r => gruposDaReq(r).includes(filterGrupo));
     if (filterCentroCusto !== "Todos") list = list.filter(r => r.centroCusto === filterCentroCusto);
     if (filterUrgencia !== "Todas") list = list.filter(r => r.urgencia === filterUrgencia);
     if (filterSolicitante !== "Todos") list = list.filter(r => r.solicitante === filterSolicitante);
@@ -221,7 +232,7 @@ export default function RequisicaoComprasPage() {
     }
 
     return list.sort((a, b) => b.numero - a.numero);
-  }, [requisicoes, search, filterStatus, filterCentroCusto, filterUrgencia, filterSolicitante, filterDataIni, filterDataFim]);
+  }, [requisicoes, search, filterStatus, filterCentroCusto, filterUrgencia, filterSolicitante, filterDataIni, filterDataFim, filterGrupo]);
 
   const solicitantesUnicos = useMemo(() =>
     Array.from(new Set(requisicoes.map(r => r.solicitante).filter(Boolean))).sort(),
@@ -236,7 +247,7 @@ export default function RequisicaoComprasPage() {
   const limparFiltros = () => {
     setSearch(""); setFilterStatus("Todos"); setFilterCentroCusto("Todos");
     setFilterUrgencia("Todas"); setFilterSolicitante("Todos");
-    setFilterDataIni(""); setFilterDataFim("");
+    setFilterDataIni(""); setFilterDataFim(""); setFilterGrupo("Todos");
   };
 
   const resetForm = () => {
@@ -474,7 +485,7 @@ export default function RequisicaoComprasPage() {
     }
   };
 
-  const REL_COLS = ["Nº", "Data", "Solicitante", "Centro de Custo", "Local de Entrega", "Urgência", "Prazo Desejado", "Status", "Qtd. Itens", "Itens"];
+  const REL_COLS = ["Nº", "Data", "Solicitante", "Centro de Custo", "Local de Entrega", "Urgência", "Grupo de Mercadoria", "Prazo Desejado", "Status", "Qtd. Itens", "Itens"];
   const relRows = () => filtered.map(r => [
     `RCS-${String(r.numero).padStart(4, "0")}`,
     r.dataCriacao ? new Date(r.dataCriacao).toLocaleDateString("pt-BR") : "-",
@@ -482,6 +493,7 @@ export default function RequisicaoComprasPage() {
     r.centroCustoNome || "-",
     r.localEntrega || "-",
     r.urgencia || "-",
+    gruposDaReq(r).map(grupoLabel).join(", ") || "-",
     r.prazoDesejado ? new Date(r.prazoDesejado + "T12:00:00").toLocaleDateString("pt-BR") : "-",
     r.status || "-",
     String((r.itens || []).length),
@@ -493,6 +505,7 @@ export default function RequisicaoComprasPage() {
     if (filterCentroCusto !== "Todos") p.push(`Centro de Custo: ${centrosUnicos.find(([id]) => id === filterCentroCusto)?.[1] || filterCentroCusto}`);
     if (filterStatus !== "Todos") p.push(`Status: ${filterStatus}`);
     if (filterUrgencia !== "Todas") p.push(`Urgência: ${filterUrgencia}`);
+    if (filterGrupo !== "Todos") p.push(`Grupo de Mercadoria: ${grupoLabel(filterGrupo)}`);
     if (filterSolicitante !== "Todos") p.push(`Solicitante: ${filterSolicitante}`);
     if (filterDataIni) p.push(`De: ${new Date(filterDataIni + "T12:00:00").toLocaleDateString("pt-BR")}`);
     if (filterDataFim) p.push(`Até: ${new Date(filterDataFim + "T12:00:00").toLocaleDateString("pt-BR")}`);
@@ -583,6 +596,16 @@ export default function RequisicaoComprasPage() {
           </Select>
         </div>
         <div className="min-w-0">
+          <Label className="text-xs">Grupo de Mercadoria</Label>
+          <Select value={filterGrupo} onValueChange={v => { setFilterGrupo(v); setPageReq(1); }}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Todos">Todos</SelectItem>
+              {gruposMercadoria.map(g => <SelectItem key={g.id} value={g.codigo}>{g.codigo} - {g.nome}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="min-w-0">
           <Label className="text-xs">Data inicial</Label>
           <Input type="date" value={filterDataIni} onChange={e => { setFilterDataIni(e.target.value); setPageReq(1); }} />
         </div>
@@ -649,6 +672,12 @@ export default function RequisicaoComprasPage() {
                 urgencia: (
                   <Badge title={alertaTitle} className={`${r.urgencia === "Urgente" ? "bg-red-500 text-white hover:bg-red-500" : r.urgencia === "Alta" ? "bg-orange-500 text-white hover:bg-orange-500" : r.urgencia === "Normal" ? "bg-green-600 text-white hover:bg-green-600" : "bg-muted text-muted-foreground"} ${alertaUrgente || alertaAtrasoCotacao ? "animate-blink-urgent" : ""}`}>{r.urgencia}</Badge>
                 ),
+                grupo: (() => {
+                  const gs = gruposDaReq(r);
+                  return gs.length > 0
+                    ? <span className="text-muted-foreground">{gs.map(grupoLabel).join(", ")}</span>
+                    : <span className="text-muted-foreground">-</span>;
+                })(),
                 itens: r.itens.length,
                 status: <Badge className={statusColors[r.status]}>{r.status}</Badge>,
                 cotacao: cotacoesDaReq.length > 0 ? (

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { usePersistFilters } from "@/lib/persistedFilters";
 import { DoubleConfirmDelete, useDoubleConfirmDelete } from "@/components/DoubleConfirmDelete";
 import { Stethoscope, Search, Trash2, Upload, FileText, Bell, AlertTriangle, Plus, FileDown, FileSpreadsheet, Download } from "lucide-react";
 import { gerarPdfExames } from "@/lib/gerarPdfExames";
@@ -59,6 +60,9 @@ const ExamesPage = () => {
   const [search, setSearch] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("todos");
   const [filtroTipo, setFiltroTipo] = useState("todos");
+  const [filterDataIni, setFilterDataIni] = useState("");
+  const [filterDataFim, setFilterDataFim] = useState("");
+  usePersistFilters("exames_filters_v1", { filtroStatus, filtroTipo, filterDataIni, filterDataFim });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [uploading, setUploading] = useState(false);
@@ -165,8 +169,17 @@ const ExamesPage = () => {
           (e.clinica && e.clinica.toLowerCase().includes(s))
       );
     }
+    if (filterDataIni || filterDataFim) {
+      result = result.filter((e) => {
+        const data = (e.data_realizacao || e.data_vencimento || "").slice(0, 10);
+        if (!data) return false;
+        if (filterDataIni && data < filterDataIni) return false;
+        if (filterDataFim && data > filterDataFim) return false;
+        return true;
+      });
+    }
     return result;
-  }, [exames, search, filtroStatus, filtroTipo]);
+  }, [exames, search, filtroStatus, filtroTipo, filterDataIni, filterDataFim]);
 
   const { paginated, totalPages, safePage } = paginate(filtered, page, pageSize);
   const resetPage = () => setPage(1);
@@ -255,6 +268,32 @@ const ExamesPage = () => {
             <SelectItem value="ok">Em Dia</SelectItem>
           </SelectContent>
         </Select>
+        <div className="flex items-center gap-2">
+          <Input
+            type="date"
+            aria-label="Data inicial"
+            className="w-[150px]"
+            value={filterDataIni}
+            onChange={(e) => { setFilterDataIni(e.target.value); resetPage(); }}
+          />
+          <span className="text-xs text-muted-foreground">até</span>
+          <Input
+            type="date"
+            aria-label="Data final"
+            className="w-[150px]"
+            value={filterDataFim}
+            onChange={(e) => { setFilterDataFim(e.target.value); resetPage(); }}
+          />
+          {(filterDataIni || filterDataFim) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => { setFilterDataIni(""); setFilterDataFim(""); resetPage(); }}
+            >
+              Limpar
+            </Button>
+          )}
+        </div>
       </div>
 
       {loading ? (

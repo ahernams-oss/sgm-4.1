@@ -114,6 +114,7 @@ export default function MateriaisRejeitadosPage() {
   const relFiltros = () => {
     const p: string[] = [];
     if (busca.trim()) p.push(`Busca: ${busca.trim()}`);
+    if (situacao !== "Todas") p.push(`Situação: ${situacao}`);
     if (dataIni) p.push(`De: ${new Date(dataIni + "T12:00:00").toLocaleDateString("pt-BR")}`);
     if (dataFim) p.push(`Até: ${new Date(dataFim + "T12:00:00").toLocaleDateString("pt-BR")}`);
     return p.length ? `Filtros: ${p.join("  |  ")}` : "Filtros: nenhum (todos os rejeitados)";
@@ -121,6 +122,7 @@ export default function MateriaisRejeitadosPage() {
   const relRows = () => filtradas.map(l => [
     formatarPedido(l.pedidoNumero),
     `RCS-${String(l.requisicaoNumero).padStart(4, "0")}`,
+    l.situacao,
     l.departamento,
     l.fornecedorNome,
     `${l.itemDescricao}${l.unidadeMedida ? ` (${l.unidadeMedida})` : ""}`,
@@ -217,8 +219,19 @@ export default function MateriaisRejeitadosPage() {
             <Label>Data final</Label>
             <Input type="date" value={dataFim} onChange={e => { setDataFim(e.target.value); setPage(1); }} />
           </div>
-          {(dataIni || dataFim || busca) && (
-            <Button variant="ghost" size="sm" onClick={() => { setBusca(""); setDataIni(""); setDataFim(""); setPage(1); }}>
+          <div className="w-[210px]">
+            <Label>Situação</Label>
+            <Select value={situacao} onValueChange={v => { setSituacao(v); setPage(1); }}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Todas">Todas</SelectItem>
+                <SelectItem value="Recebimento Rejeitado">Recebimento Rejeitado</SelectItem>
+                <SelectItem value="Rejeição Parcial">Rejeição Parcial</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {(dataIni || dataFim || busca || situacao !== "Todas") && (
+            <Button variant="ghost" size="sm" onClick={() => { setBusca(""); setDataIni(""); setDataFim(""); setSituacao("Todas"); setPage(1); }}>
               <XCircle className="h-4 w-4 mr-1" /> Limpar filtros
             </Button>
           )}

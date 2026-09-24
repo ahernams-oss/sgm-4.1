@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import { usePermissao } from "@/hooks/usePermissao";
 import { useNavigate } from "@/lib/router-compat";
 import { usePedidoCompra } from "@/contexts/PedidoCompraContext";
+import { gerarContasPagarDePC } from "@/lib/financeiroFromPC";
 
 const empty = {
   descricao: "", fornecedor_id: null as string | null, fornecedor_nome: "",
@@ -47,6 +48,21 @@ export default function ContasPagar() {
       qcRefresh.invalidateQueries({ queryKey: ["fin_lancamentos"] }),
     ]);
   }, 30 * 60 * 1000);
+
+  // Gera automaticamente as contas das OCs emitidas que ainda não têm lançamento
+  useEffect(() => {
+    if (!pedidosCompra.length) return;
+    let cancel = false;
+    (async () => {
+      const { data } = await (supabase as any).from("fin_contas_pagar").select("pedido_compra_id").not("pedido_compra_id", "is", null);
+      const comConta = new Set((data || []).map((r: any) => r.pedido_compra_id));
+      const faltando = pedidosCompra.filter(p => !comConta.has(p.id) && !["Cancelado", "Pendente"].includes(p.status as string) && (p.valorTotal || 0) > 0);
+      let n = 0;
+      for (const p of faltando) { if (cancel) return; n += await gerarContasPagarDePC(p as any, { silent: true }); }
+      if (n > 0) { qcRefresh.invalidateQueries({ queryKey: ["fin_contas_pagar"] }); toast.success(`${n} lançamento(s) de Ordens de Compra sincronizado(s).`); }
+    })();
+    return () => { cancel = true; };
+  }, [pedidosCompra]);
 
   // Sincronização em tempo real: OC emitida/alterada ou conta criada/alterada
   useEffect(() => {

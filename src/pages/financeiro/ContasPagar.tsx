@@ -242,7 +242,10 @@ export default function ContasPagar() {
         if (filtroStatus === "vencida") { if (!isVencida(c)) return false; }
         else if (c.status !== filtroStatus) return false;
       }
-      if (fFornecedor !== "todos" && c.fornecedor_id !== fFornecedor) return false;
+      if (fFornecedor !== "todos") {
+        if (fFornecedor.startsWith("nome:")) { if ((c.fornecedor_nome || "") !== fFornecedor.slice(5)) return false; }
+        else if (c.fornecedor_id !== fFornecedor) return false;
+      }
       if (fPlanoConta !== "todos" && c.plano_conta_id !== fPlanoConta) return false;
       if (fCentroCusto !== "todos" && c.centro_custo_id !== fCentroCusto) return false;
       if (fContaBanc !== "todos" && c.conta_bancaria_id !== fContaBanc) return false;
@@ -395,7 +398,12 @@ export default function ContasPagar() {
               <label className="text-[10px] text-muted-foreground">Fornecedor</label>
               <SearchableFilter className="w-52" value={fFornecedor} placeholder="Nome, fantasia ou CNPJ..."
                 onChange={(v) => { setFFornecedor(v); setPage(1); }}
-                options={fornecedores.map((f: any) => ({ value: f.id, label: f.nome, extra: `${f.nome_fantasia ?? ""} ${f.cnpj ?? ""} ${f.codigo ?? ""}` }))} />
+                options={[
+                  ...fornecedores.map((f: any) => ({ value: f.id, label: f.nome, extra: `${f.nome_fantasia ?? ""} ${f.cnpj ?? ""} ${f.codigo ?? ""}` })),
+                  ...Array.from(new Set(contasPagar.filter(c => !c.fornecedor_id && c.fornecedor_nome).map(c => c.fornecedor_nome as string)))
+                    .filter(n => !fornecedores.some((f: any) => f.nome === n))
+                    .map(n => ({ value: `nome:${n}`, label: n })),
+                ].sort((a, b) => a.label.localeCompare(b.label, "pt-BR", { numeric: true }))} />
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-[10px] text-muted-foreground">Categoria DRE</label>

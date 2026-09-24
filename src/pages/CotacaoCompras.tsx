@@ -755,7 +755,7 @@ export default function CotacaoComprasPage() {
         linhasFinais.push({
           fornecedorId: destinoId,
           fornecedorNome: aj?.fornecedorNomeFinal || propDestino?.fornecedorNome || grupo.fornecedorNome,
-          condicaoPagamento: meta.condicoesPagamento?.[destinoId] ?? propDestino?.condicaoPagamento ?? grupo.condicaoPagamento,
+          condicaoPagamento: (meta.condicoesPagamento?.[destinoId] || "") || propDestino?.condicaoPagamento || grupo.condicaoPagamento,
           prazoEntrega: propDestino?.prazoEntrega ?? grupo.prazoEntrega,
           item: i,
           precoFinal,

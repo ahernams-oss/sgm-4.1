@@ -263,6 +263,13 @@ export default function CotacaoComprasPage() {
   // Proposta form
   const [propFornecedorId, setPropFornecedorId] = useState("");
   const [propCondicao, setPropCondicao] = useState("");
+  const [condicoesPagamento, setCondicoesPagamento] = useState<{ id: string; nome: string }[]>([]);
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("fin_condicoes_pagamento").select("id, nome").eq("ativo", true).order("nome");
+      setCondicoesPagamento((data as any) || []);
+    })();
+  }, []);
   const [propPrazo, setPropPrazo] = useState("");
   const [propValidade, setPropValidade] = useState("");
   const [propObs, setPropObs] = useState("");
@@ -1891,7 +1898,15 @@ export default function CotacaoComprasPage() {
               </div>
               <div>
                 <Label>Condição de Pagamento</Label>
-                <Input value={propCondicao} onChange={e => setPropCondicao(e.target.value)} placeholder="Ex: 30/60/90 dias" />
+                <Select value={propCondicao} onValueChange={setPropCondicao}>
+                  <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+                  <SelectContent>
+                    {propCondicao && !condicoesPagamento.some(c => c.nome === propCondicao) && (
+                      <SelectItem value={propCondicao}>{propCondicao}</SelectItem>
+                    )}
+                    {condicoesPagamento.map(c => <SelectItem key={c.id} value={c.nome}>{c.nome}</SelectItem>)}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label>Prazo de Entrega</Label>

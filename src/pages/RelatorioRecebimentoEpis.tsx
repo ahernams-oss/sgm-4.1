@@ -120,9 +120,25 @@ export default function RelatorioRecebimentoEpis() {
     }
   };
 
+  const limparFiltros = () => {
+    setFiltro("");
+    setFiltroStatus("todos");
+    setFiltroDataIni("");
+    setFiltroDataFim("");
+    setPage(1);
+  };
+
+  const statusesDisponiveis = Array.from(new Set(rows.map((r) => r.status).filter(Boolean))).sort();
+
   const filtered = rows.filter((r) => {
     const nome = nomeFunc(r.funcionario_id).toLowerCase();
-    return !filtro || nome.includes(filtro.toLowerCase()) || r.status.includes(filtro.toLowerCase());
+    const buscaOk = !filtro || nome.includes(filtro.toLowerCase()) || r.status.includes(filtro.toLowerCase());
+    const statusOk = filtroStatus === "todos" || r.status === filtroStatus;
+    const data = (r.created_at || "").slice(0, 10);
+    const dataOk =
+      (!filtroDataIni || data >= filtroDataIni) &&
+      (!filtroDataFim || data <= filtroDataFim);
+    return buscaOk && statusOk && dataOk;
   });
 
   const { paginated, safePage } = paginate(filtered, page, pageSize);

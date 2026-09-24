@@ -200,9 +200,17 @@ export default function RequisicaoComprasPage() {
     return cliente?.locaisEntrega || [];
   }, [centroCusto, clientesLista]);
 
+  const grupoLabel = (codigo: string) => {
+    const g = gruposMercadoria.find(x => x.codigo === codigo);
+    return g ? `${g.codigo} - ${g.nome}` : codigo;
+  };
+  const gruposDaReq = (r: RequisicaoCompras): string[] =>
+    Array.from(new Set(r.itens.map(i => getGrupoCodigo(i.materialId)).filter(Boolean)));
+
   const filtered = useMemo(() => {
     let list = requisicoes;
     if (filterStatus !== "Todos") list = list.filter(r => r.status === filterStatus);
+    if (filterGrupo !== "Todos") list = list.filter(r => gruposDaReq(r).includes(filterGrupo));
     if (filterCentroCusto !== "Todos") list = list.filter(r => r.centroCusto === filterCentroCusto);
     if (filterUrgencia !== "Todas") list = list.filter(r => r.urgencia === filterUrgencia);
     if (filterSolicitante !== "Todos") list = list.filter(r => r.solicitante === filterSolicitante);
@@ -238,7 +246,7 @@ export default function RequisicaoComprasPage() {
   const limparFiltros = () => {
     setSearch(""); setFilterStatus("Todos"); setFilterCentroCusto("Todos");
     setFilterUrgencia("Todas"); setFilterSolicitante("Todos");
-    setFilterDataIni(""); setFilterDataFim("");
+    setFilterDataIni(""); setFilterDataFim(""); setFilterGrupo("Todos");
   };
 
   const resetForm = () => {

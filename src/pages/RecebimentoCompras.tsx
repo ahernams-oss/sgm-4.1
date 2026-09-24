@@ -85,6 +85,23 @@ export default function RecebimentoComprasPage() {
   const [pageRec, setPageRec] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
+  // Link direto vindo de outra tela (ex.: Contas a Pagar): ?ocId=
+  const [searchParams, setSearchParams] = useSearchParams();
+  const ocIdParam = searchParams.get("ocId");
+  useEffect(() => {
+    if (!ocIdParam) return;
+    const pedido = pedidos.find(p => p.id === ocIdParam);
+    if (pedido) {
+      setFilterStatus("Todos");
+      setSearch(String(pedido.numero));
+      setPageRec(1);
+    }
+    const limpo = new URLSearchParams(searchParams);
+    limpo.delete("ocId");
+    setSearchParams(limpo, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ocIdParam, pedidos]);
+
   const colDefs: Record<string, { label: string; className?: string }> = {
     numero: { label: "Nº Pedido", className: "text-center" },
     rc: { label: "RC", className: "text-center" },

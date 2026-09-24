@@ -877,6 +877,7 @@ export const MODULOS_SISTEMA: GrupoPermissao[] = [
         { key: "financeiro.contas_pagar.editar", label: "Pode Editar Conta a Pagar" },
         { key: "financeiro.contas_pagar.excluir", label: "Pode Excluir Conta a Pagar" },
         { key: "financeiro.contas_pagar.baixar", label: "Pode Dar Baixa em Conta a Pagar (Pagamento)" },
+        { key: "financeiro.contas_pagar.liberar_bloqueio", label: "Pode Liberar Pagamento Bloqueado (NÃO PAGAR)" },
       ]},
       { key: "financeiro.contas_receber", label: "Contas a Receber", acoes: [
         { key: "financeiro.contas_receber.criar", label: "Pode Criar Conta a Receber" },

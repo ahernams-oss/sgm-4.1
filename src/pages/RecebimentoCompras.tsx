@@ -26,6 +26,8 @@ import { SortableHeaderRow, SortableTableHead } from "@/components/SortableTable
 import type { ReactNode } from "react";
 import { usePermissao } from "@/hooks/usePermissao";
 import { relatorioRecebimentosAnalitico, relatorioRecebimentosPorPedido, relatorioPendenciasRecebimento } from "@/lib/gerarRelatorioRecebimentos";
+import { verificarSenhaUsuario } from "@/lib/verifySenha";
+import { Ban } from "lucide-react";
 
 const statusColors: Record<string, string> = {
   Emitido: "bg-blue-100 text-blue-800",
@@ -34,17 +36,42 @@ const statusColors: Record<string, string> = {
   "Entregue Parcial": "bg-amber-100 text-amber-800",
   Entregue: "bg-green-100 text-green-800",
   Cancelado: "bg-red-200 text-red-900",
+  "Recebimento Rejeitado": "bg-destructive text-destructive-foreground",
 };
 
 export default function RecebimentoComprasPage() {
   const { pedidos, updateStatus: updatePedidoStatus } = usePedidoCompra();
-  const { recebimentos, registrarRecebimento, getRecebimentosByPedido, getTotalRecebidoPorItem } = useRecebimento();
+  const { recebimentos, registrarRecebimento, rejeitarRecebimento, getRecebimentosByPedido, getTotalRecebidoPorItem } = useRecebimento();
   const { usuarioLogado } = useAuth();
   const { requisicoes } = useRequisicaoCompras();
   const { clientes } = useClientes();
   const { tem } = usePermissao();
   const podeRegistrar = tem("recebimento.registrar");
   const { toast } = useToast();
+
+  const [rejPedido, setRejPedido] = useState<PedidoCompra | null>(null);
+  const [rejJust, setRejJust] = useState("");
+  const [rejSenha, setRejSenha] = useState("");
+  const [rejNF, setRejNF] = useState("");
+  const [rejSalvando, setRejSalvando] = useState(false);
+  const confirmarRejeicao = async () => {
+    if (!rejPedido) return;
+    if (rejJust.trim().length < 10) { toast({ title: "Informe a justificativa (mínimo 10 caracteres).", variant: "destructive" }); return; }
+    if (!rejSenha) { toast({ title: "Confirme sua senha.", variant: "destructive" }); return; }
+    if (!usuarioLogado?.email) { toast({ title: "Usuário não identificado. Faça login novamente.", variant: "destructive" }); return; }
+    setRejSalvando(true);
+    try {
+      const ok = await verificarSenhaUsuario(usuarioLogado.email, rejSenha);
+      if (!ok) { toast({ title: "Senha incorreta.", variant: "destructive" }); return; }
+      await rejeitarRecebimento(rejPedido.id, rejJust.trim(), usuarioLogado.nome || usuarioLogado.email, rejNF.trim());
+      toast({ title: "Recebimento rejeitado", description: "O financeiro foi avisado para não pagar." });
+      setRejPedido(null);
+    } catch (e: any) {
+      toast({ title: "Erro ao rejeitar recebimento", description: e?.message, variant: "destructive" });
+    } finally {
+      setRejSalvando(false);
+    }
+  };
 
   const _recSavedFilters = loadPersistedFilters<{ search: string; filterStatus: string; }>("recebimento_compras_filters_v1");
   const [search, setSearch] = useState(_recSavedFilters?.search ?? "");
@@ -371,6 +398,11 @@ export default function RecebimentoComprasPage() {
                             <ClipboardList className="mr-2 h-4 w-4" />Corrigir Status (Entregue Parcial)
                           </DropdownMenuItem>
                         )}
+                        {podeRegistrar && ["Comprado", "Em Entrega", "Entregue Parcial", "Entregue"].includes(p.status) && (
+                          <DropdownMenuItem className="text-destructive" onClick={() => { setRejPedido(p); setRejJust(""); setRejSenha(""); setRejNF(""); }}>
+                            <Ban className="mr-2 h-4 w-4" />Rejeitar Recebimento
+                          </DropdownMenuItem>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -651,6 +683,35 @@ export default function RecebimentoComprasPage() {
               </Card>
             ))}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!rejPedido} onOpenChange={(o) => { if (!o && !rejSalvando) setRejPedido(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Ban className="h-5 w-5 text-destructive" />Rejeitar recebimento</DialogTitle>
+            <DialogDescription>
+              {rejPedido && <>Pedido OC-{String(rejPedido.numero).padStart(4, "0")} — {rejPedido.fornecedorNome}. O financeiro será avisado para NÃO PAGAR.</>}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label>Nota fiscal (opcional)</Label>
+              <Input value={rejNF} onChange={(e) => setRejNF(e.target.value)} />
+            </div>
+            <div>
+              <Label>Justificativa *</Label>
+              <Textarea rows={3} value={rejJust} onChange={(e) => setRejJust(e.target.value)} placeholder="Ex.: material avariado, fora da especificação, quantidade divergente..." />
+            </div>
+            <div>
+              <Label>Confirme sua senha *</Label>
+              <Input type="password" autoComplete="new-password" value={rejSenha} onChange={(e) => setRejSenha(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" disabled={rejSalvando} onClick={() => setRejPedido(null)}>Cancelar</Button>
+            <Button variant="destructive" disabled={rejSalvando} onClick={confirmarRejeicao}>{rejSalvando ? "Verificando..." : "Rejeitar recebimento"}</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

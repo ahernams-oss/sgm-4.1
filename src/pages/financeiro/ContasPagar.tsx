@@ -369,10 +369,10 @@ export default function ContasPagar() {
                   <TableCell>{c.fornecedor_nome || "—"}</TableCell>
                   <TableCell className="text-right tabular-nums">{formatBRL(Number(c.valor_total))}</TableCell>
                   <TableCell className="text-right tabular-nums">{formatBRL(Number(c.valor_pago))}</TableCell>
-                  <TableCell>{statusBadge(c)}</TableCell>
+                  <TableCell>{statusBadge(c)}{(c as any).bloqueado_pagamento && <Badge variant="destructive" className="ml-1" title={(c as any).motivo_bloqueio || ""}>NÃO PAGAR</Badge>}</TableCell>
                   <TableCell className="text-right">
                     {podeBaixar && c.status !== "paga" && c.status !== "cancelada" && (
-                      <Button size="sm" variant="ghost" onClick={() => setBaixaConta(c)} title="Baixar"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /></Button>
+                      <Button size="sm" variant="ghost" onClick={() => { if ((c as any).bloqueado_pagamento) { toast.error(`Pagamento bloqueado: ${(c as any).motivo_bloqueio || "recebimento rejeitado"}`); return; } setBaixaConta(c); }} title="Baixar"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /></Button>
                     )}
                     {podeBaixar && (c.status === "paga" || c.status === "parcial") && (
                       <Button size="sm" variant="ghost" onClick={() => setEstornoConta({ conta: c, acao: "estornar" })} title="Estornar pagamento"><Undo2 className="h-3.5 w-3.5 text-amber-600" /></Button>

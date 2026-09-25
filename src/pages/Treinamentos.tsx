@@ -40,6 +40,17 @@ interface Treinamento {
   resp_assinante_nome: string | null;
   resp_assinante_cargo: string | null;
   resp_assinatura_hash: string | null;
+  carga_horaria: number | null;
+  realizado_em: string | null;
+  local: string | null;
+  instr_assinado_em: string | null;
+  instr_assinante_nome: string | null;
+  instr_assinante_cargo: string | null;
+  instr_assinatura_hash: string | null;
+  coord_assinado_em: string | null;
+  coord_assinante_nome: string | null;
+  coord_assinante_cargo: string | null;
+  coord_assinatura_hash: string | null;
 }
 
 const TIPOS = [
@@ -73,9 +84,12 @@ interface FormState {
   status: string;
   nota: string;
   concluido_em: string;
+  carga_horaria: string;
+  realizado_em: string;
+  local: string;
 }
 
-const emptyForm: FormState = { cpf: "", tipo: "integracao", titulo: "", status: "pendente", nota: "", concluido_em: "" };
+const emptyForm: FormState = { cpf: "", tipo: "integracao", titulo: "", status: "pendente", nota: "", concluido_em: "", carga_horaria: "", realizado_em: "", local: "" };
 
 export default function Treinamentos() {
   const { funcionarios } = useFuncionarios();
@@ -93,6 +107,7 @@ export default function Treinamentos() {
   const { usuarioLogado } = useAuth();
   const { cargos } = useCargos();
   const [assinarAlvo, setAssinarAlvo] = useState<Treinamento | null>(null);
+  const [papelAssinatura, setPapelAssinatura] = useState<"instr" | "coord">("instr");
   const [senhaAssinatura, setSenhaAssinatura] = useState("");
   const [aceiteAssinatura, setAceiteAssinatura] = useState(false);
   const [assinando, setAssinando] = useState(false);
@@ -107,7 +122,7 @@ export default function Treinamentos() {
     setLoading(true);
     const { data, error } = await supabase
       .from("portal_treinamentos")
-      .select("id, cpf, tipo, titulo, status, nota, concluido_em, created_at, assinado_em, assinatura_hash, assinatura_ip, resp_assinado_em, resp_assinante_nome, resp_assinante_cargo, resp_assinatura_hash")
+      .select("id, cpf, tipo, titulo, status, nota, concluido_em, created_at, assinado_em, assinatura_hash, assinatura_ip, resp_assinado_em, resp_assinante_nome, resp_assinante_cargo, resp_assinatura_hash, carga_horaria, realizado_em, local, instr_assinado_em, instr_assinante_nome, instr_assinante_cargo, instr_assinatura_hash, coord_assinado_em, coord_assinante_nome, coord_assinante_cargo, coord_assinatura_hash")
       .order("created_at", { ascending: false });
     if (error) toast.error(error.message);
     setList((data as Treinamento[]) ?? []);
@@ -144,6 +159,9 @@ export default function Treinamentos() {
       status: t.status,
       nota: t.nota != null ? String(t.nota) : "",
       concluido_em: t.concluido_em ? t.concluido_em.slice(0, 10) : "",
+      carga_horaria: t.carga_horaria != null ? String(t.carga_horaria) : "",
+      realizado_em: t.realizado_em ?? "",
+      local: t.local ?? "",
     });
     setOpen(true);
   };
@@ -161,6 +179,9 @@ export default function Treinamentos() {
       concluido_em: form.status === "concluido"
         ? (form.concluido_em ? new Date(`${form.concluido_em}T12:00:00`).toISOString() : new Date().toISOString())
         : null,
+      carga_horaria: form.carga_horaria ? Number(form.carga_horaria.replace(",", ".")) : null,
+      realizado_em: form.realizado_em || null,
+      local: form.local.trim() || null,
     };
     const { error } = form.id
       ? await supabase.from("portal_treinamentos").update(payload).eq("id", form.id)
@@ -197,6 +218,11 @@ export default function Treinamentos() {
     nota: t.nota != null ? String(t.nota) : null,
     concluidoEm: t.concluido_em,
     codigo: t.id.slice(0, 8).toUpperCase(),
+    cargaHoraria: t.carga_horaria,
+    realizadoEm: t.realizado_em,
+    local: t.local,
+    instrutor: { nome: t.instr_assinante_nome, cargo: t.instr_assinante_cargo, em: t.instr_assinado_em, hash: t.instr_assinatura_hash },
+    coordenacao: { nome: t.coord_assinante_nome, cargo: t.coord_assinante_cargo, em: t.coord_assinado_em, hash: t.coord_assinatura_hash },
     assinadoEm: t.assinado_em,
     assinaturaHash: t.assinatura_hash,
     assinaturaIp: t.assinatura_ip,
@@ -237,17 +263,17 @@ export default function Treinamentos() {
       if (!ok) { toast.error("Senha incorreta."); return; }
       const assinadoEm = new Date().toISOString();
       const cargoNome = cargos.find((c) => c.id === usuarioLogado.cargoId)?.nome ?? "";
-      const base = `${t.id}|${t.titulo}|${t.cpf}|${t.concluido_em ?? ""}|${usuarioLogado.id}|${usuarioLogado.email}|${assinadoEm}`;
+      const base = `${papelAssinatura}|${t.id}|${t.titulo}|${t.cpf}|${t.concluido_em ?? ""}|${usuarioLogado.id}|${usuarioLogado.email}|${assinadoEm}`;
       const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(base));
       const hash = Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("").toUpperCase();
       const { error } = await supabase.from("portal_treinamentos").update({
-        resp_assinado_em: assinadoEm,
-        resp_assinante_nome: usuarioLogado.nome,
-        resp_assinante_cargo: cargoNome,
-        resp_assinatura_hash: hash,
-      }).eq("id", t.id);
+        [`${papelAssinatura}_assinado_em`]: assinadoEm,
+        [`${papelAssinatura}_assinante_nome`]: usuarioLogado.nome,
+        [`${papelAssinatura}_assinante_cargo`]: cargoNome,
+        [`${papelAssinatura}_assinatura_hash`]: hash,
+      } as never).eq("id", t.id);
       if (error) return toast.error(error.message);
-      toast.success("Certificado assinado eletronicamente.");
+      toast.success(papelAssinatura === "instr" ? "Assinado como Instrutor." : "Assinado pela Coordenação.");
       setAssinarAlvo(null);
       setSenhaAssinatura("");
       setAceiteAssinatura(false);
@@ -357,6 +383,7 @@ export default function Treinamentos() {
                   <TableHead>Tipo</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Nota</TableHead>
+                  <TableHead>Carga</TableHead>
                   <TableHead>Conclusão</TableHead>
                   <TableHead className="w-10" />
                 </TableRow>
@@ -371,7 +398,20 @@ export default function Treinamentos() {
                     <TableCell>
                       <div className="flex flex-col gap-1 items-start">
                         {statusBadge(t.status)}
-                        {t.resp_assinado_em && (
+                        {t.instr_assinado_em && (
+                          <Badge variant="outline" className="text-[10px]" title={`Instrutor: ${t.instr_assinante_nome ?? ""} em ${new Date(t.instr_assinado_em).toLocaleString("pt-BR")}`}>
+                            <FileSignature className="w-3 h-3 mr-1" />Instrutor
+                          </Badge>
+                        )}
+                        {t.coord_assinado_em && (
+                          <Badge variant="outline" className="text-[10px]" title={`Coordenação: ${t.coord_assinante_nome ?? ""} em ${new Date(t.coord_assinado_em).toLocaleString("pt-BR")}`}>
+                            <FileSignature className="w-3 h-3 mr-1" />Coordenação
+                          </Badge>
+                        )}
+                        {t.instr_assinado_em && t.coord_assinado_em && !t.assinado_em && (
+                          <Badge variant="outline" className="text-[10px]">Aguardando funcionário</Badge>
+                        )}
+                        {false && t.resp_assinado_em && (
                           <Badge
                             variant="outline"
                             className="text-[10px]"
@@ -392,6 +432,7 @@ export default function Treinamentos() {
                       </div>
                     </TableCell>
                     <TableCell>{t.nota ?? "—"}</TableCell>
+                    <TableCell>{t.carga_horaria != null ? `${t.carga_horaria}h` : "—"}</TableCell>
                     <TableCell>{fmt(t.concluido_em)}</TableCell>
                     <TableCell>
                       <DropdownMenu>
@@ -403,9 +444,14 @@ export default function Treinamentos() {
                           {t.status !== "concluido" && (
                             <DropdownMenuItem onClick={() => marcarConcluido(t)}>Marcar como concluído</DropdownMenuItem>
                           )}
-                          {t.status === "concluido" && !t.resp_assinado_em && (
-                            <DropdownMenuItem onClick={() => setAssinarAlvo(t)}>
-                              <FileSignature className="w-4 h-4 mr-2" />Assinar certificado
+                          {t.status === "concluido" && !t.instr_assinado_em && (
+                            <DropdownMenuItem onClick={() => { setPapelAssinatura("instr"); setAssinarAlvo(t); }}>
+                              <FileSignature className="w-4 h-4 mr-2" />Assinar como Instrutor
+                            </DropdownMenuItem>
+                          )}
+                          {t.status === "concluido" && !t.coord_assinado_em && (
+                            <DropdownMenuItem onClick={() => { setPapelAssinatura("coord"); setAssinarAlvo(t); }}>
+                              <FileSignature className="w-4 h-4 mr-2" />Assinar pela Coordenação
                             </DropdownMenuItem>
                           )}
                           {t.status === "concluido" && (
@@ -440,7 +486,7 @@ export default function Treinamentos() {
 
       <Dialog open={!!assinarAlvo} onOpenChange={(v) => { if (!v) { setAssinarAlvo(null); setSenhaAssinatura(""); setAceiteAssinatura(false); } }}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle className="flex items-center gap-2"><FileSignature className="w-4 h-4" /> Assinar certificado</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><FileSignature className="w-4 h-4" /> Assinar certificado — {papelAssinatura === "instr" ? "Instrutor" : "Coordenação"}</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
               {assinarAlvo?.titulo} — {nomePorCpf.get(onlyDigits(assinarAlvo?.cpf ?? "")) ?? ""}
@@ -448,7 +494,7 @@ export default function Treinamentos() {
             <div className="flex items-start gap-2 rounded-md border p-3">
               <Checkbox id="aceite-cert-rh" checked={aceiteAssinatura} onCheckedChange={(v) => setAceiteAssinatura(v === true)} />
               <Label htmlFor="aceite-cert-rh" className="text-sm font-normal leading-snug cursor-pointer">
-                Declaro, como responsável pelo treinamento, a veracidade das informações e assino este certificado
+                Declaro, como {papelAssinatura === "instr" ? "instrutor" : "coordenação"} do treinamento, a veracidade das informações e assino este certificado
                 eletronicamente (MP 2.200-2/2001).
               </Label>
             </div>
@@ -534,6 +580,22 @@ export default function Treinamentos() {
                 <Label>Data de conclusão</Label>
                 <Input type="date" value={form.concluido_em} disabled={form.status !== "concluido"} onChange={(e) => setForm((p) => ({ ...p, concluido_em: e.target.value }))} />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Carga horária (horas)</Label>
+                <Input inputMode="decimal" value={form.carga_horaria} onChange={(e) => setForm((p) => ({ ...p, carga_horaria: e.target.value }))} placeholder="Ex.: 8" />
+              </div>
+              <div className="space-y-2">
+                <Label>Realizado em</Label>
+                <Input type="date" value={form.realizado_em} onChange={(e) => setForm((p) => ({ ...p, realizado_em: e.target.value }))} />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Local</Label>
+              <Input value={form.local} onChange={(e) => setForm((p) => ({ ...p, local: e.target.value }))} placeholder="Ex.: Rio de Janeiro/RJ — Sede LASANT" />
             </div>
           </div>
           <DialogFooter>

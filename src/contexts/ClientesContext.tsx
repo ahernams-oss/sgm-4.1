@@ -110,7 +110,10 @@ interface ClientesContextType {
   deleteCliente: (id: string) => void;
 }
 
-const ClientesContext = createContext<ClientesContextType | undefined>(undefined);
+// Mantém a mesma instância do contexto entre recarregamentos a quente (evita "must be used within Provider")
+const g = globalThis as any;
+const ClientesContext: React.Context<ClientesContextType | undefined> =
+  g.__sgmClientesContext ?? (g.__sgmClientesContext = createContext<ClientesContextType | undefined>(undefined));
 const QK = ["clientes"] as const;
 
 const rowToCliente = (r: any): Cliente => ({

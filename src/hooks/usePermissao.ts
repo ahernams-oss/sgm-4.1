@@ -2,7 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePerfisAcesso } from "@/contexts/PerfisAcessoContext";
 import { useCargos } from "@/contexts/CargosContext";
 
-const CARGOS_ACESSO_TOTAL = ["diretor", "gerente executivo", "coordenador de departamento"];
+const CARGOS_ACESSO_TOTAL = ["diretor", "gerente executivo", "coordenador de departamento", "coordenador tecnico", "coordenador técnico", "coordenador administrativo"];
 
 export function usePermissao() {
   const { usuarioLogado } = useAuth();

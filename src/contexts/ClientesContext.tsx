@@ -69,6 +69,7 @@ export interface Contrato {
   valorContrato?: string;
   inss?: string; pis?: string; cofins?: string; csll?: string; irrf?: string; iss?: string; cbs?: string; ibs?: string; cbsMunicipal?: string; ibsMunicipal?: string;
   meta1?: string; meta2?: string; meta3?: string;
+  anexos?: ContratoAnexo[];
   faturamentos: Faturamento[];
   empenhos?: Empenho[];
 }

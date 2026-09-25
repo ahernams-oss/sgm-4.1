@@ -625,6 +625,13 @@ const Clientes = () => {
                 </div>
               </div>
 
+              {/* Bloco 5 — Documentos do Contrato */}
+              <div className="rounded-lg border border-border bg-card/50 p-4 mb-4">
+                <h3 className="text-sm font-semibold text-foreground mb-3">Documentos do Contrato</h3>
+                <ContratoAnexos value={contratoForm.anexos || []} onChange={v => setContratoForm(p => ({ ...p, anexos: v }))} />
+              </div>
+
+
               <div className="flex gap-2 mb-4">
                 <Button size="sm" onClick={handleSaveContrato} disabled={salvandoContrato}>
                   <Plus className="h-3.5 w-3.5 mr-1" />

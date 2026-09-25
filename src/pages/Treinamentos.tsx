@@ -104,6 +104,10 @@ export default function Treinamentos() {
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("todos");
   const [filtroTipo, setFiltroTipo] = useState("todos");
+  const [filtroDataIni, setFiltroDataIni] = useState(() => localStorage.getItem("treinamentos_data_ini") ?? "");
+  const [filtroDataFim, setFiltroDataFim] = useState(() => localStorage.getItem("treinamentos_data_fim") ?? "");
+  const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
+  const [lotePapel, setLotePapel] = useState<"instr" | "coord" | null>(null);
   const [comboOpen, setComboOpen] = useState(false);
   const [excluirId, setExcluirId] = useState<string | null>(null);
   const { usuarioLogado } = useAuth();
@@ -140,9 +144,14 @@ export default function Treinamentos() {
       const okBusca = !q || t.titulo.toLowerCase().includes(q) || nome.toLowerCase().includes(q) || onlyDigits(t.cpf).includes(onlyDigits(q));
       const okStatus = filtroStatus === "todos" || t.status === filtroStatus;
       const okTipo = filtroTipo === "todos" || t.tipo === filtroTipo;
-      return okBusca && okStatus && okTipo;
+      const ref = (t.concluido_em ?? t.created_at)?.slice(0, 10) ?? "";
+      const okData = (!filtroDataIni || ref >= filtroDataIni) && (!filtroDataFim || ref <= filtroDataFim);
+      return okBusca && okStatus && okTipo && okData;
     });
-  }, [list, busca, filtroStatus, filtroTipo, nomePorCpf]);
+  }, [list, busca, filtroStatus, filtroTipo, filtroDataIni, filtroDataFim, nomePorCpf]);
+
+  useEffect(() => { localStorage.setItem("treinamentos_data_ini", filtroDataIni); }, [filtroDataIni]);
+  useEffect(() => { localStorage.setItem("treinamentos_data_fim", filtroDataFim); }, [filtroDataFim]);
 
   const kpis = useMemo(() => ({
     total: list.length,

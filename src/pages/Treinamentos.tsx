@@ -42,6 +42,7 @@ interface Treinamento {
   resp_assinatura_hash: string | null;
   carga_horaria: number | null;
   realizado_em: string | null;
+  realizado_fim: string | null;
   local: string | null;
   instr_assinado_em: string | null;
   instr_assinante_nome: string | null;
@@ -86,10 +87,11 @@ interface FormState {
   concluido_em: string;
   carga_horaria: string;
   realizado_em: string;
+  realizado_fim: string;
   local: string;
 }
 
-const emptyForm: FormState = { cpf: "", tipo: "integracao", titulo: "", status: "pendente", nota: "", concluido_em: "", carga_horaria: "", realizado_em: "", local: "" };
+const emptyForm: FormState = { cpf: "", tipo: "integracao", titulo: "", status: "pendente", nota: "", concluido_em: "", carga_horaria: "", realizado_em: "", realizado_fim: "", local: "" };
 
 export default function Treinamentos() {
   const { funcionarios } = useFuncionarios();
@@ -122,7 +124,7 @@ export default function Treinamentos() {
     setLoading(true);
     const { data, error } = await supabase
       .from("portal_treinamentos")
-      .select("id, cpf, tipo, titulo, status, nota, concluido_em, created_at, assinado_em, assinatura_hash, assinatura_ip, resp_assinado_em, resp_assinante_nome, resp_assinante_cargo, resp_assinatura_hash, carga_horaria, realizado_em, local, instr_assinado_em, instr_assinante_nome, instr_assinante_cargo, instr_assinatura_hash, coord_assinado_em, coord_assinante_nome, coord_assinante_cargo, coord_assinatura_hash")
+      .select("id, cpf, tipo, titulo, status, nota, concluido_em, created_at, assinado_em, assinatura_hash, assinatura_ip, resp_assinado_em, resp_assinante_nome, resp_assinante_cargo, resp_assinatura_hash, carga_horaria, realizado_em, realizado_fim, local, instr_assinado_em, instr_assinante_nome, instr_assinante_cargo, instr_assinatura_hash, coord_assinado_em, coord_assinante_nome, coord_assinante_cargo, coord_assinatura_hash")
       .order("created_at", { ascending: false });
     if (error) toast.error(error.message);
     setList((data as Treinamento[]) ?? []);
@@ -161,6 +163,7 @@ export default function Treinamentos() {
       concluido_em: t.concluido_em ? t.concluido_em.slice(0, 10) : "",
       carga_horaria: t.carga_horaria != null ? String(t.carga_horaria) : "",
       realizado_em: t.realizado_em ?? "",
+      realizado_fim: t.realizado_fim ?? "",
       local: t.local ?? "",
     });
     setOpen(true);
@@ -181,6 +184,7 @@ export default function Treinamentos() {
         : null,
       carga_horaria: form.carga_horaria ? Number(form.carga_horaria.replace(",", ".")) : null,
       realizado_em: form.realizado_em || null,
+      realizado_fim: form.realizado_fim || null,
       local: form.local.trim() || null,
     };
     const { error } = form.id
@@ -220,6 +224,7 @@ export default function Treinamentos() {
     codigo: t.id.slice(0, 8).toUpperCase(),
     cargaHoraria: t.carga_horaria,
     realizadoEm: t.realizado_em,
+    realizadoAte: t.realizado_fim,
     local: t.local,
     instrutor: { nome: t.instr_assinante_nome, cargo: t.instr_assinante_cargo, em: t.instr_assinado_em, hash: t.instr_assinatura_hash },
     coordenacao: { nome: t.coord_assinante_nome, cargo: t.coord_assinante_cargo, em: t.coord_assinado_em, hash: t.coord_assinatura_hash },
@@ -588,8 +593,12 @@ export default function Treinamentos() {
                 <Input inputMode="decimal" value={form.carga_horaria} onChange={(e) => setForm((p) => ({ ...p, carga_horaria: e.target.value }))} placeholder="Ex.: 8" />
               </div>
               <div className="space-y-2">
-                <Label>Realizado em</Label>
+                <Label>Realizado entre — data inicial</Label>
                 <Input type="date" value={form.realizado_em} onChange={(e) => setForm((p) => ({ ...p, realizado_em: e.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label>Realizado entre — data final</Label>
+                <Input type="date" value={form.realizado_fim} min={form.realizado_em || undefined} onChange={(e) => setForm((p) => ({ ...p, realizado_fim: e.target.value }))} />
               </div>
             </div>
 

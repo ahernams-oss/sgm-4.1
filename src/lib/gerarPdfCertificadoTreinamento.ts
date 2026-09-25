@@ -17,6 +17,7 @@ export interface CertificadoTreinamentoDados {
   tipo: string;
   cargaHoraria?: string | number | null;
   realizadoEm?: string | null;
+  realizadoAte?: string | null;
   local?: string | null;
   nota?: string | null;
   concluidoEm?: string | null;
@@ -95,7 +96,9 @@ export async function gerarPdfCertificadoTreinamento(
   doc.setFontSize(13);
   const ch = dados.cargaHoraria != null && dados.cargaHoraria !== "" ? String(dados.cargaHoraria).replace(".", ",") : "";
   if (ch) doc.text(ch, 114, 122.5, { align: "center" });
-  const realizado = fmtData(dados.realizadoEm);
+  const rIni = fmtData(dados.realizadoEm);
+  const rFim = fmtData(dados.realizadoAte);
+  const realizado = rIni && rFim && rFim !== rIni ? `${rIni} a ${rFim}` : rIni;
   if (realizado) doc.text(realizado, 213.5, 122.5, { align: "center" });
 
   // Local

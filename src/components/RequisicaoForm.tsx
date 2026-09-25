@@ -25,7 +25,7 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const jornadaOptions = ["Diarista", "Plantão Diurno - PAR", "Plantão Diurno - ÍMPAR", "Plantão Noturno - PAR", "Plantão Noturno - ÍMPAR"];
 const contratacaoOptions = ["Efetivo", "Temporário"];
-const tipoContratacaoOptions = ["Padrão", "PCD", "Temporário", "Estagiário", "Jovem Aprendiz"];
+const tipoContratacaoOptions = ["Padrão", "PCD", "Estagiário", "Jovem Aprendiz"];
 const internoExternoOptions = ["Interno", "Externo"];
 const origemOptions = ["Afastamento", "Desligamento", "Aumento de Quadro", "Promoção", "Outros"];
 const formacaoOptions = ["Ensino Fundamental", "Ensino Médio", "Ensino Superior", "Curso Técnico", "Outros"];

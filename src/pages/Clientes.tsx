@@ -534,59 +534,85 @@ const Clientes = () => {
             <div className="section-card animate-fade-up mt-6">
               <h2 className="section-title mb-4">Contratos — {cliente.nome}</h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
-                <Input placeholder="Número do Contrato *" value={contratoForm.numero} onChange={e => setContratoForm(p => ({ ...p, numero: e.target.value }))} />
-                <Input placeholder="Número do Processo" value={contratoForm.numeroProcesso} onChange={e => setContratoForm(p => ({ ...p, numeroProcesso: e.target.value }))} className="sm:col-span-2" />
-                <Input placeholder="Descrição" value={contratoForm.descricao} onChange={e => setContratoForm(p => ({ ...p, descricao: e.target.value }))} className="sm:col-span-2 md:col-span-3" />
-                <Input type="date" placeholder="Data Início" value={contratoForm.dataInicio} onChange={e => setContratoForm(p => ({ ...p, dataInicio: e.target.value }))} />
-                <Input type="date" placeholder="Data Fim" value={contratoForm.dataFim} onChange={e => setContratoForm(p => ({ ...p, dataFim: e.target.value }))} />
-                <Input placeholder="BDI" value={contratoForm.bdi} onChange={e => setContratoForm(p => ({ ...p, bdi: e.target.value }))} />
-                <div className="md:col-start-3">
-                  <Input type="number" step="0.01" placeholder="Desconto Licitação (%)" value={contratoForm.descontoLicitacao} onChange={e => { setContratoForm(p => ({ ...p, descontoLicitacao: e.target.value })); setContratoErrors(prev => ({ ...prev, descontoLicitacao: validarPercentual(e.target.value, "Desconto Licitação") })); }} />
-                  {contratoErrors.descontoLicitacao && <p className="text-xs text-destructive mt-1">{contratoErrors.descontoLicitacao}</p>}
+              {/* Bloco 1 — Dados do Contrato */}
+              <div className="rounded-lg border border-border bg-card/50 p-4 mb-4">
+                <h3 className="text-sm font-semibold text-foreground mb-3">Dados do Contrato</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  <Input placeholder="Número do Contrato *" value={contratoForm.numero} onChange={e => setContratoForm(p => ({ ...p, numero: e.target.value }))} />
+                  <Input placeholder="Número do Processo" value={contratoForm.numeroProcesso} onChange={e => setContratoForm(p => ({ ...p, numeroProcesso: e.target.value }))} className="md:col-span-2" />
+                  <Input placeholder="Descrição" value={contratoForm.descricao} onChange={e => setContratoForm(p => ({ ...p, descricao: e.target.value }))} className="sm:col-span-2 md:col-span-3" />
+                  <Input type="date" placeholder="Data Início" value={contratoForm.dataInicio} onChange={e => setContratoForm(p => ({ ...p, dataInicio: e.target.value }))} />
+                  <Input type="date" placeholder="Data Fim" value={contratoForm.dataFim} onChange={e => setContratoForm(p => ({ ...p, dataFim: e.target.value }))} />
+                  <div>
+                    <Input placeholder="Desconto Licitação (%)" type="number" step="0.01" value={contratoForm.descontoLicitacao} onChange={e => { setContratoForm(p => ({ ...p, descontoLicitacao: e.target.value })); setContratoErrors(prev => ({ ...prev, descontoLicitacao: validarPercentual(e.target.value, "Desconto Licitação") })); }} />
+                    {contratoErrors.descontoLicitacao && <p className="text-xs text-destructive mt-1">{contratoErrors.descontoLicitacao}</p>}
+                  </div>
+                  <Input placeholder="BDI" value={contratoForm.bdi} onChange={e => setContratoForm(p => ({ ...p, bdi: e.target.value }))} />
                 </div>
-                <Input placeholder="VTM Mensal" value={contratoForm.valorBase} onChange={e => setContratoForm(p => ({ ...p, valorBase: e.target.value }))} />
-                <Input placeholder="VTM Anual" value={contratoForm.valorBase2} onChange={e => setContratoForm(p => ({ ...p, valorBase2: e.target.value }))} />
-                <Input placeholder="VTM Contratual" value={contratoForm.valorBase3} onChange={e => setContratoForm(p => ({ ...p, valorBase3: e.target.value }))} />
-                <Input placeholder="Mão de Obra Mensal" value={contratoForm.maoDeObraMensal} onChange={e => setContratoForm(p => ({ ...p, maoDeObraMensal: e.target.value }))} />
-                <Input placeholder="Mão de Obra Anual" value={contratoForm.maoDeObraAnual} onChange={e => setContratoForm(p => ({ ...p, maoDeObraAnual: e.target.value }))} />
-                <Input placeholder="Mão de Obra Contratual" value={contratoForm.maoDeObraContratual} onChange={e => setContratoForm(p => ({ ...p, maoDeObraContratual: e.target.value }))} />
-                <div>
-                  <label className="text-sm font-medium text-foreground mb-1 block">Mês SCO</label>
-                  <Select value={contratoForm.mesSco} onValueChange={v => setContratoForm(p => ({ ...p, mesSco: v }))}>
-                    <SelectTrigger><SelectValue placeholder="Mês SCO" /></SelectTrigger>
-                    <SelectContent>
-                      {i0Meses.map(m => <SelectItem key={m} value={String(m)}>{String(m).padStart(2, "0")}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+              </div>
+
+              {/* Bloco 2 — Valores */}
+              <div className="rounded-lg border border-border bg-card/50 p-4 mb-4">
+                <h3 className="text-sm font-semibold text-foreground mb-3">Valores</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  <Input placeholder="VTM Mensal" value={contratoForm.valorBase} onChange={e => setContratoForm(p => ({ ...p, valorBase: e.target.value }))} />
+                  <Input placeholder="VTM Anual" value={contratoForm.valorBase2} onChange={e => setContratoForm(p => ({ ...p, valorBase2: e.target.value }))} />
+                  <Input placeholder="VTM Contratual" value={contratoForm.valorBase3} onChange={e => setContratoForm(p => ({ ...p, valorBase3: e.target.value }))} />
+                  <Input placeholder="Mão de Obra Mensal" value={contratoForm.maoDeObraMensal} onChange={e => setContratoForm(p => ({ ...p, maoDeObraMensal: e.target.value }))} />
+                  <Input placeholder="Mão de Obra Anual" value={contratoForm.maoDeObraAnual} onChange={e => setContratoForm(p => ({ ...p, maoDeObraAnual: e.target.value }))} />
+                  <Input placeholder="Mão de Obra Contratual" value={contratoForm.maoDeObraContratual} onChange={e => setContratoForm(p => ({ ...p, maoDeObraContratual: e.target.value }))} />
+                  <Input type="number" step="0.01" placeholder="Valor do Contrato (R$)" value={contratoForm.valorContrato} onChange={e => setContratoForm(p => ({ ...p, valorContrato: e.target.value }))} className="sm:col-span-2 md:col-span-3" />
                 </div>
-                <div>
-                  <label className="text-sm font-medium text-foreground mb-1 block">Ano SCO</label>
-                  <Select value={contratoForm.anoSco} onValueChange={v => setContratoForm(p => ({ ...p, anoSco: v }))}>
-                    <SelectTrigger><SelectValue placeholder="Ano SCO" /></SelectTrigger>
-                    <SelectContent>
-                      {i0Anos.map(a => <SelectItem key={a} value={String(a)}>{a}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+              </div>
+
+              {/* Bloco 3 — Impostos */}
+              <div className="rounded-lg border border-border bg-card/50 p-4 mb-4">
+                <h3 className="text-sm font-semibold text-foreground mb-3">Impostos</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                  <Input type="number" step="0.01" placeholder="INSS (%)" value={contratoForm.inss} onChange={e => setContratoForm(p => ({ ...p, inss: e.target.value }))} />
+                  <Input type="number" step="0.01" placeholder="PIS (%)" value={contratoForm.pis} onChange={e => setContratoForm(p => ({ ...p, pis: e.target.value }))} />
+                  <Input type="number" step="0.01" placeholder="COFINS (%)" value={contratoForm.cofins} onChange={e => setContratoForm(p => ({ ...p, cofins: e.target.value }))} />
+                  <Input type="number" step="0.01" placeholder="CSLL (%)" value={contratoForm.csll} onChange={e => setContratoForm(p => ({ ...p, csll: e.target.value }))} />
+                  <Input type="number" step="0.01" placeholder="IRRF (%)" value={contratoForm.irrf} onChange={e => setContratoForm(p => ({ ...p, irrf: e.target.value }))} />
+                  <Input type="number" step="0.01" placeholder="ISS (%)" value={contratoForm.iss} onChange={e => setContratoForm(p => ({ ...p, iss: e.target.value }))} />
+                  <div>
+                    <Input type="number" step="0.01" placeholder="CBS (%)" value={contratoForm.cbs} onChange={e => { setContratoForm(p => ({ ...p, cbs: e.target.value })); setContratoErrors(prev => ({ ...prev, cbs: validarPercentual(e.target.value, "CBS") })); }} />
+                    {contratoErrors.cbs && <p className="text-xs text-destructive mt-1">{contratoErrors.cbs}</p>}
+                  </div>
+                  <div>
+                    <Input type="number" step="0.01" placeholder="IBS (%)" value={contratoForm.ibs} onChange={e => { setContratoForm(p => ({ ...p, ibs: e.target.value })); setContratoErrors(prev => ({ ...prev, ibs: validarPercentual(e.target.value, "IBS") })); }} />
+                    {contratoErrors.ibs && <p className="text-xs text-destructive mt-1">{contratoErrors.ibs}</p>}
+                  </div>
                 </div>
-                <Input type="number" step="0.01" placeholder="Valor do Contrato (R$)" value={contratoForm.valorContrato} onChange={e => setContratoForm(p => ({ ...p, valorContrato: e.target.value }))} className="sm:col-span-2 md:col-span-3" />
-                <Input type="number" step="0.01" placeholder="INSS (%)" value={contratoForm.inss} onChange={e => setContratoForm(p => ({ ...p, inss: e.target.value }))} />
-                <Input type="number" step="0.01" placeholder="PIS (%)" value={contratoForm.pis} onChange={e => setContratoForm(p => ({ ...p, pis: e.target.value }))} />
-                <Input type="number" step="0.01" placeholder="COFINS (%)" value={contratoForm.cofins} onChange={e => setContratoForm(p => ({ ...p, cofins: e.target.value }))} />
-                <Input type="number" step="0.01" placeholder="CSLL (%)" value={contratoForm.csll} onChange={e => setContratoForm(p => ({ ...p, csll: e.target.value }))} />
-                <Input type="number" step="0.01" placeholder="IRRF (%)" value={contratoForm.irrf} onChange={e => setContratoForm(p => ({ ...p, irrf: e.target.value }))} />
-                <Input type="number" step="0.01" placeholder="ISS (%)" value={contratoForm.iss} onChange={e => setContratoForm(p => ({ ...p, iss: e.target.value }))} />
-                <div>
-                  <Input type="number" step="0.01" placeholder="CBS (%)" value={contratoForm.cbs} onChange={e => { setContratoForm(p => ({ ...p, cbs: e.target.value })); setContratoErrors(prev => ({ ...prev, cbs: validarPercentual(e.target.value, "CBS") })); }} />
-                  {contratoErrors.cbs && <p className="text-xs text-destructive mt-1">{contratoErrors.cbs}</p>}
+              </div>
+
+              {/* Bloco 4 — SCO e Metas */}
+              <div className="rounded-lg border border-border bg-card/50 p-4 mb-4">
+                <h3 className="text-sm font-semibold text-foreground mb-3">SCO e Metas</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1 block">Mês SCO</label>
+                    <Select value={contratoForm.mesSco} onValueChange={v => setContratoForm(p => ({ ...p, mesSco: v }))}>
+                      <SelectTrigger><SelectValue placeholder="Mês SCO" /></SelectTrigger>
+                      <SelectContent>
+                        {i0Meses.map(m => <SelectItem key={m} value={String(m)}>{String(m).padStart(2, "0")}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1 block">Ano SCO</label>
+                    <Select value={contratoForm.anoSco} onValueChange={v => setContratoForm(p => ({ ...p, anoSco: v }))}>
+                      <SelectTrigger><SelectValue placeholder="Ano SCO" /></SelectTrigger>
+                      <SelectContent>
+                        {i0Anos.map(a => <SelectItem key={a} value={String(a)}>{a}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="hidden md:block" />
+                  <Input type="number" step="0.01" placeholder="Meta 1 (R$)" value={contratoForm.meta1} onChange={e => setContratoForm(p => ({ ...p, meta1: e.target.value }))} />
+                  <Input type="number" step="0.01" placeholder="Meta 2 (R$)" value={contratoForm.meta2} onChange={e => setContratoForm(p => ({ ...p, meta2: e.target.value }))} />
+                  <Input type="number" step="0.01" placeholder="Meta 3 (R$)" value={contratoForm.meta3} onChange={e => setContratoForm(p => ({ ...p, meta3: e.target.value }))} />
                 </div>
-                <div>
-                  <Input type="number" step="0.01" placeholder="IBS (%)" value={contratoForm.ibs} onChange={e => { setContratoForm(p => ({ ...p, ibs: e.target.value })); setContratoErrors(prev => ({ ...prev, ibs: validarPercentual(e.target.value, "IBS") })); }} />
-                  {contratoErrors.ibs && <p className="text-xs text-destructive mt-1">{contratoErrors.ibs}</p>}
-                </div>
-                <Input type="number" step="0.01" placeholder="Meta 1 (R$)" value={contratoForm.meta1} onChange={e => setContratoForm(p => ({ ...p, meta1: e.target.value }))} />
-                <Input type="number" step="0.01" placeholder="Meta 2 (R$)" value={contratoForm.meta2} onChange={e => setContratoForm(p => ({ ...p, meta2: e.target.value }))} />
-                <Input type="number" step="0.01" placeholder="Meta 3 (R$)" value={contratoForm.meta3} onChange={e => setContratoForm(p => ({ ...p, meta3: e.target.value }))} />
               </div>
 
               <div className="flex gap-2 mb-4">

@@ -1,4 +1,5 @@
 import {
+  FolderOpen,
   Ban,
   BookOpen,
   ChevronDown,

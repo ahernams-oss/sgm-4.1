@@ -265,6 +265,21 @@ export default function Treinamentos() {
     }
   };
 
+  const assinarUm = async (t: Treinamento, papel: "instr" | "coord") => {
+    const assinadoEm = new Date().toISOString();
+    const cargoNome = cargos.find((c) => c.id === usuarioLogado?.cargoId)?.nome ?? "";
+    const base = `${papel}|${t.id}|${t.titulo}|${t.cpf}|${t.concluido_em ?? ""}|${usuarioLogado?.id}|${usuarioLogado?.email}|${assinadoEm}`;
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(base));
+    const hash = Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("").toUpperCase();
+    const { error } = await supabase.from("portal_treinamentos").update({
+      [`${papel}_assinado_em`]: assinadoEm,
+      [`${papel}_assinante_nome`]: usuarioLogado?.nome,
+      [`${papel}_assinante_cargo`]: cargoNome,
+      [`${papel}_assinatura_hash`]: hash,
+    } as never).eq("id", t.id);
+    return error;
+  };
+
   const assinarCertificado = async () => {
     const t = assinarAlvo;
     if (!t) return;
@@ -275,17 +290,7 @@ export default function Treinamentos() {
     try {
       const ok = await verificarSenhaUsuario(usuarioLogado.email, senhaAssinatura);
       if (!ok) { toast.error("Senha incorreta."); return; }
-      const assinadoEm = new Date().toISOString();
-      const cargoNome = cargos.find((c) => c.id === usuarioLogado.cargoId)?.nome ?? "";
-      const base = `${papelAssinatura}|${t.id}|${t.titulo}|${t.cpf}|${t.concluido_em ?? ""}|${usuarioLogado.id}|${usuarioLogado.email}|${assinadoEm}`;
-      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(base));
-      const hash = Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("").toUpperCase();
-      const { error } = await supabase.from("portal_treinamentos").update({
-        [`${papelAssinatura}_assinado_em`]: assinadoEm,
-        [`${papelAssinatura}_assinante_nome`]: usuarioLogado.nome,
-        [`${papelAssinatura}_assinante_cargo`]: cargoNome,
-        [`${papelAssinatura}_assinatura_hash`]: hash,
-      } as never).eq("id", t.id);
+      const error = await assinarUm(t, papelAssinatura);
       if (error) return toast.error(error.message);
       toast.success(papelAssinatura === "instr" ? "Assinado como Instrutor." : "Assinado pela Coordenação.");
       setAssinarAlvo(null);
@@ -296,6 +301,44 @@ export default function Treinamentos() {
       setAssinando(false);
     }
   };
+
+  const elegiveisLote = (papel: "instr" | "coord") =>
+    filtrados.filter((t) => selecionados.has(t.id) && t.status === "concluido" && !(papel === "instr" ? t.instr_assinado_em : t.coord_assinado_em));
+
+  const assinarEmLote = async () => {
+    const papel = lotePapel;
+    if (!papel) return;
+    if (!usuarioLogado?.email) return toast.error("Usuário não autenticado.");
+    if (!aceiteAssinatura) return toast.error("Marque o aceite para assinar eletronicamente.");
+    if (senhaAssinatura.length < 4) return toast.error("Informe sua senha.");
+    const alvos = elegiveisLote(papel);
+    if (alvos.length === 0) return toast.error("Nenhum treinamento selecionado elegível.");
+    setAssinando(true);
+    try {
+      const ok = await verificarSenhaUsuario(usuarioLogado.email, senhaAssinatura);
+      if (!ok) { toast.error("Senha incorreta."); return; }
+      let falhas = 0;
+      for (const t of alvos) {
+        const error = await assinarUm(t, papel);
+        if (error) falhas++;
+      }
+      if (falhas > 0) toast.error(`${falhas} de ${alvos.length} assinaturas falharam.`);
+      else toast.success(`${alvos.length} certificado(s) assinado(s) ${papel === "instr" ? "como Instrutor" : "pela Coordenação"}.`);
+      setLotePapel(null);
+      setSelecionados(new Set());
+      setSenhaAssinatura("");
+      setAceiteAssinatura(false);
+      carregar();
+    } finally {
+      setAssinando(false);
+    }
+  };
+
+  const toggleSelecionado = (id: string, v: boolean) =>
+    setSelecionados((prev) => { const n = new Set(prev); if (v) n.add(id); else n.delete(id); return n; });
+
+  const assinaveisVisiveis = filtrados.filter((t) => t.status === "concluido" && (!t.instr_assinado_em || !t.coord_assinado_em));
+  const todosMarcados = assinaveisVisiveis.length > 0 && assinaveisVisiveis.every((t) => selecionados.has(t.id));
 
   const funcionarioSelecionado = funcionarios.find((f) => onlyDigits(f.cpf) === onlyDigits(form.cpf));
 
@@ -381,6 +424,30 @@ export default function Treinamentos() {
               </SelectContent>
             </Select>
           </div>
+          <div className="flex items-end gap-3 flex-wrap mt-3">
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">Conclusão — de</Label>
+              <Input type="date" value={filtroDataIni} onChange={(e) => setFiltroDataIni(e.target.value)} className="w-40" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs text-muted-foreground">até</Label>
+              <Input type="date" value={filtroDataFim} min={filtroDataIni || undefined} onChange={(e) => setFiltroDataFim(e.target.value)} className="w-40" />
+            </div>
+            {(filtroDataIni || filtroDataFim) && (
+              <Button variant="ghost" size="sm" onClick={() => { setFiltroDataIni(""); setFiltroDataFim(""); }}>Limpar datas</Button>
+            )}
+            {selecionados.size > 0 && (
+              <div className="flex items-center gap-2 ml-auto flex-wrap">
+                <span className="text-xs text-muted-foreground">{selecionados.size} selecionado(s)</span>
+                <Button variant="outline" size="sm" disabled={elegiveisLote("instr").length === 0} onClick={() => { setLotePapel("instr"); setSenhaAssinatura(""); setAceiteAssinatura(false); }}>
+                  <FileSignature className="w-4 h-4 mr-2" />Assinar em lote — Instrutor ({elegiveisLote("instr").length})
+                </Button>
+                <Button variant="outline" size="sm" disabled={elegiveisLote("coord").length === 0} onClick={() => { setLotePapel("coord"); setSenhaAssinatura(""); setAceiteAssinatura(false); }}>
+                  <FileSignature className="w-4 h-4 mr-2" />Assinar em lote — Coordenação ({elegiveisLote("coord").length})
+                </Button>
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -391,6 +458,13 @@ export default function Treinamentos() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-10 bg-card [&:has([role=checkbox])]:pr-3">
+                    <Checkbox
+                      checked={todosMarcados}
+                      onCheckedChange={(v) => setSelecionados(v === true ? new Set(assinaveisVisiveis.map((t) => t.id)) : new Set())}
+                      aria-label="Selecionar todos"
+                    />
+                  </TableHead>
                   <TableHead>Funcionário</TableHead>
                   <TableHead>CPF</TableHead>
                   <TableHead>Título</TableHead>
@@ -405,6 +479,11 @@ export default function Treinamentos() {
               <TableBody>
                 {filtrados.map((t) => (
                   <TableRow key={t.id}>
+                    <TableCell className="[&:has([role=checkbox])]:pr-3">
+                      {t.status === "concluido" && (!t.instr_assinado_em || !t.coord_assinado_em) ? (
+                        <Checkbox checked={selecionados.has(t.id)} onCheckedChange={(v) => toggleSelecionado(t.id, v === true)} aria-label="Selecionar" />
+                      ) : null}
+                    </TableCell>
                     <TableCell className="font-medium">{nomePorCpf.get(onlyDigits(t.cpf)) ?? "—"}</TableCell>
                     <TableCell>{t.cpf}</TableCell>
                     <TableCell>{t.titulo}</TableCell>
@@ -522,6 +601,35 @@ export default function Treinamentos() {
             <Button variant="outline" onClick={() => setAssinarAlvo(null)}>Cancelar</Button>
             <Button onClick={assinarCertificado} disabled={assinando || !aceiteAssinatura}>
               {assinando && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}Assinar eletronicamente
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!lotePapel} onOpenChange={(v) => { if (!v) { setLotePapel(null); setSenhaAssinatura(""); setAceiteAssinatura(false); } }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader><DialogTitle className="flex items-center gap-2"><FileSignature className="w-4 h-4" /> Assinatura em lote — {lotePapel === "instr" ? "Instrutor" : "Coordenação"}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              {lotePapel ? elegiveisLote(lotePapel).length : 0} certificado(s) serão assinados eletronicamente em seu nome.
+            </p>
+            <div className="flex items-start gap-2 rounded-md border p-3">
+              <Checkbox id="aceite-cert-lote" checked={aceiteAssinatura} onCheckedChange={(v) => setAceiteAssinatura(v === true)} />
+              <Label htmlFor="aceite-cert-lote" className="text-sm font-normal leading-snug cursor-pointer">
+                Declaro, como {lotePapel === "instr" ? "instrutor" : "coordenação"} dos treinamentos selecionados, a veracidade das informações e assino estes certificados
+                eletronicamente (MP 2.200-2/2001).
+              </Label>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="senha-cert-lote">Confirme sua senha</Label>
+              <Input id="senha-cert-lote" type="password" value={senhaAssinatura} onChange={(e) => setSenhaAssinatura(e.target.value)} autoComplete="current-password" />
+            </div>
+            <p className="text-xs text-muted-foreground">Serão registrados nome, cargo, data/hora e um código de verificação SHA-256 em cada certificado.</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setLotePapel(null)}>Cancelar</Button>
+            <Button onClick={assinarEmLote} disabled={assinando || !aceiteAssinatura}>
+              {assinando && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}Assinar selecionados
             </Button>
           </DialogFooter>
         </DialogContent>

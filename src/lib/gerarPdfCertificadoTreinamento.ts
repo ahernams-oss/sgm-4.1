@@ -1,5 +1,5 @@
 import type { jsPDF } from "jspdf";
-import fundoAsset from "@/assets/certificado-treinamento.jpg.asset.json";
+import fundoAsset from "@/assets/certificado-treinamento-v2.jpg.asset.json";
 
 const getJsPDF = async () => (await import("jspdf")).jsPDF;
 

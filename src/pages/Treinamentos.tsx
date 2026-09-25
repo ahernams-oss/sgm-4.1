@@ -415,7 +415,7 @@ export default function Treinamentos() {
                           <Badge
                             variant="outline"
                             className="text-[10px]"
-                            title={`Assinado por ${t.resp_assinante_nome ?? ""} em ${new Date(t.resp_assinado_em).toLocaleString("pt-BR")}${t.resp_assinatura_hash ? ` — SHA-256 ${t.resp_assinatura_hash}` : ""}`}
+                            title={`Assinado por ${t.resp_assinante_nome ?? ""}`}
                           >
                             <FileSignature className="w-3 h-3 mr-1" />Assinado
                           </Badge>

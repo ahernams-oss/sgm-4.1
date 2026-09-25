@@ -1,7 +1,7 @@
 import { createContext, useContext, ReactNode } from "react";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
-import { useProviderGate, useActivateProvider, gateQueries } from "@/lib/providerGate";
+import { useProviderGate, useActivateProvider, gateQueries, useLoadGateAllowed } from "@/lib/providerGate";
 
 export type StatusPagar = "aberta" | "paga" | "parcial" | "cancelada";
 export type StatusReceber = "aberta" | "recebida" | "parcial" | "cancelada";
@@ -173,10 +173,13 @@ const QK_FA = ["fin_fluxo_ajustes"] as const;
 
 export function FinanceiroProvider({ children }: { children: ReactNode }) {
   const __active = useProviderGate("Financeiro");
+  // Contas a Pagar/Receber só carregam após o usuário aplicar um filtro
+  // (telas de alto volume). Cadastros auxiliares (bancos, plano, centros)
+  // continuam carregando para alimentar os próprios filtros.
+  const __loadOk = useLoadGateAllowed("Financeiro");
   const qc = useQueryClient();
 
-  const results = useQueries({
-    queries: gateQueries([
+  const gated = gateQueries([
       { queryKey: QK_CB, queryFn: async () => fetchAll("fin_contas_bancarias", "nome"), staleTime: 5 * 60 * 1000, gcTime: 30 * 60 * 1000 },
       { queryKey: QK_PC, queryFn: async () => fetchAll("fin_plano_contas", "codigo"), staleTime: 5 * 60 * 1000, gcTime: 30 * 60 * 1000 },
       { queryKey: QK_CC, queryFn: async () => fetchAll("fin_centros_custo", "nome"), staleTime: 5 * 60 * 1000, gcTime: 30 * 60 * 1000 },
@@ -185,8 +188,10 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
       { queryKey: QK_LN, queryFn: async () => fetchAll("fin_lancamentos", "data"), staleTime: 5 * 60 * 1000, gcTime: 30 * 60 * 1000 },
       { queryKey: QK_OFX, queryFn: async () => fetchAll("fin_movimentos_ofx", "data"), staleTime: 5 * 60 * 1000, gcTime: 30 * 60 * 1000 },
       { queryKey: QK_FA, queryFn: async () => fetchAll("fin_fluxo_ajustes", "data"), staleTime: 5 * 60 * 1000, gcTime: 30 * 60 * 1000 },
-    ], __active),
-  });
+    ], __active);
+  (gated[3] as any).enabled = __active && __loadOk;
+  (gated[4] as any).enabled = __active && __loadOk;
+  const results = useQueries({ queries: gated });
 
   const contasBancarias = (results[0].data as ContaBancaria[]) || [];
   const planoContas = (results[1].data as PlanoConta[]) || [];

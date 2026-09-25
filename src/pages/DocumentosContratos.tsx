@@ -243,7 +243,7 @@ export default function DocumentosContratos() {
                       </TableCell>
                       <TableCell className="px-4 py-3">
                         <div className="truncate max-w-[220px]" title={l.contratoDescricao}>
-                          <span className="font-semibold">CT-{String(l.contratoNumero).padStart(4, "0")}</span>
+                          <span className="font-semibold">Contrato {l.contratoNumero}</span>
                           {l.contratoDescricao ? <span className="text-muted-foreground"> — {l.contratoDescricao}</span> : null}
                         </div>
                       </TableCell>

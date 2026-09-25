@@ -55,6 +55,7 @@ export const ACCESS_ROUTES: { perm: string; url: string }[] = [
   { perm: "gerencial_multidim", url: "/gerencial/multidimensional" },
   { perm: "empresa", url: "/empresa" },
   { perm: "clientes", url: "/clientes" },
+  { perm: "clientes", url: "/clientes/documentos-contratos" },
   { perm: "fornecedores", url: "/fornecedores" },
   { perm: "equipamentos", url: "/cadastros/equipamentos" },
   { perm: "epis_catalogo", url: "/epis/catalogo" },

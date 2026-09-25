@@ -403,6 +403,7 @@ export default function OrdensServicoPage() {
   const [filtroImpresso, setFiltroImpresso] = useState(_osSavedFilters?.filtroImpresso ?? "all");
 
   const [filtroCliente, setFiltroCliente] = useState(() => localStorage.getItem("os_filtroCliente") || "Todos");
+  const [clienteTodosEscolhido, setClienteTodosEscolhido] = useState(false);
   const [filtroPrioridade, setFiltroPrioridade] = useState(_osSavedFilters?.filtroPrioridade ?? "Todas");
   const [filtroDataInicio, setFiltroDataInicio] = useState(_osSavedFilters?.filtroDataInicio ?? "");
   const [filtroDataFim, setFiltroDataFim] = useState(_osSavedFilters?.filtroDataFim ?? "");
@@ -417,7 +418,7 @@ export default function OrdensServicoPage() {
   // Carregamento sob demanda: exige ao menos um filtro selecionado.
   const temFiltroOs = !!busca.trim() || filtroSituacao !== "Todas" || filtroPrioridade !== "Todas" ||
     !!filtroDataInicio || !!filtroDataFim || filtroOrigem !== "all" || filtroFotos !== "all" || filtroImpresso !== "all" ||
-    filtroCliente !== "Todos" || !!filtroConfirmadoIni || !!filtroConfirmadoFim || !!filtroValidadaIni || !!filtroValidadaFim ||
+    filtroCliente !== "Todos" || clienteTodosEscolhido || !!filtroConfirmadoIni || !!filtroConfirmadoFim || !!filtroValidadaIni || !!filtroValidadaFim ||
     !!filtroFaturamentoIni || !!filtroFaturamentoFim;
   useEffect(() => {
     setLoadGate("OrdensServico", temFiltroOs);
@@ -1207,7 +1208,7 @@ export default function OrdensServicoPage() {
   }, [ordensFiltradas, sortField, sortDir, calcTotalComBDI]);
 
   const limparFiltros = () => {
-    setBusca(""); setFiltroSituacao("Todas"); setFiltroCliente("Todos"); localStorage.setItem("os_filtroCliente", "Todos");
+    setBusca(""); setFiltroSituacao("Todas"); setFiltroCliente("Todos"); setClienteTodosEscolhido(false); localStorage.setItem("os_filtroCliente", "Todos");
     setFiltroPrioridade("Todas"); setFiltroDataInicio(""); setFiltroDataFim("");
     setFiltroConfirmadoIni(""); setFiltroConfirmadoFim(""); setFiltroValidadaIni(""); setFiltroValidadaFim("");
     setFiltroFaturamentoIni(""); setFiltroFaturamentoFim("");
@@ -1376,10 +1377,10 @@ export default function OrdensServicoPage() {
             </div>
             <div className="w-[200px]">
               <Label>Cliente</Label>
-              <Select value={filtroCliente} onValueChange={v => { setFiltroCliente(v); localStorage.setItem("os_filtroCliente", v); setPage(1); }}>
+              <Select value={filtroCliente} onValueChange={v => { setFiltroCliente(v); setClienteTodosEscolhido(v === "Todos"); localStorage.setItem("os_filtroCliente", v); setPage(1); }}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Todos">Todos</SelectItem>
+                  <SelectItem value="Todos" onPointerUp={() => setClienteTodosEscolhido(true)} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") setClienteTodosEscolhido(true); }}>Todos</SelectItem>
                   {clientesFiltrados.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
                 </SelectContent>
               </Select>

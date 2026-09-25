@@ -41,6 +41,7 @@ export default function ContasReceber() {
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
   const [busca, setBusca] = useState("");
   const [filtroCliente, setFiltroCliente] = useState<string>("todos");
+  const [clienteTodosEscolhido, setClienteTodosEscolhido] = useState(false);
   const [filtroCategoria, setFiltroCategoria] = useState<string>("todos");
   const [filtroCentroCusto, setFiltroCentroCusto] = useState<string>("todos");
   const [filtroContaBancaria, setFiltroContaBancaria] = useState<string>("todos");
@@ -50,7 +51,7 @@ export default function ContasReceber() {
   const [filtroValorMax, setFiltroValorMax] = useState("");
 
   // Carregamento sob demanda: exige ao menos um filtro selecionado.
-  const temFiltroCr = filtroStatus !== "todos" || !!busca.trim() || filtroCliente !== "todos" ||
+  const temFiltroCr = filtroStatus !== "todos" || !!busca.trim() || filtroCliente !== "todos" || clienteTodosEscolhido ||
     filtroCategoria !== "todos" || filtroCentroCusto !== "todos" || filtroContaBancaria !== "todos" ||
     !!filtroVencIni || !!filtroVencFim || !!filtroValorMin || !!filtroValorMax;
   useEffect(() => {
@@ -58,7 +59,7 @@ export default function ContasReceber() {
     return () => clearLoadGate("Financeiro");
   }, [temFiltroCr]);
   const limparFiltros = () => {
-    setBusca(""); setFiltroStatus("todos"); setFiltroCliente("todos"); setFiltroCategoria("todos");
+    setBusca(""); setFiltroStatus("todos"); setFiltroCliente("todos"); setClienteTodosEscolhido(false); setFiltroCategoria("todos");
     setFiltroCentroCusto("todos"); setFiltroContaBancaria("todos");
     setFiltroVencIni(""); setFiltroVencFim(""); setFiltroValorMin(""); setFiltroValorMax("");
     setPage(1);
@@ -215,10 +216,10 @@ export default function ContasReceber() {
           <div className="flex flex-wrap items-end gap-2 rounded-md border bg-muted/30 p-3">
             <div className="space-y-1">
               <span className="text-xs text-muted-foreground">Cliente</span>
-              <Select value={filtroCliente} onValueChange={(v) => { setFiltroCliente(v); setPage(1); }}>
+              <Select value={filtroCliente} onValueChange={(v) => { setFiltroCliente(v); setClienteTodosEscolhido(v === "todos"); setPage(1); }}>
                 <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="todos" onPointerUp={() => setClienteTodosEscolhido(true)} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") setClienteTodosEscolhido(true); }}>Todos</SelectItem>
                   {clientesLista.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
                 </SelectContent>
               </Select>

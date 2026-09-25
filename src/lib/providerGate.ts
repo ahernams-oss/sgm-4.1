@@ -52,6 +52,47 @@ export function activateProvider(key: string): void {
   }
 }
 
+/**
+ * Gate de carregamento por filtro (telas de alto volume).
+ *
+ * Enquanto a tela "dona" do gate estiver montada sem nenhum filtro selecionado,
+ * a query principal do contexto correspondente fica desativada — nada é buscado
+ * no banco. Ao selecionar qualquer filtro, o carregamento é liberado.
+ */
+const loadGates = new Map<string, boolean>(); // key -> satisfied (há filtro)
+
+export function setLoadGate(key: string, satisfied: boolean): void {
+  if (loadGates.get(key) !== satisfied) {
+    loadGates.set(key, satisfied);
+    emit();
+  }
+}
+
+export function clearLoadGate(key: string): void {
+  if (loadGates.delete(key)) emit();
+}
+
+export function isLoadAllowed(key: string): boolean {
+  return loadGates.get(key) !== false;
+}
+
+/** Usado dentro do Provider: reage ao estado do gate. */
+export function useLoadGateAllowed(key: string): boolean {
+  return useSyncExternalStore(
+    subscribe,
+    () => isLoadAllowed(key),
+    () => true,
+  );
+}
+
+/** Usado na tela dona do gate: registra o requisito de filtro enquanto montada. */
+export function useRequireFilterToLoad(key: string, hasFilter: boolean): void {
+  useEffect(() => {
+    setLoadGate(key, hasFilter);
+    return () => clearLoadGate(key);
+  }, [key, hasFilter]);
+}
+
 /** Aplica o gate a um array de queries do `useQueries`, preservando os tipos. */
 export function gateQueries<T extends readonly unknown[]>(queries: readonly [...T], enabled: boolean): [...T] {
   return (queries as readonly any[]).map((q) => ({ ...(q as object), enabled })) as unknown as [...T];

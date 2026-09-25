@@ -364,7 +364,7 @@ export default function RecebimentoComprasPage() {
       </p>
 
       {/* Table */}
-      {temFiltroRec ? (
+      {temFiltroRec ? (<>
       <div className="border rounded-lg">
         <SortableHeaderRow order={colOrder} onReorder={setColOrder}>
         <Table>

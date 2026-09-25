@@ -1,4 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import GradeRequerFiltro from "@/components/GradeRequerFiltro";
+import { ensureLoadGate, setLoadGate, clearLoadGate } from "@/lib/providerGate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +27,7 @@ const empty = {
 };
 
 export default function ContasReceber() {
+  ensureLoadGate("Financeiro");
   const { contasReceber, planoContas, centrosCusto, contasBancarias, addContaReceber, updateContaReceber, deleteContaReceber } = useFinanceiro();
   const { clientes } = useClientes();
   const clientesLista = useMemo(() => clientes.filter(c => c.tipo === "Cliente"), [clientes]);
@@ -45,6 +48,15 @@ export default function ContasReceber() {
   const [filtroVencFim, setFiltroVencFim] = useState("");
   const [filtroValorMin, setFiltroValorMin] = useState("");
   const [filtroValorMax, setFiltroValorMax] = useState("");
+
+  // Carregamento sob demanda: exige ao menos um filtro selecionado.
+  const temFiltroCr = filtroStatus !== "todos" || !!busca.trim() || filtroCliente !== "todos" ||
+    filtroCategoria !== "todos" || filtroCentroCusto !== "todos" || filtroContaBancaria !== "todos" ||
+    !!filtroVencIni || !!filtroVencFim || !!filtroValorMin || !!filtroValorMax;
+  useEffect(() => {
+    setLoadGate("Financeiro", temFiltroCr);
+    return () => clearLoadGate("Financeiro");
+  }, [temFiltroCr]);
   const limparFiltros = () => {
     setBusca(""); setFiltroStatus("todos"); setFiltroCliente("todos"); setFiltroCategoria("todos");
     setFiltroCentroCusto("todos"); setFiltroContaBancaria("todos");
@@ -259,6 +271,7 @@ export default function ContasReceber() {
             </div>
             <Button variant="outline" size="sm" onClick={limparFiltros}>Limpar filtros</Button>
           </div>
+          {temFiltroCr ? (<>
           <Table>
             <TableHeader>
               <TableRow>
@@ -295,6 +308,10 @@ export default function ContasReceber() {
             </TableBody>
           </Table>
           <PaginationControls currentPage={page} totalItems={filtradas.length} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={(s) => { setPageSize(s); setPage(1); }} />
+          </>
+          ) : (
+            <GradeRequerFiltro descricao="Selecione ao menos um filtro (status, busca, cliente, categoria, centro de custo, conta, vencimento ou valores) para carregar as contas." />
+          )}
         </CardContent>
       </Card>
 

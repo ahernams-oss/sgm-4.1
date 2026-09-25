@@ -1289,7 +1289,7 @@ export default function SolicitacaoServicosPage() {
         <Select value={filterCliente} onValueChange={v => { setFilterCliente(v); setClienteTodosEscolhido(v === "all"); localStorage.setItem("ss_filtroCliente", v); setPage(1); }}>
           <SelectTrigger className="w-[200px]"><SelectValue placeholder="Cliente" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos os Clientes</SelectItem>
+            <SelectItem value="all" onPointerUp={() => setClienteTodosEscolhido(true)} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") setClienteTodosEscolhido(true); }}>Todos os Clientes</SelectItem>
             {clientesUnicos.map(([id, nome]) => <SelectItem key={id} value={id}>{nome}</SelectItem>)}
           </SelectContent>
         </Select>

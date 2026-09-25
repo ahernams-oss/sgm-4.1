@@ -219,7 +219,7 @@ export default function ContasReceber() {
               <Select value={filtroCliente} onValueChange={(v) => { setFiltroCliente(v); setClienteTodosEscolhido(v === "todos"); setPage(1); }}>
                 <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="todos" onPointerUp={() => setClienteTodosEscolhido(true)} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") setClienteTodosEscolhido(true); }}>Todos</SelectItem>
                   {clientesLista.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
                 </SelectContent>
               </Select>

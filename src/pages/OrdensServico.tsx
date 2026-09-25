@@ -1380,7 +1380,7 @@ export default function OrdensServicoPage() {
               <Select value={filtroCliente} onValueChange={v => { setFiltroCliente(v); setClienteTodosEscolhido(v === "Todos"); localStorage.setItem("os_filtroCliente", v); setPage(1); }}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Todos">Todos</SelectItem>
+                  <SelectItem value="Todos" onPointerUp={() => setClienteTodosEscolhido(true)} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") setClienteTodosEscolhido(true); }}>Todos</SelectItem>
                   {clientesFiltrados.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
                 </SelectContent>
               </Select>

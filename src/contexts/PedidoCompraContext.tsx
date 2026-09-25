@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, ReactNode, type Context } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow } from "@/lib/supabaseHelper";
 import { gerarContasPagarDePC } from "@/lib/financeiroFromPC";
@@ -28,7 +28,9 @@ interface PedidoCompraContextType {
   cancelarPedido: (id: string, usuario: string, motivo: string) => void;
 }
 
-const PedidoCompraContext = createContext<PedidoCompraContextType | undefined>(undefined);
+const __g = globalThis as unknown as { __sgmPedidoCompraContext?: Context<PedidoCompraContextType | undefined> };
+const PedidoCompraContext =
+  __g.__sgmPedidoCompraContext ?? (__g.__sgmPedidoCompraContext = createContext<PedidoCompraContextType | undefined>(undefined));
 const QK = ["pedidos_compra"] as const;
 
 const rowToPedido = (r: any): PedidoCompra => ({

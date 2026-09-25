@@ -1,5 +1,7 @@
 import { lerArquivoBase64 } from "@/lib/compressFile";
 import { useState, useMemo, useRef, useEffect } from "react";
+import GradeRequerFiltro from "@/components/GradeRequerFiltro";
+import { ensureLoadGate, setLoadGate, clearLoadGate } from "@/lib/providerGate";
 import { useNavigate, useSearchParams } from "@/lib/router-compat";
 import { FileSpreadsheet } from "lucide-react";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
@@ -58,6 +60,7 @@ const statusColors: Record<StatusRequisicaoCompras, string> = {
 const URGENCIAS: GrauUrgencia[] = ["Baixa", "Normal", "Alta", "Urgente"];
 
 export default function RequisicaoComprasPage() {
+  ensureLoadGate("RequisicaoCompras");
   const { requisicoes, addRequisicao, cancelarRequisicao, updateStatus, updateRequisicao } = useRequisicaoCompras();
   const { addCotacao, cotacoes } = useCotacaoCompras();
   const { pedidos } = usePedidoCompra();
@@ -114,6 +117,14 @@ export default function RequisicaoComprasPage() {
   const [filterDataIni, setFilterDataIni] = useState(_savedFilters?.filterDataIni ?? "");
   const [filterDataFim, setFilterDataFim] = useState(_savedFilters?.filterDataFim ?? "");
   const [filterGrupo, setFilterGrupo] = useState<string>(_savedFilters?.filterGrupo ?? "Todos");
+
+  // Carregamento sob demanda: exige ao menos um filtro selecionado.
+  const temFiltroReq = !!search.trim() || filterStatus !== "Todos" || filterCentroCusto !== "Todos" ||
+    filterUrgencia !== "Todas" || filterSolicitante !== "Todos" || !!filterDataIni || !!filterDataFim || filterGrupo !== "Todos";
+  useEffect(() => {
+    setLoadGate("RequisicaoCompras", temFiltroReq);
+    return () => clearLoadGate("RequisicaoCompras");
+  }, [temFiltroReq]);
 
   const [pageReq, setPageReq] = useState(1);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -618,6 +629,7 @@ export default function RequisicaoComprasPage() {
         </Button>
       </div>
 
+      {temFiltroReq ? (
       <div className="border rounded-lg">
         <SortableHeaderRow order={colOrder} onReorder={setColOrder}>
         <Table>
@@ -790,6 +802,9 @@ export default function RequisicaoComprasPage() {
           <PaginationControls currentPage={pageReq} totalItems={filtered.length} onPageChange={setPageReq} pageSize={7} />
         </div>
       </div>
+      ) : (
+        <GradeRequerFiltro descricao="Use a busca ou qualquer filtro acima (status, centro de custo, urgência, grupo de mercadoria ou datas) para carregar as requisições." />
+      )}
 
       <DoubleConfirmDelete open={!!cancelId} onOpenChange={o => !o && abortCancel()} onConfirm={handleCancelar} />
 

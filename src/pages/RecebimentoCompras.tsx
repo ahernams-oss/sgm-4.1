@@ -1,4 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
+import GradeRequerFiltro from "@/components/GradeRequerFiltro";
+import { ensureLoadGate, setLoadGate, clearLoadGate } from "@/lib/providerGate";
 import { useSearchParams } from "@/lib/router-compat";
 import { loadPersistedFilters, usePersistFilters } from "@/lib/persistedFilters";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
@@ -42,6 +44,7 @@ const statusColors: Record<string, string> = {
 };
 
 export default function RecebimentoComprasPage() {
+  ensureLoadGate("PedidoCompra");
   const { pedidos, updateStatus: updatePedidoStatus } = usePedidoCompra();
   const { recebimentos, registrarRecebimento, rejeitarRecebimento, getRecebimentosByPedido, getTotalRecebidoPorItem } = useRecebimento();
   const { usuarioLogado } = useAuth();
@@ -82,6 +85,16 @@ export default function RecebimentoComprasPage() {
   const [search, setSearch] = useState(_recSavedFilters?.search ?? "");
   const [filterStatus, setFilterStatus] = useState(_recSavedFilters?.filterStatus ?? "Pendentes");
   usePersistFilters("recebimento_compras_filters_v1", { search, filterStatus });
+
+  // Carregamento sob demanda: exige ao menos um filtro selecionado.
+  // O status padrão "Pendentes" já restringe a lista; para bloquear o carregamento
+  // total, é preciso digitar na busca ou trocar o status.
+  const temFiltroRec = !!search.trim() || filterStatus !== "Pendentes";
+  useEffect(() => {
+    setLoadGate("PedidoCompra", temFiltroRec);
+    return () => clearLoadGate("PedidoCompra");
+  }, [temFiltroRec]);
+
   const [pageRec, setPageRec] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -351,6 +364,7 @@ export default function RecebimentoComprasPage() {
       </p>
 
       {/* Table */}
+      {temFiltroRec ? (
       <div className="border rounded-lg">
         <SortableHeaderRow order={colOrder} onReorder={setColOrder}>
         <Table>
@@ -438,6 +452,10 @@ export default function RecebimentoComprasPage() {
         </SortableHeaderRow>
       </div>
       <PaginationControls currentPage={pageRec} totalItems={filtered.length} onPageChange={setPageRec} pageSize={pageSize} onPageSizeChange={(s) => { setPageSize(s); setPageRec(1); }} />
+      </>
+      ) : (
+        <GradeRequerFiltro descricao="Digite na busca (nº da OC ou fornecedor) ou escolha um status para carregar os pedidos." />
+      )}
 
       {/* Dialog Registrar Recebimento */}
       <Dialog open={recDialogOpen} onOpenChange={setRecDialogOpen}>

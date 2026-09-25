@@ -61,6 +61,7 @@ export interface Empenho {
   data?: string;
   valor?: string;
 }
+export interface ContratoAnexo { id: string; nome: string; path: string; tamanho: number; enviadoEm: string }
 export interface Contrato {
   id: string; numero: string; numeroProcesso?: string; descricao: string; dataInicio: string; dataFim: string;
   bdi: string; descontoLicitacao?: string; valorBase: string; valorBase2: string; valorBase3: string;
@@ -69,6 +70,7 @@ export interface Contrato {
   valorContrato?: string;
   inss?: string; pis?: string; cofins?: string; csll?: string; irrf?: string; iss?: string; cbs?: string; ibs?: string; cbsMunicipal?: string; ibsMunicipal?: string;
   meta1?: string; meta2?: string; meta3?: string;
+  anexos?: ContratoAnexo[];
   faturamentos: Faturamento[];
   empenhos?: Empenho[];
 }

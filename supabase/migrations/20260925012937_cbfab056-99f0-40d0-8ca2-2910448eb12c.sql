@@ -1,0 +1,1 @@
+CREATE POLICY "contratos_anexos_acesso" ON storage.objects FOR ALL TO anon, authenticated USING (bucket_id = 'contratos-anexos') WITH CHECK (bucket_id = 'contratos-anexos');

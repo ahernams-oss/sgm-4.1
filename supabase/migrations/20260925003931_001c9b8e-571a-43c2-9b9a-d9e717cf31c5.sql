@@ -1,0 +1,1 @@
+ALTER TABLE public.portal_treinamentos ADD COLUMN IF NOT EXISTS realizado_fim date;

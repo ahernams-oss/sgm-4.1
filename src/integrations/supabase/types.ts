@@ -7310,6 +7310,7 @@ export type Database = {
           nota: number | null
           processo_seletivo_id: string | null
           realizado_em: string | null
+          realizado_fim: string | null
           resp_assinado_em: string | null
           resp_assinante_cargo: string | null
           resp_assinante_nome: string | null
@@ -7342,6 +7343,7 @@ export type Database = {
           nota?: number | null
           processo_seletivo_id?: string | null
           realizado_em?: string | null
+          realizado_fim?: string | null
           resp_assinado_em?: string | null
           resp_assinante_cargo?: string | null
           resp_assinante_nome?: string | null
@@ -7374,6 +7376,7 @@ export type Database = {
           nota?: number | null
           processo_seletivo_id?: string | null
           realizado_em?: string | null
+          realizado_fim?: string | null
           resp_assinado_em?: string | null
           resp_assinante_cargo?: string | null
           resp_assinante_nome?: string | null

@@ -85,12 +85,14 @@ export function useLoadGateAllowed(key: string): boolean {
   );
 }
 
-/** Usado na tela dona do gate: registra o requisito de filtro enquanto montada. */
-export function useRequireFilterToLoad(key: string, hasFilter: boolean): void {
-  useEffect(() => {
-    setLoadGate(key, hasFilter);
-    return () => clearLoadGate(key);
-  }, [key, hasFilter]);
+/**
+ * Usado na tela dona do gate, no topo do componente (antes dos hooks de dados).
+ * Registro síncrono: garante que a query principal exija filtro a partir do
+ * primeiro render, antes de qualquer hook de dados ativar o provider.
+ * A liberação acontece via `setLoadGate` quando a tela aplica um filtro.
+ */
+export function ensureLoadGate(key: string): void {
+  if (!loadGates.has(key)) loadGates.set(key, false);
 }
 
 /** Aplica o gate a um array de queries do `useQueries`, preservando os tipos. */

@@ -1,4 +1,6 @@
 import { useState, useMemo, useCallback, useRef, useEffect, type ReactNode } from "react"; // OS page
+import GradeRequerFiltro from "@/components/GradeRequerFiltro";
+import { ensureLoadGate, setLoadGate, clearLoadGate } from "@/lib/providerGate";
 import { loadPersistedFilters, usePersistFilters } from "@/lib/persistedFilters";
 import { useColumnOrder } from "@/hooks/useColumnOrder";
 import { SortableHeaderRow, SortableTableHead } from "@/components/SortableTableHead";
@@ -184,6 +186,7 @@ function FotosUploader({ disabled, onUploaded, currentCount }: { disabled: boole
 
 
 export default function OrdensServicoPage() {
+  ensureLoadGate("OrdensServico");
   const { ordens, addOrdem, updateOrdem, deleteOrdem } = useOrdensServico();
   const { assinaturas: assinaturasOs = [] } = useOsAssinaturas();
   const { clientes } = useClientes();
@@ -410,6 +413,16 @@ export default function OrdensServicoPage() {
   const [filtroValidadaFim, setFiltroValidadaFim] = useState(_osDatasStatus?.valFim ?? "");
   const [filtroFaturamentoIni, setFiltroFaturamentoIni] = useState((_osDatasStatus as any)?.fatIni ?? "");
   const [filtroFaturamentoFim, setFiltroFaturamentoFim] = useState((_osDatasStatus as any)?.fatFim ?? "");
+
+  // Carregamento sob demanda: exige ao menos um filtro selecionado.
+  const temFiltroOs = !!busca.trim() || filtroSituacao !== "Todas" || filtroPrioridade !== "Todas" ||
+    !!filtroDataInicio || !!filtroDataFim || filtroOrigem !== "all" || filtroFotos !== "all" || filtroImpresso !== "all" ||
+    filtroCliente !== "Todos" || !!filtroConfirmadoIni || !!filtroConfirmadoFim || !!filtroValidadaIni || !!filtroValidadaFim ||
+    !!filtroFaturamentoIni || !!filtroFaturamentoFim;
+  useEffect(() => {
+    setLoadGate("OrdensServico", temFiltroOs);
+    return () => clearLoadGate("OrdensServico");
+  }, [temFiltroOs]);
   usePersistFilters("ordens_servico_filters_v1", { busca, filtroSituacao, filtroPrioridade, filtroDataInicio, filtroDataFim, filtroOrigem, filtroFotos, filtroImpresso });
   usePersistFilters("ordens_servico_datas_status_v1", { confIni: filtroConfirmadoIni, confFim: filtroConfirmadoFim, valIni: filtroValidadaIni, valFim: filtroValidadaFim, fatIni: filtroFaturamentoIni, fatFim: filtroFaturamentoFim });
   const _osTipoData = loadPersistedFilters<{ tipo: "inicio" | "confirmado" | "validada" | "faturamento" }>("ordens_servico_tipo_data_v1");
@@ -1517,6 +1530,7 @@ export default function OrdensServicoPage() {
       )}
 
       {/* Table */}
+      {temFiltroOs ? (
       <Card>
         <CardContent className="p-0">
           <Table>
@@ -1805,6 +1819,9 @@ export default function OrdensServicoPage() {
           )}
         </CardContent>
       </Card>
+      ) : (
+        <GradeRequerFiltro descricao="Use a busca ou qualquer filtro acima (situação, prioridade, cliente, datas etc.) para carregar as ordens de serviço." />
+      )}
 
       {temFiltrosAtivos && (
         <Card className="border-primary/30 bg-primary/5">

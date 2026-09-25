@@ -1,4 +1,6 @@
 import { useState, useMemo, useRef, useEffect, type ReactNode } from "react";
+import GradeRequerFiltro from "@/components/GradeRequerFiltro";
+import { ensureLoadGate, setLoadGate, clearLoadGate } from "@/lib/providerGate";
 import { loadPersistedFilters, usePersistFilters } from "@/lib/persistedFilters";
 import { useSearchParams, Link } from "@/lib/router-compat";
 import { useColumnOrder } from "@/hooks/useColumnOrder";
@@ -89,6 +91,7 @@ function jaccardSimilarity(a: string, b: string): number {
 }
 
 export default function SolicitacaoServicosPage() {
+  ensureLoadGate("SolicitacoesServicos");
   const { solicitacoes, addSolicitacao, updateSolicitacao, deleteSolicitacao } = useSolicitacoesServicos();
   const { clientes } = useClientes();
   const { equipamentos } = useEquipamentos();
@@ -135,6 +138,15 @@ export default function SolicitacaoServicosPage() {
   const [filterSetorCritico, setFilterSetorCritico] = useState(_ssSavedFilters?.filterSetorCritico ?? "all");
   const [filterDataIni, setFilterDataIni] = useState((_ssSavedFilters as any)?.filterDataIni ?? "");
   const [filterDataFim, setFilterDataFim] = useState((_ssSavedFilters as any)?.filterDataFim ?? "");
+
+  // Carregamento sob demanda: exige ao menos um filtro selecionado.
+  const temFiltroSs = !!search.trim() || filterCliente !== "all" || filterTipo !== "all" || filterSituacao !== "all" ||
+    filterVisitado !== "all" || filterOrigem !== "all" || filterImpresso !== "all" || filterPrioridade !== "all" ||
+    filterSetorCritico !== "all" || !!filterDataIni || !!filterDataFim;
+  useEffect(() => {
+    setLoadGate("SolicitacoesServicos", temFiltroSs);
+    return () => clearLoadGate("SolicitacoesServicos");
+  }, [temFiltroSs]);
   usePersistFilters("solicitacao_servicos_filters_v1", { search, filterTipo, filterSituacao, filterVisitado, filterOrigem, filterImpresso, filterPrioridade, filterSetorCritico, filterDataIni, filterDataFim });
   const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
@@ -1380,6 +1392,7 @@ export default function SolicitacaoServicosPage() {
       )}
 
       {/* Table */}
+      {temFiltroSs ? (<>
       <div className="border rounded-lg">
         <Table>
           <TableHeader>
@@ -1635,6 +1648,10 @@ export default function SolicitacaoServicosPage() {
       </div>
 
       <PaginationControls currentPage={page} totalItems={filtered.length} onPageChange={setPage} pageSize={pageSize} onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}/>
+      </>
+      ) : (
+        <GradeRequerFiltro descricao="Use a busca ou qualquer filtro acima (cliente, tipo, situação, prioridade, datas etc.) para carregar as solicitações." />
+      )}
       <DoubleConfirmDelete open={!!deleteId} onOpenChange={o => !o && cancelDelete()} onConfirm={handleDelete} />
       <Dialog open={!!cancelId} onOpenChange={o => !o && abortCancel()}>
         <DialogContent>

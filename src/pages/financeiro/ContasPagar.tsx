@@ -1,4 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
+import GradeRequerFiltro from "@/components/GradeRequerFiltro";
+import { ensureLoadGate, setLoadGate, clearLoadGate } from "@/lib/providerGate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +38,7 @@ const empty = {
 };
 
 export default function ContasPagar() {
+  ensureLoadGate("Financeiro");
   const { contasPagar, planoContas, centrosCusto, contasBancarias, addContaPagar, updateContaPagar, deleteContaPagar } = useFinanceiro();
   const { clientes } = useClientes();
   const fornecedores = useMemo(() => clientes.filter(c => c.tipo === "Fornecedor"), [clientes]);
@@ -173,6 +176,12 @@ export default function ContasPagar() {
   const hasFiltros = filtroStatus !== "todos" || busca || fFornecedor !== "todos" ||
     fPlanoConta !== "todos" || fCentroCusto !== "todos" || fContaBanc !== "todos" ||
     fDataIni || fDataFim || fValorMin || fValorMax;
+
+  // Carregamento sob demanda: exige ao menos um filtro selecionado.
+  useEffect(() => {
+    setLoadGate("Financeiro", !!hasFiltros);
+    return () => clearLoadGate("Financeiro");
+  }, [hasFiltros]);
 
   const handleUploadAnexo = async (file: File) => {
     if (file.size > 10 * 1024 * 1024) { toast.error("Arquivo deve ter até 10MB."); return; }
@@ -434,6 +443,7 @@ export default function ContasPagar() {
           </div>
         </CardHeader>
         <CardContent>
+          {hasFiltros ? (<>
           <Table>
             <TableHeader>
               <TableRow>
@@ -491,6 +501,10 @@ export default function ContasPagar() {
             </TableBody>
           </Table>
           <PaginationControls currentPage={page} totalItems={filtradas.length} pageSize={pageSize} onPageChange={setPage} onPageSizeChange={(s) => { setPageSize(s); setPage(1); }} />
+          </>
+          ) : (
+            <GradeRequerFiltro descricao="Selecione ao menos um filtro (status, busca, fornecedor, categoria, centro de custo, conta, período ou valores) para carregar as contas." />
+          )}
         </CardContent>
       </Card>
 

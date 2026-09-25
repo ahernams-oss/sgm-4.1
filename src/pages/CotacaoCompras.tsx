@@ -1,5 +1,7 @@
 import { isFornecedorSuspenso } from "@/lib/fornecedorSuspensao";
 import { useState, useMemo, useEffect, useCallback, type ReactNode } from "react";
+import GradeRequerFiltro from "@/components/GradeRequerFiltro";
+import { ensureLoadGate, setLoadGate, clearLoadGate } from "@/lib/providerGate";
 import { loadPersistedFilters, usePersistFilters } from "@/lib/persistedFilters";
 import { useSearchParams } from "@/lib/router-compat";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
@@ -78,6 +80,7 @@ const statusColors: Record<string, string> = {
 };
 
 export default function CotacaoComprasPage() {
+  ensureLoadGate("CotacaoCompras");
   const { cotacoes, addCotacao, addProposta, updateProposta, removeProposta, submeterAprovacao, aprovarCotacao, finalizarCotacao, concluirRevisaoConfirmacao, cancelarCotacao } = useCotacaoCompras();
   const { requisicoes, updateStatus } = useRequisicaoCompras();
   const { addPedido, pedidos } = usePedidoCompra();
@@ -148,6 +151,18 @@ export default function CotacaoComprasPage() {
   usePersistFilters("cotacao_compras_filters_v1", { search, filterStatus, filterPeriodo, filterComprador, filterCentroCusto, filterUrgencia, filterDataIni, filterDataFim });
   const [pageCot, setPageCot] = useState(1);
   const [pageSizeCot, setPageSizeCot] = useState(7);
+
+  // Carregamento sob demanda: exige ao menos um filtro selecionado
+  // (links diretos com ?cotacaoId= ou ?rcsId= também liberam o carregamento).
+  const [cotParams] = useSearchParams();
+  const temLinkDiretoCot = !!(cotParams.get("cotacaoId") || cotParams.get("rcsId"));
+  const temFiltroCot = !!search.trim() || filterStatus !== "Todos" || filterPeriodo !== "Todos" ||
+    filterComprador !== "Todos" || filterCentroCusto !== "Todos" || filterUrgencia !== "Todas" ||
+    !!filterDataIni || !!filterDataFim || temLinkDiretoCot;
+  useEffect(() => {
+    setLoadGate("CotacaoCompras", temFiltroCot);
+    return () => clearLoadGate("CotacaoCompras");
+  }, [temFiltroCot]);
 
   // Link direto vindo de outra tela (ex.: grid de requisições): ?cotacaoId= ou ?rcsId=
   const [searchParams, setSearchParams] = useSearchParams();
@@ -1629,6 +1644,7 @@ export default function CotacaoComprasPage() {
         </div>
       )}
 
+      {temFiltroCot ? (
       <div className="border rounded-lg">
         <SortableHeaderRow order={colOrder} onReorder={setColOrder}>
         <Table>
@@ -1776,6 +1792,9 @@ export default function CotacaoComprasPage() {
         </SortableHeaderRow>
         <PaginationControls currentPage={pageCot} totalItems={filtered.length} onPageChange={setPageCot} pageSize={pageSizeCot} onPageSizeChange={(s) => { setPageSizeCot(s); setPageCot(1); }} />
       </div>
+      ) : (
+        <GradeRequerFiltro descricao="Use a busca ou qualquer filtro acima (status, período, comprador, centro de custo, urgência ou datas) para carregar as cotações." />
+      )}
 
       {/* Dialog Nova Cotação */}
       <Dialog open={novaDialogOpen} onOpenChange={setNovaDialogOpen}>

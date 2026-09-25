@@ -154,9 +154,9 @@ const Clientes = () => {
   const [locaisClienteId, setLocaisClienteId] = useState<string | null>(null);
    const [locaisEntregaClienteId, setLocaisEntregaClienteId] = useState<string | null>(null);
    const [contratosClienteId, setContratosClienteId] = useState<string | null>(null);
-  const emptyContrato = { numero: "", numeroProcesso: "", descricao: "", dataInicio: "", dataFim: "", bdi: "", descontoLicitacao: "", valorBase: "", valorBase2: "", valorBase3: "", maoDeObraMensal: "", maoDeObraAnual: "", maoDeObraContratual: "", mesSco: "", anoSco: "", valorContrato: "", inss: "", pis: "", cofins: "", csll: "", irrf: "", iss: "", cbs: "", ibs: "", meta1: "", meta2: "", meta3: "" };
+  const emptyContrato = { numero: "", numeroProcesso: "", descricao: "", dataInicio: "", dataFim: "", bdi: "", descontoLicitacao: "", valorBase: "", valorBase2: "", valorBase3: "", maoDeObraMensal: "", maoDeObraAnual: "", maoDeObraContratual: "", mesSco: "", anoSco: "", valorContrato: "", inss: "", pis: "", cofins: "", csll: "", irrf: "", iss: "", cbs: "", ibs: "", cbsMunicipal: "", ibsMunicipal: "", meta1: "", meta2: "", meta3: "" };
   const [contratoForm, setContratoForm] = useState(emptyContrato);
-  const [contratoErrors, setContratoErrors] = useState<{ cbs?: string; ibs?: string; descontoLicitacao?: string }>({});
+  const [contratoErrors, setContratoErrors] = useState<{ cbs?: string; ibs?: string; cbsMunicipal?: string; ibsMunicipal?: string; descontoLicitacao?: string }>({});
   const [editingContratoId, setEditingContratoId] = useState<string | null>(null);
   const [salvandoContrato, setSalvandoContrato] = useState(false);
   const [faturamentoContratoId, setFaturamentoContratoId] = useState<string | null>(null);
@@ -491,11 +491,13 @@ const Clientes = () => {
 
           const handleSaveContrato = async () => {
             if (!contratoForm.numero.trim()) { toast.error("Informe o número do contrato."); return; }
-            const cbsError = validarPercentual(contratoForm.cbs, "CBS");
-            const ibsError = validarPercentual(contratoForm.ibs, "IBS");
+            const cbsError = validarPercentual(contratoForm.cbs, "CBS Estadual");
+            const ibsError = validarPercentual(contratoForm.ibs, "IBS Estadual");
+            const cbsMunicipalError = validarPercentual(contratoForm.cbsMunicipal, "CBS Municipal");
+            const ibsMunicipalError = validarPercentual(contratoForm.ibsMunicipal, "IBS Municipal");
             const descontoLicitacaoError = validarPercentual(contratoForm.descontoLicitacao, "Desconto Licitação");
-            setContratoErrors({ cbs: cbsError, ibs: ibsError, descontoLicitacao: descontoLicitacaoError });
-            if (cbsError || ibsError || descontoLicitacaoError) { toast.error("Corrija os campos de porcentagem antes de salvar."); return; }
+            setContratoErrors({ cbs: cbsError, ibs: ibsError, cbsMunicipal: cbsMunicipalError, ibsMunicipal: ibsMunicipalError, descontoLicitacao: descontoLicitacaoError });
+            if (cbsError || ibsError || cbsMunicipalError || ibsMunicipalError || descontoLicitacaoError) { toast.error("Corrija os campos de porcentagem antes de salvar."); return; }
             setSalvandoContrato(true);
             try {
               const contratosAtualizados = editingContratoId
@@ -576,12 +578,20 @@ const Clientes = () => {
                   <Input type="number" step="0.01" placeholder="IRRF (%)" value={contratoForm.irrf} onChange={e => setContratoForm(p => ({ ...p, irrf: e.target.value }))} />
                   <Input type="number" step="0.01" placeholder="ISS (%)" value={contratoForm.iss} onChange={e => setContratoForm(p => ({ ...p, iss: e.target.value }))} />
                   <div>
-                    <Input type="number" step="0.01" placeholder="CBS (%)" value={contratoForm.cbs} onChange={e => { setContratoForm(p => ({ ...p, cbs: e.target.value })); setContratoErrors(prev => ({ ...prev, cbs: validarPercentual(e.target.value, "CBS") })); }} />
+                    <Input type="number" step="0.01" placeholder="CBS Estadual (%)" value={contratoForm.cbs} onChange={e => { setContratoForm(p => ({ ...p, cbs: e.target.value })); setContratoErrors(prev => ({ ...prev, cbs: validarPercentual(e.target.value, "CBS Estadual") })); }} />
                     {contratoErrors.cbs && <p className="text-xs text-destructive mt-1">{contratoErrors.cbs}</p>}
                   </div>
                   <div>
-                    <Input type="number" step="0.01" placeholder="IBS (%)" value={contratoForm.ibs} onChange={e => { setContratoForm(p => ({ ...p, ibs: e.target.value })); setContratoErrors(prev => ({ ...prev, ibs: validarPercentual(e.target.value, "IBS") })); }} />
+                    <Input type="number" step="0.01" placeholder="IBS Estadual (%)" value={contratoForm.ibs} onChange={e => { setContratoForm(p => ({ ...p, ibs: e.target.value })); setContratoErrors(prev => ({ ...prev, ibs: validarPercentual(e.target.value, "IBS Estadual") })); }} />
                     {contratoErrors.ibs && <p className="text-xs text-destructive mt-1">{contratoErrors.ibs}</p>}
+                  </div>
+                  <div>
+                    <Input type="number" step="0.01" placeholder="CBS Municipal (%)" value={contratoForm.cbsMunicipal} onChange={e => { setContratoForm(p => ({ ...p, cbsMunicipal: e.target.value })); setContratoErrors(prev => ({ ...prev, cbsMunicipal: validarPercentual(e.target.value, "CBS Municipal") })); }} />
+                    {contratoErrors.cbsMunicipal && <p className="text-xs text-destructive mt-1">{contratoErrors.cbsMunicipal}</p>}
+                  </div>
+                  <div>
+                    <Input type="number" step="0.01" placeholder="IBS Municipal (%)" value={contratoForm.ibsMunicipal} onChange={e => { setContratoForm(p => ({ ...p, ibsMunicipal: e.target.value })); setContratoErrors(prev => ({ ...prev, ibsMunicipal: validarPercentual(e.target.value, "IBS Municipal") })); }} />
+                    {contratoErrors.ibsMunicipal && <p className="text-xs text-destructive mt-1">{contratoErrors.ibsMunicipal}</p>}
                   </div>
                 </div>
               </div>
@@ -660,8 +670,10 @@ const Clientes = () => {
                           <p className="text-muted-foreground">CSLL: {ct.csll ? `${ct.csll}%` : "—"}</p>
                           <p className="text-muted-foreground">IRRF: {ct.irrf ? `${ct.irrf}%` : "—"}</p>
                           <p className="text-muted-foreground">ISS: {ct.iss ? `${ct.iss}%` : "—"}</p>
-                          <p className="text-muted-foreground">CBS: {(ct as any).cbs ? `${(ct as any).cbs}%` : "—"}</p>
-                          <p className="text-muted-foreground">IBS: {(ct as any).ibs ? `${(ct as any).ibs}%` : "—"}</p>
+                          <p className="text-muted-foreground">CBS Estadual: {(ct as any).cbs ? `${(ct as any).cbs}%` : "—"}</p>
+                          <p className="text-muted-foreground">IBS Estadual: {(ct as any).ibs ? `${(ct as any).ibs}%` : "—"}</p>
+                          <p className="text-muted-foreground">CBS Municipal: {(ct as any).cbsMunicipal ? `${(ct as any).cbsMunicipal}%` : "—"}</p>
+                          <p className="text-muted-foreground">IBS Municipal: {(ct as any).ibsMunicipal ? `${(ct as any).ibsMunicipal}%` : "—"}</p>
                           <p className="text-muted-foreground">Meta 1: {ct.meta1 ? `R$ ${ct.meta1}` : "—"}</p>
                           <p className="text-muted-foreground">Meta 2: {ct.meta2 ? `R$ ${ct.meta2}` : "—"}</p>
                           <p className="text-muted-foreground">Meta 3: {ct.meta3 ? `R$ ${ct.meta3}` : "—"}</p>

@@ -75,6 +75,7 @@ const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 const Clientes = lazy(() => import("./pages/Clientes.tsx"));
 const TransferenciasSaldoContrato = lazy(() => import("./pages/TransferenciasSaldoContrato.tsx"));
 const Fornecedores = lazy(() => import("./pages/Fornecedores.tsx"));
+const DocumentosContratos = lazy(() => import("./pages/DocumentosContratos.tsx"));
 const Cargos = lazy(() => import("./pages/Cargos.tsx"));
 const Funcionarios = lazy(() => import("./pages/Funcionarios.tsx"));
 const MapaFuncionarios = lazy(() => import("./pages/MapaFuncionarios.tsx"));
@@ -254,6 +255,7 @@ function ProtectedAppRoutes() {
         <Route path="/clientes" element={<RotaProtegida perm="clientes"><OrdensServicoProvider><Clientes /></OrdensServicoProvider></RotaProtegida>} />
         <Route path="/clientes/transferencias-saldo" element={<RotaProtegida perm="faturamentos" requireAcessoTotal><TransferenciasSaldoContrato /></RotaProtegida>} />
         <Route path="/fornecedores" element={<RotaProtegida perm="fornecedores"><Fornecedores /></RotaProtegida>} />
+        <Route path="/clientes/documentos-contratos" element={<RotaProtegida perm="clientes"><DocumentosContratos /></RotaProtegida>} />
         <Route path="/cargos" element={<RotaProtegida perm="cargos"><Cargos /></RotaProtegida>} />
         <Route path="/funcionarios" element={<RotaProtegida perm="funcionarios"><Funcionarios /></RotaProtegida>} />
         <Route path="/epis" element={<RotaProtegida perm="funcionarios"><EpisPage /></RotaProtegida>} />

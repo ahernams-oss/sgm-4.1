@@ -129,6 +129,7 @@ export default function SolicitacaoServicosPage() {
   const _ssSavedFilters = loadPersistedFilters<{ search: string; filterCliente: string; filterTipo: string; filterSituacao: string; filterVisitado: string; filterOrigem: string; filterImpresso: string; filterPrioridade: string; filterSetorCritico: string; }>("solicitacao_servicos_filters_v1");
   const [search, setSearch] = useState(_ssSavedFilters?.search ?? "");
   const [filterCliente, setFilterCliente] = useState(() => localStorage.getItem("ss_filtroCliente") || "all");
+  const [clienteTodosEscolhido, setClienteTodosEscolhido] = useState(false);
   const [filterTipo, setFilterTipo] = useState(_ssSavedFilters?.filterTipo ?? "all");
   const [filterSituacao, setFilterSituacao] = useState(_ssSavedFilters?.filterSituacao ?? "all");
   const [filterVisitado, setFilterVisitado] = useState(_ssSavedFilters?.filterVisitado ?? "all");
@@ -140,7 +141,7 @@ export default function SolicitacaoServicosPage() {
   const [filterDataFim, setFilterDataFim] = useState((_ssSavedFilters as any)?.filterDataFim ?? "");
 
   // Carregamento sob demanda: exige ao menos um filtro selecionado.
-  const temFiltroSs = !!search.trim() || filterCliente !== "all" || filterTipo !== "all" || filterSituacao !== "all" ||
+  const temFiltroSs = !!search.trim() || filterCliente !== "all" || clienteTodosEscolhido || filterTipo !== "all" || filterSituacao !== "all" ||
     filterVisitado !== "all" || filterOrigem !== "all" || filterImpresso !== "all" || filterPrioridade !== "all" ||
     filterSetorCritico !== "all" || !!filterDataIni || !!filterDataFim;
   useEffect(() => {
@@ -1285,7 +1286,7 @@ export default function SolicitacaoServicosPage() {
           onChange={e => { setSearch(e.target.value); setPage(1); }}
           className="max-w-xs"
         />
-        <Select value={filterCliente} onValueChange={v => { setFilterCliente(v); localStorage.setItem("ss_filtroCliente", v); setPage(1); }}>
+        <Select value={filterCliente} onValueChange={v => { setFilterCliente(v); setClienteTodosEscolhido(v === "all"); localStorage.setItem("ss_filtroCliente", v); setPage(1); }}>
           <SelectTrigger className="w-[200px]"><SelectValue placeholder="Cliente" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Todos os Clientes</SelectItem>

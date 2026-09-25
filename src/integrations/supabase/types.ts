@@ -7292,13 +7292,24 @@ export type Database = {
           assinatura_dispositivo: string | null
           assinatura_hash: string | null
           assinatura_ip: string | null
+          carga_horaria: number | null
           certificado_path: string | null
           concluido_em: string | null
+          coord_assinado_em: string | null
+          coord_assinante_cargo: string | null
+          coord_assinante_nome: string | null
+          coord_assinatura_hash: string | null
           cpf: string
           created_at: string
           id: string
+          instr_assinado_em: string | null
+          instr_assinante_cargo: string | null
+          instr_assinante_nome: string | null
+          instr_assinatura_hash: string | null
+          local: string | null
           nota: number | null
           processo_seletivo_id: string | null
+          realizado_em: string | null
           resp_assinado_em: string | null
           resp_assinante_cargo: string | null
           resp_assinante_nome: string | null
@@ -7313,13 +7324,24 @@ export type Database = {
           assinatura_dispositivo?: string | null
           assinatura_hash?: string | null
           assinatura_ip?: string | null
+          carga_horaria?: number | null
           certificado_path?: string | null
           concluido_em?: string | null
+          coord_assinado_em?: string | null
+          coord_assinante_cargo?: string | null
+          coord_assinante_nome?: string | null
+          coord_assinatura_hash?: string | null
           cpf: string
           created_at?: string
           id?: string
+          instr_assinado_em?: string | null
+          instr_assinante_cargo?: string | null
+          instr_assinante_nome?: string | null
+          instr_assinatura_hash?: string | null
+          local?: string | null
           nota?: number | null
           processo_seletivo_id?: string | null
+          realizado_em?: string | null
           resp_assinado_em?: string | null
           resp_assinante_cargo?: string | null
           resp_assinante_nome?: string | null
@@ -7334,13 +7356,24 @@ export type Database = {
           assinatura_dispositivo?: string | null
           assinatura_hash?: string | null
           assinatura_ip?: string | null
+          carga_horaria?: number | null
           certificado_path?: string | null
           concluido_em?: string | null
+          coord_assinado_em?: string | null
+          coord_assinante_cargo?: string | null
+          coord_assinante_nome?: string | null
+          coord_assinatura_hash?: string | null
           cpf?: string
           created_at?: string
           id?: string
+          instr_assinado_em?: string | null
+          instr_assinante_cargo?: string | null
+          instr_assinante_nome?: string | null
+          instr_assinatura_hash?: string | null
+          local?: string | null
           nota?: number | null
           processo_seletivo_id?: string | null
+          realizado_em?: string | null
           resp_assinado_em?: string | null
           resp_assinante_cargo?: string | null
           resp_assinante_nome?: string | null

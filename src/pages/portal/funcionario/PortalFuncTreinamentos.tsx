@@ -24,7 +24,17 @@ interface T {
   resp_assinante_nome?: string | null;
   resp_assinante_cargo?: string | null;
   resp_assinatura_hash?: string | null;
+  carga_horaria?: number | null;
+  realizado_em?: string | null;
+  local?: string | null;
+  instr_assinado_em?: string | null;
+  instr_assinante_nome?: string | null;
+  instr_assinatura_hash?: string | null;
+  coord_assinado_em?: string | null;
+  coord_assinante_nome?: string | null;
+  coord_assinatura_hash?: string | null;
 }
+const liberado = (t: T) => t.status === "concluido" && !!t.instr_assinado_em && !!t.coord_assinado_em;
 
 const fmt = (d?: string | null) => (d ? new Date(d).toLocaleString("pt-BR") : "—");
 
@@ -51,6 +61,11 @@ export default function PortalFuncTreinamentos() {
         nota: t.nota != null ? String(t.nota) : null,
         concluidoEm: t.concluido_em,
         codigo: t.id.slice(0, 8).toUpperCase(),
+        cargaHoraria: t.carga_horaria ?? null,
+        realizadoEm: t.realizado_em ?? null,
+        local: t.local ?? null,
+        instrutor: { nome: t.instr_assinante_nome, em: t.instr_assinado_em, hash: t.instr_assinatura_hash },
+        coordenacao: { nome: t.coord_assinante_nome, em: t.coord_assinado_em, hash: t.coord_assinatura_hash },
         assinadoEm: t.assinado_em ?? null,
         assinaturaHash: t.assinatura_hash ?? null,
         assinaturaIp: t.assinatura_ip ?? null,
@@ -100,12 +115,15 @@ export default function PortalFuncTreinamentos() {
                     <Clock className="w-3 h-3" /> Pendente
                   </span>
                 )}
-                {t.status === "concluido" && !t.assinado_em && (
+                {t.status === "concluido" && !liberado(t) && (
+                  <span className="text-xs text-muted-foreground">Aguardando assinaturas do Instrutor e da Coordenação</span>
+                )}
+                {liberado(t) && !t.assinado_em && (
                   <Button size="sm" onClick={() => setValidarId(t.id)}>
-                    <ShieldCheck className="w-4 h-4 mr-1" /> Validar certificado
+                    <ShieldCheck className="w-4 h-4 mr-1" /> Assinar certificado
                   </Button>
                 )}
-                {t.status === "concluido" && t.assinado_em && (
+                {liberado(t) && t.assinado_em && (
                   <Button size="sm" variant="outline" onClick={() => baixar(t)}>
                     <FileDown className="w-4 h-4 mr-1" /> Baixar certificado
                   </Button>

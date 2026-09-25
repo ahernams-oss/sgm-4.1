@@ -407,8 +407,9 @@ Deno.serve(async (req) => {
         return json({ error: "Senha incorreta." }, 401);
       }
       const { data: t } = await sb.from("portal_treinamentos")
-        .select("id, titulo, status, concluido_em, assinado_em").eq("id", id).eq("cpf", cred.cpf).maybeSingle();
+        .select("id, titulo, status, concluido_em, assinado_em, instr_assinado_em, coord_assinado_em").eq("id", id).eq("cpf", cred.cpf).maybeSingle();
       if (!t) return json({ error: "Treinamento não encontrado." }, 404);
+      if (!t.instr_assinado_em || !t.coord_assinado_em) return json({ error: "Certificado ainda aguarda as assinaturas do Instrutor e da Coordenação." }, 400);
       if (t.status !== "concluido") return json({ error: "Treinamento ainda não concluído." }, 400);
       if (t.assinado_em) return json({ error: "Certificado já validado." }, 400);
       const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "";

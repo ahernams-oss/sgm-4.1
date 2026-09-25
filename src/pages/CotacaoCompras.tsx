@@ -154,7 +154,8 @@ export default function CotacaoComprasPage() {
 
   // Carregamento sob demanda: exige ao menos um filtro selecionado
   // (links diretos com ?cotacaoId= ou ?rcsId= também liberam o carregamento).
-  const temLinkDiretoCot = !!useSearchParams().get("cotacaoId") || !!useSearchParams().get("rcsId");
+  const [cotParams] = useSearchParams();
+  const temLinkDiretoCot = !!(cotParams.get("cotacaoId") || cotParams.get("rcsId"));
   const temFiltroCot = !!search.trim() || filterStatus !== "Todos" || filterPeriodo !== "Todos" ||
     filterComprador !== "Todos" || filterCentroCusto !== "Todos" || filterUrgencia !== "Todas" ||
     !!filterDataIni || !!filterDataFim || temLinkDiretoCot;

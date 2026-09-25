@@ -179,7 +179,7 @@ export default function ContasPagar() {
 
   // Carregamento sob demanda: exige ao menos um filtro selecionado.
   useEffect(() => {
-    setLoadGate("Financeiro", hasFiltros);
+    setLoadGate("Financeiro", !!hasFiltros);
     return () => clearLoadGate("Financeiro");
   }, [hasFiltros]);
 

@@ -30,6 +30,7 @@ import {
 import {
   gerarPdfPmocInformacoes,
   gerarPdfPmocManutencoesFotos,
+  gerarPdfPmocManutencoesLote,
   gerarPdfPmocHistoricoAtividades,
   drawHeader,
   rodape,
@@ -1092,6 +1093,8 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
   const { planos } = usePmoc();
   const { toast } = useToast();
   const [gerandoId, setGerandoId] = useState<string | null>(null);
+  const [selecionadas, setSelecionadas] = useState<Set<string>>(new Set());
+  const [gerandoLote, setGerandoLote] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFiltro, setStatusFiltro] = useState<string>(ALL);
   const [equipFiltro, setEquipFiltro] = useState<string>(ALL);
@@ -1132,6 +1135,38 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
 
   const limpar = () => {
     setSearch(""); setStatusFiltro(ALL); setEquipFiltro(ALL); setClienteFiltro(ALL); setDataIni(""); setDataFim("");
+  };
+
+  const selecionadasList = useMemo(
+    () => filtradas.filter((p) => selecionadas.has(p.id)),
+    [filtradas, selecionadas]
+  );
+
+  const toggleSelecao = (id: string) => {
+    setSelecionadas((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id); else n.add(id);
+      return n;
+    });
+  };
+
+  const todosVisiveis = filtradas.length > 0 && filtradas.every((p) => selecionadas.has(p.id));
+
+  const toggleTodos = () => {
+    setSelecionadas(todosVisiveis ? new Set() : new Set(filtradas.map((p) => p.id)));
+  };
+
+  const imprimirLote = async () => {
+    if (selecionadasList.length === 0) return;
+    setGerandoLote(true);
+    try {
+      await gerarPdfPmocManutencoesLote({ execucoes: selecionadasList });
+      toast({ title: `Relatório em lote gerado (${selecionadasList.length} manutenção(ões))` });
+    } catch (e: any) {
+      toast({ title: "Erro ao gerar PDF em lote", description: e?.message, variant: "destructive" });
+    } finally {
+      setGerandoLote(false);
+    }
   };
 
   const columns = ["Cliente", "Equipamento", "Atividade", "Executada em", "Status", "Registrado por", "Confirmado por", "Motivo da rejeição"];
@@ -1215,6 +1250,13 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <CardTitle>Histórico de Execuções ({filtradas.length})</CardTitle>
           <div className="flex gap-2">
+            {selecionadasList.length > 0 && (
+              <Button variant="outline" size="sm" onClick={imprimirLote} disabled={gerandoLote}
+                title="Gera um único PDF com todas as manutenções selecionadas (com fotos)">
+                <Printer className="h-4 w-4 mr-1" />
+                {gerandoLote ? "Gerando..." : `Imprimir em lote (${selecionadasList.length})`}
+              </Button>
+            )}
             <Button variant="outline" size="sm" onClick={exportarPDF} disabled={filtradas.length === 0}>
               <FileText className="h-4 w-4 mr-1" />PDF
             </Button>
@@ -1264,6 +1306,13 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="bg-card w-10 [&:has([role=checkbox])]:pr-3">
+                <Checkbox
+                  checked={todosVisiveis}
+                  onCheckedChange={toggleTodos}
+                  aria-label="Selecionar todas"
+                />
+              </TableHead>
               <TableHead>O.S.</TableHead>
               <TableHead>Cliente</TableHead>
               <TableHead>Equipamento</TableHead>
@@ -1279,6 +1328,13 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
           <TableBody>
             {filtradas.map((p) => (
               <TableRow key={p.id}>
+                <TableCell className="pr-3 w-10">
+                  <Checkbox
+                    checked={selecionadas.has(p.id)}
+                    onCheckedChange={() => toggleSelecao(p.id)}
+                    aria-label={`Selecionar manutenção ${p.id}`}
+                  />
+                </TableCell>
                 <TableCell className="whitespace-nowrap">
                   {p.os_numero ? (
                     <button type="button" className="text-primary font-semibold hover:underline"
@@ -1318,7 +1374,7 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
             ))}
             {filtradas.length === 0 && (
               <TableRow>
-                <TableCell colSpan={10} className="text-center text-muted-foreground py-6">
+                <TableCell colSpan={11} className="text-center text-muted-foreground py-6">
                   Nenhum registro.
                 </TableCell>
               </TableRow>

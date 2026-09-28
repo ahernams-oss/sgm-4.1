@@ -26,6 +26,10 @@ interface ExecucaoLike {
   data_confirmacao: string | null;
   observacoes: string | null;
   fotos: string[] | null;
+  cliente_nome?: string | null;
+  equipamento_nome?: string | null;
+  motivo_rejeicao?: string | null;
+  os_numero?: number | null;
 }
 
 const COR = { primary: [30, 58, 107] as [number, number, number] };
@@ -397,4 +401,143 @@ export async function gerarPdfPmocHistoricoAtividades(params: {
 
   rodape(doc);
   doc.save(`PMOC_Historico_${(equipNome || "equipamento").replace(/\s+/g, "_")}.pdf`);
+}
+
+// =====================================================================
+// 4) Impressão em lote — um único PDF com todas as manutenções selecionadas
+// =====================================================================
+export async function gerarPdfPmocManutencoesLote(params: {
+  execucoes: ExecucaoLike[];
+}) {
+  const { execucoes } = params;
+  if (!execucoes.length) return;
+  const logo = await getLogo();
+  const doc = new (await getJsPDF())({ compress: true });
+  const pw = doc.internal.pageSize.getWidth();
+  const ph = doc.internal.pageSize.getHeight();
+  const titulo = "PMOC — Manutenções (Lote)";
+  const subtitulo = `${execucoes.length} manutenção(ões) selecionada(s)`;
+  await drawHeader(doc, pw, logo, titulo, subtitulo);
+
+  let y = 34;
+
+  const ensureSpace = async (need: number) => {
+    if (y + need > ph - 15) {
+      doc.addPage();
+      await drawHeader(doc, pw, logo, titulo, subtitulo);
+      y = 34;
+    }
+  };
+
+  for (let idx = 0; idx < execucoes.length; idx++) {
+    const ex = execucoes[idx];
+    await ensureSpace(70);
+
+    // Cabeçalho do bloco
+    doc.setFillColor(...COR.primary);
+    doc.rect(10, y, pw - 20, 7, "F");
+    doc.setTextColor(255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    const osTxt = ex.os_numero ? `OS-${String(ex.os_numero).padStart(4, "0")} · ` : "";
+    doc.text(`${osTxt}Manutenção ${idx + 1} — ${ex.atividade_descricao || "—"}`, 12, y + 5);
+    doc.setFontSize(8);
+    doc.text(ex.status, pw - 12, y + 5, { align: "right" });
+    y += 10;
+
+    doc.setTextColor(30);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    const meta: [string, string][] = [
+      ["Equipamento", ex.equipamento_nome || "—"],
+      ["Cliente", ex.cliente_nome || "—"],
+      ["Periodicidade", ex.periodicidade || "—"],
+      ["Executada em", fmtDateTime(ex.data_execucao)],
+      ["Próxima", fmtDateTime(ex.proxima_execucao)],
+      ["Registrado por", ex.registrado_por || "—"],
+      ["Confirmado por", ex.confirmado_por || "—"],
+      ["Confirmado em", fmtDateTime(ex.data_confirmacao)],
+    ];
+    if (ex.status === "Rejeitada") {
+      meta.push(["Motivo da rejeição", ex.motivo_rejeicao || "—"]);
+    }
+    (await getAutoTable())(doc, {
+      startY: y,
+      margin: { left: 10, right: 10 },
+      body: meta,
+      theme: "grid",
+      styles: { fontSize: 8.5, cellPadding: 1.8, lineColor: [220, 220, 220], lineWidth: 0.2 },
+      columnStyles: {
+        0: { fontStyle: "bold", fillColor: [245, 247, 250], cellWidth: 40 },
+        1: { cellWidth: "auto" },
+      },
+    });
+    y = (doc as any).lastAutoTable.finalY + 3;
+
+    if (ex.observacoes) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.text("Observações:", 10, y + 4);
+      doc.setFont("helvetica", "normal");
+      const linhas = doc.splitTextToSize(ex.observacoes, pw - 20);
+      doc.text(linhas, 10, y + 9);
+      y += 9 + linhas.length * 4;
+    }
+
+    // Fotos
+    const fotos = ex.fotos || [];
+    if (fotos.length > 0) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.text(`Fotos (${fotos.length}):`, 10, y + 4);
+      y += 7;
+
+      const cols = 3;
+      const gap = 4;
+      const cellW = (pw - 20 - gap * (cols - 1)) / cols;
+      const cellH = cellW * 0.75;
+
+      for (let i = 0; i < fotos.length; i++) {
+        const col = i % cols;
+        if (col === 0 && i > 0) y += cellH + gap;
+        if (y + cellH > ph - 15) {
+          doc.addPage();
+          await drawHeader(doc, pw, logo, titulo, subtitulo);
+          y = 34;
+        }
+        const x = 10 + col * (cellW + gap);
+        const img = await loadImage(fotos[i]);
+        if (img) {
+          try {
+            const ratio = Math.min(cellW / img.w, cellH / img.h);
+            const w = img.w * ratio;
+            const h = img.h * ratio;
+            const dx = x + (cellW - w) / 2;
+            const dy = y + (cellH - h) / 2;
+            doc.setDrawColor(200);
+            doc.rect(x, y, cellW, cellH);
+            doc.addImage(img.data, "JPEG", dx, dy, w, h);
+          } catch {
+            doc.setDrawColor(220);
+            doc.rect(x, y, cellW, cellH);
+            doc.setFontSize(7);
+            doc.setTextColor(150);
+            doc.text("[falha ao carregar]", x + 2, y + cellH / 2);
+          }
+        } else {
+          doc.setDrawColor(220);
+          doc.rect(x, y, cellW, cellH);
+          doc.setFontSize(7);
+          doc.setTextColor(150);
+          doc.text("[sem imagem]", x + 2, y + cellH / 2);
+        }
+      }
+      y += cellH + gap + 4;
+    }
+
+    y += 8;
+  }
+
+  rodape(doc);
+  doc.save(`PMOC_Manutencoes_Lote_${new Date().toISOString().slice(0, 10)}.pdf`);
 }

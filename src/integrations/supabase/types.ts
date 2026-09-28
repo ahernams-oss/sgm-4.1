@@ -6423,6 +6423,7 @@ export type Database = {
           equipe: string | null
           evidencias: Json | null
           evidencias_obrigatorias: boolean | null
+          execucao_id: string | null
           id: string
           local_descricao: string | null
           materiais_previstos: Json | null
@@ -6454,6 +6455,7 @@ export type Database = {
           equipe?: string | null
           evidencias?: Json | null
           evidencias_obrigatorias?: boolean | null
+          execucao_id?: string | null
           id?: string
           local_descricao?: string | null
           materiais_previstos?: Json | null
@@ -6485,6 +6487,7 @@ export type Database = {
           equipe?: string | null
           evidencias?: Json | null
           evidencias_obrigatorias?: boolean | null
+          execucao_id?: string | null
           id?: string
           local_descricao?: string | null
           materiais_previstos?: Json | null

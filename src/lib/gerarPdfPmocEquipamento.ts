@@ -27,6 +27,7 @@ interface ExecucaoLike {
   observacoes: string | null;
   fotos: string[] | null;
   cliente_nome?: string | null;
+  equipamento_nome?: string | null;
   motivo_rejeicao?: string | null;
   os_numero?: number | null;
 }

@@ -1137,6 +1137,38 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
     setSearch(""); setStatusFiltro(ALL); setEquipFiltro(ALL); setClienteFiltro(ALL); setDataIni(""); setDataFim("");
   };
 
+  const selecionadasList = useMemo(
+    () => filtradas.filter((p) => selecionadas.has(p.id)),
+    [filtradas, selecionadas]
+  );
+
+  const toggleSelecao = (id: string) => {
+    setSelecionadas((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id); else n.add(id);
+      return n;
+    });
+  };
+
+  const todosVisiveis = filtradas.length > 0 && filtradas.every((p) => selecionadas.has(p.id));
+
+  const toggleTodos = () => {
+    setSelecionadas(todosVisiveis ? new Set() : new Set(filtradas.map((p) => p.id)));
+  };
+
+  const imprimirLote = async () => {
+    if (selecionadasList.length === 0) return;
+    setGerandoLote(true);
+    try {
+      await gerarPdfPmocManutencoesLote({ execucoes: selecionadasList });
+      toast({ title: `Relatório em lote gerado (${selecionadasList.length} manutenção(ões))` });
+    } catch (e: any) {
+      toast({ title: "Erro ao gerar PDF em lote", description: e?.message, variant: "destructive" });
+    } finally {
+      setGerandoLote(false);
+    }
+  };
+
   const columns = ["Cliente", "Equipamento", "Atividade", "Executada em", "Status", "Registrado por", "Confirmado por", "Motivo da rejeição"];
   const buildRows = () => filtradas.map((p) => [
     p.cliente_nome || "-",

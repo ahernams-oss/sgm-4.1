@@ -778,7 +778,7 @@ export default function PmocGerenciarOperacao() {
               </div>
               {podeConfirmar && pendSelecionadas.size > 0 && (
                 <Button
-                  onClick={() => confirmarExecucoes(Array.from(pendSelecionadas))}
+                  onClick={() => abrirConfirmacao(Array.from(pendSelecionadas))}
                   disabled={busy}
                 >
                   <ShieldCheck className="h-4 w-4 mr-1" />

@@ -6232,6 +6232,7 @@ export type Database = {
           equipamento_nome: string | null
           fotos: Json
           id: string
+          motivo_rejeicao: string | null
           observacoes: string | null
           periodicidade: string | null
           plano_id: string | null
@@ -6251,6 +6252,7 @@ export type Database = {
           equipamento_nome?: string | null
           fotos?: Json
           id?: string
+          motivo_rejeicao?: string | null
           observacoes?: string | null
           periodicidade?: string | null
           plano_id?: string | null
@@ -6270,6 +6272,7 @@ export type Database = {
           equipamento_nome?: string | null
           fotos?: Json
           id?: string
+          motivo_rejeicao?: string | null
           observacoes?: string | null
           periodicidade?: string | null
           plano_id?: string | null

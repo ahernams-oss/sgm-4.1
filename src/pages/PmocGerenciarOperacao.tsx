@@ -30,6 +30,7 @@ import {
 import {
   gerarPdfPmocInformacoes,
   gerarPdfPmocManutencoesFotos,
+  gerarPdfPmocManutencoesLote,
   gerarPdfPmocHistoricoAtividades,
   drawHeader,
   rodape,
@@ -1092,6 +1093,8 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
   const { planos } = usePmoc();
   const { toast } = useToast();
   const [gerandoId, setGerandoId] = useState<string | null>(null);
+  const [selecionadas, setSelecionadas] = useState<Set<string>>(new Set());
+  const [gerandoLote, setGerandoLote] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFiltro, setStatusFiltro] = useState<string>(ALL);
   const [equipFiltro, setEquipFiltro] = useState<string>(ALL);

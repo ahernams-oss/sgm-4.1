@@ -827,7 +827,7 @@ export default function PmocGerenciarOperacao() {
                       <TableCell className="text-right space-x-2">
                         {podeConfirmar ? (
                           <>
-                            <Button size="sm" onClick={() => confirmarExecucoes([p.id])} disabled={busy}>
+                            <Button size="sm" onClick={() => abrirConfirmacao([p.id])} disabled={busy}>
                               <CheckCircle2 className="h-4 w-4 mr-1" /> Confirmar
                             </Button>
                             <Button size="sm" variant="outline" onClick={() => rejeitarExecucao(p.id)} disabled={busy}>

@@ -1250,6 +1250,13 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <CardTitle>Histórico de Execuções ({filtradas.length})</CardTitle>
           <div className="flex gap-2">
+            {selecionadasList.length > 0 && (
+              <Button variant="outline" size="sm" onClick={imprimirLote} disabled={gerandoLote}
+                title="Gera um único PDF com todas as manutenções selecionadas (com fotos)">
+                <Printer className="h-4 w-4 mr-1" />
+                {gerandoLote ? "Gerando..." : `Imprimir em lote (${selecionadasList.length})`}
+              </Button>
+            )}
             <Button variant="outline" size="sm" onClick={exportarPDF} disabled={filtradas.length === 0}>
               <FileText className="h-4 w-4 mr-1" />PDF
             </Button>
@@ -1299,6 +1306,13 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="bg-card w-10 [&:has([role=checkbox])]:pr-3">
+                <Checkbox
+                  checked={todosVisiveis}
+                  onCheckedChange={toggleTodos}
+                  aria-label="Selecionar todas"
+                />
+              </TableHead>
               <TableHead>O.S.</TableHead>
               <TableHead>Cliente</TableHead>
               <TableHead>Equipamento</TableHead>

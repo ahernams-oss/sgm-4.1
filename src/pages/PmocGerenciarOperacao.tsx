@@ -338,6 +338,17 @@ export default function PmocGerenciarOperacao() {
   };
 
 
+  const abrirConfirmacao = (ids: string[]) => {
+    if (ids.length === 0) return;
+    if (!podeConfirmar) {
+      toast({ title: "Sem permissão", description: "Você não pode confirmar execuções.", variant: "destructive" });
+      return;
+    }
+    const alvo = execucoes.filter((e) => ids.includes(e.id) && e.status === "Pendente");
+    if (alvo.length === 0) return;
+    setConfAlvo(alvo);
+  };
+
   const confirmarExecucoes = async (ids: string[]) => {
     if (ids.length === 0) return;
     if (!podeConfirmar) {

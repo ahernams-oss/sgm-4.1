@@ -26,6 +26,9 @@ interface ExecucaoLike {
   data_confirmacao: string | null;
   observacoes: string | null;
   fotos: string[] | null;
+  cliente_nome?: string | null;
+  motivo_rejeicao?: string | null;
+  os_numero?: number | null;
 }
 
 const COR = { primary: [30, 58, 107] as [number, number, number] };

@@ -121,6 +121,7 @@ export default function PmocGerenciarOperacao() {
   const { tem } = usePermissao();
   const podeConfirmar = tem("pmoc.confirmar_execucao");
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const [search, setSearch] = useState("");
   const [filtroCliente, setFiltroCliente] = useState(ALL);
@@ -1086,6 +1087,7 @@ export default function PmocGerenciarOperacao() {
 }
 
 function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [statusFiltro, setStatusFiltro] = useState<string>(ALL);
   const [equipFiltro, setEquipFiltro] = useState<string>(ALL);
@@ -1282,7 +1284,7 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
             ))}
             {filtradas.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground py-6">
+                <TableCell colSpan={9} className="text-center text-muted-foreground py-6">
                   Nenhum registro.
                 </TableCell>
               </TableRow>

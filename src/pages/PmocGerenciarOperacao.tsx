@@ -1175,6 +1175,7 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
               <TableHead>Status</TableHead>
               <TableHead>Registrado por</TableHead>
               <TableHead>Confirmado por</TableHead>
+              <TableHead>Motivo da rejeição</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -1192,11 +1193,14 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
                 </TableCell>
                 <TableCell>{p.registrado_por || "—"}</TableCell>
                 <TableCell>{p.confirmado_por || "—"}</TableCell>
+                <TableCell className="max-w-64 whitespace-pre-wrap">
+                  {p.status === "Rejeitada" ? (p.motivo_rejeicao || "—") : "—"}
+                </TableCell>
               </TableRow>
             ))}
             {filtradas.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-6">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-6">
                   Nenhum registro.
                 </TableCell>
               </TableRow>

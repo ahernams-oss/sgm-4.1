@@ -1088,6 +1088,10 @@ export default function PmocGerenciarOperacao() {
 
 function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
   const navigate = useNavigate();
+  const { equipamentos } = useEquipamentos();
+  const { planos } = usePmoc();
+  const { toast } = useToast();
+  const [gerandoId, setGerandoId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [statusFiltro, setStatusFiltro] = useState<string>(ALL);
   const [equipFiltro, setEquipFiltro] = useState<string>(ALL);

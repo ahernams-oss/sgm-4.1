@@ -104,6 +104,7 @@ interface Execucao {
   registrado_por: string | null;
   confirmado_por: string | null;
   data_confirmacao: string | null;
+  motivo_rejeicao: string | null;
   observacoes: string | null;
   fotos: string[] | null;
   created_at: string;
@@ -128,6 +129,9 @@ export default function PmocGerenciarOperacao() {
   const [pendSelecionadas, setPendSelecionadas] = useState<Set<string>>(new Set());
   // Execuções em revisão antes da confirmação (caixa "Confirmar Manutenção")
   const [confAlvo, setConfAlvo] = useState<Execucao[]>([]);
+  // Rejeição com justificativa obrigatória
+  const [rejAlvo, setRejAlvo] = useState<Execucao | null>(null);
+  const [rejMotivo, setRejMotivo] = useState("");
 
   // Dialog "Registrar Manutenção" com fotos
   const [regAtividade, setRegAtividade] = useState<any | null>(null);
@@ -386,8 +390,12 @@ export default function PmocGerenciarOperacao() {
     }
   };
 
-  const rejeitarExecucao = async (id: string) => {
+  const rejeitarExecucao = async (id: string, motivo: string) => {
     if (!podeConfirmar) return;
+    if (!motivo.trim() || motivo.trim().length < 10) {
+      toast({ title: "Justificativa obrigatória", description: "Informe o motivo da rejeição (mínimo 10 caracteres).", variant: "destructive" });
+      return;
+    }
     setBusy(true);
     try {
       const { error } = await supabase
@@ -396,10 +404,11 @@ export default function PmocGerenciarOperacao() {
           status: "Rejeitada",
           confirmado_por: usuarioLogado?.nome || "",
           data_confirmacao: new Date().toISOString(),
+          motivo_rejeicao: motivo.trim(),
         })
         .eq("id", id);
       if (error) throw error;
-      toast({ title: "Registro rejeitado" });
+      toast({ title: "Registro rejeitado", description: "Justificativa registrada." });
       await carregarExecucoes();
     } catch (e: any) {
       toast({ title: "Erro", description: e.message, variant: "destructive" });
@@ -830,7 +839,7 @@ export default function PmocGerenciarOperacao() {
                             <Button size="sm" onClick={() => abrirConfirmacao([p.id])} disabled={busy}>
                               <CheckCircle2 className="h-4 w-4 mr-1" /> Confirmar
                             </Button>
-                            <Button size="sm" variant="outline" onClick={() => rejeitarExecucao(p.id)} disabled={busy}>
+                            <Button size="sm" variant="outline" onClick={() => { setRejMotivo(""); setRejAlvo(p); }} disabled={busy}>
                               <XCircle className="h-4 w-4 mr-1" /> Rejeitar
                             </Button>
                           </>
@@ -938,6 +947,61 @@ export default function PmocGerenciarOperacao() {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+
+          {/* Dialog de rejeição — justificativa obrigatória */}
+          <Dialog open={!!rejAlvo} onOpenChange={(o) => !o && setRejAlvo(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <XCircle className="h-5 w-5" /> Rejeitar Registro
+                </DialogTitle>
+                <DialogDescription>
+                  É obrigatório informar a justificativa da rejeição.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3">
+                {rejAlvo && (
+                  <div className="text-sm bg-muted/40 p-3 rounded-md">
+                    <div className="font-medium">{rejAlvo.equipamento_nome || "—"}</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {rejAlvo.atividade_descricao || "—"} · {rejAlvo.periodicidade || "—"} · Executada em {fmtDateTime(rejAlvo.data_execucao)} por {rejAlvo.registrado_por || "—"}
+                    </div>
+                  </div>
+                )}
+                <div>
+                  <label className="text-sm font-medium">Justificativa da rejeição *</label>
+                  <Textarea
+                    value={rejMotivo}
+                    onChange={(e) => setRejMotivo(e.target.value)}
+                    rows={3}
+                    placeholder="Ex.: Fotos insuficientes, medição fora do esperado, atividade não executada..."
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Mínimo 10 caracteres.</p>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setRejAlvo(null)} disabled={busy}>Voltar</Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    if (!rejAlvo) return;
+                    if (!rejMotivo.trim() || rejMotivo.trim().length < 10) {
+                      toast({ title: "Justificativa obrigatória", description: "Informe o motivo da rejeição (mínimo 10 caracteres).", variant: "destructive" });
+                      return;
+                    }
+                    const id = rejAlvo.id;
+                    const motivo = rejMotivo;
+                    setRejAlvo(null);
+                    rejeitarExecucao(id, motivo);
+                  }}
+                  disabled={busy || !rejMotivo.trim() || rejMotivo.trim().length < 10}
+                >
+                  <XCircle className="h-4 w-4 mr-1" />
+                  {busy ? "Rejeitando..." : "Confirmar rejeição"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </TabsContent>
 
         {/* ============== HISTÓRICO ============== */}
@@ -992,7 +1056,7 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
     setSearch(""); setStatusFiltro(ALL); setEquipFiltro(ALL); setClienteFiltro(ALL); setDataIni(""); setDataFim("");
   };
 
-  const columns = ["Cliente", "Equipamento", "Atividade", "Executada em", "Status", "Registrado por", "Confirmado por"];
+  const columns = ["Cliente", "Equipamento", "Atividade", "Executada em", "Status", "Registrado por", "Confirmado por", "Motivo da rejeição"];
   const buildRows = () => filtradas.map((p) => [
     p.cliente_nome || "-",
     p.equipamento_nome || "-",
@@ -1001,6 +1065,7 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
     p.status,
     p.registrado_por || "-",
     p.confirmado_por || "-",
+    p.status === "Rejeitada" ? (p.motivo_rejeicao || "-") : "-",
   ]);
 
   const filtrosLabel = [
@@ -1110,6 +1175,7 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
               <TableHead>Status</TableHead>
               <TableHead>Registrado por</TableHead>
               <TableHead>Confirmado por</TableHead>
+              <TableHead>Motivo da rejeição</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -1127,11 +1193,14 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
                 </TableCell>
                 <TableCell>{p.registrado_por || "—"}</TableCell>
                 <TableCell>{p.confirmado_por || "—"}</TableCell>
+                <TableCell className="max-w-64 whitespace-pre-wrap">
+                  {p.status === "Rejeitada" ? (p.motivo_rejeicao || "—") : "—"}
+                </TableCell>
               </TableRow>
             ))}
             {filtradas.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-6">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-6">
                   Nenhum registro.
                 </TableCell>
               </TableRow>

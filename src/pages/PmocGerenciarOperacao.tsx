@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@/lib/router-compat";
 import { usePmoc } from "@/contexts/PmocContext";
 import { useEquipamentos } from "@/contexts/EquipamentosContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -105,6 +107,8 @@ interface Execucao {
   confirmado_por: string | null;
   data_confirmacao: string | null;
   motivo_rejeicao: string | null;
+  os_numero?: number | null;
+  os_status?: string | null;
   observacoes: string | null;
   fotos: string[] | null;
   created_at: string;
@@ -193,9 +197,50 @@ export default function PmocGerenciarOperacao() {
       toast({ title: "Erro ao carregar execuções", description: error.message, variant: "destructive" });
       return;
     }
+    // Vínculo com as O.S. PMOC (uma OS por execução)
+    const osMap = new Map<string, { numero: number; status: string }>();
+    try {
+      const { data: osRows } = await (supabase as any)
+        .from("pmoc_ordens_servico").select("id, numero, status, execucao_id").not("execucao_id", "is", null);
+      (osRows || []).forEach((o: any) => { if (o.execucao_id) osMap.set(o.execucao_id, { numero: o.numero, status: o.status }); });
+      // Gera OS para execuções antigas que ainda não têm OS
+      const semOs = (data || []).filter((e: any) => !osMap.has(e.id));
+      if (semOs.length > 0) {
+        const novos = semOs.map((e: any) => {
+          const equip = equipamentos.find((eq) => eq.id === e.equipamento_id);
+          return {
+            execucao_id: e.id,
+            plano_id: e.plano_id || "",
+            atividade_id: e.atividade_id || "",
+            equipamento_id: e.equipamento_id || "",
+            equipamento_nome: e.equipamento_nome || "",
+            origem: "PMOC",
+            unidade: equip?.clienteNome || "",
+            local_descricao: [equip?.localDescricao, equip?.setorDescricao].filter(Boolean).join(" / "),
+            descricao: `${e.atividade_descricao || ""}${e.periodicidade ? ` (${e.periodicidade})` : ""}`,
+            tipo: "Preventiva",
+            status: e.status === "Confirmada" ? "Concluída" : e.status === "Rejeitada" ? "Cancelada" : "Aguardando Confirmação",
+            data_abertura: String(e.data_execucao || new Date().toISOString()).slice(0, 10),
+            data_inicio_execucao: e.data_execucao,
+            data_conclusao: e.data_execucao,
+            tecnico_responsavel: e.registrado_por || "",
+            evidencias: e.fotos || [],
+            observacoes: [e.observacoes, e.status === "Rejeitada" && e.motivo_rejeicao ? `Rejeitada: ${e.motivo_rejeicao}` : ""].filter(Boolean).join("\n"),
+            aprovado_por: e.status === "Confirmada" ? (e.confirmado_por || "") : "",
+            data_aprovacao: e.status === "Confirmada" ? e.data_confirmacao : null,
+          };
+        });
+        const { data: ins, error: errIns } = await (supabase as any)
+          .from("pmoc_ordens_servico").insert(novos).select("numero, status, execucao_id");
+        if (errIns) console.error("OS PMOC (retroativas)", errIns);
+        (ins || []).forEach((o: any) => osMap.set(o.execucao_id, { numero: o.numero, status: o.status }));
+      }
+    } catch (e) { console.error("OS PMOC vínculo", e); }
+    queryClient.invalidateQueries({ queryKey: ["pmoc_ordens_servico"] });
     const rows = (data || []).map((e: any) => {
       const equip = equipamentos.find((eq) => eq.id === e.equipamento_id);
-      return { ...e, cliente_nome: equip?.clienteNome || null } as Execucao;
+      const os = osMap.get(e.id);
+      return { ...e, cliente_nome: equip?.clienteNome || null, os_numero: os?.numero ?? null, os_status: os?.status ?? null } as Execucao;
     });
     setExecucoes(rows);
   };
@@ -1195,6 +1240,7 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>O.S.</TableHead>
               <TableHead>Cliente</TableHead>
               <TableHead>Equipamento</TableHead>
               <TableHead>Atividade</TableHead>
@@ -1208,6 +1254,15 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
           <TableBody>
             {filtradas.map((p) => (
               <TableRow key={p.id}>
+                <TableCell className="whitespace-nowrap">
+                  {p.os_numero ? (
+                    <button type="button" className="text-primary font-semibold hover:underline"
+                      title={p.os_status || ""}
+                      onClick={() => navigate(`/pmoc/ordens-servico?numero=${p.os_numero}`)}>
+                      OS-{String(p.os_numero).padStart(4, "0")}
+                    </button>
+                  ) : "—"}
+                </TableCell>
                 <TableCell>{p.cliente_nome || "—"}</TableCell>
                 <TableCell>{p.equipamento_nome || "—"}</TableCell>
                 <TableCell>{p.atividade_descricao || "—"}</TableCell>

@@ -432,6 +432,9 @@ export default function PmocGerenciarOperacao() {
         })
         .eq("id", id);
       if (error) throw error;
+      await (supabase as any).from("pmoc_ordens_servico")
+        .update({ status: "Cancelada", observacoes: `Rejeitada: ${motivo.trim()}` })
+        .eq("execucao_id", id);
       toast({ title: "Registro rejeitado", description: "Justificativa registrada." });
       await carregarExecucoes();
     } catch (e: any) {

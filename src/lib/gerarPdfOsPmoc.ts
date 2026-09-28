@@ -31,9 +31,41 @@ function letraPlanejada(idx: number, periodicidades: Set<string>): string {
 
 const fmtData = (s?: string | null) => (s ? new Date(s).toLocaleDateString("pt-BR") : "");
 
+async function loadImageAsDataUrl(url: string): Promise<string | null> {
+  try {
+    return await new Promise<string>((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        const c = document.createElement("canvas");
+        c.width = img.width;
+        c.height = img.height;
+        const ctx = c.getContext("2d");
+        ctx?.drawImage(img, 0, 0);
+        resolve(c.toDataURL("image/png"));
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  } catch {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(blob);
+      });
+    } catch {
+      return null;
+    }
+  }
+}
+
 export async function downloadPdfOsPmocEquipamento(opts: {
   equipamento?: Equipamento; equipamentoNome: string; plano?: PmocPlano;
   atividades: PmocAtividade[]; ordens: OsPmocRow[]; inicio?: string;
+  empresaLogoUrl?: string;
 }) {
   const { jsPDF: JsPDF } = await import("jspdf");
   const autoTable = (await import("jspdf-autotable")).default;
@@ -41,11 +73,50 @@ export async function downloadPdfOsPmocEquipamento(opts: {
   const pw = doc.internal.pageSize.getWidth();
   const e = opts.equipamento;
   const azul: [number, number, number] = [31, 56, 100];
+  const azulCab: [number, number, number] = [30, 58, 107];
+  const ml = 14, mr = 14;
 
-  doc.setFont("helvetica", "bold"); doc.setFontSize(13);
-  doc.text("O.S. PMOC — Controle de Manutenção do Equipamento", pw / 2, 14, { align: "center" });
-  doc.setFont("helvetica", "normal"); doc.setFontSize(9);
-  doc.text(`Cliente: ${e?.clienteNome || opts.ordens[0]?.unidade || "—"}   ·   Plano: ${opts.plano?.titulo || "—"}`, pw / 2, 20, { align: "center" });
+  // ===== Cabeçalho padrão LASANT (faixa azul à direita + logo à esquerda) =====
+  const headerH = 34;
+  const blueStartX = pw * 0.42;
+  doc.setFillColor(...azulCab);
+  doc.rect(blueStartX, 0, pw - blueStartX, headerH, "F");
+
+  const logoData = await loadImageAsDataUrl(opts.empresaLogoUrl || "/Logo_Lasant.png");
+  if (logoData) {
+    try {
+      doc.addImage(logoData, "PNG", ml, 4, 42, 26);
+    } catch {
+      doc.setTextColor(...azulCab);
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("LASANT", ml, 20);
+    }
+  } else {
+    doc.setTextColor(...azulCab);
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("LASANT", ml, 20);
+  }
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(16);
+  doc.setFont("helvetica", "bold");
+  doc.text("O.S. PMOC", pw - mr, 13, { align: "right" });
+  doc.setFontSize(9.5);
+  doc.setFont("helvetica", "normal");
+  doc.text("Controle de Manutenção do Equipamento", pw - mr, 19, { align: "right" });
+  doc.setFontSize(8.5);
+  doc.text(
+    `Cliente: ${e?.clienteNome || opts.ordens[0]?.unidade || "—"}  |  Plano: ${opts.plano?.titulo || "—"}`,
+    pw - mr, 25, { align: "right" },
+  );
+  doc.text(
+    `Emitido em: ${new Date().toLocaleDateString("pt-BR")}`,
+    pw - mr, 30, { align: "right" },
+  );
+
+  doc.setTextColor(40, 40, 40);
 
   const v = (x?: string) => (x && String(x).trim()) || "—";
   autoTable(doc, {

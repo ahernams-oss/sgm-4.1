@@ -1303,11 +1303,22 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
                 <TableCell className="max-w-64 whitespace-pre-wrap">
                   {p.status === "Rejeitada" ? (p.motivo_rejeicao || "—") : "—"}
                 </TableCell>
+                <TableCell className="text-center">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    title="Imprimir relatório da manutenção (com fotos)"
+                    disabled={gerandoId === p.id}
+                    onClick={() => exportarPdfManutencao(p)}
+                  >
+                    <Printer className="h-4 w-4" />
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
             {filtradas.length === 0 && (
               <TableRow>
-                <TableCell colSpan={9} className="text-center text-muted-foreground py-6">
+                <TableCell colSpan={10} className="text-center text-muted-foreground py-6">
                   Nenhum registro.
                 </TableCell>
               </TableRow>

@@ -198,7 +198,7 @@ export default function PmocGerenciarOperacao() {
   const pendentes = useMemo(() => execucoes.filter((e) => e.status === "Pendente"), [execucoes]);
   const pendentesPorAtividade = useMemo(() => {
     const map = new Map<string, Execucao>();
-    pendentes.forEach((p) => { if (!map.has(p.atividade_id)) map.set(p.atividade_id, p); });
+    pendentes.forEach((p) => { const k = `${p.atividade_id}|${p.equipamento_id || ""}`; if (!map.has(k)) map.set(k, p); });
     return map;
   }, [pendentes]);
 
@@ -207,7 +207,17 @@ export default function PmocGerenciarOperacao() {
       id: string; nome: string; clienteNome: string; setorDescricao: string;
       periodicidades: Set<string>; atividades: typeof atividades;
     }>();
+    // Atividades do plano sem equipamento específico valem para todos os
+    // equipamentos vinculados ao plano (campo "Plano de Manutenção" do equipamento).
+    const expandidas: typeof atividades = [];
     atividades.forEach((a) => {
+      if (a.equipamentoId) { expandidas.push(a); return; }
+      if (!a.planoId) return;
+      equipamentos
+        .filter((e) => e.planoManutencao === a.planoId)
+        .forEach((e) => expandidas.push({ ...a, equipamentoId: e.id, equipamentoNome: `${e.tag || ""} ${e.equipamento || ""}`.trim() }));
+    });
+    expandidas.forEach((a) => {
       if (!a.equipamentoId) return;
       const equip = equipamentos.find((e) => e.id === a.equipamentoId);
       const nome = equip
@@ -470,7 +480,7 @@ export default function PmocGerenciarOperacao() {
               </TableHeader>
               <TableBody>
                 {atividadesOrdenadas.map((a) => {
-                  const pend = pendentesPorAtividade.get(a.id);
+                  const pend = pendentesPorAtividade.get(`${a.id}|${a.equipamentoId || ""}`);
                   const liberado = podeRegistrarManutencao(a.proximaExecucao);
                   const liberadoEm = a.proximaExecucao
                     ? fmtDate(new Date(new Date(a.proximaExecucao).setDate(new Date(a.proximaExecucao).getDate() - 2)).toISOString())
@@ -707,7 +717,7 @@ export default function PmocGerenciarOperacao() {
                   {filtered.map((e) => {
                     const proximas = e.atividades.map((a) => a.proximaExecucao).filter(Boolean).sort();
                     const proxima = proximas[0] || "";
-                    const pendCount = e.atividades.filter((a) => pendentesPorAtividade.has(a.id)).length;
+                    const pendCount = e.atividades.filter((a) => pendentesPorAtividade.has(`${a.id}|${a.equipamentoId || ""}`)).length;
                     return (
                       <TableRow key={e.id}>
                         <TableCell className="font-medium">{e.nome}</TableCell>

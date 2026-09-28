@@ -257,6 +257,45 @@ export async function gerarPdfPmocPlanos(planos: PmocPlano[], atividades: PmocAt
   return doc;
 }
 
+// ====================== Quadro de Atividades por Periodicidade ======================
+const QUADRO_PERIODOS = ["Semanal", "Quinzenal", "Mensal", "Bimestral", "Trimestral", "Semestral", "Anual"];
+const normPer = (s: string) => (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+
+export async function downloadPdfPmocQuadroAtividades(plano: PmocPlano, atividades: PmocAtividade[]) {
+  const doc = new (await getJsPDF())({ compress: true });
+  header(doc, "Quadro de Atividades PMOC", `${plano.titulo}${plano.clienteNome ? ` — ${plano.clienteNome}` : ""}`);
+  const idx = (p: string) => QUADRO_PERIODOS.findIndex(x => normPer(x) === normPer(p));
+  const lista = atividades
+    .filter(a => a.planoId === plano.id)
+    .map(a => ({ a, i: idx(a.periodicidade) }))
+    .sort((x, y) => (x.i < 0 ? 99 : x.i) - (y.i < 0 ? 99 : y.i) || (x.a.descricao || "").localeCompare(y.a.descricao || ""));
+  const titulo = `Atividades (${QUADRO_PERIODOS.map(p => p.toUpperCase()).join("/")})`;
+  doc.setTextColor(30, 30, 30);
+  doc.setFontSize(9);
+  doc.text(`Vigência: ${plano.vigenciaInicio && plano.vigenciaFim ? `${plano.vigenciaInicio} a ${plano.vigenciaFim}` : "-"}   |   RT: ${plano.responsavelTecnicoNome || "-"}`, 14, 44);
+  (await getAutoTable())(doc, {
+    startY: 48,
+    head: [[titulo, "S", "Q", "M", "B", "T", "S", "A"]],
+    body: lista.length
+      ? lista.map(({ a, i }) => [a.descricao || "-", ...QUADRO_PERIODOS.map((_, k) => (k === i ? "X" : ""))])
+      : [["Nenhuma atividade vinculada a este plano", "", "", "", "", "", "", ""]],
+    theme: "grid",
+    styles: { fontSize: 8, cellPadding: 1.8, lineColor: [120, 120, 120], lineWidth: 0.2, textColor: [20, 20, 20] },
+    headStyles: { fillColor: [30, 58, 107], textColor: [255, 255, 255], fontStyle: "bold", halign: "center" },
+    columnStyles: Object.fromEntries([1, 2, 3, 4, 5, 6, 7].map(c => [c, { cellWidth: 8, halign: "center", fontStyle: "bold" }])),
+    margin: { left: 14, right: 14 },
+  });
+  const y = (doc as any).lastAutoTable.finalY + 6;
+  doc.setFontSize(7.5);
+  doc.setTextColor(90, 90, 90);
+  doc.text("Legenda: S = Semanal · Q = Quinzenal · M = Mensal · B = Bimestral · T = Trimestral · S = Semestral · A = Anual", 14, y);
+  const semPer = lista.filter(x => x.i < 0).length;
+  if (semPer) doc.text(`${semPer} atividade(s) com periodicidade fora do quadro aparecem ao final, sem marcação.`, 14, y + 5);
+  footer(doc);
+  doc.save(`PMOC_Quadro_Atividades_${plano.titulo.replace(/\s+/g, "_")}.pdf`);
+}
+
+
 // ====================== Relatório de OS ======================
 export async function gerarPdfPmocOS(ordensServico: PmocOrdemServico[], detalhado = true): Promise<jsPDF> {
   const doc = new (await getJsPDF())({ compress: true });

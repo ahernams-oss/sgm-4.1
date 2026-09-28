@@ -25,7 +25,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import {
   Search, Wrench, CheckCircle2, ArrowLeft, CalendarClock, X,
-  Clock, ShieldCheck, XCircle, FileText, FileSpreadsheet, Camera, ImagePlus, Trash2,
+  Clock, ShieldCheck, XCircle, FileText, FileSpreadsheet, Camera, ImagePlus, Trash2, Printer,
 } from "lucide-react";
 import {
   gerarPdfPmocInformacoes,
@@ -1088,6 +1088,10 @@ export default function PmocGerenciarOperacao() {
 
 function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
   const navigate = useNavigate();
+  const { equipamentos } = useEquipamentos();
+  const { planos } = usePmoc();
+  const { toast } = useToast();
+  const [gerandoId, setGerandoId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [statusFiltro, setStatusFiltro] = useState<string>(ALL);
   const [equipFiltro, setEquipFiltro] = useState<string>(ALL);
@@ -1172,6 +1176,24 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
     doc.save(`historico_execucoes_pmoc_${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
+  const exportarPdfManutencao = async (p: Execucao) => {
+    setGerandoId(p.id);
+    try {
+      const equip = equipamentos.find((e) => e.id === p.equipamento_id) || null;
+      const plano = planos.find((pl) => pl.id === p.plano_id);
+      await gerarPdfPmocManutencoesFotos({
+        equip,
+        equipNome: p.equipamento_nome || "Equipamento",
+        planoTitulo: plano?.titulo,
+        execucoes: [p],
+      });
+    } catch (e: any) {
+      toast({ title: "Erro ao gerar PDF", description: e?.message, variant: "destructive" });
+    } finally {
+      setGerandoId(null);
+    }
+  };
+
   const exportarExcel = async () => {
     const rows = buildRows();
     if (rows.length === 0) return;
@@ -1251,6 +1273,7 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
               <TableHead>Registrado por</TableHead>
               <TableHead>Confirmado por</TableHead>
               <TableHead>Motivo da rejeição</TableHead>
+              <TableHead className="text-center">Relatório</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -1280,11 +1303,22 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
                 <TableCell className="max-w-64 whitespace-pre-wrap">
                   {p.status === "Rejeitada" ? (p.motivo_rejeicao || "—") : "—"}
                 </TableCell>
+                <TableCell className="text-center">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    title="Imprimir relatório da manutenção (com fotos)"
+                    disabled={gerandoId === p.id}
+                    onClick={() => exportarPdfManutencao(p)}
+                  >
+                    <Printer className="h-4 w-4" />
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
             {filtradas.length === 0 && (
               <TableRow>
-                <TableCell colSpan={9} className="text-center text-muted-foreground py-6">
+                <TableCell colSpan={10} className="text-center text-muted-foreground py-6">
                   Nenhum registro.
                 </TableCell>
               </TableRow>

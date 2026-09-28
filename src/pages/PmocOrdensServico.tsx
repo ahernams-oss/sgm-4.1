@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { usePmoc } from "@/contexts/PmocContext";
+import { useEmpresa } from "@/contexts/EmpresaContext";
 import { useEquipamentos } from "@/contexts/EquipamentosContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";

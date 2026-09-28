@@ -120,7 +120,7 @@ export async function downloadPdfOsPmocEquipamento(opts: {
 
   const v = (x?: string) => (x && String(x).trim()) || "—";
   autoTable(doc, {
-    startY: 26,
+    startY: 44,
     head: [[{ content: "Relação dos Ambientes Climatizados", colSpan: 2, styles: { halign: "center" } }]],
     body: [
       ["Setor:", v(e?.setorDescricao)],

@@ -312,7 +312,7 @@ export default function PmocGerenciarOperacao() {
         ? `${equip.tag || ""} ${equip.equipamento || ""}`.trim() || regAtividade.equipamentoNome
         : regAtividade.equipamentoNome;
       const fotosUrls = regFotos.length > 0 ? await uploadFotos(regAtividade.id) : [];
-      const { error } = await supabase.from("pmoc_atividades_execucoes").insert({
+      const { data: execIns, error } = await supabase.from("pmoc_atividades_execucoes").insert({
         atividade_id: regAtividade.id,
         plano_id: regAtividade.planoId || null,
         equipamento_id: regAtividade.equipamentoId || null,
@@ -325,8 +325,29 @@ export default function PmocGerenciarOperacao() {
         registrado_por: usuarioLogado?.nome || "",
         observacoes: regObservacoes.trim() || null,
         fotos: fotosUrls,
-      });
+      } as any).select("id").single();
       if (error) throw error;
+      // Gera a O.S. PMOC do serviço realizado
+      const { error: errOs } = await (supabase as any).from("pmoc_ordens_servico").insert({
+        execucao_id: (execIns as any)?.id || "",
+        plano_id: regAtividade.planoId || "",
+        atividade_id: regAtividade.id,
+        equipamento_id: regAtividade.equipamentoId || "",
+        equipamento_nome: equipNome,
+        origem: "PMOC",
+        unidade: equip?.clienteNome || "",
+        local_descricao: [equip?.localDescricao, equip?.setorDescricao].filter(Boolean).join(" / "),
+        descricao: `${regAtividade.descricao} (${regAtividade.periodicidade})`,
+        tipo: regAtividade.tipo || "Preventiva",
+        status: "Aguardando Confirmação",
+        data_abertura: agora.toISOString().slice(0, 10),
+        data_inicio_execucao: agora.toISOString(),
+        data_conclusao: agora.toISOString(),
+        tecnico_responsavel: usuarioLogado?.nome || "",
+        evidencias: fotosUrls,
+        observacoes: regObservacoes.trim() || "",
+      });
+      if (errOs) console.error("OS PMOC", errOs);
       toast({
         title: "Registro enviado",
         description: `Manutenção registrada${fotosUrls.length ? ` com ${fotosUrls.length} foto(s)` : ""}. Aguarda confirmação.`,
@@ -373,6 +394,9 @@ export default function PmocGerenciarOperacao() {
         })
         .in("id", ids);
       if (errUp) throw errUp;
+      await (supabase as any).from("pmoc_ordens_servico")
+        .update({ status: "Concluída", aprovado_por: usuarioLogado?.nome || "", data_aprovacao: agoraIso })
+        .in("execucao_id", ids);
       // 2) Atualiza atividades (última/próxima) — só após confirmação
       await Promise.all(alvo.map((e) =>
         updateAtividade(e.atividade_id, {
@@ -408,6 +432,9 @@ export default function PmocGerenciarOperacao() {
         })
         .eq("id", id);
       if (error) throw error;
+      await (supabase as any).from("pmoc_ordens_servico")
+        .update({ status: "Cancelada", observacoes: `Rejeitada: ${motivo.trim()}` })
+        .eq("execucao_id", id);
       toast({ title: "Registro rejeitado", description: "Justificativa registrada." });
       await carregarExecucoes();
     } catch (e: any) {

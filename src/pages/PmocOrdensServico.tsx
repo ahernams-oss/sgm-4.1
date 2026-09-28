@@ -23,7 +23,8 @@ export default function PmocOrdensServico() {
   const { equipamentos } = useEquipamentos();
   const { empresa } = useEmpresa();
   const [ordens, setOrdens] = useState<OsPmocRow[]>([]);
-  const [busca, setBusca] = useState("");
+  const [busca, setBusca] = useState(() =>
+    typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("numero") || "" : "");
   const [status, setStatus] = useState("todos");
   const [ini, setIni] = useState("");
   const [fim, setFim] = useState("");

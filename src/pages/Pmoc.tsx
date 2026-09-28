@@ -8,7 +8,7 @@ import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { supabase } from "@/integrations/supabase/client";
 import {
   downloadPdfPmoc, downloadPdfPmocPlanos, downloadPdfPmocOS,
-  downloadPdfPmocQualidadeAr, downloadPdfPmocInconformidades, downloadPdfPmocBiblioteca,
+  downloadPdfPmocQualidadeAr, downloadPdfPmocInconformidades, downloadPdfPmocBiblioteca, downloadPdfPmocQuadroAtividades,
 } from "@/lib/gerarPdfPmoc";
 import { downloadExcelPmoc } from "@/lib/gerarExcelPmoc";
 import { Printer } from "lucide-react";
@@ -274,6 +274,7 @@ function PlanosTab() {
                     <Button variant="outline" size="sm" onClick={() => { setManagePlano(p); setManageTab("atividades"); resetAtivForm(); }}>
                       <ClipboardList className="h-3.5 w-3.5 mr-1" />Gerir
                     </Button>
+                    <Button variant="ghost" size="icon" title="Quadro de atividades (PDF)" onClick={() => downloadPdfPmocQuadroAtividades(p, atividades)}><Printer className="h-4 w-4" /></Button>
                     <Button variant="ghost" size="icon" onClick={() => openEdit(p)} title="Editar dados do plano"><Pencil className="h-4 w-4" /></Button>
                     {podeExcluir && <Button variant="ghost" size="icon" onClick={() => requestDelete(p.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>}
                   </div>

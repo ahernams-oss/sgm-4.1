@@ -126,6 +126,8 @@ export default function PmocGerenciarOperacao() {
 
   const [execucoes, setExecucoes] = useState<Execucao[]>([]);
   const [pendSelecionadas, setPendSelecionadas] = useState<Set<string>>(new Set());
+  // Execuções em revisão antes da confirmação (caixa "Confirmar Manutenção")
+  const [confAlvo, setConfAlvo] = useState<Execucao[]>([]);
 
   // Dialog "Registrar Manutenção" com fotos
   const [regAtividade, setRegAtividade] = useState<any | null>(null);
@@ -335,6 +337,17 @@ export default function PmocGerenciarOperacao() {
     }
   };
 
+
+  const abrirConfirmacao = (ids: string[]) => {
+    if (ids.length === 0) return;
+    if (!podeConfirmar) {
+      toast({ title: "Sem permissão", description: "Você não pode confirmar execuções.", variant: "destructive" });
+      return;
+    }
+    const alvo = execucoes.filter((e) => ids.includes(e.id) && e.status === "Pendente");
+    if (alvo.length === 0) return;
+    setConfAlvo(alvo);
+  };
 
   const confirmarExecucoes = async (ids: string[]) => {
     if (ids.length === 0) return;
@@ -765,7 +778,7 @@ export default function PmocGerenciarOperacao() {
               </div>
               {podeConfirmar && pendSelecionadas.size > 0 && (
                 <Button
-                  onClick={() => confirmarExecucoes(Array.from(pendSelecionadas))}
+                  onClick={() => abrirConfirmacao(Array.from(pendSelecionadas))}
                   disabled={busy}
                 >
                   <ShieldCheck className="h-4 w-4 mr-1" />
@@ -814,7 +827,7 @@ export default function PmocGerenciarOperacao() {
                       <TableCell className="text-right space-x-2">
                         {podeConfirmar ? (
                           <>
-                            <Button size="sm" onClick={() => confirmarExecucoes([p.id])} disabled={busy}>
+                            <Button size="sm" onClick={() => abrirConfirmacao([p.id])} disabled={busy}>
                               <CheckCircle2 className="h-4 w-4 mr-1" /> Confirmar
                             </Button>
                             <Button size="sm" variant="outline" onClick={() => rejeitarExecucao(p.id)} disabled={busy}>
@@ -838,6 +851,93 @@ export default function PmocGerenciarOperacao() {
               </Table>
             </CardContent>
           </Card>
+
+          {/* Dialog de revisão antes de confirmar */}
+          <Dialog open={confAlvo.length > 0} onOpenChange={(o) => !o && setConfAlvo([])}>
+            <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5" /> Confirmar Manutenção
+                </DialogTitle>
+                <DialogDescription>
+                  {confAlvo.length === 1
+                    ? "Revise os dados do equipamento, as fotos e as observações antes de confirmar."
+                    : `Revise ${confAlvo.length} execuções antes de confirmar.`}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                {confAlvo.map((p) => {
+                  const eq = equipamentos.find((e) => e.id === p.equipamento_id) || null;
+                  const fotos = p.fotos || [];
+                  return (
+                    <div key={p.id} className="rounded-lg border p-3 space-y-3">
+                      <div>
+                        <p className="font-medium">{p.equipamento_nome || "—"}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {p.atividade_descricao || "—"} · {p.periodicidade || "—"} · Executada em {fmtDateTime(p.data_execucao)} por {p.registrado_por || "—"}
+                        </p>
+                      </div>
+
+                      {eq && (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-sm">
+                          <div><span className="text-muted-foreground">Código: </span>{eq.codLasant || "—"}</div>
+                          <div><span className="text-muted-foreground">Cliente: </span>{eq.clienteNome || "—"}</div>
+                          <div><span className="text-muted-foreground">Situação: </span>{eq.situacao || "—"}</div>
+                          <div><span className="text-muted-foreground">Local: </span>{[eq.localDescricao, eq.pavimentoDescricao].filter(Boolean).join(" - ") || "—"}</div>
+                          <div><span className="text-muted-foreground">Setor: </span>{eq.setorDescricao || "—"}</div>
+                          <div><span className="text-muted-foreground">Tag: </span>{eq.tag || "—"}</div>
+                          <div><span className="text-muted-foreground">Fabricante: </span>{eq.fabricante || "—"}</div>
+                          <div><span className="text-muted-foreground">Modelo: </span>{eq.modelo || "—"}</div>
+                          <div><span className="text-muted-foreground">Série: </span>{eq.serie || "—"}</div>
+                        </div>
+                      )}
+
+                      <div>
+                        <p className="text-sm font-medium mb-1">Fotos ({fotos.length})</p>
+                        {fotos.length === 0 ? (
+                          <p className="text-sm text-muted-foreground">Nenhuma foto anexada.</p>
+                        ) : (
+                          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
+                            {fotos.map((url, i) => (
+                              <a key={i} href={url} target="_blank" rel="noreferrer"
+                                className="aspect-square rounded-md overflow-hidden border bg-muted block"
+                                title={`Abrir foto ${i + 1} em nova aba`}
+                              >
+                                <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-medium mb-1">Observações do profissional</p>
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                          {p.observacoes?.trim() || "Nenhuma observação informada."}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setConfAlvo([])} disabled={busy}>Cancelar</Button>
+                <Button
+                  onClick={() => {
+                    const ids = confAlvo.map((e) => e.id);
+                    setConfAlvo([]);
+                    confirmarExecucoes(ids);
+                  }}
+                  disabled={busy}
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-1" />
+                  {busy ? "Confirmando..." : `Confirmar (${confAlvo.length})`}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </TabsContent>
 
         {/* ============== HISTÓRICO ============== */}

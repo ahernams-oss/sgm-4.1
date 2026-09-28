@@ -126,6 +126,8 @@ export default function PmocGerenciarOperacao() {
 
   const [execucoes, setExecucoes] = useState<Execucao[]>([]);
   const [pendSelecionadas, setPendSelecionadas] = useState<Set<string>>(new Set());
+  // Execuções em revisão antes da confirmação (caixa "Confirmar Manutenção")
+  const [confAlvo, setConfAlvo] = useState<Execucao[]>([]);
 
   // Dialog "Registrar Manutenção" com fotos
   const [regAtividade, setRegAtividade] = useState<any | null>(null);

@@ -25,7 +25,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import {
   Search, Wrench, CheckCircle2, ArrowLeft, CalendarClock, X,
-  Clock, ShieldCheck, XCircle, FileText, FileSpreadsheet, Camera, ImagePlus, Trash2,
+  Clock, ShieldCheck, XCircle, FileText, FileSpreadsheet, Camera, ImagePlus, Trash2, Printer,
 } from "lucide-react";
 import {
   gerarPdfPmocInformacoes,
@@ -1273,6 +1273,7 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
               <TableHead>Registrado por</TableHead>
               <TableHead>Confirmado por</TableHead>
               <TableHead>Motivo da rejeição</TableHead>
+              <TableHead className="text-center">Relatório</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

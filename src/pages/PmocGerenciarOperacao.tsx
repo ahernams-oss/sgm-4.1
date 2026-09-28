@@ -851,6 +851,93 @@ export default function PmocGerenciarOperacao() {
               </Table>
             </CardContent>
           </Card>
+
+          {/* Dialog de revisão antes de confirmar */}
+          <Dialog open={confAlvo.length > 0} onOpenChange={(o) => !o && setConfAlvo([])}>
+            <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5" /> Confirmar Manutenção
+                </DialogTitle>
+                <DialogDescription>
+                  {confAlvo.length === 1
+                    ? "Revise os dados do equipamento, as fotos e as observações antes de confirmar."
+                    : `Revise ${confAlvo.length} execuções antes de confirmar.`}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                {confAlvo.map((p) => {
+                  const eq = equipamentos.find((e) => e.id === p.equipamento_id) || null;
+                  const fotos = p.fotos || [];
+                  return (
+                    <div key={p.id} className="rounded-lg border p-3 space-y-3">
+                      <div>
+                        <p className="font-medium">{p.equipamento_nome || "—"}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {p.atividade_descricao || "—"} · {p.periodicidade || "—"} · Executada em {fmtDateTime(p.data_execucao)} por {p.registrado_por || "—"}
+                        </p>
+                      </div>
+
+                      {eq && (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-sm">
+                          <div><span className="text-muted-foreground">Código: </span>{eq.codLasant || "—"}</div>
+                          <div><span className="text-muted-foreground">Cliente: </span>{eq.clienteNome || "—"}</div>
+                          <div><span className="text-muted-foreground">Situação: </span>{eq.situacao || "—"}</div>
+                          <div><span className="text-muted-foreground">Local: </span>{[eq.localDescricao, eq.pavimentoDescricao].filter(Boolean).join(" - ") || "—"}</div>
+                          <div><span className="text-muted-foreground">Setor: </span>{eq.setorDescricao || "—"}</div>
+                          <div><span className="text-muted-foreground">Tag: </span>{eq.tag || "—"}</div>
+                          <div><span className="text-muted-foreground">Fabricante: </span>{eq.fabricante || "—"}</div>
+                          <div><span className="text-muted-foreground">Modelo: </span>{eq.modelo || "—"}</div>
+                          <div><span className="text-muted-foreground">Série: </span>{eq.serie || "—"}</div>
+                        </div>
+                      )}
+
+                      <div>
+                        <p className="text-sm font-medium mb-1">Fotos ({fotos.length})</p>
+                        {fotos.length === 0 ? (
+                          <p className="text-sm text-muted-foreground">Nenhuma foto anexada.</p>
+                        ) : (
+                          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
+                            {fotos.map((url, i) => (
+                              <a key={i} href={url} target="_blank" rel="noreferrer"
+                                className="aspect-square rounded-md overflow-hidden border bg-muted block"
+                                title={`Abrir foto ${i + 1} em nova aba`}
+                              >
+                                <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div>
+                        <p className="text-sm font-medium mb-1">Observações do profissional</p>
+                        <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                          {p.observacoes?.trim() || "Nenhuma observação informada."}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setConfAlvo([])} disabled={busy}>Cancelar</Button>
+                <Button
+                  onClick={() => {
+                    const ids = confAlvo.map((e) => e.id);
+                    setConfAlvo([]);
+                    confirmarExecucoes(ids);
+                  }}
+                  disabled={busy}
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-1" />
+                  {busy ? "Confirmando..." : `Confirmar (${confAlvo.length})`}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </TabsContent>
 
         {/* ============== HISTÓRICO ============== */}

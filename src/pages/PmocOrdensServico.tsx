@@ -21,6 +21,7 @@ const corStatus = (s: string) =>
 export default function PmocOrdensServico() {
   const { planos, atividades } = usePmoc();
   const { equipamentos } = useEquipamentos();
+  const { empresa } = useEmpresa();
   const [ordens, setOrdens] = useState<OsPmocRow[]>([]);
   const [busca, setBusca] = useState("");
   const [status, setStatus] = useState("todos");
@@ -54,6 +55,7 @@ export default function PmocOrdensServico() {
       await downloadPdfOsPmocEquipamento({
         equipamento, equipamentoNome: o.equipamento_nome, plano, atividades: ativs, ordens: doEquip,
         inicio: plano?.vigenciaInicio || undefined,
+        empresaLogoUrl: empresa?.logoUrl || undefined,
       });
     } catch (e: any) { toast.error("Erro ao gerar relatório", { description: e.message }); }
   };

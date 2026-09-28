@@ -1328,6 +1328,13 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
           <TableBody>
             {filtradas.map((p) => (
               <TableRow key={p.id}>
+                <TableCell className="pr-3 w-10">
+                  <Checkbox
+                    checked={selecionadas.has(p.id)}
+                    onCheckedChange={() => toggleSelecao(p.id)}
+                    aria-label={`Selecionar manutenção ${p.id}`}
+                  />
+                </TableCell>
                 <TableCell className="whitespace-nowrap">
                   {p.os_numero ? (
                     <button type="button" className="text-primary font-semibold hover:underline"
@@ -1367,7 +1374,7 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
             ))}
             {filtradas.length === 0 && (
               <TableRow>
-                <TableCell colSpan={10} className="text-center text-muted-foreground py-6">
+                <TableCell colSpan={11} className="text-center text-muted-foreground py-6">
                   Nenhum registro.
                 </TableCell>
               </TableRow>

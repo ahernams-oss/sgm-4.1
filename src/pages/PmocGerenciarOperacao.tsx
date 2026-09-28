@@ -1176,6 +1176,24 @@ function HistoricoExecucoes({ execucoes }: { execucoes: Execucao[] }) {
     doc.save(`historico_execucoes_pmoc_${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
+  const exportarPdfManutencao = async (p: Execucao) => {
+    setGerandoId(p.id);
+    try {
+      const equip = equipamentos.find((e) => e.id === p.equipamento_id) || null;
+      const plano = planos.find((pl) => pl.id === p.plano_id);
+      await gerarPdfPmocManutencoesFotos({
+        equip,
+        equipNome: p.equipamento_nome || "Equipamento",
+        planoTitulo: plano?.titulo,
+        execucoes: [p],
+      });
+    } catch (e: any) {
+      toast({ title: "Erro ao gerar PDF", description: e?.message, variant: "destructive" });
+    } finally {
+      setGerandoId(null);
+    }
+  };
+
   const exportarExcel = async () => {
     const rows = buildRows();
     if (rows.length === 0) return;

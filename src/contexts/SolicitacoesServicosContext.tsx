@@ -33,6 +33,8 @@ interface SolicitacoesServicosContextType {
   addSolicitacao: (d: any) => Promise<void>;
   updateSolicitacao: (id: string, d: any) => Promise<void>;
   deleteSolicitacao: (id: string) => Promise<void>;
+  /** Recarrega a grade do banco (usado ao abrir a tela, sem precisar de F5) */
+  refresh: () => Promise<void>;
 }
 
 const SolicitacoesServicosContext = createContext<SolicitacoesServicosContextType | undefined>(undefined);
@@ -73,12 +75,18 @@ export function SolicitacoesServicosProvider({ children }: { children: ReactNode
   });
   const invalidate = () => qc.invalidateQueries({ queryKey: QK });
 
+  const refresh = async () => {
+    // Marca como desatualizado e recarrega se a grade estiver liberada;
+    // se ainda exigir filtro, recarrega assim que o filtro for escolhido.
+    await qc.invalidateQueries({ queryKey: QK, refetchType: "all" });
+  };
+
   const addSolicitacao = async (d: any) => { await insertRow("solicitacoes_servicos", d); invalidate(); };
   const updateSolicitacao = async (id: string, d: any) => { await updateRow("solicitacoes_servicos", id, d); invalidate(); };
   const deleteSolicitacao = async (id: string) => { await deleteRow("solicitacoes_servicos", id); invalidate(); };
 
   return (
-    <SolicitacoesServicosContext.Provider value={{ solicitacoes, addSolicitacao, updateSolicitacao, deleteSolicitacao }}>
+    <SolicitacoesServicosContext.Provider value={{ solicitacoes, addSolicitacao, updateSolicitacao, deleteSolicitacao, refresh }}>
       {children}
     </SolicitacoesServicosContext.Provider>
   );

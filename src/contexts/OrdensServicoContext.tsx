@@ -76,6 +76,8 @@ interface OrdensServicoContextType {
   addOrdem: (d: any) => Promise<void>;
   updateOrdem: (id: string, d: any) => Promise<void>;
   deleteOrdem: (id: string) => Promise<void>;
+  /** Recarrega a grade do banco (usado ao abrir a tela, sem precisar de F5) */
+  refresh: () => Promise<void>;
   loading: boolean;
 }
 
@@ -138,6 +140,12 @@ export function OrdensServicoProvider({ children }: { children: ReactNode }) {
   });
   const invalidate = () => qc.invalidateQueries({ queryKey: QK });
 
+  const refresh = async () => {
+    // Marca como desatualizado e recarrega se a grade estiver liberada;
+    // se ainda exigir filtro, recarrega assim que o filtro for escolhido.
+    await qc.invalidateQueries({ queryKey: QK, refetchType: "all" });
+  };
+
   const addOrdem = async (d: any) => {
     const saved = await insertRow("ordens_servico", d);
     if (!saved) throw new Error("Não foi possível salvar a Ordem de Serviço.");
@@ -167,7 +175,7 @@ export function OrdensServicoProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <OrdensServicoContext.Provider value={{ ordens, addOrdem, updateOrdem, deleteOrdem, loading }}>
+    <OrdensServicoContext.Provider value={{ ordens, addOrdem, updateOrdem, deleteOrdem, refresh, loading }}>
       {children}
     </OrdensServicoContext.Provider>
   );
@@ -195,6 +203,7 @@ export function useOrdensServico() {
       addOrdem: async () => {},
       updateOrdem: async () => {},
       deleteOrdem: async () => {},
+      refresh: async () => {},
       loading: false,
     } as OrdensServicoContextType;
   }

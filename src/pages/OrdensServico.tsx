@@ -187,7 +187,9 @@ function FotosUploader({ disabled, onUploaded, currentCount }: { disabled: boole
 
 export default function OrdensServicoPage() {
   ensureLoadGate("OrdensServico");
-  const { ordens, addOrdem, updateOrdem, deleteOrdem } = useOrdensServico();
+  const { ordens, addOrdem, updateOrdem, deleteOrdem, refresh } = useOrdensServico();
+  // Recarrega a grade do banco ao abrir a tela, sem precisar de F5
+  useEffect(() => { refresh(); /* eslint-disable-line react-hooks/exhaustive-deps */ }, []);
   const { assinaturas: assinaturasOs = [] } = useOsAssinaturas();
   const { clientes } = useClientes();
   const { empresa } = useEmpresa();

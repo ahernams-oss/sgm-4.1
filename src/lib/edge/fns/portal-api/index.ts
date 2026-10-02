@@ -283,7 +283,41 @@ Deno.serve(async (req) => {
           funcionario_id: funcId,
         }).eq("id", cred.id);
       }
-      return json({ ok: true, promovido: !!cred });
+      // Copia documentos aprovados pelo RH para os anexos da ficha do funcionário
+      let docsCopiados = 0;
+      try {
+        const { data: docs } = await sb.from("portal_documentos_candidato")
+          .select("id,tipo_documento,nome_arquivo,storage_path,tamanho_bytes,enviado_em")
+          .eq("cpf", cpf).eq("status", "aprovado");
+        if (docs && docs.length) {
+          const { data: f } = await sb.from("funcionarios").select("anexos_documentos").eq("id", funcId).maybeSingle();
+          const atuais: any[] = Array.isArray(f?.anexos_documentos) ? f!.anexos_documentos as any[] : [];
+          const novos: any[] = [];
+          for (const d of docs) {
+            if (atuais.some((a) => a?.origemPortalId === d.id)) continue;
+            const { data: blob } = await sb.storage.from("portal-candidato-docs").download(d.storage_path);
+            if (!blob) continue;
+            const nomeSafe = String(d.nome_arquivo || "documento").replace(/[^\w.\-]/g, "_");
+            const path = `${funcId}/portal_${Date.now()}_${nomeSafe}`;
+            const { error: upErr } = await sb.storage.from("funcionarios-anexos").upload(path, blob, { upsert: true });
+            if (upErr) continue;
+            novos.push({
+              id: crypto.randomUUID(), nome: d.nome_arquivo || nomeSafe, path,
+              tamanho: d.tamanho_bytes || blob.size,
+              data: (d.enviado_em || new Date().toISOString()).slice(0, 10),
+              descricao: `${d.tipo_documento || "Documento"} (Portal do Candidato)`,
+              origemPortalId: d.id,
+            });
+          }
+          if (novos.length) {
+            await sb.from("funcionarios").update({ anexos_documentos: [...atuais, ...novos] }).eq("id", funcId);
+            docsCopiados = novos.length;
+          }
+        }
+      } catch (e) {
+        console.warn("Falha ao copiar documentos do portal:", e);
+      }
+      return json({ ok: true, promovido: !!cred, docsCopiados });
     }
 
     // ---- RH: gestão das solicitações enviadas pelos colaboradores ----

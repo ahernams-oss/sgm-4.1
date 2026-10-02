@@ -4753,6 +4753,24 @@ export type Database = {
         }
         Relationships: []
       }
+      locais_entrevista: {
+        Row: {
+          created_at: string
+          descricao: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          descricao: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string
+          id?: string
+        }
+        Relationships: []
+      }
       login_auditoria: {
         Row: {
           created_at: string

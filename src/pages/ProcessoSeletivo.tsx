@@ -1,3 +1,4 @@
+import LocalEntrevistaSelect from "@/components/LocalEntrevistaSelect";
 import { lerArquivoBase64 } from "@/lib/compressFile";
 import { useParams, useNavigate } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
@@ -965,7 +966,7 @@ const ProcessoSeletivoPage = () => {
                       <CardContent className="grid gap-3 md:grid-cols-[160px_120px_1fr_auto] items-end">
                         <div><label className="text-xs font-medium">Dia</label><Input type="date" value={a.data} onChange={(e) => set("data", e.target.value)} disabled={!podeAvaliar} /></div>
                         <div><label className="text-xs font-medium">Horário</label><Input type="time" value={a.hora} onChange={(e) => set("hora", e.target.value)} disabled={!podeAvaliar} /></div>
-                        <div><label className="text-xs font-medium">Local</label><Input value={a.local} onChange={(e) => set("local", e.target.value)} placeholder="Endereço / sala da entrevista" disabled={!podeAvaliar} /></div>
+                        <div><label className="text-xs font-medium">Local</label><LocalEntrevistaSelect value={a.local} onChange={(v) => set("local", v)} disabled={!podeAvaliar} /></div>
                         <Button onClick={() => salvarAgendamento(c)} disabled={!podeAvaliar || enviandoAgenda === c.id}>
                           <CalendarDays className="w-4 h-4 mr-1" />
                           {enviandoAgenda === c.id ? "Enviando..." : c.agendamentoEnviadoEm ? "Reagendar e reenviar" : "Salvar e enviar WhatsApp"}

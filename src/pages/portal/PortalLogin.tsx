@@ -98,7 +98,7 @@ export default function PortalLogin() {
                   onChange={(e) => setCpf(fmtCpf(e.target.value))}
                   placeholder="000.000.000-00"
                   required
-                  className="h-12 pl-11 rounded-xl bg-white/5 border-white/20 text-slate-900 placeholder:text-slate-500/70 focus-visible:ring-2 focus-visible:ring-sky-400/60 focus-visible:border-sky-400/60"
+                  className="h-12 pl-11 rounded-xl bg-white/5 border-white/20 text-white font-bold placeholder:text-slate-500/70 placeholder:font-normal focus-visible:ring-2 focus-visible:ring-sky-400/60 focus-visible:border-sky-400/60"
                 />
               </div>
             </div>

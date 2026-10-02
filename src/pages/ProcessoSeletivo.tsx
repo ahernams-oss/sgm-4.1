@@ -1285,7 +1285,7 @@ const ProcessoSeletivoPage = () => {
                                   tamanhoCalcado: uni.calcado || "",
                                   peso: uni.peso || "",
                                   altura: uni.altura || "",
-                                  observacoes: [
+                                  observacoes: (() => { const l = [
                                     "Dados complementares da ficha do Portal do Candidato:",
                                     dpDocs.rgEmissao && `RG emitido em: ${dpDocs.rgEmissao}`,
                                     (dpDocs.ctpsUf || dpDocs.ctpsEmissao) && `CTPS UF: ${dpDocs.ctpsUf || "—"} | Emissão: ${dpDocs.ctpsEmissao || "—"}`,
@@ -1294,16 +1294,7 @@ const ProcessoSeletivoPage = () => {
                                     dpDocs.passaporteNumero && `Passaporte: ${dpDocs.passaporteNumero} (validade ${dpDocs.passaporteValidade || "—"})`,
                                     dpDocs.certidaoNumero && `Certidão (${dpDocs.certidaoTipo || "—"}): ${dpDocs.certidaoNumero} — emissão ${dpDocs.certidaoEmissao || "—"}`,
                                     ficha.observacoes_rh && `Observações do RH: ${ficha.observacoes_rh}`,
-                                  ].filter(Boolean).length > 1 ? [
-                                    "Dados complementares da ficha do Portal do Candidato:",
-                                    dpDocs.rgEmissao && `RG emitido em: ${dpDocs.rgEmissao}`,
-                                    (dpDocs.ctpsUf || dpDocs.ctpsEmissao) && `CTPS UF: ${dpDocs.ctpsUf || "—"} | Emissão: ${dpDocs.ctpsEmissao || "—"}`,
-                                    dpDocs.cnhPrimeira && `CNH 1ª habilitação: ${dpDocs.cnhPrimeira}`,
-                                    dpDocs.reservistaCategoria && `Reservista categoria: ${dpDocs.reservistaCategoria}`,
-                                    dpDocs.passaporteNumero && `Passaporte: ${dpDocs.passaporteNumero} (validade ${dpDocs.passaporteValidade || "—"})`,
-                                    dpDocs.certidaoNumero && `Certidão (${dpDocs.certidaoTipo || "—"}): ${dpDocs.certidaoNumero} — emissão ${dpDocs.certidaoEmissao || "—"}`,
-                                    ficha.observacoes_rh && `Observações do RH: ${ficha.observacoes_rh}`,
-                                  ].filter(Boolean).join("\n") : "",
+                                  ].filter(Boolean); return l.length > 1 ? l.join("\n") : ""; })(),
                                   status: "Ativo" as const,
                                   foto: dp.foto || "",
                                 });

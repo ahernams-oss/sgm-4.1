@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import PortalLayout from "@/components/portal/PortalLayout";
+import PortalLayout, { TERMO_OK_KEY } from "@/components/portal/PortalLayout";
 import { portalCall } from "@/lib/portalClient";
 import { usePortalAuth } from "@/contexts/PortalAuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,7 +46,7 @@ Você poderá alterar estas preferências posteriormente nas configurações do 
 ];
 
 export default function PortalTermos() {
-  const { logout } = usePortalAuth();
+  const { logout, user } = usePortalAuth();
   const [assinados, setAssinados] = useState<any[]>([]);
   const [ativos, setAtivos] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);
@@ -65,6 +65,11 @@ export default function PortalTermos() {
       const acceptedText = `${t.texto}\n\nAceites informados:\n${t.consents.map((c) => `☑ ${c.label}`).join("\n")}`;
       await portalCall("termo-assinar", { tipo_termo: t.tipo, versao_termo: "1.0", texto_aceite: acceptedText });
       toast.success("Termo assinado.");
+      if (t.tipo === "lgpd" && user) {
+        sessionStorage.setItem(TERMO_OK_KEY, user.cpf);
+        window.location.href = "/portal/candidato";
+        return;
+      }
       await load();
     } catch (e: any) { toast.error(e.message); }
     finally { setLoading(false); }

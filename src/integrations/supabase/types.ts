@@ -471,6 +471,8 @@ export type Database = {
           created_at: string | null
           data_base_salario: string | null
           descricao: string | null
+          entrevistador_funcionario_id: string | null
+          entrevistador_nome: string | null
           epis_padrao: Json
           id: string
           missao: string | null
@@ -488,6 +490,8 @@ export type Database = {
           created_at?: string | null
           data_base_salario?: string | null
           descricao?: string | null
+          entrevistador_funcionario_id?: string | null
+          entrevistador_nome?: string | null
           epis_padrao?: Json
           id?: string
           missao?: string | null
@@ -505,6 +509,8 @@ export type Database = {
           created_at?: string | null
           data_base_salario?: string | null
           descricao?: string | null
+          entrevistador_funcionario_id?: string | null
+          entrevistador_nome?: string | null
           epis_padrao?: Json
           id?: string
           missao?: string | null

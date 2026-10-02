@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, Check, X } from "lucide-react";
+import { Plus, Trash2, Check, X, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 const QK = ["locais_entrevista"];
@@ -12,6 +12,7 @@ const QK = ["locais_entrevista"];
 export default function LocalEntrevistaSelect({ value, onChange, disabled }: { value: string; onChange: (v: string) => void; disabled?: boolean }) {
   const qc = useQueryClient();
   const [novo, setNovo] = useState<string | null>(null);
+  const [editando, setEditando] = useState<string | null>(null);
   const { data: locais = [] } = useQuery({
     queryKey: QK,
     queryFn: async () => {
@@ -37,11 +38,29 @@ export default function LocalEntrevistaSelect({ value, onChange, disabled }: { v
   const remover = async () => {
     const l = locais.find((x) => x.descricao === value);
     if (!l) return;
+    if (!window.confirm(`Excluir o local "${l.descricao}" da lista?`)) return;
     const { error } = await (supabase as any).from("locais_entrevista").delete().eq("id", l.id);
-    if (error) return toast.error("Erro ao remover: " + error.message);
+    if (error) return toast.error("Erro ao excluir: " + error.message);
     await qc.invalidateQueries({ queryKey: QK });
     onChange("");
-    toast.success("Local removido da lista.");
+    toast.success("Local excluído da lista.");
+  };
+
+  const salvarEdicao = async () => {
+    const l = locais.find((x) => x.descricao === value);
+    const d = (editando || "").trim();
+    if (!l) return setEditando(null);
+    if (!d) return toast.error("Informe o local.");
+    if (d !== l.descricao) {
+      if (locais.some((x) => x.id !== l.id && x.descricao.toLowerCase() === d.toLowerCase()))
+        return toast.error("Já existe um local com esse nome.");
+      const { error } = await (supabase as any).from("locais_entrevista").update({ descricao: d }).eq("id", l.id);
+      if (error) return toast.error("Erro ao editar: " + error.message);
+      await qc.invalidateQueries({ queryKey: QK });
+      toast.success("Local atualizado!");
+    }
+    onChange(d);
+    setEditando(null);
   };
 
   if (novo !== null) {
@@ -50,6 +69,16 @@ export default function LocalEntrevistaSelect({ value, onChange, disabled }: { v
         <Input autoFocus value={novo} onChange={(e) => setNovo(e.target.value)} onKeyDown={(e) => e.key === "Enter" && adicionar()} placeholder="Novo local (endereço / sala)" />
         <Button type="button" size="icon" onClick={adicionar} title="Salvar local"><Check className="h-4 w-4" /></Button>
         <Button type="button" size="icon" variant="outline" onClick={() => setNovo(null)} title="Cancelar"><X className="h-4 w-4" /></Button>
+      </div>
+    );
+  }
+
+  if (editando !== null) {
+    return (
+      <div className="flex gap-1">
+        <Input autoFocus value={editando} onChange={(e) => setEditando(e.target.value)} onKeyDown={(e) => e.key === "Enter" && salvarEdicao()} placeholder="Editar local" />
+        <Button type="button" size="icon" onClick={salvarEdicao} title="Salvar alteração"><Check className="h-4 w-4" /></Button>
+        <Button type="button" size="icon" variant="outline" onClick={() => setEditando(null)} title="Cancelar"><X className="h-4 w-4" /></Button>
       </div>
     );
   }
@@ -66,7 +95,10 @@ export default function LocalEntrevistaSelect({ value, onChange, disabled }: { v
       </Select>
       <Button type="button" size="icon" variant="outline" onClick={() => setNovo("")} disabled={disabled} title="Adicionar novo local"><Plus className="h-4 w-4" /></Button>
       {value && locais.some((l) => l.descricao === value) && (
-        <Button type="button" size="icon" variant="ghost" onClick={remover} disabled={disabled} title="Remover local da lista"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+        <>
+          <Button type="button" size="icon" variant="ghost" onClick={() => setEditando(value)} disabled={disabled} title="Editar local"><Pencil className="h-4 w-4" /></Button>
+          <Button type="button" size="icon" variant="ghost" onClick={remover} disabled={disabled} title="Excluir local da lista"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+        </>
       )}
     </div>
   );

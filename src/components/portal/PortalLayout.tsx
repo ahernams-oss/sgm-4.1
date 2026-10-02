@@ -1,6 +1,7 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate, Navigate } from "@/lib/router-compat";
 import { usePortalAuth } from "@/contexts/PortalAuthContext";
+import { portalCall } from "@/lib/portalClient";
 import { Button } from "@/components/ui/button";
 import { LogOut, User } from "lucide-react";
 import logoLasant from "@/assets/Logo_Lasant.png";
@@ -10,15 +11,42 @@ interface Props {
   requireTipo?: "funcionario" | "candidato";
 }
 
+const TERMOS_PATH = "/portal/candidato/termos";
+export const TERMO_OK_KEY = "portalTermoLgpdOk";
+
 export default function PortalLayout({ children, requireTipo }: Props) {
   const { user, logout } = usePortalAuth();
   const navigate = useNavigate();
   const loc = useLocation();
+  const isCand = user?.tipo === "candidato";
+  const [termoOk, setTermoOk] = useState<boolean | null>(() =>
+    typeof window !== "undefined" && sessionStorage.getItem(TERMO_OK_KEY) === user?.cpf ? true : null,
+  );
+
+  useEffect(() => {
+    if (!isCand || termoOk) return;
+    let alive = true;
+    portalCall<{ termos: { tipo_termo: string }[] }>("termos-list")
+      .then((r) => {
+        const ok = (r.termos || []).some((t) => t.tipo_termo === "lgpd");
+        if (ok && user) sessionStorage.setItem(TERMO_OK_KEY, user.cpf);
+        if (alive) setTermoOk(ok);
+      })
+      .catch(() => { if (alive) setTermoOk(true); }); // erro de rede/sessão: não trava a tela
+    return () => { alive = false; };
+  }, [isCand, termoOk, user, loc.pathname]);
 
   if (!user) return <Navigate to="/portal" replace state={{ from: loc.pathname }} />;
   if (requireTipo && user.tipo !== requireTipo) {
     return <Navigate to={user.tipo === "funcionario" ? "/portal/funcionario" : "/portal/candidato"} replace />;
   }
+  if (isCand && termoOk === false && loc.pathname !== TERMOS_PATH) {
+    return <Navigate to={TERMOS_PATH} replace />;
+  }
+  if (isCand && termoOk === null && loc.pathname !== TERMOS_PATH) {
+    return <div className="min-h-screen flex items-center justify-center text-sm text-muted-foreground">Carregando...</div>;
+  }
+  const bloqueado = isCand && termoOk !== true;
 
   const menuFunc = [
     { to: "/portal/funcionario", label: "Início" },
@@ -38,7 +66,7 @@ export default function PortalLayout({ children, requireTipo }: Props) {
     { to: "/portal/candidato/termos", label: "Termos" },
     { to: "/portal/candidato/admissional", label: "Admissional" },
   ];
-  const menu = user.tipo === "funcionario" ? menuFunc : menuCand;
+  const menu = user.tipo === "funcionario" ? menuFunc : bloqueado ? menuCand.filter((m) => m.to === TERMOS_PATH) : menuCand;
 
   return (
     <div className="min-h-screen flex flex-col bg-muted/30">

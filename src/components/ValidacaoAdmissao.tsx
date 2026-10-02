@@ -38,6 +38,9 @@ interface TermoRow {
   versao_termo: string;
   hash_sha256: string;
   assinado_em: string;
+  texto_aceite?: string | null;
+  ip?: string | null;
+  user_agent?: string | null;
 }
 
 interface Props {
@@ -313,19 +316,31 @@ export default function ValidacaoAdmissao({ candidato, onExameChange, onDadosBan
 
       {/* Termos */}
       <section>
-        <h3 className="text-sm font-semibold mb-2">📜 Termos assinados</h3>
+        <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+          📜 Termos assinados
+          {termos.some((t) => t.tipo_termo === "lgpd")
+            ? <Badge className="bg-green-600 hover:bg-green-600">Termo LGPD assinado</Badge>
+            : <Badge variant="destructive">Termo LGPD pendente</Badge>}
+        </h3>
         {termos.length === 0 ? (
           <p className="text-xs text-muted-foreground">Nenhum termo assinado pelo candidato.</p>
         ) : (
           <div className="space-y-1">
             {termos.map((t) => (
-              <div key={t.id} className="flex flex-wrap items-center justify-between gap-2 rounded border px-3 py-1.5 text-xs">
-                <div>
-                  <span className="font-medium">{t.tipo_termo}</span>
-                  <span className="text-muted-foreground"> · v{t.versao_termo} · {fmtDate(t.assinado_em)}</span>
+              <details key={t.id} className="rounded border px-3 py-1.5 text-xs">
+                <summary className="flex flex-wrap items-center justify-between gap-2 cursor-pointer">
+                  <div>
+                    <span className="font-medium">{t.tipo_termo === "lgpd" ? "Termo LGPD - Consentimento" : t.tipo_termo}</span>
+                    <span className="text-muted-foreground"> · v{t.versao_termo} · assinado em {fmtDate(t.assinado_em)}</span>
+                  </div>
+                  <span className="font-mono text-[10px] text-muted-foreground truncate max-w-[220px]" title={t.hash_sha256}>{t.hash_sha256.slice(0, 24)}…</span>
+                </summary>
+                <div className="mt-2 space-y-1">
+                  <p><b>IP:</b> {t.ip || "—"} · <b>Hash:</b> <span className="font-mono break-all">{t.hash_sha256}</span></p>
+                  {t.user_agent && <p className="text-muted-foreground break-all"><b>Dispositivo:</b> {t.user_agent}</p>}
+                  {t.texto_aceite && <pre className="whitespace-pre-wrap bg-muted/50 p-2 rounded font-sans">{t.texto_aceite}</pre>}
                 </div>
-                <span className="font-mono text-[10px] text-muted-foreground truncate max-w-[220px]" title={t.hash_sha256}>{t.hash_sha256.slice(0, 24)}…</span>
-              </div>
+              </details>
             ))}
           </div>
         )}

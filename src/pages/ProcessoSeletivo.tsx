@@ -157,18 +157,26 @@ const ProcessoSeletivoPage = () => {
         requisicao,
         empresaLogoUrl: empresa?.logoUrl || undefined,
       });
+    } catch (e: any) {
+      console.error(e);
+      toast.error(`Falha ao gerar o relatório: ${e?.message || e}`);
     } finally {
       setGerandoPdf(false);
     }
   };
   const gerarFichaCandidato = async (c: Candidato) => {
     if (!processo) return;
-    await downloadPdfFichaCandidato({
-      processo,
-      requisicao,
-      candidato: c,
-      empresaLogoUrl: empresa?.logoUrl || undefined,
-    });
+    try {
+      await downloadPdfFichaCandidato({
+        processo,
+        requisicao,
+        candidato: c,
+        empresaLogoUrl: empresa?.logoUrl || undefined,
+      });
+    } catch (e: any) {
+      console.error(e);
+      toast.error(`Falha ao gerar a ficha: ${e?.message || e}`);
+    }
   };
   const [agenda, setAgenda] = useState<Record<string, { data: string; hora: string; local: string }>>({});
   const [enviandoAgenda, setEnviandoAgenda] = useState<string | null>(null);

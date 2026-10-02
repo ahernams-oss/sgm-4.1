@@ -762,6 +762,9 @@ const ProcessoSeletivoPage = () => {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => gerarFichaCandidato(c)}>
+                                <Printer className="h-4 w-4 mr-2" /> Imprimir ficha do candidato
+                              </DropdownMenuItem>
                               {podeEditar && (
                                 <DropdownMenuItem onClick={() => openEditDialog(c)}>
                                   <Pencil className="h-4 w-4 mr-2" /> Editar candidato

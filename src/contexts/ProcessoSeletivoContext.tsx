@@ -58,6 +58,7 @@ export interface Candidato {
   documentos: DocumentoContratacao[]; exameAdmissional: ExameAdmissional;
   dadosBancarios: DadosBancarios; contratacaoFinalizada?: boolean;
   lgpdAceite?: boolean; lgpdAceiteData?: string; portalEnviadoEm?: string;
+  agendamentoData?: string; agendamentoHora?: string; agendamentoLocal?: string; agendamentoEnviadoEm?: string;
 }
 
 export interface ProcessoSeletivo {

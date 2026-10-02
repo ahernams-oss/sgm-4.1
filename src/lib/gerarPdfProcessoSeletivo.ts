@@ -47,7 +47,7 @@ async function loadImageAsDataUrl(url: string): Promise<string | null> {
 }
 
 /** Cabeçalho padrão LASANT (faixa azul à direita + logotipo à esquerda). Retorna o Y inicial do conteúdo. */
-async function desenharCabecalhoPadrao(
+export async function desenharCabecalhoPadrao(
   doc: jsPDF,
   opts: { titulo: string; subtitulo: string; linhas: string[]; empresaLogoUrl?: string },
 ): Promise<number> {

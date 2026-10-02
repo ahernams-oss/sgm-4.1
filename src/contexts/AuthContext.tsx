@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useMemo, ReactNode } fr
 import { useUsuarios, Usuario } from "./UsuariosContext";
 import { useCargos } from "./CargosContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Cargos com acesso total ao sistema
 const CARGOS_ACESSO_TOTAL = ["diretor", "gerente executivo", "coordenador de departamento", "coordenador tecnico", "coordenador técnico", "coordenador administrativo"];
@@ -54,6 +55,18 @@ const gerarSenhaTemporaria = (): string => {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { usuarios } = useUsuarios();
   const { cargos } = useCargos();
+  const queryClient = useQueryClient();
+
+  // Dados lidos antes do login (sem sessão) vêm vazios por causa das regras de acesso;
+  // ao entrar/sair, recarrega tudo para o menu e as telas aparecerem sem F5.
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT") {
+        setTimeout(() => { queryClient.invalidateQueries(); }, 0);
+      }
+    });
+    return () => data.subscription.unsubscribe();
+  }, [queryClient]);
   const [usuarioLogado, setUsuarioLogado] = useState<Usuario | null>(() => readStored());
   const [lembrar, setLembrar] = useState<boolean>(() => !!localStorage.getItem(STORAGE_KEY));
 
@@ -137,6 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (sessErr) console.warn("[Login] Sessão não estabelecida:", sessErr.message);
       }
 
+      await queryClient.invalidateQueries();
       setLembrar(lembrarMe);
       setUsuarioLogado(usuario);
       return true;

@@ -482,7 +482,7 @@ const ProcessoSeletivoPage = () => {
     const lista = nomes.map((n) => `• ${n}`).join("\n");
     const msg =
       `Olá, ${ent.nome}!\n\n` +
-      `A psicóloga aprovou ${nomes.length > 1 ? "os seguintes candidatos" : "o seguinte candidato"} no processo seletivo ${formatNumeroPS(processo?.numero, processo?.dataCriacao)}` +
+      `A psicóloga aprovou ${nomes.length > 1 ? "os seguintes candidatos" : "o seguinte candidato"} no processo seletivo ${processo ? formatNumeroPS(processo) : ""}` +
       (requisicao?.cargoNome ? ` para o cargo de ${requisicao.cargoNome}` : "") + `:\n\n${lista}\n\n` +
       `Acesse o SGM, aba "Agendamento" do processo seletivo, para informar dia, horário e local da entrevista técnica.\n\nLASANT CONSTRUÇÕES LTDA.`;
     const r = await enviarWhatsApp(ent.telefone, msg);

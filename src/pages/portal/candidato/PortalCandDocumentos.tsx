@@ -4,7 +4,7 @@ import { portalCall, fileToBase64 } from "@/lib/portalClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Upload, Plus, Trash2 } from "lucide-react";
+import { Upload, Plus, Trash2, Camera } from "lucide-react";
 import { toast } from "sonner";
 
 const TIPOS = [
@@ -22,6 +22,7 @@ export default function PortalCandDocumentos() {
   const [tipoCustom, setTipoCustom] = useState("");
   const [fila, setFila] = useState<FilaItem[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
 
   const load = () => portalCall<{ documentos: any[] }>("cand-doc-list").then((r) => setDocs(r.documentos));
   useEffect(() => { load().catch((e) => toast.error(e.message)); }, []);
@@ -43,6 +44,7 @@ export default function PortalCandDocumentos() {
     }
     if (novos.length) setFila((f) => [...f, ...novos]);
     if (fileRef.current) fileRef.current.value = "";
+    if (cameraRef.current) cameraRef.current.value = "";
   };
 
   const removerFila = (id: string) => setFila((f) => f.filter((x) => x.id !== id));
@@ -115,6 +117,17 @@ export default function PortalCandDocumentos() {
               />
               <Button type="button" variant="outline" onClick={() => fileRef.current?.click()}>
                 <Plus className="w-4 h-4 mr-1" /> Adicionar arquivo(s)
+              </Button>
+              <input
+                ref={cameraRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={(e) => adicionarArquivos(e.target.files)}
+                className="hidden"
+              />
+              <Button type="button" variant="outline" onClick={() => cameraRef.current?.click()}>
+                <Camera className="w-4 h-4 mr-1" /> Tirar foto
               </Button>
             </div>
             <p className="text-xs text-muted-foreground md:col-span-3">

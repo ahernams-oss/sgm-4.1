@@ -678,12 +678,12 @@ const ProcessoSeletivoPage = () => {
 
         <Tabs value={selectedTab} onValueChange={setSelectedTab}>
           <TabsList className="mb-4">
-            <TabsTrigger value="candidatos">Candidatos</TabsTrigger>
-            <TabsTrigger value="etapa1">1. Psicológica</TabsTrigger>
-            <TabsTrigger value="agendamento">Agendamento</TabsTrigger>
-            <TabsTrigger value="etapa2">2. Técnica</TabsTrigger>
-            <TabsTrigger value="etapa3">3. Liberação</TabsTrigger>
-            <TabsTrigger value="etapa4">4. Contratação</TabsTrigger>
+            <TabsTrigger value="candidatos" className="text-black data-[state=active]:text-black">Candidatos</TabsTrigger>
+            <TabsTrigger value="etapa1" className="text-black data-[state=active]:text-black">1. Psicológica</TabsTrigger>
+            <TabsTrigger value="agendamento" className="text-black data-[state=active]:text-black">Agendamento</TabsTrigger>
+            <TabsTrigger value="etapa2" className="text-black data-[state=active]:text-black">2. Técnica</TabsTrigger>
+            <TabsTrigger value="etapa3" className="text-black data-[state=active]:text-black">3. Liberação</TabsTrigger>
+            <TabsTrigger value="etapa4" className="text-black data-[state=active]:text-black">4. Contratação</TabsTrigger>
           </TabsList>
 
           {/* TAB: Candidatos */}

@@ -1,12 +1,20 @@
 import { useState } from "react";
 import { useNavigate, Link, Navigate } from "@/lib/router-compat";
 import { usePortalAuth } from "@/contexts/PortalAuthContext";
+import { portalStore, PortalUser } from "@/lib/portalClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { User, Lock, Eye, EyeOff, ShieldCheck, ArrowLeft } from "lucide-react";
+import { User, Lock, Eye, EyeOff, ShieldCheck, ArrowLeft, Wrench } from "lucide-react";
 import bgImage from "@/assets/Tela_Inicial_SGM-2.png.asset.json";
+
+// Token JWT falso (apenas DEV) com expiração longa, para o portalStore aceitar a sessão
+const devToken = () => {
+  const b64 = (o: object) =>
+    btoa(JSON.stringify(o)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return `${b64({ alg: "none", typ: "JWT" })}.${b64({ exp: Math.floor(Date.now() / 1000) + 8 * 3600, dev: true })}.dev`;
+};
 
 
 

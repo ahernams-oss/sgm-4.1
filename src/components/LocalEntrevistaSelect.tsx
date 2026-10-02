@@ -12,6 +12,7 @@ const QK = ["locais_entrevista"];
 export default function LocalEntrevistaSelect({ value, onChange, disabled }: { value: string; onChange: (v: string) => void; disabled?: boolean }) {
   const qc = useQueryClient();
   const [novo, setNovo] = useState<string | null>(null);
+  const [editando, setEditando] = useState<string | null>(null);
   const { data: locais = [] } = useQuery({
     queryKey: QK,
     queryFn: async () => {
@@ -37,11 +38,29 @@ export default function LocalEntrevistaSelect({ value, onChange, disabled }: { v
   const remover = async () => {
     const l = locais.find((x) => x.descricao === value);
     if (!l) return;
+    if (!window.confirm(`Excluir o local "${l.descricao}" da lista?`)) return;
     const { error } = await (supabase as any).from("locais_entrevista").delete().eq("id", l.id);
-    if (error) return toast.error("Erro ao remover: " + error.message);
+    if (error) return toast.error("Erro ao excluir: " + error.message);
     await qc.invalidateQueries({ queryKey: QK });
     onChange("");
-    toast.success("Local removido da lista.");
+    toast.success("Local excluído da lista.");
+  };
+
+  const salvarEdicao = async () => {
+    const l = locais.find((x) => x.descricao === value);
+    const d = (editando || "").trim();
+    if (!l) return setEditando(null);
+    if (!d) return toast.error("Informe o local.");
+    if (d !== l.descricao) {
+      if (locais.some((x) => x.id !== l.id && x.descricao.toLowerCase() === d.toLowerCase()))
+        return toast.error("Já existe um local com esse nome.");
+      const { error } = await (supabase as any).from("locais_entrevista").update({ descricao: d }).eq("id", l.id);
+      if (error) return toast.error("Erro ao editar: " + error.message);
+      await qc.invalidateQueries({ queryKey: QK });
+      toast.success("Local atualizado!");
+    }
+    onChange(d);
+    setEditando(null);
   };
 
   if (novo !== null) {

@@ -1,3 +1,4 @@
+import LocalEntrevistaSelect from "@/components/LocalEntrevistaSelect";
 import { lerArquivoBase64 } from "@/lib/compressFile";
 import { useParams, useNavigate } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";

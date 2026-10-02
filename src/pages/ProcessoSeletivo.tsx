@@ -6,7 +6,7 @@ import { formatNumeroPS } from "./ProcessosSeletivos";
 import { enviarWhatsApp } from "@/lib/whatsapp";
 import { useClientes } from "@/contexts/ClientesContext";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ArrowLeft, Plus, UserPlus, ClipboardCheck, ShieldCheck, CheckCircle2, XCircle, Clock, MinusCircle, Paperclip, FileText, Trash2, Pencil, CalendarDays, FileCheck, Zap, MoreVertical, Users } from "lucide-react";
+import { ArrowLeft, Plus, UserPlus, ClipboardCheck, ShieldCheck, CheckCircle2, XCircle, Clock, MinusCircle, Paperclip, FileText, Trash2, Pencil, CalendarDays, FileCheck, Zap, MoreVertical, Users, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -35,6 +35,8 @@ import {
   DocumentoContratacao,
   DOCUMENTOS_OBRIGATORIOS,
 } from "@/contexts/ProcessoSeletivoContext";
+import { useEmpresa } from "@/contexts/EmpresaContext";
+import { downloadPdfFichaCandidato, downloadPdfProcessoSeletivo } from "@/lib/gerarPdfProcessoSeletivo";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import ValidacaoAdmissao, { validacaoPodeEfetivar } from "@/components/ValidacaoAdmissao";
@@ -144,6 +146,30 @@ const ProcessoSeletivoPage = () => {
   const { funcionarios, addFuncionario } = useFuncionarios();
   const { tem } = usePermissao();
   const { cargos } = useCargos();
+  const { empresa } = useEmpresa();
+  const [gerandoPdf, setGerandoPdf] = useState(false);
+  const gerarRelatorioProcesso = async () => {
+    if (!processo) return;
+    setGerandoPdf(true);
+    try {
+      await downloadPdfProcessoSeletivo({
+        processo,
+        requisicao,
+        empresaLogoUrl: empresa?.logoUrl || undefined,
+      });
+    } finally {
+      setGerandoPdf(false);
+    }
+  };
+  const gerarFichaCandidato = async (c: Candidato) => {
+    if (!processo) return;
+    await downloadPdfFichaCandidato({
+      processo,
+      requisicao,
+      candidato: c,
+      empresaLogoUrl: empresa?.logoUrl || undefined,
+    });
+  };
   const [agenda, setAgenda] = useState<Record<string, { data: string; hora: string; local: string }>>({});
   const [enviandoAgenda, setEnviandoAgenda] = useState<string | null>(null);
   const podeAddCandidato = tem("processos_seletivos.adicionar_candidato");
@@ -561,9 +587,22 @@ const ProcessoSeletivoPage = () => {
           <h1 className="text-xl font-bold text-foreground">
             {requisicao.cargoNome} — {requisicao.unidade}
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Requisição de {requisicao.dataCriacao} · {processo.candidatos.length}/5 candidatos
-          </p>
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <p className="text-sm text-muted-foreground">
+                Requisição de {requisicao.dataCriacao} · {processo.candidatos.length}/5 candidatos
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1"
+              disabled={gerandoPdf || processo.candidatos.length === 0}
+              onClick={gerarRelatorioProcesso}
+            >
+              <Printer className="h-4 w-4" /> {gerandoPdf ? "Gerando PDF..." : "Relatório do Processo"}
+            </Button>
+          </div>
         </div>
 
         {/* Indicadores resumidos do processo */}
@@ -723,6 +762,9 @@ const ProcessoSeletivoPage = () => {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => gerarFichaCandidato(c)}>
+                                <Printer className="h-4 w-4 mr-2" /> Imprimir ficha do candidato
+                              </DropdownMenuItem>
                               {podeEditar && (
                                 <DropdownMenuItem onClick={() => openEditDialog(c)}>
                                   <Pencil className="h-4 w-4 mr-2" /> Editar candidato

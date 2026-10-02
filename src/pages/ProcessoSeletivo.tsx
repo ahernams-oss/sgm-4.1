@@ -146,6 +146,30 @@ const ProcessoSeletivoPage = () => {
   const { funcionarios, addFuncionario } = useFuncionarios();
   const { tem } = usePermissao();
   const { cargos } = useCargos();
+  const { empresa } = useEmpresa();
+  const [gerandoPdf, setGerandoPdf] = useState(false);
+  const gerarRelatorioProcesso = async () => {
+    if (!processo) return;
+    setGerandoPdf(true);
+    try {
+      await downloadPdfProcessoSeletivo({
+        processo,
+        requisicao,
+        empresaLogoUrl: empresa?.logoUrl || undefined,
+      });
+    } finally {
+      setGerandoPdf(false);
+    }
+  };
+  const gerarFichaCandidato = async (c: Candidato) => {
+    if (!processo) return;
+    await downloadPdfFichaCandidato({
+      processo,
+      requisicao,
+      candidato: c,
+      empresaLogoUrl: empresa?.logoUrl || undefined,
+    });
+  };
   const [agenda, setAgenda] = useState<Record<string, { data: string; hora: string; local: string }>>({});
   const [enviandoAgenda, setEnviandoAgenda] = useState<string | null>(null);
   const podeAddCandidato = tem("processos_seletivos.adicionar_candidato");

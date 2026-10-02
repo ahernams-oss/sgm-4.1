@@ -18,16 +18,19 @@ import { useEpisCatalogo } from "@/contexts/EpisCatalogoContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { usePermissao } from "@/hooks/usePermissao";
+import { useFuncionarios } from "@/contexts/FuncionariosContext";
 
 import type * as XLSXTypes from "xlsx";
 const getXLSX = async () => await import("xlsx");
 
 const niveis = ["I", "II", "III", "IV", "V"] as const;
 
-const emptyForm = { nome: "", descricao: "", nivel: "", missao: "", responsabilidades: "", perfilCompetencias: "", cbo: "" };
+const emptyForm = { nome: "", descricao: "", nivel: "", missao: "", responsabilidades: "", perfilCompetencias: "", cbo: "", entrevistadorFuncionarioId: "", entrevistadorNome: "" };
 
 const Cargos = () => {
   const { cargos, addCargo, updateCargo, deleteCargo } = useCargos();
+  const { funcionarios } = useFuncionarios();
+  const funcionariosAtivos = useMemo(() => [...funcionarios].filter((f: any) => f.status !== "Inativo").sort((a: any, b: any) => (a.nome || "").localeCompare(b.nome || "")), [funcionarios]);
   const { epis: catalogoEpis } = useEpisCatalogo();
   const { tem } = usePermissao();
   const podeCriar = tem("cargos.criar");
@@ -97,6 +100,8 @@ const Cargos = () => {
       responsabilidades: cargo.responsabilidades || "",
       perfilCompetencias: cargo.perfilCompetencias || "",
       cbo: cargo.cbo || "",
+      entrevistadorFuncionarioId: cargo.entrevistadorFuncionarioId || "",
+      entrevistadorNome: cargo.entrevistadorNome || "",
     });
     setFormOpen(true);
   };
@@ -376,6 +381,27 @@ const Cargos = () => {
                 <SelectContent>
                   {niveis.map((n) => (
                     <SelectItem key={n} value={n}>Nível {n}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="md:col-span-2">
+              <label className="field-label">Quem entrevista</label>
+              <Select
+                value={form.entrevistadorFuncionarioId || "__none"}
+                onValueChange={(v) => {
+                  const f: any = funcionarios.find((x: any) => x.id === v);
+                  setForm((prev) => ({ ...prev, entrevistadorFuncionarioId: v === "__none" ? "" : v, entrevistadorNome: v === "__none" ? "" : (f?.nome || "") }));
+                }}
+              >
+                <SelectTrigger><SelectValue placeholder="Selecione o funcionário" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none">— Nenhum —</SelectItem>
+                  {form.entrevistadorFuncionarioId && !funcionariosAtivos.some((f: any) => f.id === form.entrevistadorFuncionarioId) && (
+                    <SelectItem value={form.entrevistadorFuncionarioId}>{form.entrevistadorNome || "Funcionário"}</SelectItem>
+                  )}
+                  {funcionariosAtivos.map((f: any) => (
+                    <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

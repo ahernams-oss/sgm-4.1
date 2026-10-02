@@ -4,7 +4,7 @@ import { portalCall, fileToBase64 } from "@/lib/portalClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Upload, Plus, Trash2 } from "lucide-react";
+import { Upload, Plus, Trash2, Camera } from "lucide-react";
 import { toast } from "sonner";
 
 const TIPOS = [
@@ -22,6 +22,7 @@ export default function PortalCandDocumentos() {
   const [tipoCustom, setTipoCustom] = useState("");
   const [fila, setFila] = useState<FilaItem[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
 
   const load = () => portalCall<{ documentos: any[] }>("cand-doc-list").then((r) => setDocs(r.documentos));
   useEffect(() => { load().catch((e) => toast.error(e.message)); }, []);

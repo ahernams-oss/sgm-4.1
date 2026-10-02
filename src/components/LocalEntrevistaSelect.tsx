@@ -73,6 +73,16 @@ export default function LocalEntrevistaSelect({ value, onChange, disabled }: { v
     );
   }
 
+  if (editando !== null) {
+    return (
+      <div className="flex gap-1">
+        <Input autoFocus value={editando} onChange={(e) => setEditando(e.target.value)} onKeyDown={(e) => e.key === "Enter" && salvarEdicao()} placeholder="Editar local" />
+        <Button type="button" size="icon" onClick={salvarEdicao} title="Salvar alteração"><Check className="h-4 w-4" /></Button>
+        <Button type="button" size="icon" variant="outline" onClick={() => setEditando(null)} title="Cancelar"><X className="h-4 w-4" /></Button>
+      </div>
+    );
+  }
+
   const opcoes = value && !locais.some((l) => l.descricao === value) ? [{ id: "_atual", descricao: value }, ...locais] : locais;
   return (
     <div className="flex gap-1">
@@ -85,7 +95,10 @@ export default function LocalEntrevistaSelect({ value, onChange, disabled }: { v
       </Select>
       <Button type="button" size="icon" variant="outline" onClick={() => setNovo("")} disabled={disabled} title="Adicionar novo local"><Plus className="h-4 w-4" /></Button>
       {value && locais.some((l) => l.descricao === value) && (
-        <Button type="button" size="icon" variant="ghost" onClick={remover} disabled={disabled} title="Remover local da lista"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+        <>
+          <Button type="button" size="icon" variant="ghost" onClick={() => setEditando(value)} disabled={disabled} title="Editar local"><Pencil className="h-4 w-4" /></Button>
+          <Button type="button" size="icon" variant="ghost" onClick={remover} disabled={disabled} title="Excluir local da lista"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+        </>
       )}
     </div>
   );

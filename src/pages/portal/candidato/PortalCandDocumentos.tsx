@@ -44,6 +44,7 @@ export default function PortalCandDocumentos() {
     }
     if (novos.length) setFila((f) => [...f, ...novos]);
     if (fileRef.current) fileRef.current.value = "";
+    if (cameraRef.current) cameraRef.current.value = "";
   };
 
   const removerFila = (id: string) => setFila((f) => f.filter((x) => x.id !== id));
@@ -116,6 +117,17 @@ export default function PortalCandDocumentos() {
               />
               <Button type="button" variant="outline" onClick={() => fileRef.current?.click()}>
                 <Plus className="w-4 h-4 mr-1" /> Adicionar arquivo(s)
+              </Button>
+              <input
+                ref={cameraRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={(e) => adicionarArquivos(e.target.files)}
+                className="hidden"
+              />
+              <Button type="button" variant="outline" onClick={() => cameraRef.current?.click()}>
+                <Camera className="w-4 h-4 mr-1" /> Tirar foto
               </Button>
             </div>
             <p className="text-xs text-muted-foreground md:col-span-3">

@@ -77,11 +77,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SGM 5.1 — Sistema de Gestão Multissistêmico" },
-      { name: "description", content: "Sistema de gestão multissistêmico SGM 5.1." },
+      { title: "SGM 4.1 - Sistema de Gestão Lasant" },
+      { name: "description", content: "SGM 4.1 - Sistema de Gestão Lasant." },
       
-      { property: "og:title", content: "SGM 5.1" },
-      { property: "og:description", content: "Sistema de gestão multissistêmico SGM 5.1." },
+      { property: "og:title", content: "SGM 4.1 - Sistema de Gestão Lasant" },
+      { property: "og:description", content: "SGM 4.1 - Sistema de Gestão Lasant." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },

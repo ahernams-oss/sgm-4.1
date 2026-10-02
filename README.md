@@ -1,6 +1,6 @@
 # SGM Navigator
 
-Crie projeto SGM 5.1 e aguarde as coordenadas
+Crie projeto SGM 4.1 - Sistema de Gestão Lasant e aguarde as coordenadas
 
 This project was built with [Lovable](https://lovable.dev).
 

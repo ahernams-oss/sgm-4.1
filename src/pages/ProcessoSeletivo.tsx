@@ -49,6 +49,7 @@ import { useRequisicoes } from "@/contexts/RequisicaoContext";
 import RequisicaoHistoricoTimeline from "@/components/RequisicaoHistoricoTimeline";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFuncionarios } from "@/contexts/FuncionariosContext";
+import { useCargos } from "@/contexts/CargosContext";
 import { usePermissao } from "@/hooks/usePermissao";
 import { toast } from "sonner";
 import { isValidCPF } from "@/lib/validators";
@@ -142,6 +143,9 @@ const ProcessoSeletivoPage = () => {
   const { clientes } = useClientes();
   const { funcionarios, addFuncionario } = useFuncionarios();
   const { tem } = usePermissao();
+  const { cargos } = useCargos();
+  const [agenda, setAgenda] = useState<Record<string, { data: string; hora: string; local: string }>>({});
+  const [enviandoAgenda, setEnviandoAgenda] = useState<string | null>(null);
   const podeAddCandidato = tem("processos_seletivos.adicionar_candidato");
   const podeEditar = tem("processos_seletivos.editar");
   const podeAvaliar = tem("processos_seletivos.avaliar_candidato");
@@ -403,6 +407,10 @@ const ProcessoSeletivoPage = () => {
 
     await updateCandidato(processo!.id, candidato.id, updates);
 
+    if (statusField === "statusPsicologico" && (status === "aprovado" || status === "neutro")) {
+      void avisarEntrevistador([candidato.nome]);
+    }
+
     // Mapeamento de etapa para label
     const etapaMap: Record<string, string> = {
       statusPsicologico: "Entrevista Psicológica",
@@ -456,6 +464,56 @@ const ProcessoSeletivoPage = () => {
     const r = await enviarWhatsApp(candidato.telefone, msg);
     if (r.success) toast.success(`Aviso de aprovação enviado para ${candidato.nome}.`);
     else toast.error(`Falha ao enviar aviso: ${r.error}`);
+  };
+
+  const getEntrevistador = () => {
+    const cargo = cargos.find((c) => c.id === requisicao?.cargoId) ||
+      cargos.find((c) => (c.nome || "").trim().toLowerCase() === (requisicao?.cargoNome || "").trim().toLowerCase());
+    if (!cargo?.entrevistadorFuncionarioId) return null;
+    const f: any = funcionarios.find((x: any) => x.id === cargo.entrevistadorFuncionarioId);
+    const tel = [f?.telefoneWhatsapp, f?.telefone].map((t: string) => (t || "").replace(/\D/g, "")).find((t: string) => t.length > 4) || "";
+    return { nome: f?.nome || cargo.entrevistadorNome || "", telefone: tel };
+  };
+
+  const avisarEntrevistador = async (nomes: string[]) => {
+    const ent = getEntrevistador();
+    if (!ent) { toast.warning("Cargo sem \"Quem entrevista\" cadastrado — entrevistador não foi avisado."); return; }
+    if (!ent.telefone) { toast.warning(`${ent.nome} não tem telefone/WhatsApp cadastrado — não foi avisado.`); return; }
+    const lista = nomes.map((n) => `• ${n}`).join("\n");
+    const msg =
+      `Olá, ${ent.nome}!\n\n` +
+      `A psicóloga aprovou ${nomes.length > 1 ? "os seguintes candidatos" : "o seguinte candidato"} no processo seletivo ${formatNumeroPS(processo?.numero, processo?.dataCriacao)}` +
+      (requisicao?.cargoNome ? ` para o cargo de ${requisicao.cargoNome}` : "") + `:\n\n${lista}\n\n` +
+      `Acesse o SGM, aba "Agendamento" do processo seletivo, para informar dia, horário e local da entrevista técnica.\n\nLASANT CONSTRUÇÕES LTDA.`;
+    const r = await enviarWhatsApp(ent.telefone, msg);
+    if (r.success) toast.success(`Entrevistador ${ent.nome} avisado por WhatsApp.`);
+    else toast.error(`Falha ao avisar o entrevistador: ${r.error}`);
+  };
+
+  const salvarAgendamento = async (c: Candidato) => {
+    const a = agenda[c.id] || { data: c.agendamentoData || "", hora: c.agendamentoHora || "", local: c.agendamentoLocal || "" };
+    if (!a.data || !a.hora || !a.local.trim()) { toast.error("Informe dia, horário e local."); return; }
+    setEnviandoAgenda(c.id);
+    try {
+      const dataBR = a.data.split("-").reverse().join("/");
+      let enviadoEm: string | undefined = c.agendamentoEnviadoEm;
+      if (c.telefone) {
+        const msg =
+          `Olá, ${c.nome}! Tudo bem?\n\n` +
+          `Sua entrevista técnica do processo seletivo da LASANT CONSTRUÇÕES` +
+          (requisicao?.cargoNome ? ` para a vaga de ${requisicao.cargoNome}` : "") + ` foi agendada:\n\n` +
+          `📅 Dia: ${dataBR}\n🕒 Horário: ${a.hora}\n📍 Local: ${a.local.trim()}\n\n` +
+          `Por favor, chegue com antecedência e leve um documento com foto.\n\nDepartamento de Recursos Humanos\nLASANT CONSTRUÇÕES LTDA.`;
+        const r = await enviarWhatsApp(c.telefone, msg);
+        if (r.success) { enviadoEm = new Date().toISOString(); toast.success(`Agendamento enviado para o WhatsApp de ${c.nome}.`); }
+        else toast.error(`Agendamento salvo, mas falhou o envio do WhatsApp: ${r.error}`);
+      } else {
+        toast.warning("Agendamento salvo, mas o candidato não tem telefone cadastrado.");
+      }
+      await updateCandidato(processo!.id, c.id, { agendamentoData: a.data, agendamentoHora: a.hora, agendamentoLocal: a.local.trim(), agendamentoEnviadoEm: enviadoEm });
+    } finally {
+      setEnviandoAgenda(null);
+    }
   };
 
   const handleAprovacaoExpressa = async (candidato: Candidato) => {
@@ -622,6 +680,7 @@ const ProcessoSeletivoPage = () => {
           <TabsList className="mb-4">
             <TabsTrigger value="candidatos">Candidatos</TabsTrigger>
             <TabsTrigger value="etapa1">1. Psicológica</TabsTrigger>
+            <TabsTrigger value="agendamento">Agendamento</TabsTrigger>
             <TabsTrigger value="etapa2">2. Técnica</TabsTrigger>
             <TabsTrigger value="etapa3">3. Liberação</TabsTrigger>
             <TabsTrigger value="etapa4">4. Contratação</TabsTrigger>
@@ -827,6 +886,48 @@ const ProcessoSeletivoPage = () => {
           </TabsContent>
 
           {/* TAB: Etapa 2 – Entrevista Técnica */}
+          <TabsContent value="agendamento">
+            <h2 className="text-lg font-semibold text-foreground mb-1">Agendamento da Entrevista Técnica</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Entrevistador: <strong>{getEntrevistador()?.nome || "não definido no cadastro do cargo"}</strong>. Ao salvar, o candidato recebe por WhatsApp o dia, horário e local.
+            </p>
+            {processo.candidatos.filter((c) => c.etapaAtual === "entrevista_tecnica").length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nenhum candidato aguardando entrevista técnica.</p>
+            ) : (
+              <div className="grid gap-4">
+                {processo.candidatos.filter((c) => c.etapaAtual === "entrevista_tecnica").map((c) => {
+                  const a = agenda[c.id] || { data: c.agendamentoData || "", hora: c.agendamentoHora || "", local: c.agendamentoLocal || "" };
+                  const set = (k: "data" | "hora" | "local", v: string) => setAgenda((p) => ({ ...p, [c.id]: { ...a, [k]: v } }));
+                  return (
+                    <Card key={c.id}>
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm flex flex-wrap items-center justify-between gap-2">
+                          <span>{c.nome} {c.telefone && <span className="text-muted-foreground font-normal">· {c.telefone}</span>}</span>
+                          {c.agendamentoEnviadoEm ? (
+                            <Badge variant="outline" className={statusBadge.aprovado}>WhatsApp enviado em {new Date(c.agendamentoEnviadoEm).toLocaleString("pt-BR")}</Badge>
+                          ) : c.agendamentoData ? (
+                            <Badge variant="outline" className={statusBadge.pendente}>Agendado (não enviado)</Badge>
+                          ) : (
+                            <Badge variant="outline" className={statusBadge.pendente}>Sem agendamento</Badge>
+                          )}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="grid gap-3 md:grid-cols-[160px_120px_1fr_auto] items-end">
+                        <div><label className="text-xs font-medium">Dia</label><Input type="date" value={a.data} onChange={(e) => set("data", e.target.value)} disabled={!podeAvaliar} /></div>
+                        <div><label className="text-xs font-medium">Horário</label><Input type="time" value={a.hora} onChange={(e) => set("hora", e.target.value)} disabled={!podeAvaliar} /></div>
+                        <div><label className="text-xs font-medium">Local</label><Input value={a.local} onChange={(e) => set("local", e.target.value)} placeholder="Endereço / sala da entrevista" disabled={!podeAvaliar} /></div>
+                        <Button onClick={() => salvarAgendamento(c)} disabled={!podeAvaliar || enviandoAgenda === c.id}>
+                          <CalendarDays className="w-4 h-4 mr-1" />
+                          {enviandoAgenda === c.id ? "Enviando..." : c.agendamentoEnviadoEm ? "Reagendar e reenviar" : "Salvar e enviar WhatsApp"}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </TabsContent>
+
           <TabsContent value="etapa2">
             <h2 className="text-lg font-semibold text-foreground mb-4">Entrevista Técnica</h2>
             {processo.candidatos.length === 0 ? (

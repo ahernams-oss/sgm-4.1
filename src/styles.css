@@ -58,6 +58,7 @@
   --color-login-panel-accent: hsl(var(--login-panel-accent));
   --color-login-field: hsl(var(--login-field));
   --color-login-field-foreground: hsl(var(--login-field-foreground));
+  --color-login-field-highlight: hsl(var(--login-field-highlight));
   --color-table-header: hsl(var(--table-header));
   --color-table-header-foreground: hsl(var(--table-header-foreground));
   --color-table-header-light: hsl(var(--table-header-light));
@@ -117,6 +118,7 @@
   --login-panel-accent: 348 42% 48%;
   --login-field: 0 0% 92%;
   --login-field-foreground: 218 18% 42%;
+  --login-field-highlight: 222 65% 28%;
   --table-header: 220 58% 19%;
   --table-header-foreground: 210 40% 96%;
   --table-header-light: 205 88% 91%;

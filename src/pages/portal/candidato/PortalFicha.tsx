@@ -536,7 +536,12 @@ export default function PortalFicha() {
               <CardTitle>Dados Bancários</CardTitle>
               <p className="text-sm text-destructive font-medium">Preencha com muita atenção!</p>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <CardContent className="space-y-3">
+              <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900">
+                <p>A LASANT é parceira do ITAÚ e, caso você já possua conta no Banco ITAÚ, ela será usada para o crédito do seu salário.</p>
+                <p className="mt-1">Caso não possua ou não deseje utilizar sua conta atual do Banco ITAÚ, informe os dados da conta onde a empresa efetuará o crédito do seu salário até a abertura oficial da conta salário ITAÚ, que deverá ser informada imediatamente ao RH da LASANT para registro em sistema.</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               <F l="Banco" v={bc.banco} on={(v: string) => setBc({ ...bc, banco: v })} />
               <F l="Agência" v={bc.agencia} on={(v: string) => setBc({ ...bc, agencia: v })} />
               <F l="Conta" v={bc.conta} on={(v: string) => setBc({ ...bc, conta: v })} />
@@ -550,6 +555,7 @@ export default function PortalFicha() {
                 </Select>
               </div>
               <F l="Chave PIX" v={bc.chavePix} on={(v: string) => setBc({ ...bc, chavePix: v })} />
+            </div>
             </CardContent>
           </Card>
           <Card>

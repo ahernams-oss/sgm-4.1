@@ -1,12 +1,20 @@
 import { useState } from "react";
 import { useNavigate, Link, Navigate } from "@/lib/router-compat";
 import { usePortalAuth } from "@/contexts/PortalAuthContext";
+import { portalStore, PortalUser } from "@/lib/portalClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { User, Lock, Eye, EyeOff, ShieldCheck, ArrowLeft } from "lucide-react";
+import { User, Lock, Eye, EyeOff, ShieldCheck, ArrowLeft, Wrench } from "lucide-react";
 import bgImage from "@/assets/Tela_Inicial_SGM-2.png.asset.json";
+
+// Token JWT falso (apenas DEV) com expiração longa, para o portalStore aceitar a sessão
+const devToken = () => {
+  const b64 = (o: object) =>
+    btoa(JSON.stringify(o)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  return `${b64({ alg: "none", typ: "JWT" })}.${b64({ exp: Math.floor(Date.now() / 1000) + 8 * 3600, dev: true })}.dev`;
+};
 
 
 
@@ -38,6 +46,18 @@ export default function PortalLogin() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const entrarDev = (tipo: PortalUser["tipo"]) => {
+    const u: PortalUser = {
+      tipo,
+      nome: tipo === "funcionario" ? "Funcionário DEV" : "Candidato DEV",
+      cpf: "00000000000",
+    };
+    portalStore.set(devToken(), u);
+    window.dispatchEvent(new Event("storage"));
+    toast.success(`Modo DEV: entrando como ${tipo}`);
+    navigate(tipo === "funcionario" ? "/portal/funcionario" : "/portal/candidato");
   };
 
   return (
@@ -151,6 +171,35 @@ export default function PortalLogin() {
               <span className="text-sky-400/70 mx-1">•</span> Inovação
             </p>
           </div>
+
+          {/* Acesso DEV — visível apenas em ambiente de desenvolvimento */}
+          {import.meta.env.DEV && (
+            <div className="mt-6 pt-4 border-t border-dashed border-amber-400/40">
+              <p className="text-amber-300/90 text-xs font-semibold text-center mb-3 flex items-center justify-center gap-1.5">
+                <Wrench className="h-3.5 w-3.5" /> Modo DEV (sem senha)
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 border-amber-400/50 text-amber-200 hover:bg-amber-400/10"
+                  onClick={() => entrarDev("funcionario")}
+                >
+                  Funcionário
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 border-amber-400/50 text-amber-200 hover:bg-amber-400/10"
+                  onClick={() => entrarDev("candidato")}
+                >
+                  Candidato
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

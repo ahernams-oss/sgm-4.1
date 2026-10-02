@@ -78,7 +78,7 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
-                className="h-11 rounded-full border-transparent bg-login-field pl-12 pr-5 text-login-field-foreground shadow-none placeholder:text-login-field-foreground/80 focus-visible:ring-2 focus-visible:ring-login-brand/30 sm:h-12"
+                className="h-11 rounded-full border-transparent bg-login-field pl-12 pr-5 font-bold text-login-field-highlight shadow-none placeholder:font-normal placeholder:text-login-field-foreground/80 focus-visible:ring-2 focus-visible:ring-login-brand/30 sm:h-12"
               />
             </div>
 

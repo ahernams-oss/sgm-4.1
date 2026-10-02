@@ -88,6 +88,7 @@ const EsqueciSenha = lazy(() => import("./pages/EsqueciSenha.tsx"));
 const RedefinirSenha = lazy(() => import("./pages/RedefinirSenha.tsx"));
 const ProcessoSeletivo = lazy(() => import("./pages/ProcessoSeletivo.tsx"));
 const ProcessosSeletivos = lazy(() => import("./pages/ProcessosSeletivos.tsx"));
+const RelatoriosRH = lazy(() => import("./pages/rh/RelatoriosRH.tsx"));
 const Sco = lazy(() => import("./pages/Sco.tsx"));
 const I0Page = lazy(() => import("./pages/I0.tsx"));
 const CategoriasCompras = lazy(() => import("./pages/CategoriasCompras.tsx"));
@@ -267,6 +268,7 @@ function ProtectedAppRoutes() {
         <Route path="/epis/prontuario" element={<RotaProtegida perm="funcionarios"><EpisDevolucoesProvider><ProntuarioEpis /></EpisDevolucoesProvider></RotaProtegida>} />
         <Route path="/rh/treinamentos" element={<RotaProtegida perm="rh_treinamentos"><Treinamentos /></RotaProtegida>} />
         <Route path="/rh/solicitacoes-portal" element={<RotaProtegida perm="rh_solicitacoes_portal"><SolicitacoesPortalRH /></RotaProtegida>} />
+        <Route path="/rh/relatorios" element={<RotaProtegida perm="rh_relatorios"><RelatoriosRH /></RotaProtegida>} />
         <Route path="/rh/importar-holerites" element={<RotaProtegida perm="rh_holerites"><ImportarHolerites /></RotaProtegida>} />
         <Route path="/rh/holerites-processados" element={<RotaProtegida perm="rh_holerites"><HoleritesProcessados /></RotaProtegida>} />
         <Route path="/exames" element={<RotaProtegida perm="funcionarios"><ExamesPage /></RotaProtegida>} />

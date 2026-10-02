@@ -8,6 +8,7 @@ export const ACCESS_ROUTES: { perm: string; url: string }[] = [
   { perm: "rh_holerites", url: "/rh/holerites-processados" },
   { perm: "rh_treinamentos", url: "/rh/treinamentos" },
   { perm: "rh_solicitacoes_portal", url: "/rh/solicitacoes-portal" },
+  { perm: "rh_relatorios", url: "/rh/relatorios" },
   { perm: "epis_devolucoes", url: "/epis/devolucoes" },
   { perm: "mapa_funcionarios", url: "/mapa-funcionarios" },
   { perm: "avaliacoes_desempenho", url: "/avaliacoes-desempenho" },

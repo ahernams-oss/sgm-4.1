@@ -133,7 +133,7 @@ export default function PortalFicha() {
     contaBancaria: "", dataInicio: "", dataTermino: "",
     empresaAnteriorDescontava: "", podeApresentarCopia: "", observacoes: "", anexos: [] as any[],
   });
-  const novoBeneficiario = () => ({ nome: "", cpf: "", representanteNome: "", representanteCpf: "", processo: "", percentualOuValor: "" });
+  const novoBeneficiario = () => ({ nome: "", cpf: "", dataNascimento: "", representanteNome: "", representanteCpf: "", representanteDataNascimento: "", processo: "", percentualOuValor: "" });
 
 
 
@@ -667,6 +667,7 @@ export default function PortalFicha() {
                                 onChange={(e) => upd({ cpf: maskCPF(e.target.value) })}
                                 className={b.cpf && !isValidCPF(b.cpf) ? "border-destructive focus-visible:ring-destructive" : ""} />
                             </div>
+                            <div className="md:col-span-2"><Label className="text-xs">Data de nascimento do alimentando</Label><Input type="date" className="md:w-1/2" value={b.dataNascimento || ""} onChange={(e) => upd({ dataNascimento: e.target.value })} /></div>
                             <div><Label className="text-xs">Nome do representante legal</Label><Input value={b.representanteNome || ""} onChange={(e) => upd({ representanteNome: e.target.value })} /></div>
                             <div>
                               <Label className="text-xs">CPF do representante legal</Label>
@@ -674,6 +675,7 @@ export default function PortalFicha() {
                                 onChange={(e) => upd({ representanteCpf: maskCPF(e.target.value) })}
                                 className={b.representanteCpf && !isValidCPF(b.representanteCpf) ? "border-destructive focus-visible:ring-destructive" : ""} />
                             </div>
+                            <div className="md:col-span-2"><Label className="text-xs">Data de nascimento do representante legal</Label><Input type="date" className="md:w-1/2" value={b.representanteDataNascimento || ""} onChange={(e) => upd({ representanteDataNascimento: e.target.value })} /></div>
                             <div><Label className="text-xs">Processo/documento deste alimentando</Label><Input value={b.processo || ""} onChange={(e) => upd({ processo: e.target.value })} placeholder="Opcional se já informado acima" /></div>
                             <div><Label className="text-xs">Percentual (%) ou valor</Label><Input value={b.percentualOuValor || ""} onChange={(e) => upd({ percentualOuValor: e.target.value })} placeholder="Ex.: 20% ou R$ 500,00" /></div>
                           </div>

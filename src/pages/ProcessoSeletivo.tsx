@@ -587,9 +587,22 @@ const ProcessoSeletivoPage = () => {
           <h1 className="text-xl font-bold text-foreground">
             {requisicao.cargoNome} — {requisicao.unidade}
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Requisição de {requisicao.dataCriacao} · {processo.candidatos.length}/5 candidatos
-          </p>
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <p className="text-sm text-muted-foreground">
+                Requisição de {requisicao.dataCriacao} · {processo.candidatos.length}/5 candidatos
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1"
+              disabled={gerandoPdf || processo.candidatos.length === 0}
+              onClick={gerarRelatorioProcesso}
+            >
+              <Printer className="h-4 w-4" /> {gerandoPdf ? "Gerando PDF..." : "Relatório do Processo"}
+            </Button>
+          </div>
         </div>
 
         {/* Indicadores resumidos do processo */}

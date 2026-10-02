@@ -706,7 +706,7 @@ export default function PortalFicha() {
                       </Select>
                     </div>
                     <div>
-                      <Label className="text-xs">Pode apresentar cópia integral e atualizada do documento?</Label>
+                      <Label className="text-xs">Deseja enviar cópia da decisão judicial ou acordo homologado?</Label>
                       <Select value={pensao.podeApresentarCopia || ""} onValueChange={(v) => setPensao({ ...pensao, podeApresentarCopia: v })}>
                         <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
                         <SelectContent>

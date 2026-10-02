@@ -116,6 +116,11 @@ export async function portalCall<T = any>(action: string, payload: Record<string
     throw new Error(SESSION_EXPIRED_MESSAGE);
   }
 
+  // Sessão simulada do Modo DEV: não chama o servidor (token falso derrubaria a sessão).
+  if (!isPublicAction && (decodeTokenPayload(token) as { dev?: boolean } | null)?.dev) {
+    throw new Error("Modo DEV: dados reais indisponíveis nesta sessão simulada.");
+  }
+
   const { data, error } = await supabase.functions.invoke("portal-api", {
     body: { action, ...payload },
     headers: token ? { "x-portal-token": token } : undefined,

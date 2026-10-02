@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate, Navigate } from "@/lib/router-compat";
 import { usePortalAuth } from "@/contexts/PortalAuthContext";
 import { Button } from "@/components/ui/button";
 import { LogOut, User } from "lucide-react";
-import logoLasant from "@/assets/Logo_Lasant-2.png.asset.json";
+import logoLasant from "@/assets/Logo_Lasant.png";
 
 interface Props {
   children: ReactNode;
@@ -57,7 +57,7 @@ export default function PortalLayout({ children, requireTipo }: Props) {
         </div>
         <nav className="max-w-5xl mx-auto px-4 flex gap-1 overflow-x-auto text-sm items-center">
           <Link to={user.tipo === "funcionario" ? "/portal/funcionario" : "/portal/candidato"} className="flex items-center">
-            <img src={logoLasant.url} alt="Lasant" className="h-9 w-auto mr-[6cm]" />
+            <img src={logoLasant} alt="Lasant" className="h-9 w-auto mr-[6cm]" />
           </Link>
           {menu.map((m: any) => {
             const active = loc.pathname === m.to;

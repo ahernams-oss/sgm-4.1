@@ -19,7 +19,7 @@ const corsHeaders = {
 }
 
 // Configuration
-const SITE_NAME = "Lasant SGM 5.1"
+const SITE_NAME = "SGM 4.1 - Sistema de Gestão Lasant"
 const SENDER_DOMAIN = "notify.lasant.com.br"
 const ROOT_DOMAIN = "lasant.com.br"
 const FROM_DOMAIN = "lasant.com.br"

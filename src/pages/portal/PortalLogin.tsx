@@ -48,6 +48,18 @@ export default function PortalLogin() {
     }
   };
 
+  const entrarDev = (tipo: PortalUser["tipo"]) => {
+    const u: PortalUser = {
+      tipo,
+      nome: tipo === "funcionario" ? "Funcionário DEV" : "Candidato DEV",
+      cpf: "00000000000",
+    };
+    portalStore.set(devToken(), u);
+    window.dispatchEvent(new Event("storage"));
+    toast.success(`Modo DEV: entrando como ${tipo}`);
+    navigate(tipo === "funcionario" ? "/portal/funcionario" : "/portal/candidato");
+  };
+
   return (
     <div
       className="min-h-screen w-full flex items-center justify-center p-4 sm:p-8 relative bg-cover bg-center bg-no-repeat"

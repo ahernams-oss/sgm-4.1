@@ -1,0 +1,1 @@
+ALTER TABLE public.cargos ADD COLUMN IF NOT EXISTS entrevistador_funcionario_id uuid, ADD COLUMN IF NOT EXISTS entrevistador_nome text;

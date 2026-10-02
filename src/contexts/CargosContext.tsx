@@ -13,6 +13,7 @@ export interface Cargo {
   nivel: string; dataBaseSalario: string; salarios: SalarioDataBase[];
   missao: string; responsabilidades: string; perfilCompetencias: string;
   anexos: AnexoCargo[]; nrs: NrCargo[]; episPadrao: EpiPadraoCargo[];
+  entrevistadorFuncionarioId?: string; entrevistadorNome?: string;
 }
 
 interface CargosContextType {
@@ -29,6 +30,7 @@ const rowToCargo = (r: any): Cargo => ({
   salarios: r.salarios ?? [], missao: r.missao ?? "", responsabilidades: r.responsabilidades ?? "",
   perfilCompetencias: r.perfil_competencias ?? "", anexos: r.anexos ?? [], nrs: r.nrs ?? [],
   episPadrao: r.epis_padrao ?? [],
+  entrevistadorFuncionarioId: r.entrevistador_funcionario_id ?? "", entrevistadorNome: r.entrevistador_nome ?? "",
 });
 
 const cargoToRow = (c: Omit<Cargo, "id">) => ({
@@ -37,6 +39,8 @@ const cargoToRow = (c: Omit<Cargo, "id">) => ({
   missao: c.missao, responsabilidades: c.responsabilidades,
   perfil_competencias: c.perfilCompetencias, anexos: c.anexos as any, nrs: c.nrs as any,
   epis_padrao: (c.episPadrao ?? []) as any,
+  entrevistador_funcionario_id: c.entrevistadorFuncionarioId || null,
+  entrevistador_nome: c.entrevistadorFuncionarioId ? (c.entrevistadorNome || null) : null,
 });
 
 const QK = ["cargos"] as const;

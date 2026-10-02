@@ -303,6 +303,7 @@ export async function downloadPdfFichaCandidato(opts: PdfProcessoOpts): Promise<
 export async function downloadPdfProcessoSeletivo(opts: CabecalhoOpts): Promise<void> {
   const { jsPDF: JsPDF } = await import("jspdf");
   const autoTable = (await import("jspdf-autotable")).default;
+  await prepararAutoTable();
   const doc: jsPDF = new JsPDF({ compress: true });
 
   let y = await desenharCabecalhoPadrao(doc, {

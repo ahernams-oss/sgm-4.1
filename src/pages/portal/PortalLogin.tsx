@@ -171,6 +171,35 @@ export default function PortalLogin() {
               <span className="text-sky-400/70 mx-1">•</span> Inovação
             </p>
           </div>
+
+          {/* Acesso DEV — visível apenas em ambiente de desenvolvimento */}
+          {import.meta.env.DEV && (
+            <div className="mt-6 pt-4 border-t border-dashed border-amber-400/40">
+              <p className="text-amber-300/90 text-xs font-semibold text-center mb-3 flex items-center justify-center gap-1.5">
+                <Wrench className="h-3.5 w-3.5" /> Modo DEV (sem senha)
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 border-amber-400/50 text-amber-200 hover:bg-amber-400/10"
+                  onClick={() => entrarDev("funcionario")}
+                >
+                  Funcionário
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 border-amber-400/50 text-amber-200 hover:bg-amber-400/10"
+                  onClick={() => entrarDev("candidato")}
+                >
+                  Candidato
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

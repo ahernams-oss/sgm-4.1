@@ -159,6 +159,13 @@ export const MODULOS_SISTEMA: GrupoPermissao[] = [
         ],
       },
       {
+        key: "rh_relatorios",
+        label: "Relatórios de RH",
+        acoes: [
+          { key: "rh_relatorios.exportar", label: "Pode Exportar Relatórios de RH (PDF/Excel)" },
+        ],
+      },
+      {
         key: "epis_devolucoes",
         label: "Devolução de EPIs",
         acoes: [

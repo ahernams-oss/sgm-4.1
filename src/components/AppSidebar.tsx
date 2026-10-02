@@ -93,6 +93,7 @@ const menuItems = [
       { title: "Avaliações de Desempenho", url: "/avaliacoes-desempenho", icon: ClipboardCheck, perm: "avaliacoes_desempenho" },
       { title: "Treinamentos", url: "/rh/treinamentos", icon: GraduationCap, perm: "rh_treinamentos" },
       { title: "Solicitações do Portal", url: "/rh/solicitacoes-portal", icon: FileText, perm: "rh_solicitacoes_portal" },
+      { title: "Relatórios de RH", url: "/rh/relatorios", icon: FileText, perm: "rh_relatorios" },
       { title: "Importar Holerites", url: "/rh/importar-holerites", icon: FileText, perm: "rh_holerites" },
       { title: "Holerites Processados", url: "/rh/holerites-processados", icon: FileText, perm: "rh_holerites" },
     ],

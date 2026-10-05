@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useClientes, type Cliente } from "@/contexts/ClientesContext";
@@ -65,15 +64,24 @@ export default function MapaClientes() {
   const [progress, setProgress] = useState({ done: 0, total: 0 });
   const [busca, setBusca] = useState("");
   const mapRef = useRef<L.Map | null>(null);
-  const [mapKey, setMapKey] = useState(0);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const layerRef = useRef<L.LayerGroup | null>(null);
 
-  // Ao esconder/desmontar a tela, destrói o mapa para o Leaflet liberar o container;
-  // ao reaparecer, cria um container novo (evita "Map container is already initialized").
+  // Mapa criado direto pelo Leaflet: sempre destruído ao sair e recriado ao voltar.
   useEffect(() => {
-    setMapKey((k) => k + 1);
+    const el = containerRef.current as any;
+    if (!el) return;
+    if (el._leaflet_id) delete el._leaflet_id;
+    const map = L.map(el, { center: RJ_CENTER, zoom: 8 });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+    layerRef.current = L.layerGroup().addTo(map);
+    mapRef.current = map;
     return () => {
-      try { mapRef.current?.remove(); } catch { /* já removido */ }
+      try { map.remove(); } catch { /* já removido */ }
       mapRef.current = null;
+      layerRef.current = null;
     };
   }, []);
 
@@ -132,6 +140,24 @@ export default function MapaClientes() {
     setCache({});
     toast.success("Cache de geolocalização limpo.");
   };
+
+  useEffect(() => {
+    const layer = layerRef.current;
+    if (!layer) return;
+    layer.clearLayers();
+    const esc = (v?: string) => String(v ?? "").replace(/[&<>"']/g, (ch) => `&#${ch.charCodeAt(0)};`);
+    pontos.forEach(({ cliente: c, lat, lng }) => {
+      const linhas = [
+        `<p style="font-weight:600">${esc(c.nomeFantasia || c.nome)}</p>`,
+        c.nomeFantasia && c.nome ? `<p style="font-size:11px;opacity:.7">${esc(c.nome)}</p>` : "",
+        `<p>${esc([c.logradouro, c.numero].filter(Boolean).join(", "))}</p>`,
+        `<p>${esc([c.bairro, c.cidade, c.uf].filter(Boolean).join(" - "))}</p>`,
+        c.cep ? `<p>CEP: ${esc(c.cep)}</p>` : "",
+        c.cnpj ? `<p style="font-size:11px">CNPJ: ${esc(c.cnpj)}</p>` : "",
+      ].join("");
+      L.marker([lat, lng]).bindPopup(`<div style="font-size:13px">${linhas}</div>`).addTo(layer);
+    });
+  }, [pontos]);
 
   useEffect(() => {
     if (mapRef.current && pontos.length) {
@@ -201,34 +227,7 @@ export default function MapaClientes() {
         </CardHeader>
         <CardContent className="p-0">
           <div className="h-[600px] w-full rounded-b-lg overflow-hidden">
-            {mapKey > 0 && <MapContainer
-              key={mapKey}
-              center={RJ_CENTER}
-              zoom={8}
-              style={{ height: "100%", width: "100%" }}
-              ref={(m) => { if (m) mapRef.current = m; }}
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              {pontos.map(({ cliente, lat, lng }) => (
-                <Marker key={cliente.id} position={[lat, lng]}>
-                  <Popup>
-                    <div className="space-y-1 text-sm">
-                      <p className="font-semibold">{cliente.nomeFantasia || cliente.nome}</p>
-                      {cliente.nomeFantasia && cliente.nome && (
-                        <p className="text-xs text-muted-foreground">{cliente.nome}</p>
-                      )}
-                      <p>{[cliente.logradouro, cliente.numero].filter(Boolean).join(", ")}</p>
-                      <p>{[cliente.bairro, cliente.cidade, cliente.uf].filter(Boolean).join(" - ")}</p>
-                      {cliente.cep && <p>CEP: {cliente.cep}</p>}
-                      {cliente.cnpj && <p className="text-xs">CNPJ: {cliente.cnpj}</p>}
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>}
+            <div ref={containerRef} style={{ height: "100%", width: "100%" }} />
           </div>
         </CardContent>
       </Card>

@@ -9,8 +9,33 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Upload, FileText, CheckCircle2, AlertCircle, XCircle } from "lucide-react";
+import { Loader2, Upload, FileText, CheckCircle2, AlertCircle, XCircle, Download } from "lucide-react";
 import { toast } from "sonner";
+
+const baixarModelo = async () => {
+  const X = await import("xlsx");
+  const head = ["CPF", "Nome", "Tipo", "Salário Base", "Horas", "Horas Extras", "Valor Horas Extras", "Total de Vencimentos", "Total de Descontos", "Valor Líquido"];
+  const ws = X.utils.aoa_to_sheet([
+    head,
+    ["123.456.789-00", "Fulano de Tal (exemplo - apague esta linha)", "folha", 2500, 220, 10, 170.45, 2670.45, 450.3, 2220.15],
+  ]);
+  ws["!cols"] = head.map((h, i) => ({ wch: i === 1 ? 40 : Math.max(14, h.length + 2) }));
+  const inst = X.utils.aoa_to_sheet([
+    ["Instruções de preenchimento"],
+    [""],
+    ["• Preencha uma linha por funcionário na aba \"Holerites\". Não altere os nomes das colunas."],
+    ["• CPF: com ou sem pontuação. É usado para localizar o funcionário."],
+    ["• Tipo: folha, 13o, ferias, rescisao ou outros (em branco = folha)."],
+    ["• Valores em reais, apenas números (ex.: 2500,00). Horas em número (ex.: 220)."],
+    ["• Mês e ano são escolhidos na tela antes de enviar a planilha."],
+  ]);
+  inst["!cols"] = [{ wch: 90 }];
+  const wb = X.utils.book_new();
+  X.utils.book_append_sheet(wb, ws, "Holerites");
+  X.utils.book_append_sheet(wb, inst, "Instruções");
+  X.writeFile(wb, "modelo_importacao_holerites.xlsx", { compression: true });
+  toast.success("Planilha modelo baixada!");
+};
 
 interface Item {
   id: string;
@@ -171,7 +196,10 @@ export default function ImportarHolerites() {
             />
             <p className="text-xs text-muted-foreground mt-1">
               Excel: colunas CPF, Nome, Tipo, Salário Base, Horas, Horas Extras, Valor Horas Extras,
-              Total de Vencimentos, Total de Descontos e Valor Líquido.
+              Total de Vencimentos, Total de Descontos e Valor Líquido.{" "}
+              <button type="button" onClick={baixarModelo} className="inline-flex items-center gap-1 text-primary font-medium hover:underline">
+                <Download className="h-3.5 w-3.5" /> Baixar planilha modelo
+              </button>
             </p>
           </div>
           <div className="md:col-span-4">

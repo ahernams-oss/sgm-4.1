@@ -65,6 +65,17 @@ export default function MapaClientes() {
   const [progress, setProgress] = useState({ done: 0, total: 0 });
   const [busca, setBusca] = useState("");
   const mapRef = useRef<L.Map | null>(null);
+  const [mapKey, setMapKey] = useState(0);
+
+  // Ao esconder/desmontar a tela, destrói o mapa para o Leaflet liberar o container;
+  // ao reaparecer, cria um container novo (evita "Map container is already initialized").
+  useEffect(() => {
+    setMapKey((k) => k + 1);
+    return () => {
+      try { mapRef.current?.remove(); } catch { /* já removido */ }
+      mapRef.current = null;
+    };
+  }, []);
 
   const filtrados = useMemo(() => {
     const q = busca.toLowerCase().trim();
@@ -190,7 +201,8 @@ export default function MapaClientes() {
         </CardHeader>
         <CardContent className="p-0">
           <div className="h-[600px] w-full rounded-b-lg overflow-hidden">
-            <MapContainer
+            {mapKey > 0 && <MapContainer
+              key={mapKey}
               center={RJ_CENTER}
               zoom={8}
               style={{ height: "100%", width: "100%" }}
@@ -216,7 +228,7 @@ export default function MapaClientes() {
                   </Popup>
                 </Marker>
               ))}
-            </MapContainer>
+            </MapContainer>}
           </div>
         </CardContent>
       </Card>

@@ -1,6 +1,8 @@
 import type { jsPDF } from "jspdf";
 import type { PmocPlano, PmocAtividade } from "@/contexts/PmocContext";
 import type { Equipamento } from "@/contexts/EquipamentosContext";
+import { renderOS } from "@/lib/gerarPdfOrdemServico";
+import { dadosOsPmoc, formatNumeroOsPmoc } from "@/lib/osPmocRelatorioDados";
 
 export interface OsPmocRow {
   id: string; numero: number; plano_id: string; atividade_id: string;
@@ -8,6 +10,7 @@ export interface OsPmocRow {
   local_descricao: string; descricao: string; tipo: string; status: string;
   data_abertura: string; data_conclusao: string | null; tecnico_responsavel: string;
   evidencias: string[] | null; observacoes: string; aprovado_por: string;
+  data_aprovacao?: string | null;
 }
 
 const MESES = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
@@ -65,6 +68,7 @@ async function loadImageAsDataUrl(url: string): Promise<string | null> {
 export async function downloadPdfOsPmocEquipamento(opts: {
   equipamento?: Equipamento; equipamentoNome: string; plano?: PmocPlano;
   atividades: PmocAtividade[]; ordens: OsPmocRow[]; inicio?: string;
+  ordemSelecionada: OsPmocRow;
   empresaLogoUrl?: string;
 }) {
   const { jsPDF: JsPDF } = await import("jspdf");
@@ -76,13 +80,22 @@ export async function downloadPdfOsPmocEquipamento(opts: {
   const azulCab: [number, number, number] = [30, 58, 107];
   const ml = 14, mr = 14;
 
+  const numeroOs = formatNumeroOsPmoc(opts.ordemSelecionada.numero);
+  const logoUrl = opts.empresaLogoUrl || "/Logo_Lasant.png";
+  await renderOS(doc, {
+    os: dadosOsPmoc(opts.ordemSelecionada, e),
+    empresa: { logoUrl } as import("@/contexts/EmpresaContext").Empresa,
+    numeroIdentificador: numeroOs,
+  });
+  doc.addPage();
+
   // ===== Cabeçalho padrão LASANT (faixa azul à direita + logo à esquerda) =====
   const headerH = 34;
   const blueStartX = pw * 0.42;
   doc.setFillColor(...azulCab);
   doc.rect(blueStartX, 0, pw - blueStartX, headerH, "F");
 
-  const logoData = await loadImageAsDataUrl(opts.empresaLogoUrl || "/Logo_Lasant.png");
+  const logoData = await loadImageAsDataUrl(logoUrl);
   if (logoData) {
     try {
       doc.addImage(logoData, "PNG", ml, 4, 42, 26);
@@ -102,7 +115,7 @@ export async function downloadPdfOsPmocEquipamento(opts: {
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
-  doc.text("O.S. PMOC", pw - mr, 13, { align: "right" });
+  doc.text(numeroOs, pw - mr, 13, { align: "right" });
   doc.setFontSize(9.5);
   doc.setFont("helvetica", "normal");
   doc.text("Controle de Manutenção do Equipamento", pw - mr, 19, { align: "right" });
@@ -172,5 +185,5 @@ export async function downloadPdfOsPmocEquipamento(opts: {
   doc.text("Legenda: Sem = Semanal · Q = Quinzenal · M = Mensal · B = Bimestral · T = Trimestral · S = Semestral · A = Anual", 14, y);
 
   const nome = (e?.tag || opts.equipamentoNome || "equipamento").replace(/[^\w-]+/g, "_");
-  doc.save(`OS_PMOC_${nome}.pdf`);
+  doc.save(`${numeroOs}_${nome}.pdf`);
 }

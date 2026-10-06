@@ -38,16 +38,37 @@ export default function PmocOrdensServico() {
   };
   useEffect(() => { carregar(); }, []);
 
+  // Cliente da OS: prioriza o cadastro do equipamento; cai para a unidade da OS.
+  const clienteDaOs = (o: OsPmocRow) => {
+    const eq = equipamentos.find((e) => e.id === o.equipamento_id);
+    return (eq?.clienteNome || o.unidade || "").trim();
+  };
+  const localDaOs = (o: OsPmocRow) => {
+    const eq = equipamentos.find((e) => e.id === o.equipamento_id);
+    return (eq?.localDescricao || o.local_descricao || o.unidade || "").trim();
+  };
+
+  const clientesOptions = useMemo(
+    () => Array.from(new Set(ordens.map(clienteDaOs).filter(Boolean))).sort((a, b) => a.localeCompare(b)),
+    [ordens, equipamentos]
+  );
+  const locaisOptions = useMemo(() => {
+    const fonte = cliente !== "todos" ? ordens.filter((o) => clienteDaOs(o) === cliente) : ordens;
+    return Array.from(new Set(fonte.map(localDaOs).filter(Boolean))).sort((a, b) => a.localeCompare(b));
+  }, [ordens, equipamentos, cliente]);
+
   const filtradas = useMemo(() => {
     const q = busca.toLowerCase();
     return ordens.filter((o) => {
       if (status !== "todos" && o.status !== status) return false;
+      if (cliente !== "todos" && clienteDaOs(o) !== cliente) return false;
+      if (local !== "todos" && localDaOs(o) !== local) return false;
       const d = (o.data_conclusao || o.data_abertura || "").slice(0, 10);
       if (ini && d < ini) return false;
       if (fim && d > fim) return false;
       return !q || [String(o.numero), o.equipamento_nome, o.unidade, o.descricao, o.tecnico_responsavel].some((x) => (x || "").toLowerCase().includes(q));
     });
-  }, [ordens, busca, status, ini, fim]);
+  }, [ordens, equipamentos, busca, status, cliente, local, ini, fim]);
 
   const relatorio = async (o: OsPmocRow) => {
     const plano = planos.find((p) => p.id === o.plano_id);

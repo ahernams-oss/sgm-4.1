@@ -26,6 +26,8 @@ export default function PmocOrdensServico() {
   const [busca, setBusca] = useState(() =>
     typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("numero") || "" : "");
   const [status, setStatus] = useState("todos");
+  const [cliente, setCliente] = useState("todos");
+  const [local, setLocal] = useState("todos");
   const [ini, setIni] = useState("");
   const [fim, setFim] = useState("");
 
@@ -36,16 +38,37 @@ export default function PmocOrdensServico() {
   };
   useEffect(() => { carregar(); }, []);
 
+  // Cliente da OS: prioriza o cadastro do equipamento; cai para a unidade da OS.
+  const clienteDaOs = (o: OsPmocRow) => {
+    const eq = equipamentos.find((e) => e.id === o.equipamento_id);
+    return (eq?.clienteNome || o.unidade || "").trim();
+  };
+  const localDaOs = (o: OsPmocRow) => {
+    const eq = equipamentos.find((e) => e.id === o.equipamento_id);
+    return (eq?.localDescricao || o.local_descricao || o.unidade || "").trim();
+  };
+
+  const clientesOptions = useMemo(
+    () => Array.from(new Set(ordens.map(clienteDaOs).filter(Boolean))).sort((a, b) => a.localeCompare(b)),
+    [ordens, equipamentos]
+  );
+  const locaisOptions = useMemo(() => {
+    const fonte = cliente !== "todos" ? ordens.filter((o) => clienteDaOs(o) === cliente) : ordens;
+    return Array.from(new Set(fonte.map(localDaOs).filter(Boolean))).sort((a, b) => a.localeCompare(b));
+  }, [ordens, equipamentos, cliente]);
+
   const filtradas = useMemo(() => {
     const q = busca.toLowerCase();
     return ordens.filter((o) => {
       if (status !== "todos" && o.status !== status) return false;
+      if (cliente !== "todos" && clienteDaOs(o) !== cliente) return false;
+      if (local !== "todos" && localDaOs(o) !== local) return false;
       const d = (o.data_conclusao || o.data_abertura || "").slice(0, 10);
       if (ini && d < ini) return false;
       if (fim && d > fim) return false;
       return !q || [String(o.numero), o.equipamento_nome, o.unidade, o.descricao, o.tecnico_responsavel].some((x) => (x || "").toLowerCase().includes(q));
     });
-  }, [ordens, busca, status, ini, fim]);
+  }, [ordens, equipamentos, busca, status, cliente, local, ini, fim]);
 
   const relatorio = async (o: OsPmocRow) => {
     const plano = planos.find((p) => p.id === o.plano_id);
@@ -70,7 +93,7 @@ export default function PmocOrdensServico() {
           <Button variant="outline" size="sm" onClick={carregar}><RefreshCw className="h-4 w-4 mr-1" /> Atualizar</Button>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             <Input placeholder="Buscar nº, equipamento, cliente, técnico..." value={busca} onChange={(e) => setBusca(e.target.value)} />
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -79,6 +102,24 @@ export default function PmocOrdensServico() {
                 <SelectItem value="Aguardando Confirmação">Aguardando Confirmação</SelectItem>
                 <SelectItem value="Concluída">Concluída</SelectItem>
                 <SelectItem value="Cancelada">Cancelada</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={cliente} onValueChange={(v) => { setCliente(v); setLocal("todos"); }}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os clientes</SelectItem>
+                {clientesOptions.map((c) => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={local} onValueChange={setLocal}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os locais</SelectItem>
+                {locaisOptions.map((l) => (
+                  <SelectItem key={l} value={l}>{l}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Input type="date" value={ini} onChange={(e) => setIni(e.target.value)} />

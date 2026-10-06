@@ -52,6 +52,9 @@ const gerarSenhaTemporaria = (): string => {
     .join("");
 };
 
+/** Última mensagem de erro de login retornada pelo servidor (ex.: bloqueio por tentativas). */
+export let lastLoginError = "";
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { usuarios } = useUsuarios();
   const { cargos } = useCargos();
@@ -111,6 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [usuarioLogado]);
 
   const login = async (email: string, senha: string, lembrarMe = false): Promise<boolean> => {
+    lastLoginError = "";
     const emailNorm = email.trim().toLowerCase();
     const senhaNorm = senha.trim();
 
@@ -121,6 +125,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (error || !data?.usuario) {
         console.warn("[Login] Falha ao autenticar:", error?.message);
+        let msg: string | undefined = data?.error;
+        try {
+          const ctx: any = (error as any)?.context;
+          if (!msg && ctx?.clone) msg = (await ctx.clone().json().catch(() => null))?.error;
+        } catch { /* mantém padrão */ }
+        lastLoginError = msg || "";
         return false;
       }
 

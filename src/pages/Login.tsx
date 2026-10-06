@@ -31,7 +31,7 @@ const Login = () => {
         toast.success("Login realizado com sucesso!");
         navigate("/");
       } else {
-        toast.error("E-mail ou senha inválidos.");
+        toast.error(lastLoginError || "E-mail ou senha inválidos.");
       }
     } finally {
       setLoading(false);

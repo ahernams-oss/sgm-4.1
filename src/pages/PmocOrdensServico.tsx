@@ -93,7 +93,7 @@ export default function PmocOrdensServico() {
           <Button variant="outline" size="sm" onClick={carregar}><RefreshCw className="h-4 w-4 mr-1" /> Atualizar</Button>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             <Input placeholder="Buscar nº, equipamento, cliente, técnico..." value={busca} onChange={(e) => setBusca(e.target.value)} />
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -102,6 +102,24 @@ export default function PmocOrdensServico() {
                 <SelectItem value="Aguardando Confirmação">Aguardando Confirmação</SelectItem>
                 <SelectItem value="Concluída">Concluída</SelectItem>
                 <SelectItem value="Cancelada">Cancelada</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={cliente} onValueChange={(v) => { setCliente(v); setLocal("todos"); }}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os clientes</SelectItem>
+                {clientesOptions.map((c) => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={local} onValueChange={setLocal}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os locais</SelectItem>
+                {locaisOptions.map((l) => (
+                  <SelectItem key={l} value={l}>{l}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Input type="date" value={ini} onChange={(e) => setIni(e.target.value)} />

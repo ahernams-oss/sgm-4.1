@@ -26,6 +26,8 @@ export default function PmocOrdensServico() {
   const [busca, setBusca] = useState(() =>
     typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("numero") || "" : "");
   const [status, setStatus] = useState("todos");
+  const [cliente, setCliente] = useState("todos");
+  const [local, setLocal] = useState("todos");
   const [ini, setIni] = useState("");
   const [fim, setFim] = useState("");
 

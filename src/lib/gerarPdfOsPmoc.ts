@@ -86,6 +86,7 @@ export async function downloadPdfOsPmocEquipamento(opts: {
     os: dadosOsPmoc(opts.ordemSelecionada, e),
     empresa: { logoUrl } as import("@/contexts/EmpresaContext").Empresa,
     numeroIdentificador: numeroOs,
+    aprovacaoTexto: opts.ordemSelecionada.aprovado_por ? `Aprovado por: ${opts.ordemSelecionada.aprovado_por}` : "",
   });
   doc.addPage();
 

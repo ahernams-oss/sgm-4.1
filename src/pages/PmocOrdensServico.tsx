@@ -96,14 +96,20 @@ export default function PmocOrdensServico() {
               </TableHeader>
               <TableBody>
                 {filtradas.length === 0 && (
-                  <TableRow><TableCell colSpan={9} className="text-center text-muted-foreground py-8">Nenhuma O.S. PMOC encontrada. Elas são geradas ao registrar uma manutenção em Gerenciar Operação.</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={11} className="text-center text-muted-foreground py-8">Nenhuma O.S. PMOC encontrada. Elas são geradas ao registrar uma manutenção em Gerenciar Operação.</TableCell></TableRow>
                 )}
-                {filtradas.map((o) => (
+                {filtradas.map((o) => {
+                  const eq = equipamentos.find((e) => e.id === o.equipamento_id);
+                  const local = eq?.localDescricao || o.local_descricao || o.unidade || "";
+                  const setor = eq?.setorDescricao || "";
+                  return (
                   <TableRow key={o.id}>
                     <TableCell className="font-semibold">OS-PMOC-{String(o.numero).padStart(4, "0")}</TableCell>
                     <TableCell>{new Date(o.data_conclusao || o.data_abertura).toLocaleDateString("pt-BR")}</TableCell>
                     <TableCell>{o.equipamento_nome || "—"}</TableCell>
                     <TableCell>{o.unidade || "—"}</TableCell>
+                    <TableCell>{local || "—"}</TableCell>
+                    <TableCell>{setor || "—"}</TableCell>
                     <TableCell>{o.descricao}</TableCell>
                     <TableCell>{o.tipo}</TableCell>
                     <TableCell>{o.tecnico_responsavel || "—"}</TableCell>
@@ -112,7 +118,8 @@ export default function PmocOrdensServico() {
                       <Button size="sm" variant="outline" onClick={() => relatorio(o)}><FileText className="h-4 w-4 mr-1" /> PDF</Button>
                     </TableCell>
                   </TableRow>
-                ))}
+                  );
+                })}
               </TableBody>
             </Table>
           </div>

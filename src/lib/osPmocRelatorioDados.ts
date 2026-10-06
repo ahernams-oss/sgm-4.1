@@ -12,7 +12,7 @@ export function dadosOsPmoc(ordem: OsPmocRow, equipamento?: Equipamento): OrdemS
     situacao: ordem.status, dataInicio: ordem.data_conclusao?.slice(0, 10) || "", horaInicio: "",
     dataTermino: ordem.data_conclusao?.slice(0, 10) || "", horaTermino: "", prioridade: "", complexidade: "Baixa",
     solicitante: "", matricula: "", ramal: "", telefone: "",
-    localId: equipamento?.localId || "", localDescricao: ordem.local_descricao || equipamento?.localDescricao || ordem.unidade,
+    localId: equipamento?.localId || "", localDescricao: equipamento?.localDescricao || ordem.local_descricao || ordem.unidade,
     pavimentoId: equipamento?.pavimentoId || "", pavimentoDescricao: equipamento?.pavimentoDescricao || "",
     setorId: equipamento?.setorId || "", setorDescricao: equipamento?.setorDescricao || "",
     categoria: ordem.tipo, servico: ordem.tipo, descricaoServicos: ordem.descricao,

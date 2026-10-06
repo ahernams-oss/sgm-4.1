@@ -70,6 +70,37 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Bloqueio: 3 erros seguidos nos últimos 15 minutos bloqueiam o login por 15 minutos.
+    const MAX_TENTATIVAS = 3;
+    const BLOQUEIO_MS = 15 * 60 * 1000;
+    const MOTIVO_BLOQUEIO = "Login bloqueado (excesso de tentativas)";
+    const { data: recentes } = await supabase
+      .from("login_auditoria")
+      .select("sucesso, motivo, created_at")
+      .eq("email", email)
+      .gte("created_at", new Date(Date.now() - BLOQUEIO_MS).toISOString())
+      .order("created_at", { ascending: false })
+      .limit(20);
+    const falhas: string[] = [];
+    for (const r of recentes ?? []) {
+      if (r.sucesso) break;
+      if (r.motivo === MOTIVO_BLOQUEIO || r.motivo === "Campos obrigatórios não preenchidos") continue;
+      falhas.push(r.created_at as string);
+    }
+    if (falhas.length >= MAX_TENTATIVAS) {
+      const liberaEm = new Date(new Date(falhas[0]).getTime() + BLOQUEIO_MS);
+      const min = Math.max(1, Math.ceil((liberaEm.getTime() - Date.now()) / 60000));
+      await logAudit({ usuario_id: null, email, nome: null, sucesso: false, motivo: MOTIVO_BLOQUEIO });
+      return new Response(
+        JSON.stringify({ error: `Login bloqueado por excesso de tentativas. Tente novamente em ${min} minuto(s).`, bloqueado: true, libera_em: liberaEm.toISOString() }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+    const restantes = MAX_TENTATIVAS - falhas.length - 1;
+    const msgFalha = restantes > 0
+      ? `Credenciais inválidas. Restam ${restantes} tentativa(s) antes do bloqueio de 15 minutos.`
+      : "Credenciais inválidas. Login bloqueado por 15 minutos.";
+
     const { data: user, error } = await supabase
       .from("usuarios")
       .select("*")
@@ -87,7 +118,7 @@ Deno.serve(async (req) => {
 
     if (!user) {
       await logAudit({ usuario_id: null, email, nome: null, sucesso: false, motivo: "Usuário não encontrado" });
-      return new Response(JSON.stringify({ error: "Credenciais inválidas." }), {
+      return new Response(JSON.stringify({ error: msgFalha }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -103,7 +134,7 @@ Deno.serve(async (req) => {
     const senhaArmazenada: string | null = cred?.senha ?? null;
     if (!senhaArmazenada) {
       await logAudit({ usuario_id: user.id, email, nome: user.nome, sucesso: false, motivo: "Usuário sem senha cadastrada" });
-      return new Response(JSON.stringify({ error: "Credenciais inválidas." }), {
+      return new Response(JSON.stringify({ error: msgFalha }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -125,7 +156,7 @@ Deno.serve(async (req) => {
 
     if (!ok) {
       await logAudit({ usuario_id: user.id, email, nome: user.nome, sucesso: false, motivo: "Senha incorreta" });
-      return new Response(JSON.stringify({ error: "Credenciais inválidas." }), {
+      return new Response(JSON.stringify({ error: msgFalha }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

@@ -5,7 +5,7 @@ import { User, Lock, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth, lastLoginError } from "@/contexts/AuthContext";
 import logoLasant from "@/assets/Logo_Lasant.png";
 
 const Login = () => {
@@ -31,7 +31,7 @@ const Login = () => {
         toast.success("Login realizado com sucesso!");
         navigate("/");
       } else {
-        toast.error("E-mail ou senha inválidos.");
+        toast.error(lastLoginError || "E-mail ou senha inválidos.");
       }
     } finally {
       setLoading(false);

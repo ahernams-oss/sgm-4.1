@@ -118,7 +118,7 @@ Deno.serve(async (req) => {
 
     if (!user) {
       await logAudit({ usuario_id: null, email, nome: null, sucesso: false, motivo: "Usuário não encontrado" });
-      return new Response(JSON.stringify({ error: "Credenciais inválidas." }), {
+      return new Response(JSON.stringify({ error: msgFalha }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -134,7 +134,7 @@ Deno.serve(async (req) => {
     const senhaArmazenada: string | null = cred?.senha ?? null;
     if (!senhaArmazenada) {
       await logAudit({ usuario_id: user.id, email, nome: user.nome, sucesso: false, motivo: "Usuário sem senha cadastrada" });
-      return new Response(JSON.stringify({ error: "Credenciais inválidas." }), {
+      return new Response(JSON.stringify({ error: msgFalha }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -156,7 +156,7 @@ Deno.serve(async (req) => {
 
     if (!ok) {
       await logAudit({ usuario_id: user.id, email, nome: user.nome, sucesso: false, motivo: "Senha incorreta" });
-      return new Response(JSON.stringify({ error: "Credenciais inválidas." }), {
+      return new Response(JSON.stringify({ error: msgFalha }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

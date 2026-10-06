@@ -89,7 +89,8 @@ export default function PmocOrdensServico() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Nº</TableHead><TableHead>Data</TableHead><TableHead>Equipamento</TableHead>
-                  <TableHead>Cliente</TableHead><TableHead>Serviço</TableHead><TableHead>Tipo</TableHead>
+                  <TableHead>Cliente</TableHead><TableHead>Local</TableHead><TableHead>Setor</TableHead>
+                  <TableHead>Serviço</TableHead><TableHead>Tipo</TableHead>
                   <TableHead>Executor</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Relatório</TableHead>
                 </TableRow>
               </TableHeader>

@@ -56,6 +56,7 @@ export default function PmocOrdensServico() {
       await downloadPdfOsPmocEquipamento({
         equipamento, equipamentoNome: o.equipamento_nome, plano, atividades: ativs, ordens: doEquip,
         inicio: plano?.vigenciaInicio || undefined,
+        ordemSelecionada: o,
         empresaLogoUrl: empresa?.logoUrl || undefined,
       });
     } catch (e: any) { toast.error("Erro ao gerar relatório", { description: e.message }); }

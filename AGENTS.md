@@ -10,3 +10,5 @@
 <!-- LOVABLE:END -->
 
 - RLS: tabelas e arquivos internos exigem usuário logado (auth.uid() IS NOT NULL); só tabelas das páginas públicas (QR equipamento, proposta fornecedor, portal candidato, verificação de assinatura, pregão) e o bucket pregao-documentos ficam sem login — porque essas páginas leem dados sem sessão.
+
+- Combined PMOC reports reuse renderOS with an explicit identifier and a PMOC-only data adapter, followed by the equipment maintenance sheet; this avoids matching unrelated conventional orders by number.

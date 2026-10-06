@@ -63,6 +63,8 @@ export interface RenderOSOptions {
   empresa?: Empresa;
   cliente?: Cliente;
   assinaturas?: OsAssinatura[];
+  numeroIdentificador?: string;
+  aprovacaoTexto?: string;
 }
 
 async function gerarQRCodeDataUrl(text: string): Promise<string | null> {
@@ -150,7 +152,7 @@ async function renderAssinaturas(doc: jsPDF, assinaturas: OsAssinatura[], y: num
   return y;
 }
 
-export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas }: RenderOSOptions) {
+export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, numeroIdentificador, aprovacaoTexto }: RenderOSOptions) {
   const pw = doc.internal.pageSize.getWidth();
   const ml = 12, mr = 12;
   const cw = pw - ml - mr;
@@ -197,7 +199,7 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas }
     const d = os.createdAt ? new Date(os.createdAt) : new Date();
     return isNaN(d.getTime()) ? new Date().getFullYear() : d.getFullYear();
   })();
-  const numeroFormatado = `${String(os.numero).padStart(2, "0")}-${cliente?.cap || "0"}/${anoOS}-${os.tipoOs?.sigla || ""}`;
+  const numeroFormatado = numeroIdentificador || `${String(os.numero).padStart(2, "0")}-${cliente?.cap || "0"}/${anoOS}-${os.tipoOs?.sigla || ""}`;
   const boxW = 38, boxH = 8;
   const boxX = pw - mr - boxW;
   const boxY = y + 19;
@@ -323,7 +325,7 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas }
       ],
       [
         {
-          content: fiscalizada ? "Autorizado pelo Departamento de Engenharia / Fiscalização" : "",
+          content: aprovacaoTexto ?? (fiscalizada ? "Autorizado pelo Departamento de Engenharia / Fiscalização" : ""),
           styles: { fontStyle: "bold", halign: "center", valign: "middle", minCellHeight: 8, fontSize: 9 },
         },
         { content: "", styles: { minCellHeight: 8 } },

@@ -1,0 +1,124 @@
+# A cada push na main:
+#   1. builda a imagem Docker no GitHub (a VPS não precisa de Node, bun nem RAM para build)
+#   2. publica em ghcr.io/ahernams-oss/sgm-4.1 (:latest e :<sha>)
+#   3. entra na VPS por SSH, atualiza docker-compose.yml/Caddyfile e roda
+#      docker compose pull && docker compose up -d
+#   4. (alternativa) se em vez de VPS_HOST existir DEPLOY_WEBHOOK_URL, chama o webhook de um painel
+#
+# Secrets (Settings > Secrets and variables > Actions):
+#   VPS_HOST, VPS_USER, VPS_PORT (opcional, padrão 22), VPS_PATH (opcional, padrão /opt/sgm),
+#   VPS_SSH_KEY (chave PRIVADA do par criado só para o deploy)
+#   SITE_URL (opcional, para o teste final; ex.: https://136-0-53-217.sslip.io)
+#   DEPLOY_WEBHOOK_URL (opcional, só para painel)
+#   VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY / VITE_SUPABASE_PROJECT_ID
+#     (opcionais: só se quiser sobrescrever o .env do repositório no build)
+#
+# Passo a passo em DEPLOY.md.
+
+name: Build da imagem e deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-imagem
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}
+
+jobs:
+  build-push-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Preparar Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login no GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Nome da imagem em minúsculas
+        id: img
+        run: echo "name=$(echo '${{ env.IMAGE }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Build e push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ steps.img.outputs.name }}:latest
+            ${{ steps.img.outputs.name }}:${{ github.sha }}
+          build-args: |
+            VITE_SUPABASE_URL=${{ secrets.VITE_SUPABASE_URL }}
+            VITE_SUPABASE_PUBLISHABLE_KEY=${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+            VITE_SUPABASE_PROJECT_ID=${{ secrets.VITE_SUPABASE_PROJECT_ID }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy na VPS via SSH (docker compose)
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ secrets.VPS_PORT || '22' }}
+          VPS_PATH: ${{ secrets.VPS_PATH || '/opt/sgm' }}
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+        run: |
+          if [ -z "$VPS_HOST" ] || [ -z "$SSH_KEY" ]; then
+            echo "VPS_HOST/VPS_SSH_KEY não definidos; pulando deploy por SSH."
+            exit 0
+          fi
+          test -n "$VPS_USER" || { echo "::error::Secret VPS_USER não definido"; exit 1; }
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p "$VPS_PORT" -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          test -s ~/.ssh/known_hosts || { echo "::error::Não foi possível obter a host key de $VPS_HOST:$VPS_PORT"; exit 1; }
+          SSH_OPTS="-i $HOME/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=yes"
+          # Mantém compose e Caddyfile da VPS iguais aos do repositório.
+          scp $SSH_OPTS -P "$VPS_PORT" deploy/docker-compose.yml deploy/Caddyfile "$VPS_USER@$VPS_HOST:$VPS_PATH/"
+          # O token do GHCR vale só durante esta execução e vai pelo stdin (não aparece em ps nem em log):
+          # a VPS puxa a imagem mesmo que o pacote seja privado e não guarda credencial depois.
+          printf '%s' "$GHCR_TOKEN" | ssh $SSH_OPTS -p "$VPS_PORT" "$VPS_USER@$VPS_HOST" "set -e
+            cd '$VPS_PATH'
+            test -f .env || { echo 'Falta $VPS_PATH/.env na VPS (modelo em deploy/env.example)'; exit 1; }
+            docker login ghcr.io -u '$GHCR_USER' --password-stdin >/dev/null
+            trap 'docker logout ghcr.io >/dev/null 2>&1' EXIT
+            docker compose pull -q
+            docker compose up -d --remove-orphans
+            docker compose exec -T caddy caddy reload --config /etc/caddy/Caddyfile >/dev/null 2>&1 || true
+            docker image prune -f >/dev/null
+            docker compose ps"
+
+      - name: Avisar um painel (webhook de deploy, alternativa ao SSH)
+        env:
+          WEBHOOK: ${{ secrets.DEPLOY_WEBHOOK_URL }}
+        run: |
+          if [ -z "$WEBHOOK" ]; then
+            echo "DEPLOY_WEBHOOK_URL não definido; nada a fazer."
+            exit 0
+          fi
+          curl -fsS -X POST --max-time 30 "$WEBHOOK" -o /dev/null -w "webhook respondeu HTTP %{http_code}\n"
+
+      - name: Verificar site no ar
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+        run: |
+          if [ -z "$SITE_URL" ]; then echo "SITE_URL não definido, pulando verificação."; exit 0; fi
+          sleep 10
+          curl -fsS --retry 6 --retry-delay 5 --retry-all-errors -o /dev/null -w "HTTP %{http_code} em %{time_total}s para $SITE_URL\n" "$SITE_URL"

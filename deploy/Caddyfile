@@ -1,0 +1,17 @@
+# Caddy na frente do app. SITE_ADDRESS vem do /opt/sgm/.env:
+#   SITE_ADDRESS=sgm.seudominio.com.br   -> HTTPS automático (Let's Encrypt), precisa do DNS apontando para a VPS
+#   SITE_ADDRESS=136-0-53-217.sslip.io   -> sem domínio próprio: o sslip.io resolve para o IP e também tem HTTPS
+# Evite ":80" (só HTTP): o SGM depende de APIs do navegador que exigem HTTPS.
+{$SITE_ADDRESS}
+
+encode zstd gzip
+
+# Assets do Vite têm hash no nome: cache de 1 ano no navegador.
+@assets path /assets/*
+header @assets Cache-Control "public, max-age=31536000, immutable"
+
+header -Server
+header X-Content-Type-Options nosniff
+header Referrer-Policy strict-origin-when-cross-origin
+
+reverse_proxy app:3000

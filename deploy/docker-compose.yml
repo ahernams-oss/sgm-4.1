@@ -1,0 +1,52 @@
+# Pilha da VPS: só o app (Node) e o Caddy (HTTPS automático). Fica em /opt/sgm na VPS.
+# O GitHub Actions envia este arquivo e o Caddyfile a cada deploy e roda:
+#   docker compose pull && docker compose up -d
+# Variáveis de runtime (SUPABASE_*, APP_ORIGIN, SITE_ADDRESS...) ficam em /opt/sgm/.env
+# (modelo em deploy/env.example).
+
+services:
+  app:
+    image: ghcr.io/ahernams-oss/sgm-4.1:latest
+    container_name: sgm-app
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "3000"
+      NODE_ENV: production
+    expose:
+      - "3000"
+    mem_limit: 1g
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: sgm-caddy
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      # Domínio do site (no .env). Sem domínio próprio: <ip-com-hifens>.sslip.io, com HTTPS.
+      SITE_ADDRESS: ${SITE_ADDRESS:?defina SITE_ADDRESS no .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    mem_limit: 128m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  caddy_data:
+  caddy_config:

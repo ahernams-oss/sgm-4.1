@@ -3,6 +3,9 @@ const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
 
+import { gerarEmbedding, respostaErroIA } from "@/lib/edge/ai";
+import { reindexarBaseConhecimento } from "../_shared/kb.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -14,13 +17,31 @@ const corsHeaders = {
  * Body: { text: string }
  * Retorno: { embedding: number[] }
  *
- * Usa Lovable AI Gateway com modelo de embeddings do Google (text-embedding-004 -> 768 dim).
+ * Com { reindexar: true } e Authorization: Bearer <SUPABASE_SERVICE_ROLE_KEY>, regera os
+ * embeddings de todos os artigos e FAQs da Base de Conhecimento (uso administrativo, no servidor).
+ *
+ * Usa o Gemini (gemini-embedding-2, 768 dimensões) com a GEMINI_API_KEY.
  */
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { text } = await req.json();
+    const { text, reindexar } = await req.json();
+
+    if (reindexar === true) {
+      const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      if (!serviceRole || req.headers.get("authorization") !== `Bearer ${serviceRole}`) {
+        return new Response(JSON.stringify({ error: "Não autorizado" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const resultado = await reindexarBaseConhecimento();
+      return new Response(JSON.stringify(resultado), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (!text || typeof text !== "string") {
       return new Response(JSON.stringify({ error: "text é obrigatório" }), {
         status: 400,
@@ -28,49 +49,13 @@ serve(async (req) => {
       });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY não configurada");
-
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/embeddings", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-embedding-2",
-        input: text.slice(0, 8000),
-        dimensions: 768,
-      }),
-    });
-
-    if (!response.ok) {
-      const t = await response.text();
-      console.error("embedding gateway error:", response.status, t);
-      return new Response(JSON.stringify({ error: "Erro ao gerar embedding", detail: t }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const data = await response.json();
-    const embedding = data?.data?.[0]?.embedding;
-    if (!Array.isArray(embedding)) {
-      return new Response(JSON.stringify({ error: "Resposta sem embedding", raw: data }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
+    const embedding = await gerarEmbedding(text.slice(0, 8000));
     return new Response(JSON.stringify({ embedding }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
     console.error("kb-embedding error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erro desconhecido" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return respostaErroIA(e, corsHeaders);
   }
 });
 

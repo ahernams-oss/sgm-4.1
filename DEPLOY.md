@@ -68,7 +68,11 @@ Edite `/opt/sgm/.env` (modelo em `deploy/env.example`):
 | `PLUGSEND_TOKEN`, `BRASILNFE_TOKEN` | integrações WhatsApp (uazapi) e NF-e |
 | `PORTAL_JWT_SECRET`, `NFE_WEBHOOK_SECRET` | assinatura dos JWTs do portal e do webhook de NF-e |
 | `CRON_SECRET` | segredo que o pg_cron do Supabase manda no cabeçalho `x-cron-secret` ao chamar as rotinas diárias (ver "Rotinas agendadas") |
-| `LOVABLE_API_KEY`, `LOVABLE_SEND_URL` | gateway de IA e e-mail da Lovable. O valor não é obtível fora da Lovable; serão substituídos por `GEMINI_API_KEY` e `RESEND_API_KEY` |
+| `GEMINI_API_KEY` | chave do Google Gemini (IA: Duda, leitura de editais, propostas, holerites e datas de documentos, Base de Conhecimento). Passo 8 |
+| `GEMINI_MODEL_RAPIDO`, `GEMINI_MODEL_AVANCADO` | opcionais: trocam os modelos sem mexer no código (vazios = `gemini-3.5-flash-lite` e `gemini-3.8-flash`) |
+| `RESEND_API_KEY`, `EMAIL_FROM` | envio dos e-mails transacionais pelo Resend e remetente (`"Nome <endereco@dominio-verificado>"`, com aspas). Passo 8 |
+| `RESEND_WEBHOOK_SECRET` | opcional: segredo do webhook do Resend que registra bounces e reclamações de spam |
+| `SEND_EMAIL_HOOK_SECRET` | opcional: só se o hook "Send Email" do Supabase Auth for ativado |
 
 As variáveis `VITE_*` do navegador **não** entram aqui: elas são embutidas no bundle durante o build a partir do `.env` do repositório.
 
@@ -103,6 +107,75 @@ cd /opt/sgm && docker compose up -d --force-recreate caddy
 
 O Caddy emite o certificado sozinho.
 
+### 8. IA e e-mails (Gemini e Resend)
+
+A IA e os e-mails usavam serviços da Lovable que só funcionam dentro da hospedagem dela. O servidor agora fala direto com o **Google Gemini** (IA) e com o **Resend** (e-mails). Cada um precisa de uma conta e de uma chave no `/opt/sgm/.env`. O código fica em [src/lib/edge/ai.ts](src/lib/edge/ai.ts) e [src/lib/email/resend.ts](src/lib/email/resend.ts); os templates de e-mail (React Email) são os mesmos de antes.
+
+**8.1 Chave do Gemini (Google AI Studio)**
+
+1. Entre em https://aistudio.google.com/apikey com a conta Google da empresa.
+2. Clique em **Create API key** (crie ou escolha um projeto) e copie a chave (começa com `AIza`).
+3. Recomendado: ative o faturamento desse projeto (**Set up billing** na mesma tela). No nível gratuito o Google pode usar o conteúdo enviado para melhorar os produtos dele, e o SGM envia holerites (CPF, salários), propostas e editais. No nível pago isso não acontece e os limites de uso são maiores.
+
+**8.2 Conta e domínio no Resend**
+
+1. Crie a conta em https://resend.com.
+2. **Domains → Add Domain**: use um subdomínio só para os e-mails do sistema, por exemplo `mail.lasant.com.br`, região **São Paulo (sa-east-1)**. O `notify.lasant.com.br` antigo está delegado para o DNS da Lovable; para reaproveitá-lo seria preciso remover essa delegação antes.
+3. O Resend mostra os registros DNS (MX e TXT de SPF em `send.mail`, TXT de DKIM em `resend._domainkey.mail`, DMARC opcional). Cadastre exatamente esses registros no painel onde o DNS de `lasant.com.br` é administrado e clique em **Verify DNS Records**. Pode levar de minutos a algumas horas até aparecer **Verified**.
+4. **API Keys → Create API Key**, permissão **Sending access**. Copie a chave (começa com `re_` e só aparece uma vez).
+
+**8.3 Colocar as chaves na VPS**
+
+```bash
+ssh root@136.0.53.217
+```
+
+```bash
+cd /opt/sgm && nano .env
+```
+
+No editor, apague as linhas `LOVABLE_API_KEY=` e `LOVABLE_SEND_URL=` (se existirem) e cole no fim, com os seus valores:
+
+```
+GEMINI_API_KEY=AIza...
+RESEND_API_KEY=re_...
+EMAIL_FROM="SGM Lasant <noreply@mail.lasant.com.br>"
+```
+
+Salve com `Ctrl+O` e `Enter`, saia com `Ctrl+X` e recrie o app:
+
+```bash
+docker compose up -d --force-recreate app
+```
+
+**8.4 Testar**
+
+E-mail (troque `SEU-EMAIL` pelo seu endereço):
+
+```bash
+docker compose exec app node -e "fetch('http://127.0.0.1:3000/api/public/edge/send-email-cotacao',{method:'POST',headers:{'Content-Type':'application/json',apikey:process.env.SUPABASE_PUBLISHABLE_KEY,Authorization:'Bearer '+process.env.SUPABASE_SERVICE_ROLE_KEY},body:JSON.stringify({to:'SEU-EMAIL',subject:'Teste SGM',htmlBody:'<p>Teste de envio pelo Resend</p>'})}).then(r=>r.text()).then(console.log)"
+```
+
+Tem que responder `{"success":true,"id":"..."}` e o e-mail chegar. O envio também aparece em Resend → Emails.
+
+IA e Base de Conhecimento: o comando abaixo regera os embeddings (vetores da busca) de todos os artigos e FAQs, inclusive os salvos enquanto a IA estava parada, que ficaram sem vetor:
+
+```bash
+docker compose exec app node -e "fetch('http://127.0.0.1:3000/api/public/edge/kb-embedding',{method:'POST',headers:{'Content-Type':'application/json',apikey:process.env.SUPABASE_PUBLISHABLE_KEY,Authorization:'Bearer '+process.env.SUPABASE_SERVICE_ROLE_KEY},body:JSON.stringify({reindexar:true})}).then(r=>r.text()).then(console.log)"
+```
+
+Resposta esperada: `{"artigos":N,"faqs":N,"falhas":0}`. Depois, no sistema, abra a Duda e pergunte, por exemplo, "quantas OS estão abertas?".
+
+**8.5 Opcional: bounces e spam (webhook do Resend)**
+
+Resend → Webhooks → **Add Webhook**: URL `https://136-0-53-217.sslip.io/api/public/edge/handle-email-events`, eventos `email.bounced` e `email.complained`. Copie o **Signing secret** (`whsec_...`) para `RESEND_WEBHOOK_SECRET=` no `/opt/sgm/.env` e recrie o app. Os endereços que voltarem ou marcarem spam passam a ser gravados em `suppressed_emails`; o próprio Resend deixa de enviar para eles.
+
+**8.6 Opcional: e-mails do Supabase Auth**
+
+As telas do SGM não disparam e-mails do Supabase Auth (a senha temporária sai pelo próprio sistema). Se algum dia usar convite, link mágico ou recuperação de senha do Supabase: Supabase → Authentication → Hooks → **Send Email** → HTTPS, URL `https://136-0-53-217.sslip.io/api/public/edge/auth-email-hook`, gere o segredo e copie o valor (`v1,whsec_...`) para `SEND_EMAIL_HOOK_SECRET=` no `/opt/sgm/.env`.
+
+Ao trocar para domínio próprio (passo 7), atualize também as URLs dos itens 8.5 e 8.6.
+
 ---
 
 ## Operação do dia a dia
@@ -125,7 +198,9 @@ ssh deploy@IP-DA-VPS 'cd /opt/sgm && docker compose ps && docker compose logs --
 | `Falta /opt/sgm/.env na VPS` | passo 3 não feito | copie `deploy/env.example` para `/opt/sgm/.env` |
 | build falha em `bun install --frozen-lockfile` | `bun.lock` desatualizado em relação ao `package.json` | rode `bun install` localmente e comite o `bun.lock` |
 | `.output/server/index.mjs não foi gerado` | o preset Node não foi aplicado | confira se `ENV NITRO_PRESET=node-server` continua no `Dockerfile` |
-| site abre mas e-mails não saem | `LOVABLE_API_KEY`/`LOVABLE_SEND_URL` vazios | preencher no `.env` da VPS ou trocar o envio por SMTP/Resend |
+| site abre mas e-mails não saem; log com `RESEND_API_KEY não configurada` ou `EMAIL_FROM não configurado` | variáveis do passo 8 vazias, ou app não recriado | preencher no `/opt/sgm/.env` e `docker compose up -d --force-recreate app` |
+| e-mail falha com `domain is not verified` | o domínio do `EMAIL_FROM` não está verificado no Resend | Resend → Domains: conferir os registros DNS e clicar em Verify |
+| IA responde `GEMINI_API_KEY não configurada` ou `Chave da IA (GEMINI_API_KEY) inválida` | chave vazia, errada ou apagada no AI Studio | gerar outra no AI Studio (passo 8.1) e recriar o app |
 | upload, assinatura ou novo item dá erro de `randomUUID`/`subtle` | site acessado por `http://` | usar o endereço `https://` (`SITE_ADDRESS` com domínio ou sslip.io) |
 | 502 no Caddy logo após o deploy | app ainda subindo | aguarde 20 s; `docker compose logs app` |
 | rotinas agendadas com `status_code` 503 em `net._http_response` | `CRON_SECRET` vazio no `/opt/sgm/.env`, ou app não recriado | "Rotinas agendadas", passo 1 |

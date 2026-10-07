@@ -12,6 +12,7 @@ export async function registrarEnvioEmail(params: {
   recipientEmail: string
   status: 'sent' | 'suppressed' | 'failed'
   errorMessage?: string | null
+  messageId?: string | null
 }): Promise<void> {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
@@ -22,7 +23,7 @@ export async function registrarEnvioEmail(params: {
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey)
   const { error } = await supabase.from('email_send_log').insert({
-    message_id: null,
+    message_id: params.messageId ?? null,
     template_name: params.templateName,
     recipient_email: params.recipientEmail,
     status: params.status,
@@ -44,12 +45,17 @@ export async function registrarEnvioEmail(params: {
 export async function enviarComLog(
   templateName: string,
   recipientEmail: string,
-  send: () => Promise<{ sent: boolean; reason?: string }>
-): Promise<{ sent: boolean; reason?: string }> {
+  send: () => Promise<{ sent: boolean; reason?: string; messageId?: string }>
+): Promise<{ sent: boolean; reason?: string; messageId?: string }> {
   try {
     const result = await send()
     if (result.sent) {
-      await registrarEnvioEmail({ templateName, recipientEmail, status: 'sent' })
+      await registrarEnvioEmail({
+        templateName,
+        recipientEmail,
+        status: 'sent',
+        messageId: result.messageId,
+      })
     } else {
       await registrarEnvioEmail({
         templateName,

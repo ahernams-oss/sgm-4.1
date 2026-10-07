@@ -281,18 +281,10 @@ export default function LicitacoesPage() {
       try {
         const formData = new FormData();
         formData.append("file", file);
-        const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-        const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-        const res = await fetch(
-          `https://${projectId}.supabase.co/functions/v1/extract-document-dates`,
-          {
-            method: "POST",
-            headers: { Authorization: `Bearer ${anonKey}`, apikey: anonKey },
-            body: formData,
-          }
-        );
-        if (res.ok) {
-          const dates = await res.json();
+        const { data: dates, error: datesErr } = await supabase.functions.invoke("extract-document-dates", {
+          body: formData,
+        });
+        if (!datesErr && dates) {
           const updates: Partial<Omit<DocumentoLicitacao, "id">> = {};
           if (dates.dataEmissao) updates.dataEmissao = dates.dataEmissao;
           if (dates.dataValidade) updates.dataValidade = dates.dataValidade;

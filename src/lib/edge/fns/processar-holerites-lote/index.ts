@@ -6,6 +6,7 @@ const Deno = __slot.Deno;
 // usa IA para extrair CPF/nome/tipo/valor e casa com funcionários.
 
 import { createClient } from "@supabase/supabase-js";
+import { gerarTexto } from "@/lib/edge/ai";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import * as XLSX from "xlsx";
 
@@ -34,7 +35,6 @@ const num = (v: any) => {
 };
 
 async function extractComIA(pdfBase64: string, mes: number, ano: number) {
-  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
   const prompt = `Este é um holerite (contracheque) de UM único funcionário referente à competência ${mes.toString().padStart(2, "0")}/${ano}.
 Extraia estas informações e retorne APENAS um JSON válido, sem markdown:
 {"cpf":"somente dígitos","nome":"nome completo","tipo":"folha|13o|ferias|rescisao|outros","valor_liquido":numero,"salario_base":numero,"horas_trabalhadas":numero,"horas_extras":numero,"valor_horas_extras":numero,"total_proventos":numero,"total_descontos":numero}
@@ -55,29 +55,17 @@ Regras:
 - Números decimais com ponto, sem separador de milhar e sem "R$" (ex.: "1.234,56" → 1234.56).
 - Se não encontrar algum campo, use null.`;
 
-  const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${LOVABLE_API_KEY}` },
-    body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
-      messages: [{
-        role: "user",
-        content: [
-          { type: "text", text: prompt },
-          { type: "image_url", image_url: { url: `data:application/pdf;base64,${pdfBase64}` } },
-        ],
-      }],
-      temperature: 0,
-    }),
-  });
-
-  if (!resp.ok) {
-    const t = await resp.text();
-    console.error("IA err:", resp.status, t);
+  let content = "";
+  try {
+    content = await gerarTexto({
+      texto: prompt,
+      arquivos: [{ mimeType: "application/pdf", base64: pdfBase64 }],
+      temperatura: 0,
+    });
+  } catch (e) {
+    console.error("IA err:", e);
     return { ...VAZIO };
   }
-  const data = await resp.json();
-  const content: string = data?.choices?.[0]?.message?.content ?? "";
   const m = content.match(/\{[\s\S]*\}/);
   if (!m) return { ...VAZIO };
   try {

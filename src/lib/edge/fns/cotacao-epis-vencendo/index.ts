@@ -4,6 +4,7 @@ const serve = __slot.serve;
 const Deno = __slot.Deno;
 
 import { createClient } from "@supabase/supabase-js";
+import { enviarEmail } from "@/lib/email/resend";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -215,11 +216,12 @@ serve(async (req) => {
 
         let emailEnviado = false;
         if (email) {
-          const { error: mailErr } = await supabase.functions.invoke("send-email-cotacao", {
-            body: {
+          // Envia direto pelo Resend: functions.invoke aqui no servidor chamaria
+          // /functions/v1 do Supabase Cloud, e não a função que roda neste app.
+          const mailErr = await enviarEmail({
               to: email,
               subject: `Pedido de Cotação COT-${String(cotRow!.numero).padStart(4, "0")} — EPIs`,
-              htmlBody: `
+              html: `
                 <div style="font-family:Arial,sans-serif;color:#1f2937">
                   <h2 style="color:#1e3a5f">Pedido de Cotação — EPIs</h2>
                   <p>Prezado(a) <strong>${nome}</strong>,</p>
@@ -237,8 +239,8 @@ serve(async (req) => {
                   </p>
                   <p style="font-size:12px;color:#6b7280">Ou acesse: ${link}</p>
                 </div>`,
-            },
-          });
+          }).then(() => null, (e) => e);
+          if (mailErr) console.error("[cotacao-epis] falha no e-mail para", email, mailErr);
           emailEnviado = !mailErr;
         }
 

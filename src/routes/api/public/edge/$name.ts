@@ -10,37 +10,8 @@ const corsHeaders: Record<string, string> = {
   'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, PUT, PATCH, DELETE',
 };
 
-// Funções que o sistema original expunha sem verificação de credencial.
-const SEM_CREDENCIAL = new Set([
-  'analisar-edital-licitacao',
-  'assinatura-otp',
-  'auth-email-hook',
-  'check-oc-entrega-atrasada',
-  'check-parcelas-vencimento',
-  'epi-devolucao-publico',
-  'epi-recebimento-publico',
-  'kb-embedding',
-  'kb-search',
-  'preview-transactional-email',
-  'send-email-senha-temporaria',
-  'send-email-mapa-ferias',
-  'send-email-compras',
-  'nfe-webhook',
-  'handle-email-events',
-  'portal-api',
-]);
-
-function credencialValida(request: Request): boolean {
-  const apikey =
-    request.headers.get('apikey') ??
-    (request.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '');
-  if (!apikey) return false;
-  const publica =
-    process.env['SUPABASE_PUBLISHABLE_KEY'] ?? process.env['SUPABASE_ANON_KEY'] ?? '';
-  if (publica && apikey === publica) return true;
-  // Token de usuário autenticado (JWT emitido pelo Supabase).
-  return apikey.split('.').length === 3;
-}
+// Quem pode chamar cada função (público, chave publishable, pg_cron ou usuário logado)
+// está em src/lib/edge/auth.ts.
 
 async function handle({ request, params }: { request: Request; params: { name: string } }) {
   if (request.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
@@ -54,9 +25,11 @@ async function handle({ request, params }: { request: Request; params: { name: s
     });
   }
 
-  if (!SEM_CREDENCIAL.has(params.name) && !credencialValida(request)) {
-    return new Response(JSON.stringify({ error: 'Não autorizado' }), {
-      status: 401,
+  const { autorizar } = await import('@/lib/edge/auth');
+  const acesso = await autorizar(request, params.name);
+  if (!acesso.ok) {
+    return new Response(JSON.stringify({ error: acesso.error }), {
+      status: acesso.status,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

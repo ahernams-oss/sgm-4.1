@@ -67,6 +67,7 @@ Edite `/opt/sgm/.env` (modelo em `deploy/env.example`):
 | `APP_ORIGIN`, `APP_BASE_URL` | URL pública do sistema, usada em links de e-mail e redirecionamentos |
 | `PLUGSEND_TOKEN`, `BRASILNFE_TOKEN` | integrações WhatsApp (uazapi) e NF-e |
 | `PORTAL_JWT_SECRET`, `NFE_WEBHOOK_SECRET` | assinatura dos JWTs do portal e do webhook de NF-e |
+| `CRON_SECRET` | segredo que o pg_cron do Supabase manda no cabeçalho `x-cron-secret` ao chamar as rotinas diárias (ver "Rotinas agendadas") |
 | `LOVABLE_API_KEY`, `LOVABLE_SEND_URL` | gateway de IA e e-mail da Lovable. O valor não é obtível fora da Lovable; serão substituídos por `GEMINI_API_KEY` e `RESEND_API_KEY` |
 
 As variáveis `VITE_*` do navegador **não** entram aqui: elas são embutidas no bundle durante o build a partir do `.env` do repositório.
@@ -127,12 +128,70 @@ ssh deploy@IP-DA-VPS 'cd /opt/sgm && docker compose ps && docker compose logs --
 | site abre mas e-mails não saem | `LOVABLE_API_KEY`/`LOVABLE_SEND_URL` vazios | preencher no `.env` da VPS ou trocar o envio por SMTP/Resend |
 | upload, assinatura ou novo item dá erro de `randomUUID`/`subtle` | site acessado por `http://` | usar o endereço `https://` (`SITE_ADDRESS` com domínio ou sslip.io) |
 | 502 no Caddy logo após o deploy | app ainda subindo | aguarde 20 s; `docker compose logs app` |
+| rotinas agendadas com `status_code` 503 em `net._http_response` | `CRON_SECRET` vazio no `/opt/sgm/.env`, ou app não recriado | "Rotinas agendadas", passo 1 |
+| rotinas agendadas com `status_code` 401 | segredo do Vault diferente do `CRON_SECRET` da VPS | rode de novo o bloco 2 do `pg_cron_jobs.sql` com o valor do `.env` |
+| tela logada dá "Não autorizado" ao chamar uma função | sessão do Supabase expirada ou ausente | sair e entrar de novo; se persistir, procure `[edge:auth]` em `docker compose logs app` (falha ao falar com o Auth do Supabase) |
+
+## Quem pode chamar as funções da ponte
+
+As funções em `src/lib/edge/fns` usam a service role e quase nenhuma confere quem chamou, então a ponte `/api/public/edge/<nome>` é a barreira de acesso. As regras ficam em [src/lib/edge/auth.ts](src/lib/edge/auth.ts):
+
+| Nível | Exige | Funções |
+|---|---|---|
+| público | nada (a própria função confere assinatura ou token) | `auth-email-hook`, `handle-email-events`, `nfe-webhook`, `preview-transactional-email` |
+| chave publishable | cabeçalho `apikey` com a chave publishable (o front sempre manda) | `auth-login`, `fornecedor-login`, `fornecedor-trocar-senha`, `epi-recebimento-publico`, `epi-devolucao-publico`, `portal-api` |
+| rotina agendada | cabeçalho `x-cron-secret` igual ao `CRON_SECRET` do servidor | as 9 rotinas da seção abaixo |
+| usuário logado (todas as outras) | JWT do Supabase com assinatura conferida (`auth.getClaims`), ou a service role (servidor para servidor) | o resto |
+
+Uma função nova que precise ser chamada sem login entra em um dos conjuntos de `auth.ts`; sem isso ela exige usuário logado.
 
 ## Rotinas agendadas (pg_cron)
 
-Nove rotinas só rodam se alguém as chamar: vencimento de parcelas, férias, EPIs, NRs, exames, experiência, calibração e entrega atrasada. Antes, três delas eram disparadas pelo pg_cron do projeto Supabase antigo. O script [deploy/pg_cron_jobs.sql](deploy/pg_cron_jobs.sql) remove esses jobs antigos e cria todos apontando para a VPS. Rode no SQL Editor do projeto atual depois do primeiro deploy, trocando o domínio e a chave publishable no início do bloco 2.
+Nove rotinas só rodam se alguém as chamar: vencimento de parcelas, férias, cotação de EPIs, EPIs, NRs, exames, experiência, calibração e entrega atrasada. Antes, três delas eram disparadas pelo pg_cron do projeto Supabase antigo. O script [deploy/pg_cron_jobs.sql](deploy/pg_cron_jobs.sql) remove esses jobs antigos e cria todos apontando para `https://136-0-53-217.sslip.io`, com o cabeçalho `x-cron-secret`. A ponte recusa essas rotinas sem o segredo (401) e responde 503 enquanto o `CRON_SECRET` estiver vazio no servidor.
 
-Atenção: a ponte `/api/public/edge/<nome>` aceita a chave publishable (e qualquer token no formato JWT) para essas rotinas, e duas delas não exigem credencial nenhuma. Em um servidor público isso permite que terceiros disparem avisos de WhatsApp. A correção prevista é um cabeçalho `x-cron-secret` conferido pela ponte, a ser feito junto com a troca de IA/e-mail.
+Faça nesta ordem, uma vez:
+
+**1. Gerar o `CRON_SECRET` na VPS.** No seu PC (Git Bash ou PowerShell):
+
+```bash
+ssh root@136.0.53.217
+```
+
+Já dentro da VPS, cole linha por linha:
+
+```bash
+cd /opt/sgm
+```
+
+```bash
+grep -q '^CRON_SECRET=.' .env || { sed -i '/^CRON_SECRET=/d' .env; printf '\nCRON_SECRET=%s\n' "$(openssl rand -hex 32)" >> .env; }
+```
+
+(Só cria o segredo se ainda não existir; rodar de novo não troca o valor.)
+
+```bash
+docker compose up -d --force-recreate app
+```
+
+```bash
+grep '^CRON_SECRET=' .env
+```
+
+Copie o valor depois do `=` (64 caracteres). Ele vai para o SQL do passo 3.
+
+**2. Conferir a ponte.** Ainda na VPS:
+
+```bash
+curl -s -o /dev/null -w '%{http_code}\n' -X POST https://136-0-53-217.sslip.io/api/public/edge/check-parcelas-vencimento
+```
+
+Tem que responder `401` (sem o segredo, recusado). `503` = o `CRON_SECRET` não foi lido: confira o `.env` e repita o `docker compose up -d --force-recreate app`. Esse teste não dispara a rotina.
+
+**3. Agendar no Supabase.** Abra o SQL Editor do projeto `mbasypzxvvufavraofif`, cole o conteúdo de [deploy/pg_cron_jobs.sql](deploy/pg_cron_jobs.sql), troque `COLE_AQUI_O_CRON_SECRET` pelo valor copiado no passo 1 e rode. O segredo fica guardado no Vault do Supabase; o resultado final lista os 9 jobs `sgm-*` ativos.
+
+**4. No dia seguinte**, rode as duas consultas comentadas no fim do SQL: as respostas da VPS devem ter `status_code` 200.
+
+Para trocar o segredo: apague a linha `CRON_SECRET=` do `/opt/sgm/.env`, repita o passo 1 e rode no Supabase só o bloco 2 do SQL com o valor novo.
 
 ## Alternativa: painel na VPS (Coolify, Dokploy, Easypanel)
 

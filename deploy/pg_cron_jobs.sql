@@ -1,11 +1,15 @@
 -- Rotinas agendadas do SGM: pg_cron (no Supabase) chamando as funções na VPS.
 --
--- Onde rodar: SQL Editor do projeto Supabase ATUAL (mbasypzxvvufavraofif), depois que a VPS
--- estiver no ar e respondendo em https://SEU-DOMINIO/api/public/edge/<funcao>.
+-- Onde rodar: SQL Editor do projeto Supabase ATUAL (mbasypzxvvufavraofif), só DEPOIS que:
+--   1. o deploy com a ponte que confere o x-cron-secret estiver no ar, e
+--   2. o CRON_SECRET estiver em /opt/sgm/.env na VPS (DEPLOY.md, seção "Rotinas agendadas").
 --
--- Antes de rodar, troque os dois valores no bloco 2:
---   base_url  -> URL pública do SGM na VPS, sem barra no fim
---   apikey    -> SUPABASE_PUBLISHABLE_KEY do projeto atual (a mesma VITE_SUPABASE_PUBLISHABLE_KEY do .env)
+-- Antes de rodar, troque um único valor: COLE_AQUI_O_CRON_SECRET, no bloco 2, pelo mesmo valor
+-- de CRON_SECRET do /opt/sgm/.env. Ele fica guardado criptografado no Vault do Supabase e os
+-- jobs leem de lá a cada disparo, então o segredo não aparece no texto dos jobs (cron.job).
+--
+-- A ponte só aceita estas 9 rotinas com o cabeçalho x-cron-secret (conjunto CRON em
+-- src/lib/edge/auth.ts). Para agendar outra rotina, inclua o nome aqui E lá.
 --
 -- Horários em UTC (padrão do pg_cron no Supabase). Brasília = UTC-3: 12:00 UTC = 09:00 BRT.
 --
@@ -16,6 +20,7 @@
 -- 0) Extensões (se der erro de permissão, ative em Database > Extensions no painel)
 create extension if not exists pg_cron;
 create extension if not exists pg_net;
+create extension if not exists supabase_vault;
 
 -- 1) Remover os jobs antigos, que apontavam para o projeto vdjezhhrnksluzealfcl
 select cron.unschedule(jobname)
@@ -26,11 +31,27 @@ where jobname in (
   'cotacao-epis-vencendo-daily'
 );
 
--- 2) Criar (ou recriar) os jobs apontando para a VPS
+-- 2) Guardar o CRON_SECRET no Vault (cria na primeira vez; nas próximas, atualiza)
 do $$
 declare
-  base_url text := 'https://SEU-DOMINIO';          -- <-- ajuste
-  apikey   text := 'SUA_SUPABASE_PUBLISHABLE_KEY';  -- <-- ajuste
+  segredo   text := 'COLE_AQUI_O_CRON_SECRET';  -- <-- o mesmo valor de CRON_SECRET em /opt/sgm/.env
+  existente uuid;
+begin
+  if segredo = 'COLE_AQUI_O_CRON_SECRET' or length(segredo) < 32 then
+    raise exception 'Troque COLE_AQUI_O_CRON_SECRET pelo valor de CRON_SECRET do /opt/sgm/.env (64 caracteres)';
+  end if;
+  select id into existente from vault.secrets where name = 'sgm_cron_secret';
+  if existente is null then
+    perform vault.create_secret(segredo, 'sgm_cron_secret', 'x-cron-secret das rotinas do SGM na VPS');
+  else
+    perform vault.update_secret(existente, segredo);
+  end if;
+end $$;
+
+-- 3) Criar (ou recriar) os jobs apontando para a VPS
+do $$
+declare
+  base_url text := 'https://136-0-53-217.sslip.io';  -- troque quando houver domínio próprio (sem barra no fim)
   j record;
 begin
   for j in
@@ -56,26 +77,32 @@ begin
           url := %L,
           headers := jsonb_build_object(
             'Content-Type', 'application/json',
-            'apikey', %L,
-            'Authorization', 'Bearer ' || %L
+            'x-cron-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'sgm_cron_secret')
           ),
           body := jsonb_build_object('source', 'cron'),
           timeout_milliseconds := 60000
         ) as request_id;
-      $cmd$, base_url || '/api/public/edge/' || j.fn, apikey, apikey)
+      $cmd$, base_url || '/api/public/edge/' || j.fn)
     );
   end loop;
 end $$;
 
--- 3) Conferir
+-- 4) Conferir: 9 jobs sgm-* ativos e o segredo guardado
 select jobname, schedule, active from cron.job order by jobname;
+select name, created_at, updated_at from vault.secrets where name = 'sgm_cron_secret';
 
--- Depois do primeiro disparo: histórico do pg_cron e respostas HTTP da VPS
+-- Depois do primeiro disparo: histórico do pg_cron e respostas HTTP da VPS.
+-- status_code 200 = ok; 401 = segredo do Vault diferente do CRON_SECRET da VPS;
+-- 503 = CRON_SECRET vazio em /opt/sgm/.env (ou o app não foi recriado depois de preencher).
 -- select jobname, status, return_message, start_time from cron.job_run_details
 --   join cron.job using (jobid) order by start_time desc limit 20;
 -- select id, status_code, left(content::text, 200) as resposta, created
 --   from net._http_response order by id desc limit 20;
 
--- Rotinas que TÊM botão na interface e por isso ficaram fora da agenda (adicione se quiser):
+-- Trocar o segredo depois: gere outro na VPS, atualize o /opt/sgm/.env, recrie o app e rode só o bloco 2.
+
+-- Rotinas que TÊM botão na interface e por isso ficaram fora da agenda:
 --   check-audiencias-vencimento (Jurídico), check-documentos-vencimento (Licitações),
 --   process-whatsapp-campanhas (Comunicação WhatsApp), importar-nfes-brasilnfe (NF-es recebidas).
+-- Elas exigem usuário logado na ponte. Agendar uma delas pede que a ponte aceite também o
+-- x-cron-secret para ela, sem tirar o acesso do botão (mudança em src/lib/edge/auth.ts).

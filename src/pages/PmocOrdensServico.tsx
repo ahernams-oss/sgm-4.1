@@ -94,7 +94,6 @@ export default function PmocOrdensServico() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-            <Input placeholder="Buscar nº, equipamento, cliente, técnico..." value={busca} onChange={(e) => setBusca(e.target.value)} />
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -104,6 +103,7 @@ export default function PmocOrdensServico() {
                 <SelectItem value="Cancelada">Cancelada</SelectItem>
               </SelectContent>
             </Select>
+            <Input placeholder="Buscar nº, equipamento, cliente, técnico..." value={busca} onChange={(e) => setBusca(e.target.value)} />
             <Select value={cliente} onValueChange={(v) => { setCliente(v); setLocal("todos"); }}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>

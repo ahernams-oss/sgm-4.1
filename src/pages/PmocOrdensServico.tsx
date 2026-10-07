@@ -94,6 +94,15 @@ export default function PmocOrdensServico() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <Select value={cliente} onValueChange={(v) => { setCliente(v); setLocal("todos"); }}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos os clientes</SelectItem>
+                {clientesOptions.map((c) => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -104,15 +113,6 @@ export default function PmocOrdensServico() {
               </SelectContent>
             </Select>
             <Input placeholder="Buscar nº, equipamento, cliente, técnico..." value={busca} onChange={(e) => setBusca(e.target.value)} />
-            <Select value={cliente} onValueChange={(v) => { setCliente(v); setLocal("todos"); }}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos os clientes</SelectItem>
-                {clientesOptions.map((c) => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
             <Select value={local} onValueChange={setLocal}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>

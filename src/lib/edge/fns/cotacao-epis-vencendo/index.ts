@@ -216,7 +216,7 @@ serve(async (req) => {
 
         let emailEnviado = false;
         if (email) {
-          // Envia direto pelo Resend: functions.invoke aqui no servidor chamaria
+          // Envia direto por enviarEmail (SMTP ou Resend): functions.invoke aqui no servidor chamaria
           // /functions/v1 do Supabase Cloud, e não a função que roda neste app.
           const mailErr = await enviarEmail({
               to: email,

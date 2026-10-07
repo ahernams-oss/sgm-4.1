@@ -70,7 +70,9 @@ Edite `/opt/sgm/.env` (modelo em `deploy/env.example`):
 | `CRON_SECRET` | segredo que o pg_cron do Supabase manda no cabeçalho `x-cron-secret` ao chamar as rotinas diárias (ver "Rotinas agendadas") |
 | `GEMINI_API_KEY` | chave do Google Gemini (IA: Duda, leitura de editais, propostas, holerites e datas de documentos, Base de Conhecimento). Passo 8 |
 | `GEMINI_MODEL_RAPIDO`, `GEMINI_MODEL_AVANCADO` | opcionais: trocam os modelos sem mexer no código (vazios = `gemini-3.5-flash-lite` e `gemini-3.8-flash`) |
-| `RESEND_API_KEY`, `EMAIL_FROM` | envio dos e-mails transacionais pelo Resend e remetente (`"Nome <endereco@dominio-verificado>"`, com aspas). Passo 8 |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS` | envio dos e-mails transacionais por SMTP (caixa exclusiva no SkyMail). Se `SMTP_HOST` estiver preenchido, tem prioridade sobre o Resend. Passo 8 |
+| `RESEND_API_KEY` | alternativa ao SMTP: envio pelo Resend. Passo 8 |
+| `EMAIL_FROM` | remetente de todos os e-mails (`"Nome <endereco>"`, com aspas). No SMTP, a própria caixa autenticada |
 | `RESEND_WEBHOOK_SECRET` | opcional: segredo do webhook do Resend que registra bounces e reclamações de spam |
 | `SEND_EMAIL_HOOK_SECRET` | opcional: só se o hook "Send Email" do Supabase Auth for ativado |
 
@@ -107,9 +109,11 @@ cd /opt/sgm && docker compose up -d --force-recreate caddy
 
 O Caddy emite o certificado sozinho.
 
-### 8. IA e e-mails (Gemini e Resend)
+### 8. IA e e-mails (Gemini e SMTP/Resend)
 
-A IA e os e-mails usavam serviços da Lovable que só funcionam dentro da hospedagem dela. O servidor agora fala direto com o **Google Gemini** (IA) e com o **Resend** (e-mails). Cada um precisa de uma conta e de uma chave no `/opt/sgm/.env`. O código fica em [src/lib/edge/ai.ts](src/lib/edge/ai.ts) e [src/lib/email/resend.ts](src/lib/email/resend.ts); os templates de e-mail (React Email) são os mesmos de antes.
+A IA e os e-mails usavam serviços da Lovable que só funcionam dentro da hospedagem dela. O servidor agora fala direto com o **Google Gemini** (IA). Os e-mails saem por **SMTP** (uma caixa exclusiva no SkyMail, o e-mail corporativo da Lasant) ou pelo **Resend**: se `SMTP_HOST` estiver preenchido no `/opt/sgm/.env`, usa o SMTP; senão, o Resend. O código fica em [src/lib/edge/ai.ts](src/lib/edge/ai.ts), [src/lib/email/resend.ts](src/lib/email/resend.ts) e [src/lib/email/smtp.ts](src/lib/email/smtp.ts); os templates de e-mail (React Email) são os mesmos de antes.
+
+**Qual escolher.** O SMTP do SkyMail não pede conta nova nem mudança de DNS: o SPF de `lasant.com.br` já autoriza o SkyMail, os e-mails saem de um endereço real da empresa e respostas caem numa caixa de verdade. Serve bem para o volume do SGM (OTPs, senhas temporárias, avisos e cotações). Confira com o SkyMail o limite de envios por hora/dia da caixa. O Resend vale se o volume crescer muito ou se quiser painel de entregas e supressão automática de bounces.
 
 **8.1 Chave do Gemini (Google AI Studio)**
 
@@ -117,7 +121,15 @@ A IA e os e-mails usavam serviços da Lovable que só funcionam dentro da hosped
 2. Clique em **Create API key** (crie ou escolha um projeto) e copie a chave (começa com `AIza`).
 3. Recomendado: ative o faturamento desse projeto (**Set up billing** na mesma tela). No nível gratuito o Google pode usar o conteúdo enviado para melhorar os produtos dele, e o SGM envia holerites (CPF, salários), propostas e editais. No nível pago isso não acontece e os limites de uso são maiores.
 
-**8.2 Conta e domínio no Resend**
+**8.2a E-mail por SMTP (SkyMail), recomendado**
+
+1. No painel do SkyMail, crie uma caixa só para o sistema, por exemplo `sgm@lasant.com.br`, com senha forte. Ninguém precisa usá-la no dia a dia; ela só envia (e recebe os avisos de e-mail não entregue).
+2. Se o SkyMail oferecer DKIM para `lasant.com.br` e ele ainda não estiver ativo, ative: melhora a entrega na caixa de entrada.
+3. Siga o 8.3 com as variáveis de SMTP.
+
+Validado em 07/10/2026: a VPS alcança `smtp.skymail.net.br` nas portas 587 (STARTTLS, certificado válido) e 465; o servidor aceita `AUTH PLAIN/LOGIN` e mensagens de até 50 MB.
+
+**8.2b Alternativa: conta e domínio no Resend**
 
 1. Crie a conta em https://resend.com.
 2. **Domains → Add Domain**: use um subdomínio só para os e-mails do sistema, por exemplo `mail.lasant.com.br`, região **São Paulo (sa-east-1)**. O `notify.lasant.com.br` antigo está delegado para o DNS da Lovable; para reaproveitá-lo seria preciso remover essa delegação antes.
@@ -134,13 +146,25 @@ ssh root@136.0.53.217
 cd /opt/sgm && nano .env
 ```
 
-No editor, apague as linhas `LOVABLE_API_KEY=` e `LOVABLE_SEND_URL=` (se existirem) e cole no fim, com os seus valores:
+No editor, apague as linhas `LOVABLE_API_KEY=` e `LOVABLE_SEND_URL=` (se existirem) e cole no fim, com os seus valores. Com SMTP (8.2a):
 
 ```
 GEMINI_API_KEY=AIza...
+SMTP_HOST=smtp.skymail.net.br
+SMTP_PORT=587
+SMTP_USER=sgm@lasant.com.br
+SMTP_PASS=senha-da-caixa
+EMAIL_FROM="SGM Lasant <sgm@lasant.com.br>"
+```
+
+Com Resend (8.2b), no lugar das linhas `SMTP_*`:
+
+```
 RESEND_API_KEY=re_...
 EMAIL_FROM="SGM Lasant <noreply@mail.lasant.com.br>"
 ```
+
+Se a senha da caixa tiver `#`, espaço, aspas ou `$`, coloque-a entre aspas simples: `SMTP_PASS='minha#senha'`.
 
 Salve com `Ctrl+O` e `Enter`, saia com `Ctrl+X` e recrie o app:
 
@@ -156,7 +180,7 @@ E-mail (troque `SEU-EMAIL` pelo seu endereço):
 docker compose exec app node -e "fetch('http://127.0.0.1:3000/api/public/edge/send-email-cotacao',{method:'POST',headers:{'Content-Type':'application/json',apikey:process.env.SUPABASE_PUBLISHABLE_KEY,Authorization:'Bearer '+process.env.SUPABASE_SERVICE_ROLE_KEY},body:JSON.stringify({to:'SEU-EMAIL',subject:'Teste SGM',htmlBody:'<p>Teste de envio pelo Resend</p>'})}).then(r=>r.text()).then(console.log)"
 ```
 
-Tem que responder `{"success":true,"id":"..."}` e o e-mail chegar. O envio também aparece em Resend → Emails.
+Tem que responder `{"success":true,"id":"..."}` e o e-mail chegar. Com Resend, o envio também aparece em Resend → Emails. Com SMTP, erros comuns: `Usuário ou senha do SMTP recusados` (confira `SMTP_USER`/`SMTP_PASS`) e remetente recusado (o `EMAIL_FROM` precisa ser a própria caixa).
 
 IA e Base de Conhecimento: o comando abaixo regera os embeddings (vetores da busca) de todos os artigos e FAQs, inclusive os salvos enquanto a IA estava parada, que ficaram sem vetor:
 
@@ -166,7 +190,7 @@ docker compose exec app node -e "fetch('http://127.0.0.1:3000/api/public/edge/kb
 
 Resposta esperada: `{"artigos":N,"faqs":N,"falhas":0}`. Depois, no sistema, abra a Duda e pergunte, por exemplo, "quantas OS estão abertas?".
 
-**8.5 Opcional: bounces e spam (webhook do Resend)**
+**8.5 Opcional, só com Resend: bounces e spam (webhook do Resend)**
 
 Resend → Webhooks → **Add Webhook**: URL `https://136-0-53-217.sslip.io/api/public/edge/handle-email-events`, eventos `email.bounced` e `email.complained`. Copie o **Signing secret** (`whsec_...`) para `RESEND_WEBHOOK_SECRET=` no `/opt/sgm/.env` e recrie o app. Os endereços que voltarem ou marcarem spam passam a ser gravados em `suppressed_emails`; o próprio Resend deixa de enviar para eles.
 

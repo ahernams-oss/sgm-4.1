@@ -1,8 +1,12 @@
-// Envio de e-mails do servidor pelo Resend (https://resend.com), com a chave RESEND_API_KEY.
-// Substitui o serviço de e-mail da Lovable, que só funcionava dentro da hospedagem dela.
-// Remetente padrão em EMAIL_FROM (ex.: "SGM Lasant <noreply@notify.lasant.com.br>"); o
-// domínio do remetente precisa estar verificado no Resend.
+// Envio de e-mails do servidor. Substitui o serviço de e-mail da Lovable, que só funcionava
+// dentro da hospedagem dela. Dois caminhos, escolhidos pelas variáveis do servidor:
+//   - SMTP_HOST definido: SMTP (caixa exclusiva no SkyMail, o e-mail corporativo), ver smtp.ts;
+//   - senão: Resend (https://resend.com), com a chave RESEND_API_KEY.
+// Remetente padrão em EMAIL_FROM (ex.: "SGM Lasant <sgm@lasant.com.br>"). No SMTP ele deve ser a
+// própria caixa autenticada; no Resend, o domínio precisa estar verificado lá.
 // Server-only: nunca importar de componentes do navegador.
+
+import { enviarPorSmtp, smtpConfigurado } from './smtp';
 
 export interface EmailSaida {
   to: string | string[];
@@ -13,7 +17,7 @@ export interface EmailSaida {
   replyTo?: string;
   /** Anexos com conteúdo em base64 (sem o prefixo "data:...;base64,"). */
   attachments?: { filename: string; content: string; contentType?: string }[];
-  /** Evita envio duplicado em novas tentativas (o Resend guarda a chave por 24 h). */
+  /** Evita envio duplicado em novas tentativas (o Resend guarda a chave por 24 h; o SMTP ignora). */
   idempotencyKey?: string;
 }
 
@@ -27,14 +31,30 @@ export class ErroEmail extends Error {
 }
 
 export function remetentePadrao(): string {
-  const from = process.env['EMAIL_FROM'];
+  const from = process.env['EMAIL_FROM'] || process.env['SMTP_USER'];
   if (!from) throw new ErroEmail(500, 'EMAIL_FROM não configurado');
   return from;
 }
 
 export async function enviarEmail(email: EmailSaida): Promise<{ id: string }> {
+  if (smtpConfigurado()) {
+    try {
+      return { id: await enviarPorSmtp(email, email.from ?? remetentePadrao()) };
+    } catch (e: any) {
+      if (e instanceof ErroEmail) throw e;
+      console.error('[email] SMTP recusou o envio:', e?.code, e?.response ?? e?.message);
+      const msg =
+        e?.code === 'EAUTH'
+          ? 'Usuário ou senha do SMTP recusados (SMTP_USER/SMTP_PASS)'
+          : e?.code === 'ECONNECTION' || e?.code === 'ETIMEDOUT' || e?.code === 'ESOCKET'
+            ? `Sem conexão com o servidor SMTP (${process.env['SMTP_HOST']})`
+            : e?.response || e?.message || 'Falha no envio por SMTP';
+      throw new ErroEmail(502, msg);
+    }
+  }
+
   const apiKey = process.env['RESEND_API_KEY'];
-  if (!apiKey) throw new ErroEmail(500, 'RESEND_API_KEY não configurada');
+  if (!apiKey) throw new ErroEmail(500, 'E-mail não configurado: defina SMTP_HOST ou RESEND_API_KEY');
 
   const headers: Record<string, string> = {
     Authorization: `Bearer ${apiKey}`,

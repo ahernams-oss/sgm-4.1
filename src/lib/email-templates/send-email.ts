@@ -3,7 +3,7 @@ import { render } from '@react-email/render'
 import { enviarEmail } from '@/lib/email/resend'
 import { TEMPLATES } from './registry'
 
-// Server-only: envia pelo Resend (RESEND_API_KEY, remetente EMAIL_FROM). Never import
+// Server-only: envia por enviarEmail (SMTP se SMTP_HOST, senão Resend; remetente EMAIL_FROM). Never import
 // from client components.
 
 export type SendTemplateEmailResult =
@@ -12,14 +12,15 @@ export type SendTemplateEmailResult =
 
 export interface SendTemplateEmailOptions {
   templateData?: Record<string, any>
-  /** Dedupes retries of the same logical send (Resend keeps the key for 24h). */
+  /** Dedupes retries of the same logical send (Resend keeps the key for 24h; SMTP ignores it). */
   idempotencyKey?: string
   replyTo?: string
 }
 
 /**
- * Renders a registered template and sends it through Resend. Bounces and spam
- * complaints are suppressed by Resend itself and reported to handle-email-events.
+ * Renders a registered template and sends it through enviarEmail (SMTP or Resend).
+ * With Resend, bounces and spam complaints are suppressed by Resend itself and reported
+ * to handle-email-events; with SMTP, bounces come back to the sending mailbox.
  * Any failure throws — ErroEmail exposes .status for branching.
  */
 export async function sendTemplateEmail(

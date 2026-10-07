@@ -1,50 +1,32 @@
-import { denoEnv } from "@/lib/edge/deno-shim";
-const Deno = { env: denoEnv } as any;
 import * as React from 'react'
 import { render } from '@react-email/components'
-import { EmailAPIError, sendLovableEmail } from '@lovable.dev/email-js'
+import { enviarEmail } from '@/lib/email/resend'
 import { TEMPLATES } from './registry.ts'
 
-// Server-only: reads LOVABLE_API_KEY. Import from edge functions only — never
-// expose sending to the browser.
-
-// Configuration baked in at scaffold time
-const SITE_NAME = "SGM 4.1 - Sistema de Gestão Lasant"
-// SENDER_DOMAIN is the verified sender subdomain FQDN (e.g., "notify.example.com").
-// It MUST match the subdomain delegated to Lovable's nameservers. NEVER use the root domain.
-const SENDER_DOMAIN = "notify.lasant.com.br"
-// FROM_DOMAIN is the domain shown in the From: header (e.g., "example.com").
-// Can be the root domain when display_from_root is enabled — this is cosmetic only.
-const FROM_DOMAIN = "lasant.com.br"
+// Server-only: envia pelo Resend (RESEND_API_KEY, remetente EMAIL_FROM). Import from
+// edge functions only — never expose sending to the browser.
 
 export type SendTemplateEmailResult =
-  | { sent: true }
+  | { sent: true; messageId?: string }
   | { sent: false; reason: 'recipient_suppressed' }
 
 export interface SendTemplateEmailOptions {
   templateData?: Record<string, any>
-  /** Dedupes retries of the same logical send; defaults to a random UUID (no dedupe). */
+  /** Dedupes retries of the same logical send (Resend keeps the key for 24h). */
   idempotencyKey?: string
   replyTo?: string
 }
 
 /**
- * Renders a registered template and sends it through Lovable's managed email
- * API. Suppression, retries, and rate limits are enforced by Lovable
- * server-side. A suppressed recipient is an expected outcome
- * ({ sent: false }); any other failure throws — EmailAPIError exposes
- * .code and .status for branching.
+ * Renders a registered template and sends it through Resend. Bounces and spam
+ * complaints are suppressed by Resend itself and reported to handle-email-events.
+ * Any failure throws — ErroEmail exposes .status for branching.
  */
 export async function sendTemplateEmail(
   templateName: string,
   to: string,
   options: SendTemplateEmailOptions = {}
 ): Promise<SendTemplateEmailResult> {
-  const apiKey = Deno.env.get('LOVABLE_API_KEY')
-  if (!apiKey) {
-    throw new Error('LOVABLE_API_KEY is not configured')
-  }
-
   const template = TEMPLATES[templateName]
   if (!template) {
     throw new Error(
@@ -68,28 +50,14 @@ export async function sendTemplateEmail(
       ? template.subject(templateData)
       : template.subject
 
-  try {
-    await sendLovableEmail(
-      {
-        to: recipient,
-        from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
-        sender_domain: SENDER_DOMAIN,
-        subject,
-        html,
-        text,
-        purpose: 'transactional',
-        label: templateName,
-        idempotency_key: options.idempotencyKey || crypto.randomUUID(),
-        reply_to: options.replyTo,
-      },
-      { apiKey, sendUrl: Deno.env.get('LOVABLE_SEND_URL') }
-    )
-  } catch (error) {
-    if (error instanceof EmailAPIError && error.code === 'recipient_suppressed') {
-      return { sent: false, reason: 'recipient_suppressed' }
-    }
-    throw error
-  }
+  const { id } = await enviarEmail({
+    to: recipient,
+    subject,
+    html,
+    text,
+    replyTo: options.replyTo,
+    idempotencyKey: options.idempotencyKey,
+  })
 
-  return { sent: true }
+  return { sent: true, messageId: id }
 }

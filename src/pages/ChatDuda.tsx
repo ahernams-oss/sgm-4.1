@@ -8,6 +8,7 @@ import { gerarPdfDuda, gerarExcelDuda, gerarWordDuda, type ReportData } from "@/
 import { toast } from "sonner";
 import { usePermissao } from "@/hooks/usePermissao";
 import dudaAvatar from "@/assets/duda-avatar.png";
+import { supabase } from "@/integrations/supabase/client";
 
 const DudaAvatar = ({ className = "h-5 w-5" }: { className?: string }) => (
   <img src={dudaAvatar} alt="Duda" className={`${className} rounded-full object-cover`} />
@@ -15,7 +16,8 @@ const DudaAvatar = ({ className = "h-5 w-5" }: { className?: string }) => (
 
 type Msg = { role: "user" | "assistant"; content: string };
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-duda`;
+// A Duda roda no servidor deste app (ponte /api/public/edge), não no Supabase Cloud.
+const CHAT_URL = "/api/public/edge/chat-duda";
 
 const REPORT_REGEX = /\[RELATORIO:(PDF|EXCEL|WORD)\]\s*([\s\S]*?)\s*\[\/RELATORIO\]/g;
 
@@ -36,9 +38,15 @@ function parseReports(content: string): { text: string; reports: { format: strin
 async function streamChat({ messages, onDelta, onDone, onError }: {
   messages: Msg[]; onDelta: (t: string) => void; onDone: () => void; onError: (msg: string) => void;
 }) {
+  const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const { data: sessao } = await supabase.auth.getSession();
   const resp = await fetch(CHAT_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
+    headers: {
+      "Content-Type": "application/json",
+      apikey: anonKey,
+      Authorization: `Bearer ${sessao.session?.access_token ?? anonKey}`,
+    },
     body: JSON.stringify({ messages }),
   });
   if (!resp.ok) {

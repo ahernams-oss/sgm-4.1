@@ -4,7 +4,7 @@ const serve = __slot.serve;
 const Deno = __slot.Deno;
 import * as React from 'react'
 import { render } from '@react-email/components'
-import { createAuthEmailHandler } from '@lovable.dev/email-js'
+import { assinaturaWebhookValida, enviarEmail } from '@/lib/email/resend'
 import { SignupEmail } from '../_shared/email-templates/signup.tsx'
 import { InviteEmail } from '../_shared/email-templates/invite.tsx'
 import { MagicLinkEmail } from '../_shared/email-templates/magic-link.tsx'
@@ -12,194 +12,148 @@ import { RecoveryEmail } from '../_shared/email-templates/recovery.tsx'
 import { EmailChangeEmail } from '../_shared/email-templates/email-change.tsx'
 import { ReauthenticationEmail } from '../_shared/email-templates/reauthentication.tsx'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers':
-    'authorization, x-client-info, apikey, content-type, x-lovable-signature, x-lovable-timestamp, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
-}
+// Hook "Send Email" do Supabase Auth (Authentication → Hooks → Send Email, tipo HTTPS),
+// apontando para https://<site>/api/public/edge/auth-email-hook. O Supabase assina cada
+// chamada (Standard Webhooks) com o segredo que fica em SEND_EMAIL_HOOK_SECRET
+// ("v1,whsec_..."). Os e-mails usam os templates React Email e saem pelo Resend.
 
-// Configuration
 const SITE_NAME = "SGM 4.1 - Sistema de Gestão Lasant"
-const SENDER_DOMAIN = "notify.lasant.com.br"
-const ROOT_DOMAIN = "lasant.com.br"
-const FROM_DOMAIN = "lasant.com.br"
-const SITE_URL = `https://${ROOT_DOMAIN}`
+const siteUrl = () => Deno.env.get('APP_BASE_URL') || 'https://lasant.com.br'
 
-// Template mapping for preview mode
-const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
-  signup: SignupEmail,
-  invite: InviteEmail,
-  magiclink: MagicLinkEmail,
-  recovery: RecoveryEmail,
-  email_change: EmailChangeEmail,
-  reauthentication: ReauthenticationEmail,
+interface DadosEmail {
+  email: string
+  url: string
+  token?: string
+  old_email?: string
+  new_email?: string
 }
 
-// Sample data for preview mode ONLY (not used in actual email sending).
-// URLs are baked in at scaffold time from the project's real data.
-// The sample email uses a fixed placeholder (RFC 6761 .test TLD) so the Go backend
-// can always find-and-replace it with the actual recipient when sending test emails,
-// even if the project's domain has changed since the template was scaffolded.
-const SAMPLE_PROJECT_URL = "https://staff-soulmate-seek.lovable.app"
-const SAMPLE_EMAIL = "user@example.test"
-const SAMPLE_DATA: Record<string, object> = {
+const EMAILS: Record<string, { subject: string; render: (data: DadosEmail) => React.ReactElement }> = {
   signup: {
-    siteName: SITE_NAME,
-    siteUrl: SAMPLE_PROJECT_URL,
-    recipient: SAMPLE_EMAIL,
-    confirmationUrl: SAMPLE_PROJECT_URL,
-  },
-  magiclink: {
-    siteName: SITE_NAME,
-    confirmationUrl: SAMPLE_PROJECT_URL,
-  },
-  recovery: {
-    siteName: SITE_NAME,
-    confirmationUrl: SAMPLE_PROJECT_URL,
+    subject: 'Confirme seu e-mail',
+    render: (data) =>
+      React.createElement(SignupEmail, {
+        siteName: SITE_NAME,
+        siteUrl: siteUrl(),
+        recipient: data.email,
+        confirmationUrl: data.url,
+      }),
   },
   invite: {
-    siteName: SITE_NAME,
-    siteUrl: SAMPLE_PROJECT_URL,
-    confirmationUrl: SAMPLE_PROJECT_URL,
+    subject: 'Você recebeu um convite',
+    render: (data) =>
+      React.createElement(InviteEmail, {
+        siteName: SITE_NAME,
+        siteUrl: siteUrl(),
+        confirmationUrl: data.url,
+      }),
+  },
+  magiclink: {
+    subject: 'Seu link de acesso',
+    render: (data) =>
+      React.createElement(MagicLinkEmail, {
+        siteName: SITE_NAME,
+        confirmationUrl: data.url,
+      }),
+  },
+  recovery: {
+    subject: 'Redefina sua senha',
+    render: (data) =>
+      React.createElement(RecoveryEmail, {
+        siteName: SITE_NAME,
+        confirmationUrl: data.url,
+      }),
   },
   email_change: {
-    siteName: SITE_NAME,
-    oldEmail: SAMPLE_EMAIL,
-    email: SAMPLE_EMAIL,
-    newEmail: SAMPLE_EMAIL,
-    confirmationUrl: SAMPLE_PROJECT_URL,
+    subject: 'Confirme seu novo e-mail',
+    render: (data) =>
+      React.createElement(EmailChangeEmail, {
+        siteName: SITE_NAME,
+        oldEmail: data.old_email ?? '',
+        email: data.email,
+        newEmail: data.new_email ?? '',
+        confirmationUrl: data.url,
+      }),
   },
   reauthentication: {
-    token: '123456',
+    subject: 'Seu código de verificação',
+    render: (data) =>
+      React.createElement(ReauthenticationEmail, { token: data.token ?? '' }),
   },
 }
+// Login por código/link enviado por e-mail (signInWithOtp) usa o mesmo template do link mágico.
+EMAILS.email = EMAILS.magiclink
 
-// Preview endpoint handler - returns rendered HTML without sending email
-async function handlePreview(req: Request): Promise<Response> {
-  const previewCorsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'authorization, content-type',
-  }
+function linkVerificacao(tokenHash: string, tipo: string, redirectTo?: string): string {
+  const params = new URLSearchParams({
+    token: tokenHash,
+    type: tipo,
+    redirect_to: redirectTo || siteUrl(),
+  })
+  return `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?${params}`
+}
 
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: previewCorsHeaders })
-  }
-
-  const apiKey = Deno.env.get('LOVABLE_API_KEY')
-  const authHeader = req.headers.get('Authorization')
-
-  if (!apiKey || authHeader !== `Bearer ${apiKey}`) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-      headers: { ...previewCorsHeaders, 'Content-Type': 'application/json' },
-    })
-  }
-
-  let type: string
-  try {
-    const body = await req.json()
-    type = body.type
-  } catch (error) {
-    return new Response(JSON.stringify({ error: 'Invalid JSON in request body' }), {
-      status: 400,
-      headers: { ...previewCorsHeaders, 'Content-Type': 'application/json' },
-    })
-  }
-
-  const EmailTemplate = EMAIL_TEMPLATES[type]
-
-  if (!EmailTemplate) {
-    return new Response(JSON.stringify({ error: `Unknown email type: ${type}` }), {
-      status: 400,
-      headers: { ...previewCorsHeaders, 'Content-Type': 'application/json' },
-    })
-  }
-
-  const sampleData = SAMPLE_DATA[type] || {}
-  const html = await render(React.createElement(EmailTemplate, sampleData))
-
-  return new Response(html, {
-    status: 200,
-    headers: { ...previewCorsHeaders, 'Content-Type': 'text/html; charset=utf-8' },
+async function enviar(tipo: string, to: string, data: DadosEmail) {
+  const config = EMAILS[tipo]
+  const element = config.render(data)
+  await enviarEmail({
+    to,
+    subject: config.subject,
+    html: await render(element),
+    text: await render(element, { plainText: true }),
   })
 }
 
-// The SDK handler owns verification, dispatch, and retry semantics; this file
-// owns only the email decisions: subjects, templates, and per-type props.
-const handler = createAuthEmailHandler({
-  apiKey: Deno.env.get('LOVABLE_API_KEY')!,
-  from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
-  senderDomain: SENDER_DOMAIN,
-  sendUrl: Deno.env.get('LOVABLE_SEND_URL'),
-  emails: {
-    signup: {
-      subject: 'Confirme seu e-mail',
-      render: (data) =>
-        React.createElement(SignupEmail, {
-          siteName: SITE_NAME,
-          siteUrl: SITE_URL,
-          recipient: data.email,
-          confirmationUrl: data.url,
-        }),
-    },
-    invite: {
-      subject: 'Você recebeu um convite',
-      render: (data) =>
-        React.createElement(InviteEmail, {
-          siteName: SITE_NAME,
-          siteUrl: SITE_URL,
-          confirmationUrl: data.url,
-        }),
-    },
-    magiclink: {
-      subject: 'Seu link de acesso',
-      render: (data) =>
-        React.createElement(MagicLinkEmail, {
-          siteName: SITE_NAME,
-          confirmationUrl: data.url,
-        }),
-    },
-    recovery: {
-      subject: 'Redefina sua senha',
-      render: (data) =>
-        React.createElement(RecoveryEmail, {
-          siteName: SITE_NAME,
-          confirmationUrl: data.url,
-        }),
-    },
-    email_change: {
-      subject: 'Confirme seu novo e-mail',
-      render: (data) =>
-        React.createElement(EmailChangeEmail, {
-          siteName: SITE_NAME,
-          oldEmail: data.old_email ?? '',
-          email: data.email,
-          newEmail: data.new_email ?? '',
-          confirmationUrl: data.url,
-        }),
-    },
-    reauthentication: {
-      subject: 'Seu código de verificação',
-      render: (data) =>
-        React.createElement(ReauthenticationEmail, { token: data.token ?? '' }),
-    },
-  },
-})
+const erro = (status: number, message: string) =>
+  new Response(JSON.stringify({ error: { http_code: status, message } }), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  })
 
 Deno.serve(async (req) => {
-  const url = new URL(req.url)
+  if (req.method !== 'POST') return erro(405, 'Method not allowed')
 
-  // Handle CORS preflight for main endpoint
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+  const segredo = Deno.env.get('SEND_EMAIL_HOOK_SECRET')
+  if (!segredo) return erro(500, 'SEND_EMAIL_HOOK_SECRET não configurado')
+
+  const corpo = await req.text()
+  if (!(await assinaturaWebhookValida(req, corpo, segredo))) {
+    return erro(401, 'Assinatura inválida')
   }
 
-  // Route to preview handler for /preview path
-  if (url.pathname.endsWith('/preview')) {
-    return handlePreview(req)
-  }
+  try {
+    const { user, email_data: d } = JSON.parse(corpo)
+    const tipo: string = d?.email_action_type
 
-  return handler(req)
+    // Avisos (senha alterada, MFA etc.) não têm template no SGM: confirma sem enviar.
+    if (!EMAILS[tipo]) {
+      console.log('[auth-email-hook] tipo sem template, ignorado:', tipo)
+      return new Response('{}', { headers: { 'Content-Type': 'application/json' } })
+    }
+
+    if (tipo === 'email_change') {
+      const dados = { email: user.email, old_email: user.email, new_email: user.new_email }
+      // Troca segura de e-mail: o endereço atual recebe token_hash_new e o novo recebe
+      // token_hash (nomes invertidos de propósito na API do Supabase).
+      if (d.token_hash_new && user.email) {
+        await enviar(tipo, user.email, { ...dados, url: linkVerificacao(d.token_hash_new, tipo, d.redirect_to) })
+      }
+      if (d.token_hash && user.new_email) {
+        await enviar(tipo, user.new_email, { ...dados, url: linkVerificacao(d.token_hash, tipo, d.redirect_to) })
+      }
+    } else {
+      await enviar(tipo, user.email, {
+        email: user.email,
+        token: d.token,
+        url: linkVerificacao(d.token_hash, tipo, d.redirect_to),
+      })
+    }
+
+    return new Response('{}', { headers: { 'Content-Type': 'application/json' } })
+  } catch (e) {
+    console.error('[auth-email-hook]', e)
+    return erro(500, e instanceof Error ? e.message : 'Falha ao enviar e-mail')
+  }
 })
 
 export default __slot.dispatch;

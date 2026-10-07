@@ -4,6 +4,8 @@ const serve = __slot.serve;
 const Deno = __slot.Deno;
 
 import { toolDefinitions, executeTool } from "./tools.ts";
+import { chatCompletions, modeloAvancado, modeloRapido } from "@/lib/edge/ai";
+import { buscarBaseConhecimento } from "../_shared/kb.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -103,28 +105,23 @@ Assine como **"Duda 💡"** apenas na primeira mensagem da conversa.`;
 
 async function buscarKB(query: string): Promise<string> {
   try {
-    const res = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/kb-search`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}` },
-      body: JSON.stringify({ query, limit: 5, threshold: 0.3 }),
-    });
-    if (!res.ok) return "";
-    const data = await res.json();
-    const results = data?.results ?? [];
+    const results = await buscarBaseConhecimento(query, 5, 0.3);
     if (!results.length) return "";
     const blocos = results.map((r: any, i: number) =>
       `[${i + 1}] (${r.tipo === "faq" ? "FAQ" : "Artigo"}) ${r.titulo}${r.categoria_nome ? " — " + r.categoria_nome : ""}\n${String(r.conteudo || "").slice(0, 1000)}`
     ).join("\n\n---\n\n");
     return `\n\n📚 BASE DE CONHECIMENTO (cite os títulos):\n\n${blocos}\n`;
-  } catch { return ""; }
+  } catch (e) {
+    console.error("[duda] busca na base de conhecimento:", e);
+    return "";
+  }
 }
 
-const GATEWAY = "https://ai.gateway.lovable.dev/v1/chat/completions";
-const MODEL_PADRAO = "google/gemini-2.5-flash";
-const MODEL_ANALISE = "openai/gpt-5.5"; // ChatGPT para análises pesadas
+const MODEL_PADRAO = modeloRapido();
+const MODEL_ANALISE = modeloAvancado(); // análises pesadas
 const MAX_TOOL_ROUNDS = 6;
 
-// Heurística: perguntas analíticas/complexas vão para o ChatGPT
+// Heurística: perguntas analíticas/complexas vão para o modelo avançado
 const PALAVRAS_ANALISE = [
   "analis", "análise", "compare", "comparar", "comparativo", "tendência", "tendencia",
   "por que", "porque", "causa", "diagnóstic", "diagnostic", "projeç", "projec",
@@ -144,23 +141,6 @@ function escolherModelo(texto: string, forcado?: string): string {
   return MODEL_PADRAO;
 }
 
-async function callAI(payload: any) {
-  const body: any = { ...payload };
-  // Modelos GPT-5.6 exigem reasoning_effort explícito quando há ferramentas
-  if (typeof body.model === "string" && body.model.startsWith("openai/gpt-5.6")) {
-    body.reasoning_effort = "none";
-  }
-  return fetch(GATEWAY, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-}
-
-
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -169,7 +149,7 @@ serve(async (req) => {
     if (!Array.isArray(userMessages)) {
       return new Response(JSON.stringify({ error: "messages é obrigatório" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-    if (!Deno.env.get("LOVABLE_API_KEY")) throw new Error("LOVABLE_API_KEY não configurada");
+    if (!Deno.env.get("GEMINI_API_KEY")) throw new Error("GEMINI_API_KEY não configurada");
 
     const lastUser = [...userMessages].reverse().find((m: any) => m.role === "user");
     const kbContext = lastUser?.content && typeof lastUser.content === "string" && lastUser.content.length > 5
@@ -185,10 +165,9 @@ serve(async (req) => {
 
     // Loop de tool-calling (não-stream) até o modelo decidir responder
     for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-      const resp = await callAI({ model: MODEL, messages, tools: toolDefinitions, tool_choice: "auto" });
+      const resp = await chatCompletions({ model: MODEL, messages, tools: toolDefinitions, tool_choice: "auto" });
       if (!resp.ok) {
         if (resp.status === 429) return new Response(JSON.stringify({ error: "Limite de requisições excedido. Tente novamente em alguns instantes." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-        if (resp.status === 402) return new Response(JSON.stringify({ error: "Créditos de IA insuficientes." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
         const t = await resp.text();
         console.error("AI gateway error:", resp.status, t);
         return new Response(JSON.stringify({ error: "Erro no serviço de IA" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -221,7 +200,7 @@ serve(async (req) => {
     }
 
     // Chamada final em streaming
-    const finalResp = await callAI({ model: MODEL, messages, stream: true });
+    const finalResp = await chatCompletions({ model: MODEL, messages, stream: true });
     if (!finalResp.ok || !finalResp.body) {
       const t = await finalResp.text().catch(() => "");
       console.error("AI final stream error:", finalResp.status, t);

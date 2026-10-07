@@ -2,6 +2,7 @@ import { createDenoSlot } from "@/lib/edge/deno-shim";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
+import { gerarTexto, modeloAvancado, paraBase64, respostaErroIA } from "@/lib/edge/ai";
 // Análise preliminar de edital de licitação via IA
 // Recebe múltiplos PDFs (edital, termo de referência, anexos) e gera análise estratégica
 // no formato do checklist interno da empresa.
@@ -78,24 +79,10 @@ REGRAS RÍGIDAS:
 - Use datas no formato dd/mm/aaaa.
 - Seja objetivo, técnico e direto.`;
 
-async function fileToBase64(file: File): Promise<string> {
-  const buf = await file.arrayBuffer();
-  const bytes = new Uint8Array(buf);
-  let bin = "";
-  const chunk = 0x8000;
-  for (let i = 0; i < bytes.length; i += chunk) {
-    bin += String.fromCharCode(...bytes.subarray(i, i + chunk));
-  }
-  return btoa(bin);
-}
-
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY não configurada");
-
     const formData = await req.formData();
     const files: File[] = [];
     for (const [key, value] of formData.entries()) {
@@ -115,57 +102,19 @@ serve(async (req) => {
       .map((f, i) => `${i + 1}. ${f.name} (${(f.size / 1024).toFixed(0)} KB)`)
       .join("\n");
 
-    const content: any[] = [
-      {
-        type: "text",
-        text: `Foram anexados ${files.length} documento(s) PDF desta licitação:\n${contextoArquivos}\n\nRealize a ANÁLISE PRELIMINAR completa seguindo a estrutura obrigatória. Identifique qual arquivo é o edital, qual é o termo de referência, qual é a minuta contratual e quais são os demais anexos.`,
-      },
-    ];
+    const texto = `Foram anexados ${files.length} documento(s) PDF desta licitação:\n${contextoArquivos}\n\nRealize a ANÁLISE PRELIMINAR completa seguindo a estrutura obrigatória. Identifique qual arquivo é o edital, qual é o termo de referência, qual é a minuta contratual e quais são os demais anexos.`;
 
-    for (const file of files) {
-      const b64 = await fileToBase64(file);
-      content.push({
-        type: "image_url",
-        image_url: { url: `data:${file.type || "application/pdf"};base64,${b64}` },
-      });
-    }
+    const arquivos = await Promise.all(
+      files.map(async (file) => ({ mimeType: file.type || "application/pdf", base64: await paraBase64(file) })),
+    );
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content },
-        ],
-        temperature: 0.2,
-      }),
+    const markdown = await gerarTexto({
+      modelo: modeloAvancado(),
+      sistema: SYSTEM_PROMPT,
+      texto,
+      arquivos,
+      temperatura: 0.2,
     });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("AI gateway error:", response.status, errText);
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Limite de requisições atingido. Aguarde alguns instantes e tente novamente." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-        );
-      }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "Créditos de IA insuficientes. Adicione créditos na configuração da workspace." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-        );
-      }
-      throw new Error(`Gateway IA retornou ${response.status}: ${errText}`);
-    }
-
-    const result = await response.json();
-    const markdown: string = result.choices?.[0]?.message?.content ?? "";
 
     return new Response(
       JSON.stringify({ markdown, arquivosAnalisados: files.map(f => f.name) }),
@@ -173,10 +122,7 @@ serve(async (req) => {
     );
   } catch (e) {
     console.error("analisar-edital-licitacao error:", e);
-    return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Erro desconhecido" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    return respostaErroIA(e, corsHeaders);
   }
 });
 

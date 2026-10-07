@@ -11,16 +11,16 @@ const Deno = __slot.Deno;
 //   { mode: "migrate", sendEmail: true }    -> cria contas e dispara recovery email
 //   { mode: "send-recovery", userIds: [] }  -> só envia recovery para usuários já migrados
 //
-// Auth: somente Diretor/Gerente/Coordenador (validado via JWT do chamador) pode invocar
-// quando já houver migração. Para o primeiro disparo (boostrap, ninguém tem auth_user_id
-// ainda), aceitamos chave service-role no header X-Bootstrap-Key.
+// Auth: só usuário com acesso total pelo cargo (mesma regra do front, src/lib/permissoes.ts)
+// ou o próprio servidor com a service role (Authorization ou apikey), que serve para o
+// primeiro disparo, quando ninguém tem auth_user_id ainda.
 
 import { createClient } from "@supabase/supabase-js";
 import { corsHeaders } from "@/lib/edge/cors";
+import { exigirAcesso, temAcessoTotal } from "@/lib/edge/permissao";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 
 const admin = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
@@ -38,32 +38,6 @@ function genPassword(): string {
   return out.split("").sort(() => Math.random() - 0.5).join("");
 }
 
-async function isAuthorized(req: Request): Promise<boolean> {
-  const bootstrap = req.headers.get("x-bootstrap-key");
-  if (bootstrap && bootstrap === SERVICE_KEY) return true;
-
-  const authHeader = req.headers.get("authorization") || "";
-  const token = authHeader.replace(/^bearer\s+/i, "");
-  if (!token) return false;
-
-  const userClient = createClient(SUPABASE_URL, ANON_KEY, {
-    global: { headers: { Authorization: `Bearer ${token}` } },
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
-  const { data, error } = await userClient.auth.getUser(token);
-  if (error || !data?.user) return false;
-
-  const { data: usuario } = await admin
-    .from("usuarios")
-    .select("cargo_id, cargos:cargo_id(nome)")
-    .eq("auth_user_id", data.user.id)
-    .maybeSingle();
-  const nomeCargo = (usuario as any)?.cargos?.nome;
-  return ["Diretor", "Gerente Executivo", "Coordenador de Departamento"].includes(
-    nomeCargo
-  );
-}
-
 async function sendRecovery(email: string, redirectTo: string) {
   // generateLink type=recovery emite o e-mail via templates do projeto
   const { error } = await admin.auth.admin.generateLink({
@@ -78,12 +52,8 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    if (!(await isAuthorized(req))) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "content-type": "application/json" },
-      });
-    }
+    const acesso = await exigirAcesso(req, temAcessoTotal);
+    if (!acesso.ok) return acesso.resposta;
 
     const body = await req.json().catch(() => ({}));
     const mode = body.mode ?? "preview";

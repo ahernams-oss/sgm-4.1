@@ -4,6 +4,7 @@ const serve = __slot.serve;
 const Deno = __slot.Deno;
 import { createClient } from "@supabase/supabase-js";
 import * as bcrypt from "@/lib/edge/bcrypt";
+import { ehOProprio, exigirAcesso, pode, temAcessoTotal, usuarioSgmPorId } from "@/lib/edge/permissao";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,13 +29,44 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const userId = String(body?.userId ?? "").trim();
     const novaSenha = String(body?.novaSenha ?? "");
-    const skipPolicy = body?.skipPolicy === true; // p/ senhas temporárias geradas pelo sistema
+
+    // Troca a própria senha, ou a de outro usuário com permissão de administrar usuários.
+    const acesso = await exigirAcesso(req);
+    if (!acesso.ok) return acesso.resposta;
+    const quem = acesso.chamador;
+    const propria = ehOProprio(quem, userId);
+    if (!propria && !pode(quem, "usuarios.criar", "usuarios.editar", "usuarios.resetar_senha")) {
+      return new Response(
+        JSON.stringify({ error: "Você só pode trocar a sua própria senha." }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+    // p/ senhas temporárias geradas pelo sistema; a própria senha sempre segue a política
+    const skipPolicy = body?.skipPolicy === true && !propria;
 
     if (!userId || !novaSenha) {
       return new Response(
         JSON.stringify({ error: "userId e novaSenha são obrigatórios." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
+    }
+
+    // Senha de quem tem acesso total (Diretor, Gerente Executivo, Coordenadores) só pode ser
+    // trocada por ele mesmo ou por outro usuário com acesso total.
+    if (!propria) {
+      const alvo = await usuarioSgmPorId(userId);
+      if (!alvo) {
+        return new Response(JSON.stringify({ error: "Usuário não encontrado." }), {
+          status: 404,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (alvo.acessoTotal && !temAcessoTotal(quem)) {
+        return new Response(
+          JSON.stringify({ error: "Só quem tem acesso total pode trocar a senha deste usuário." }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
     }
 
     if (!skipPolicy) {

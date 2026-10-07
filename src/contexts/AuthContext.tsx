@@ -3,9 +3,7 @@ import { useUsuarios, Usuario } from "./UsuariosContext";
 import { useCargos } from "./CargosContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
-
-// Cargos com acesso total ao sistema
-const CARGOS_ACESSO_TOTAL = ["diretor", "gerente executivo", "coordenador de departamento", "coordenador tecnico", "coordenador técnico", "coordenador administrativo"];
+import { cargoTemAcessoTotal } from "@/lib/permissoes";
 
 const STORAGE_KEY = "usuarioLogado";
 
@@ -105,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const temAcessoTotal = useMemo(() => {
     if (!usuarioLogado) return false;
     const cargo = cargos.find((c) => c.id === usuarioLogado.cargoId);
-    return cargo ? CARGOS_ACESSO_TOTAL.includes((cargo.nome || "").trim().toLowerCase()) : false;
+    return cargo ? cargoTemAcessoTotal(cargo.nome) : false;
   }, [usuarioLogado, cargos]);
 
   const clientesPermitidosIds = useMemo(() => {

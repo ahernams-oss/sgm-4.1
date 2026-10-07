@@ -6,6 +6,7 @@ const Deno = __slot.Deno;
 // Captura o IP de origem do cabeçalho da requisição (não confia no client).
 import { createClient } from "@supabase/supabase-js";
 import { corsHeaders } from "@/lib/edge/cors";
+import { quemChamou } from "@/lib/edge/permissao";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -20,6 +21,20 @@ Deno.serve(async (req) => {
     const row: Record<string, unknown> = {};
     for (const k of allowed) if (k in body) row[k] = body[k];
     if (!row.modulo || !row.acao) return json({ ok: false, error: "modulo e acao são obrigatórios" }, 400);
+
+    // Quem fez a ação vem da sessão, não do corpo (senão daria para registrar em nome de outro).
+    // Só o próprio servidor (service role) informa o usuário livremente.
+    const quem = await quemChamou(req);
+    if (!quem) return json({ ok: false, error: "Não autorizado" }, 401);
+    if (quem.tipo === "usuario") {
+      row.usuario_id = quem.usuario.id;
+      row.usuario_nome = quem.usuario.nome;
+      row.usuario_email = quem.usuario.email;
+    } else if (quem.tipo === "sem-cadastro") {
+      row.usuario_id = null;
+      row.usuario_nome = null;
+      row.usuario_email = quem.email;
+    }
 
     const ip =
       req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||

@@ -4,6 +4,7 @@ const serve = __slot.serve;
 const Deno = __slot.Deno;
 import { createClient } from "@supabase/supabase-js";
 import { corsHeaders } from "@/lib/edge/cors";
+import { exigirAcesso, pode } from "@/lib/edge/permissao";
 import forge from "node-forge";
 
 const UFS_VALIDAS = new Set([
@@ -29,6 +30,10 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
+    // Botão "Validar" da tela Dados da Empresa, que exige "Editar dados".
+    const acesso = await exigirAcesso(req, (c) => pode(c, "empresa.editar"));
+    if (!acesso.ok) return acesso.resposta;
+
     const body = await req.json().catch(() => ({}));
     const { empresaId, storagePath, senha, uf, ambiente } = body || {};
 

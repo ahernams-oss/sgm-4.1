@@ -6,6 +6,7 @@ const Deno = __slot.Deno;
 // A tabela "empresa_dados_bancarios" tem RLS deny-all; só esta função (com service role) pode acessá-la.
 import { createClient } from "@supabase/supabase-js";
 import { corsHeaders } from "@/lib/edge/cors";
+import { exigirAcesso, pode, podeModulo } from "@/lib/edge/permissao";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -16,6 +17,13 @@ Deno.serve(async (req) => {
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const url = new URL(req.url);
     const action = url.searchParams.get("action") || "";
+
+    // Ler: tela Dados da Empresa e Medições (planilha de pagamento usa agência/conta).
+    // Gravar: quem edita os dados da empresa.
+    const acesso = await exigirAcesso(req, (c) =>
+      action === "get" ? podeModulo(c, "empresa", "medicoes") : pode(c, "empresa.editar"),
+    );
+    if (!acesso.ok) return acesso.resposta;
 
     if (action === "get") {
       const empresaId = url.searchParams.get("empresaId") || "";

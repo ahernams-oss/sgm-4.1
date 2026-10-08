@@ -520,7 +520,7 @@ export default function PregaoSalaFornecedorPage() {
 
     try {
       await enviarLancePregao({
-        data: { pregaoId, fornecedorId: session.id, itemId: activeItem.id, valor },
+        data: { pregaoId, fornecedorId: session!.id, itemId: activeItem.id, valor },
       });
     } catch (e: any) {
       toast.error(e?.message || "Erro ao enviar lance.");
@@ -539,7 +539,7 @@ export default function PregaoSalaFornecedorPage() {
     }
     try {
       await enviarMensagemPregao({
-        data: { pregaoId, fornecedorId: session.id, mensagem: msgTexto.trim() },
+        data: { pregaoId, fornecedorId: session!.id, mensagem: msgTexto.trim() },
       });
     } catch (e: any) {
       toast.error(e?.message || "Erro ao enviar mensagem.");

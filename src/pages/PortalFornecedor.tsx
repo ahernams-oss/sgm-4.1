@@ -529,7 +529,7 @@ function Dashboard({ session, onLogout }: { session: FornecedorSession; onLogout
           .select("id,numero,data_criacao,comprador,status,valor_total,itens,condicao_pagamento,prazo_entrega,local_entrega,observacoes")
           .eq("fornecedor_id", session.id)
           .order("created_at", { ascending: false }),
-        getPregoesPortalFornecedor({ data: { fornecedorId: session.id } })
+        getPregoesPortalFornecedor({ data: { fornecedorId: session.id, token: session.token ?? "" } })
           .then((r) => ({ pr: r.pregoes, part: r.participacoes }))
           .catch(() => ({ pr: [], part: [] })),
       ]);

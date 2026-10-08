@@ -2,6 +2,8 @@ import { createDenoSlot } from "@/lib/edge/deno-shim";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
+import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
+import { emailsCadastrados, telefoneCadastrado, sanitizarHtmlEmail, MSG_DESTINO_NAO_CADASTRADO } from "@/lib/edge/fns/_shared/destinatarios";
 import { enviarEmail } from "@/lib/email/resend";
 
 const corsHeaders = {
@@ -13,6 +15,8 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+  const acesso = await exigirAcesso(req);
+  if (!acesso.ok) return acesso.resposta;
 
   try {
     const { to, subject, htmlBody, pdfBase64, pdfFilename } = await req.json();
@@ -24,13 +28,15 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Sending email to: ${to}, subject: ${subject}`);
-    console.log(`PDF attached: ${pdfFilename || 'none'}`);
+    if (!(await emailsCadastrados(to))) return new Response(JSON.stringify({ success: false, error: MSG_DESTINO_NAO_CADASTRADO }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (pdfBase64 && String(pdfBase64).length > 14_000_000) {
+      return new Response(JSON.stringify({ success: false, error: 'PDF muito grande (máx. 10 MB)' }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
     const { id } = await enviarEmail({
       to,
-      subject,
-      html: htmlBody,
+      subject: String(subject).slice(0, 300),
+      html: sanitizarHtmlEmail(htmlBody),
       attachments: pdfBase64 ? [{
         filename: pdfFilename || 'ordem_compra.pdf',
         content: pdfBase64.replace(/^data:application\/pdf;base64,/, ''),

@@ -2,6 +2,7 @@ import { createDenoSlot } from "@/lib/edge/deno-shim";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
+import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
 // Recebe PDF consolidado de holerites (base64), quebra por página,
 // usa IA para extrair CPF/nome/tipo/valor e casa com funcionários.
 
@@ -201,6 +202,8 @@ async function pdfDoRegistro(r: any, mes: number, ano: number) {
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const acesso = await exigirAcesso(req, (c) => podeModulo(c, "rh_holerites"));
+  if (!acesso.ok) return acesso.resposta;
 
   try {
     const body = await req.json();

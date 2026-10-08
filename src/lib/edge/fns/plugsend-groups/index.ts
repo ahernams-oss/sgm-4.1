@@ -2,6 +2,7 @@ import { createDenoSlot } from "@/lib/edge/deno-shim";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
+import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
 // deno-lint-ignore-file no-explicit-any
 import { corsHeaders } from '@/lib/edge/cors';
 
@@ -30,6 +31,8 @@ async function call(path: string, method: 'GET' | 'POST', token: string, body?: 
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+  const acesso = await exigirAcesso(req, (c) => podeModulo(c, "comunicacao_whatsapp"));
+  if (!acesso.ok) return acesso.resposta;
 
   try {
     const token = Deno.env.get('PLUGSEND_TOKEN');

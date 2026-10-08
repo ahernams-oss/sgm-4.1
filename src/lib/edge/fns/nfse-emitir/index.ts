@@ -2,6 +2,7 @@ import { createDenoSlot } from "@/lib/edge/deno-shim";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
+import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
 // Emissão NFS-e via Focus NFE
 // Docs: https://focusnfe.com.br/doc/#nfse
 // - POST /v2/nfse?ref={ref}  -> dispara emissão (assíncrona)
@@ -132,6 +133,8 @@ async function consultarStatus(baseUrl: string, auth: string, ref: string, tenta
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  const acesso = await exigirAcesso(req, (c) => podeModulo(c, "financeiro.nfes_recebidas", "faturamentos"));
+  if (!acesso.ok) return acesso.resposta;
 
   try {
     const modelo = await req.json() as Modelo;

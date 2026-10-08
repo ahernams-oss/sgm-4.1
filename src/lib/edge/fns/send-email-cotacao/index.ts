@@ -2,6 +2,8 @@ import { createDenoSlot } from "@/lib/edge/deno-shim";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
+import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
+import { emailsCadastrados, telefoneCadastrado, sanitizarHtmlEmail, MSG_DESTINO_NAO_CADASTRADO } from "@/lib/edge/fns/_shared/destinatarios";
 import { enviarEmail } from "@/lib/email/resend";
 
 const corsHeaders = {
@@ -13,6 +15,8 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+  const acesso = await exigirAcesso(req);
+  if (!acesso.ok) return acesso.resposta;
 
   try {
     const { to, subject, htmlBody } = await req.json();
@@ -24,9 +28,9 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Sending cotacao email to: ${to}, subject: ${subject}`);
+    if (!(await emailsCadastrados(to))) return new Response(JSON.stringify({ success: false, error: MSG_DESTINO_NAO_CADASTRADO }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
-    const { id } = await enviarEmail({ to, subject, html: htmlBody });
+    const { id } = await enviarEmail({ to, subject: String(subject).slice(0, 300), html: sanitizarHtmlEmail(htmlBody) });
 
     return new Response(
       JSON.stringify({ success: true, id }),

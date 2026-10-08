@@ -2,11 +2,15 @@ import { createDenoSlot } from "@/lib/edge/deno-shim";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
+import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
+import { emailsCadastrados, telefoneCadastrado, sanitizarHtmlEmail, MSG_DESTINO_NAO_CADASTRADO } from "@/lib/edge/fns/_shared/destinatarios";
 // deno-lint-ignore-file no-explicit-any
 import { corsHeaders } from '@/lib/edge/cors';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
+  const acesso = await exigirAcesso(req);
+  if (!acesso.ok) return acesso.resposta;
 
   try {
     const token = Deno.env.get('PLUGSEND_TOKEN');

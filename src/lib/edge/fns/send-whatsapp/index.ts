@@ -2,6 +2,8 @@ import { createDenoSlot } from "@/lib/edge/deno-shim";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
+import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
+import { emailsCadastrados, telefoneCadastrado, sanitizarHtmlEmail, MSG_DESTINO_NAO_CADASTRADO } from "@/lib/edge/fns/_shared/destinatarios";
 // Proxy compatível com a antiga API do send-whatsapp — encaminha para PlugSend (uazapi).
 // Mantido para não quebrar chamadas existentes de módulos que ainda invocam "send-whatsapp".
 
@@ -13,6 +15,8 @@ const corsHeaders = {
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const acesso = await exigirAcesso(req);
+  if (!acesso.ok) return acesso.resposta;
 
   try {
     const token = Deno.env.get("PLUGSEND_TOKEN");
@@ -44,6 +48,9 @@ serve(async (req) => {
           : `${apenasDigitos}@g.us`
       : numero;
 
+    if (!(await telefoneCadastrado(destino))) {
+      return new Response(JSON.stringify({ success: false, error: MSG_DESTINO_NAO_CADASTRADO }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
     const results: unknown[] = [];
 
     if (mensagem && mensagem.toString().trim()) {

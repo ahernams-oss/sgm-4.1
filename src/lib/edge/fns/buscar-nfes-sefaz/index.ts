@@ -2,6 +2,7 @@ import { createDenoSlot } from "@/lib/edge/deno-shim";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
+import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
 import { createClient } from "@supabase/supabase-js";
 import { corsHeaders } from "@/lib/edge/cors";
 import forge from "node-forge";
@@ -35,6 +36,8 @@ function pickAll(xml: string, tag: string): string[] {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  const acesso = await exigirAcesso(req, (c) => pode(c, "financeiro.nfes_recebidas") || podeModulo(c, "financeiro.nfes_recebidas"));
+  if (!acesso.ok) return acesso.resposta;
 
   const json = (body: unknown, status = 200) =>
     new Response(JSON.stringify(body), {

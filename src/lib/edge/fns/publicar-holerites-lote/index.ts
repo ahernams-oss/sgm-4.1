@@ -2,6 +2,7 @@ import { createDenoSlot } from "@/lib/edge/deno-shim";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
+import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
 // Publica os itens do lote em portal_holerites + bucket portal-holerites.
 
 import { createClient } from "@supabase/supabase-js";
@@ -13,6 +14,8 @@ const corsHeaders = {
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const acesso = await exigirAcesso(req, (c) => podeModulo(c, "rh_holerites"));
+  if (!acesso.ok) return acesso.resposta;
   try {
     const { lote_id } = await req.json();
     if (!lote_id) return new Response(JSON.stringify({ error: "lote_id obrigatório" }), { status: 400, headers: corsHeaders });

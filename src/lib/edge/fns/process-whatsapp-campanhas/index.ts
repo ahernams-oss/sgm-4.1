@@ -3,6 +3,7 @@ import { invocarFuncao } from "@/lib/edge/invocar";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
+import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -76,6 +77,8 @@ async function enviarParaCampanha(supabase: any, campanha: any) {
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
+  const acesso = await exigirAcesso(req, (c) => podeModulo(c, "comunicacao_whatsapp"));
+  if (!acesso.ok) return acesso.resposta;
 
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);

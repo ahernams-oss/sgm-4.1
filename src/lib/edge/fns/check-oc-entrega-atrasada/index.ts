@@ -101,7 +101,7 @@ serve(async (req) => {
 
       let ok = false;
       for (const d of destinos) {
-        try { ok = (await enviarWhatsApp(d, msg)) || ok; } catch (e) { console.error("WA fail", d, e); }
+        try { ok = (await enviarWhatsApp(d, msg)) || ok; } catch (e) { console.error("WA fail", `***${String(d).slice(-4)}`, (e as Error)?.message ?? e); }
       }
       if (ok) notificados++;
 

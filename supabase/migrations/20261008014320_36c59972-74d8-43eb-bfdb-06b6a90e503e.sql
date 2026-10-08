@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.validar_pregao_lance() FROM PUBLIC, anon, authenticated;

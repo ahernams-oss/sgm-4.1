@@ -2,6 +2,7 @@ import { createDenoSlot } from "@/lib/edge/deno-shim";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
+import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
 // Publica ou despublica UM item de holerite processado.
 
 import { createClient } from "@supabase/supabase-js";
@@ -19,6 +20,8 @@ const json = (body: unknown, status = 200) =>
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const acesso = await exigirAcesso(req, (c) => podeModulo(c, "rh_holerites"));
+  if (!acesso.ok) return acesso.resposta;
   try {
     const { item_id, acao } = await req.json();
     if (!item_id || !["publicar", "despublicar"].includes(acao)) {

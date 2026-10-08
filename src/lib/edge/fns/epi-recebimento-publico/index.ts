@@ -116,6 +116,12 @@ serve(async (req) => {
       const uploadOne = async (b64: string, suffix: string) => {
         const bytes = base64ToBytes(b64);
         if (bytes.length < 4000) throw new Error("Imagem inválida");
+      // Selfie: até 5 MB e precisa ser JPEG/PNG/WebP de verdade.
+      if (bytes.length > 5 * 1024 * 1024) throw new Error("Imagem muito grande (máx. 5 MB)");
+      const jpeg = bytes[0] === 0xff && bytes[1] === 0xd8;
+      const png = bytes[0] === 0x89 && bytes[1] === 0x50;
+      const webp = bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50;
+      if (!jpeg && !png && !webp) throw new Error("Formato de imagem inválido");
         const hash = await sha256(bytes);
         const path = `${rec.funcionario_id}/${rec.id}-${Date.now()}-${suffix}.jpg`;
         const { error: upErr } = await supabase.storage

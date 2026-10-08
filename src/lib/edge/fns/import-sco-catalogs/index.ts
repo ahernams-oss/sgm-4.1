@@ -2,6 +2,7 @@ import { createDenoSlot } from "@/lib/edge/deno-shim";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
+import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
 import { createClient } from "@supabase/supabase-js";
 import * as XLSX from "xlsx";
 
@@ -127,6 +128,8 @@ function parseComposicoes(rows: any[][]) {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  const acesso = await exigirAcesso(req, (c) => podeModulo(c, "orcamentos_sco", "sco"));
+  if (!acesso.ok) return acesso.resposta;
   try {
     const body = await req.json();
     const { fgv04, fgv06, fgv07 } = body as { fgv04?: string; fgv06?: string; fgv07?: string };

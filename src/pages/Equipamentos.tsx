@@ -86,7 +86,8 @@ export default function Equipamentos() {
     if (!qrEquip || !qrDataUrl) return;
     const w = window.open("", "_blank", "width=600,height=700");
     if (!w) return;
-    w.document.write(`<html><head><title>QR ${qrEquip.equipamento}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:24px}h2{margin:8px 0}p{margin:4px 0;font-size:12px;color:#555}img{width:320px;height:320px}</style></head><body><h2>${qrEquip.equipamento}</h2>${qrEquip.tag ? `<p>TAG: ${qrEquip.tag}</p>` : ""}${qrEquip.clienteNome ? `<p>${qrEquip.clienteNome}</p>` : ""}<img src="${qrDataUrl}" /><script>window.onload=()=>{window.print();}<\/script></body></html>`);
+    const esc = (v: unknown) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
+    w.document.write(`<html><head><title>QR ${esc(qrEquip.equipamento)}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:24px}h2{margin:8px 0}p{margin:4px 0;font-size:12px;color:#555}img{width:320px;height:320px}</style></head><body><h2>${esc(qrEquip.equipamento)}</h2>${qrEquip.tag ? `<p>TAG: ${esc(qrEquip.tag)}</p>` : ""}${qrEquip.clienteNome ? `<p>${esc(qrEquip.clienteNome)}</p>` : ""}<img src="${esc(qrDataUrl)}" /><script>window.onload=()=>{window.print();}<\/script></body></html>`);
     w.document.close();
   };
 

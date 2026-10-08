@@ -32,11 +32,10 @@ const filtroSeguro = (v: unknown) => String(v ?? "").replace(/[,()*%\\:."']/g, "
 
 // Só tabelas de negócio que o assistente pode contar (sem credenciais, logs ou auditoria).
 const TABELAS_CONTAVEIS = new Set([
-  "ordens_servico", "solicitacoes_servicos", "equipamentos", "clientes", "funcionarios",
-  "requisicoes_compras", "cotacoes_compras", "pedidos_compra", "rdos", "planos_manutencao",
-  "pmoc_ordens_servico", "medicoes_servicos", "boletins_medicao", "licitacoes", "obras",
-  "orcamentos", "orcamentos_sco", "materiais_servicos", "ferramentas", "processos_seletivos",
-  "requisicoes", "contratos_terceiros", "kb_artigos", "estoque_movimentacoes", "nfes_recebidas",
+  "requisicoes_compras", "ordens_servico", "solicitacoes_servicos",
+  "funcionarios", "pedidos_compra", "cotacoes_compras",
+  "processos_seletivos", "licitacoes", "clientes", "fabricantes",
+  "materiais_servicos", "equipamentos", "rdos", "planos_manutencao",
 ]);
 
 export const toolDefinitions = [

@@ -1,4 +1,5 @@
 import { createDenoSlot } from "@/lib/edge/deno-shim";
+import { invocarFuncao } from "@/lib/edge/invocar";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
@@ -129,7 +130,7 @@ serve(async (req) => {
       blocos.join("\n\n") +
       `\n\nProgramar a escala de férias garantindo que nenhum posto fique descoberto (CLT Art. 134).`;
 
-    const { error } = await supabase.functions.invoke("send-whatsapp", {
+    const { error } = await invocarFuncao("send-whatsapp", {
       body: { telefone: numeroRh, mensagem },
     });
 

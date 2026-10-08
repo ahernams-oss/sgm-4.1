@@ -1,4 +1,5 @@
 import { createDenoSlot } from "@/lib/edge/deno-shim";
+import { invocarFuncao } from "@/lib/edge/invocar";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
@@ -111,7 +112,7 @@ serve(async (req) => {
       blocos.join("\n\n") +
       `\n\nProvidencie a renovação/substituição dos EPIs.`;
 
-    const { error: sendErr } = await supabase.functions.invoke("send-whatsapp", {
+    const { error: sendErr } = await invocarFuncao("send-whatsapp", {
       body: { telefone: segtrab, mensagem },
     });
     if (sendErr) throw sendErr;

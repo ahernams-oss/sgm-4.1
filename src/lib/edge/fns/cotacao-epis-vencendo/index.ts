@@ -1,4 +1,5 @@
 import { createDenoSlot } from "@/lib/edge/deno-shim";
+import { invocarFuncao } from "@/lib/edge/invocar";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
@@ -247,7 +248,7 @@ serve(async (req) => {
         const telefone = String(f.telefone_celular || f.celulares || f.telefone || "").trim();
         let whatsappEnviado = false;
         if (telefone) {
-          const { error: waErr } = await supabase.functions.invoke("send-whatsapp", {
+          const { error: waErr } = await invocarFuncao("send-whatsapp", {
             body: {
               telefone,
               mensagem:
@@ -270,7 +271,7 @@ serve(async (req) => {
     const { data: empresa } = await supabase.from("empresa").select("whatsapp_segtrab").limit(1).maybeSingle();
     const segtrab = String((empresa as { whatsapp_segtrab?: string | null } | null)?.whatsapp_segtrab || "").trim();
     if (segtrab) {
-      await supabase.functions.invoke("send-whatsapp", {
+      await invocarFuncao("send-whatsapp", {
         body: {
           telefone: segtrab,
           mensagem:

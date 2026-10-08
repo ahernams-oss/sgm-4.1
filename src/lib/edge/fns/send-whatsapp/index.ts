@@ -27,14 +27,22 @@ serve(async (req) => {
       );
     }
 
-    // Detecta grupo (JID @g.us) vs número
+    // Detecta grupo (JID @g.us, id antigo "numero-timestamp" ou id longo) vs número.
+    // Hífen sozinho não indica grupo: "(21) 99999-0000" é um telefone formatado.
     const telefoneStr = String(telefone).trim();
     const apenasDigitos = telefoneStr.replace(/\D/g, "");
-    const isGrupo =
-      telefoneStr.includes("@g.us") || telefoneStr.includes("-") || apenasDigitos.length > 15;
+    const grupoAntigo = /^\d{8,15}-\d{8,12}$/.test(telefoneStr);
+    const isGrupo = telefoneStr.includes("@g.us") || grupoAntigo || apenasDigitos.length > 15;
+    // Número brasileiro sem DDI (10 ou 11 dígitos) ganha o 55, como no mfa-send-otp.
+    const numero =
+      apenasDigitos.length === 10 || apenasDigitos.length === 11 ? `55${apenasDigitos}` : apenasDigitos;
     const destino = isGrupo
-      ? (telefoneStr.includes("@g.us") ? telefoneStr : `${apenasDigitos}@g.us`)
-      : apenasDigitos;
+      ? telefoneStr.includes("@g.us")
+        ? telefoneStr
+        : grupoAntigo
+          ? `${telefoneStr}@g.us`
+          : `${apenasDigitos}@g.us`
+      : numero;
 
     const results: unknown[] = [];
 

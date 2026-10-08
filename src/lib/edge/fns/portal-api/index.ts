@@ -5,6 +5,7 @@ const Deno = __slot.Deno;
 import { createClient } from "@supabase/supabase-js";
 import * as bcrypt from "@/lib/edge/bcrypt";
 import { create, verify, getNumericDate } from "@/lib/edge/djwt";
+import { MSG_SENHA_VAZADA, senhaVazada } from "../_shared/senha-vazada.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -106,6 +107,7 @@ Deno.serve(async (req) => {
       const senha = String(body.senha || "");
       if (!validCpf(cpf) || !dataNasc || senha.length < 8)
         return json({ error: "CPF, data de nascimento e senha (mín. 8 caracteres) são obrigatórios." }, 400);
+      if (await senhaVazada(senha)) return json({ error: MSG_SENHA_VAZADA }, 400);
 
       // Já existe?
       const { data: existente } = await sb.from("portal_credenciais").select("id").eq("cpf", cpf).maybeSingle();
@@ -204,6 +206,7 @@ Deno.serve(async (req) => {
       const novaSenha = String(body.novaSenha || "");
       if (!validCpf(cpf) || !dataNasc || novaSenha.length < 8)
         return json({ error: "Informe CPF, data de nascimento e nova senha (mín. 8 caracteres)." }, 400);
+      if (await senhaVazada(novaSenha)) return json({ error: MSG_SENHA_VAZADA }, 400);
 
       const { data: cred } = await sb.from("portal_credenciais").select("*").eq("cpf", cpf).maybeSingle();
       if (!cred) return json({ error: "CPF não encontrado." }, 404);
@@ -380,6 +383,7 @@ Deno.serve(async (req) => {
       const atual = String(body.senhaAtual || "");
       const nova = String(body.novaSenha || "");
       if (nova.length < 8) return json({ error: "Nova senha deve ter no mínimo 8 caracteres." }, 400);
+      if (await senhaVazada(nova)) return json({ error: MSG_SENHA_VAZADA }, 400);
       if (!bcrypt.compareSync(atual, cred.senha_hash)) return json({ error: "Senha atual incorreta." }, 401);
       const hash = bcrypt.hashSync(nova, bcrypt.genSaltSync(10));
       await sb.from("portal_credenciais").update({ senha_hash: hash }).eq("id", cred.id);

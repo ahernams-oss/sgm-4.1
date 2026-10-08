@@ -5,6 +5,7 @@ const Deno = __slot.Deno;
 import { createClient } from "@supabase/supabase-js";
 import * as bcrypt from "@/lib/edge/bcrypt";
 import { exigirAcesso, podeModulo } from "@/lib/edge/permissao";
+import { MSG_SENHA_VAZADA, senhaVazada } from "../_shared/senha-vazada.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -45,6 +46,12 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
+
+    if (senhaCustom && senhaCustom.length >= 6 && (await senhaVazada(senhaCustom))) {
+      return new Response(JSON.stringify({ error: MSG_SENHA_VAZADA }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const senha = senhaCustom && senhaCustom.length >= 6 ? senhaCustom : gerarSenha();
     const hash = bcrypt.hashSync(senha, bcrypt.genSaltSync(10));

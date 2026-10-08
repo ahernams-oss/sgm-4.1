@@ -231,7 +231,7 @@ Deno.serve(async (req) => {
       } else {
         // Candidato precisa informar CPF + data de nascimento cadastrados (sem atalho de teste).
         const cand = await findCandidato(cpf, dataNasc);
-        match = !!cand;
+        match = !!cand && !!cand.candidato?.dataNascimento && cand.candidato.dataNascimento === dataNasc;
       }
       if (!match) return json({ error: "Dados não conferem." }, 401);
 

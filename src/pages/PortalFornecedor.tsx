@@ -523,7 +523,7 @@ function Dashboard({ session, onLogout }: { session: FornecedorSession; onLogout
           .eq("fornecedor_id", session.id)
           .order("created_at", { ascending: false }),
 
-        supabase
+        getFornecedorClient(session.id)
           .from("pedidos_compra")
           .select("id,numero,data_criacao,comprador,status,valor_total,itens,condicao_pagamento,prazo_entrega,local_entrega,observacoes")
           .eq("fornecedor_id", session.id)

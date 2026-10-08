@@ -20,7 +20,8 @@ export default defineTool({
       .select("id,nome,nome_fantasia,cnpj,cidade,uf,email,telefone_celular")
       .limit(limite ?? 25);
 
-    if (busca) q = q.or(`nome.ilike.%${busca}%,nome_fantasia.ilike.%${busca}%,cnpj.ilike.%${busca}%`);
+    const termo = String(busca ?? "").replace(/[,()*%\\:."']/g, " ").trim().slice(0, 100);
+    if (termo) q = q.or(`nome.ilike.%${termo}%,nome_fantasia.ilike.%${termo}%,cnpj.ilike.%${termo}%`);
 
     const { data, error } = await q;
     if (error) return errorResult(error.message);

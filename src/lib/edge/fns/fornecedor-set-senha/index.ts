@@ -12,16 +12,19 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const rnd = (n: number) => crypto.getRandomValues(new Uint32Array(1))[0] % n;
 function gerarSenha(): string {
   const upp = "ABCDEFGHJKMNPQRSTUVWXYZ";
   const low = "abcdefghjkmnpqrstuvwxyz";
   const num = "23456789";
   const sym = "!@#$%&*?";
   const all = upp + low + num + sym;
-  const pick = (s: string) => s[Math.floor(Math.random() * s.length)];
+  const pick = (s: string) => s[rnd(s.length)];
   let out = pick(upp) + pick(low) + pick(num) + pick(sym);
   for (let i = 0; i < 6; i++) out += pick(all);
-  return out.split("").sort(() => Math.random() - 0.5).join("");
+  const arr = out.split("");
+  for (let i = arr.length - 1; i > 0; i--) { const j = rnd(i + 1); [arr[i], arr[j]] = [arr[j], arr[i]]; }
+  return arr.join("");
 }
 
 Deno.serve(async (req) => {

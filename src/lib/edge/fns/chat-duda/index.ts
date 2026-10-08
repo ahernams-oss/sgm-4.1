@@ -160,7 +160,12 @@ serve(async (req) => {
 
     const messages: any[] = [
       { role: "system", content: SYSTEM_PROMPT + kbContext },
-      ...userMessages,
+      // Só mensagens do usuário e respostas anteriores do assistente, em texto;
+      // o navegador não pode mandar instruções de sistema nem resultados de ferramenta.
+      ...userMessages
+        .filter((m: any) => (m?.role === "user" || m?.role === "assistant") && typeof m?.content === "string")
+        .slice(-40)
+        .map((m: any) => ({ role: m.role, content: String(m.content).slice(0, 8000) })),
     ];
 
     // Loop de tool-calling (não-stream) até o modelo decidir responder

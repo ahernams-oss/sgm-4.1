@@ -28,6 +28,17 @@ async function getClientesMap() {
 }
 
 // Definições no formato OpenAI tools
+const filtroSeguro = (v: unknown) => String(v ?? "").replace(/[,()*%\\:."']/g, " ").trim().slice(0, 100);
+
+// Só tabelas de negócio que o assistente pode contar (sem credenciais, logs ou auditoria).
+const TABELAS_CONTAVEIS = new Set([
+  "ordens_servico", "solicitacoes_servicos", "equipamentos", "clientes", "funcionarios",
+  "requisicoes_compras", "cotacoes_compras", "pedidos_compra", "rdos", "planos_manutencao",
+  "pmoc_ordens_servico", "medicoes_servicos", "boletins_medicao", "licitacoes", "obras",
+  "orcamentos", "orcamentos_sco", "materiais_servicos", "ferramentas", "processos_seletivos",
+  "requisicoes", "contratos_terceiros", "kb_artigos", "estoque_movimentacoes", "nfes_recebidas",
+]);
+
 export const toolDefinitions = [
   {
     type: "function",
@@ -530,7 +541,8 @@ export async function executeTool(name: string, args: ToolArgs): Promise<unknown
       case "consultar_clientes": {
         const limite = cap(args.limite);
         let q = supa.from("clientes").select("nome,nome_fantasia,cnpj,cidade,uf,email,telefone_celular").limit(limite);
-        if (args.nome) q = q.or(`nome.ilike.%${args.nome}%,nome_fantasia.ilike.%${args.nome}%`);
+        const nome = filtroSeguro(args.nome);
+        if (nome) q = q.or(`nome.ilike.%${nome}%,nome_fantasia.ilike.%${nome}%`);
         const { data, error } = await q;
         if (error) return { erro: error.message };
         return { total: data?.length ?? 0, registros: data ?? [] };
@@ -564,6 +576,8 @@ export async function executeTool(name: string, args: ToolArgs): Promise<unknown
 
       case "contar_registros": {
         const tabela = String(args.tabela);
+        if (!TABELAS_CONTAVEIS.has(tabela)) return { erro: "Tabela não permitida para contagem." };
+        if (args.campo_status && !/^[a-z_]{1,40}$/.test(String(args.campo_status))) return { erro: "Campo inválido." };
         let q = supa.from(tabela).select("*", { count: "exact", head: true });
         if (args.campo_status && args.valor_status) {
           q = q.ilike(String(args.campo_status), `%${args.valor_status}%`);

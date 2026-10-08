@@ -92,7 +92,7 @@ serve(async (req) => {
       if (exame.funcionario_email) {
         try {
           const emailBody = mensagem.replace(/\n/g, '<br>');
-          console.log(`Email para ${exame.funcionario_email}: ${emailBody}`);
+          void emailBody; // conteúdo e destinatário não vão para o log (dados de saúde)
         } catch (emailErr) {
           console.error('Email error:', emailErr);
         }

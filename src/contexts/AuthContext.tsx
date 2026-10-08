@@ -17,7 +17,10 @@ interface AuthContextType {
   resetSenha: (email: string) => Promise<{ ok: boolean; message: string }>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Guardado no globalThis para que recarregamentos do módulo (atualização ao vivo)
+// não criem um segundo contexto e deixem a tela de login "desconectada".
+const g = globalThis as unknown as { __sgmAuthContext?: React.Context<AuthContextType | undefined> };
+const AuthContext = (g.__sgmAuthContext ??= createContext<AuthContextType | undefined>(undefined));
 
 const readStored = (): Usuario | null => {
   const persisted = localStorage.getItem(STORAGE_KEY);
@@ -241,7 +244,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 // provider; o AuthProvider real é montado em App.tsx.
 const AUTH_FALLBACK: AuthContextType = {
   usuarioLogado: null,
-  login: async () => false,
+  login: async () => {
+    lastLoginError = "Sistema ainda carregando. Recarregue a página (F5) e tente novamente.";
+    return false;
+  },
   logout: () => {},
   isAuthenticated: false,
   temAcessoTotal: false,

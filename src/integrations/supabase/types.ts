@@ -9273,7 +9273,16 @@ export type Database = {
         | { Args: { _dias?: number; _lote?: number }; Returns: number }
       arquivar_auditoria_ciclo: { Args: { _dias?: number }; Returns: number }
       current_usuario_id: { Args: never; Returns: string }
+      destinatario_email_cadastrado: {
+        Args: { _email: string }
+        Returns: boolean
+      }
+      destinatario_telefone_cadastrado: {
+        Args: { _digitos: string }
+        Returns: boolean
+      }
       has_module: { Args: { _modulo: string }; Returns: boolean }
+      has_module_prefix: { Args: { _prefixo: string }; Returns: boolean }
       is_acesso_total: { Args: never; Returns: boolean }
       kb_buscar_semantico: {
         Args: {

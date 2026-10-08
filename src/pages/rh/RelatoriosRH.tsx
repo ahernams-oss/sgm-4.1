@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFuncionarios } from "@/contexts/FuncionariosContext";
 import { useCargos } from "@/contexts/CargosContext";
 import { useClientes } from "@/contexts/ClientesContext";
@@ -15,6 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { FileDown, FileSpreadsheet, Users, UserPlus, CalendarClock, Hourglass } from "lucide-react";
 import { toast } from "sonner";
 import { exportarPdfRH, exportarExcelRH, type RelatorioRH } from "@/lib/gerarRelatoriosRH";
+import PaginationControls, { paginate } from "@/components/PaginationControls";
 
 const parseData = (s?: string | null): Date | null => {
   if (!s) return null;
@@ -61,6 +62,8 @@ export default function RelatoriosRH() {
   const [status, setStatus] = useState("todos");
   const [busca, setBusca] = useState("");
   const [diasExp, setDiasExp] = useState("30");
+  const [pagina, setPagina] = useState(1);
+  useEffect(() => { setPagina(1); }, [dataIni, dataFim, clienteId, status, busca]);
 
   const cargoNome = (id: string) => cargos.find((c) => c.id === id)?.nome || "—";
   const clienteNome = (id: string) => {
@@ -211,25 +214,30 @@ export default function RelatoriosRH() {
     { label: `Experiências vencendo (${limite}d)`, value: experiencias.length, icon: Hourglass },
   ];
 
-  const Grade = ({ r }: { r: RelatorioRH }) => (
-    <div className="overflow-x-auto rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>{r.head.map((h) => <TableHead key={h}>{h}</TableHead>)}</TableRow>
-        </TableHeader>
-        <TableBody>
-          {r.body.length === 0 ? (
-            <TableRow><TableCell colSpan={r.head.length} className="text-center text-muted-foreground py-8">Nenhum registro encontrado.</TableCell></TableRow>
-          ) : (
-            r.body.slice(0, 500).map((l, i) => (
-              <TableRow key={i}>{l.map((c, j) => <TableCell key={j} className="whitespace-nowrap">{c}</TableCell>)}</TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-      {r.body.length > 500 && <p className="text-xs text-muted-foreground p-2">Mostrando 500 de {r.body.length}. Exporte para ver todos.</p>}
-    </div>
-  );
+  const Grade = ({ r }: { r: RelatorioRH }) => {
+    const { paginated, safePage } = paginate(r.body, pagina);
+    return (
+      <div className="space-y-2">
+        <div className="overflow-x-auto rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>{r.head.map((h) => <TableHead key={h}>{h}</TableHead>)}</TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginated.length === 0 ? (
+                <TableRow><TableCell colSpan={r.head.length} className="text-center text-muted-foreground py-8">Nenhum registro encontrado.</TableCell></TableRow>
+              ) : (
+                paginated.map((l, i) => (
+                  <TableRow key={i}>{l.map((c, j) => <TableCell key={j} className="whitespace-nowrap">{c}</TableCell>)}</TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+        <PaginationControls currentPage={safePage} totalItems={r.body.length} onPageChange={setPagina} />
+      </div>
+    );
+  };
 
   const rel = montar();
 
@@ -289,11 +297,11 @@ export default function RelatoriosRH() {
             <div><Label>Experiência vencendo em (dias)</Label><Input type="number" min={1} value={diasExp} onChange={(e) => setDiasExp(e.target.value)} /></div>
           ) : <div />}
           <div><Label>Busca</Label><Input placeholder="Nome, CPF, cargo..." value={busca} onChange={(e) => setBusca(e.target.value)} /></div>
-          <Button variant="ghost" onClick={() => { setDataIni(""); setDataFim(""); setClienteId("todos"); setStatus("todos"); setBusca(""); }}>Limpar filtros</Button>
+          <Button variant="ghost" onClick={() => { setDataIni(""); setDataFim(""); setClienteId("todos"); setStatus("todos"); setBusca(""); setPagina(1); }}>Limpar filtros</Button>
         </CardContent>
       </Card>
 
-      <Tabs value={aba} onValueChange={(v) => { setAba(v as Aba); setStatus("todos"); }}>
+      <Tabs value={aba} onValueChange={(v) => { setAba(v as Aba); setStatus("todos"); setPagina(1); }}>
         <TabsList className="flex flex-wrap h-auto">
           <TabsTrigger value="quadro">Quadro de Funcionários</TabsTrigger>
           <TabsTrigger value="contratacoes">Contratações</TabsTrigger>

@@ -296,11 +296,11 @@ export default function RelatoriosRH() {
             <div><Label>Experiência vencendo em (dias)</Label><Input type="number" min={1} value={diasExp} onChange={(e) => setDiasExp(e.target.value)} /></div>
           ) : <div />}
           <div><Label>Busca</Label><Input placeholder="Nome, CPF, cargo..." value={busca} onChange={(e) => setBusca(e.target.value)} /></div>
-          <Button variant="ghost" onClick={() => { setDataIni(""); setDataFim(""); setClienteId("todos"); setStatus("todos"); setBusca(""); }}>Limpar filtros</Button>
+          <Button variant="ghost" onClick={() => { setDataIni(""); setDataFim(""); setClienteId("todos"); setStatus("todos"); setBusca(""); setPagina(1); }}>Limpar filtros</Button>
         </CardContent>
       </Card>
 
-      <Tabs value={aba} onValueChange={(v) => { setAba(v as Aba); setStatus("todos"); }}>
+      <Tabs value={aba} onValueChange={(v) => { setAba(v as Aba); setStatus("todos"); setPagina(1); }}>
         <TabsList className="flex flex-wrap h-auto">
           <TabsTrigger value="quadro">Quadro de Funcionários</TabsTrigger>
           <TabsTrigger value="contratacoes">Contratações</TabsTrigger>

@@ -2,6 +2,7 @@ import { createDenoSlot } from "@/lib/edge/deno-shim";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
+import { gerarToken, ESCOPO_FORNECEDOR } from "@/lib/edge/fns/_shared/token-assinado";
 import { createClient } from "@supabase/supabase-js";
 import * as bcrypt from "@/lib/edge/bcrypt";
 
@@ -81,6 +82,8 @@ Deno.serve(async (req) => {
       email: user.email,
       cnpj: user.cnpj,
       mustChangePassword: cred.senha_portal_trocada === false,
+      // Sessão do portal (12 h): o servidor do pregão confere este token.
+      token: await gerarToken(ESCOPO_FORNECEDOR, user.id, 12 * 3600),
     };
 
     return new Response(JSON.stringify({ fornecedor: safe }), {

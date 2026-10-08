@@ -321,7 +321,7 @@ export default function TransferenciasSaldoContrato() {
       {!temAcessoTotal && (
         <Card className="border-amber-300 bg-amber-50">
           <CardContent className="p-4 text-sm text-amber-900">
-            Somente usuários com cargo <strong>Diretor</strong>, <strong>Gerente Executivo</strong> ou <strong>Coordenador de Departamento</strong> podem efetuar transferências. Você pode visualizar o histórico.
+            Somente usuários com cargo <strong>Diretor Geral Lasant</strong>, <strong>Gerente Executivo Lasant</strong> ou <strong>Coordenador Administrativo/Técnico Lasant</strong> podem efetuar transferências. Você pode visualizar o histórico.
           </CardContent>
         </Card>
       )}

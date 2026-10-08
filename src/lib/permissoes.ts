@@ -3,18 +3,26 @@
 
 export type Permissoes = Record<string, boolean>;
 
-// Cargos com acesso total ao sistema
+// Cargos com acesso total ao sistema (o banco usa a mesma lista em sgm_cargo_acesso_total)
+export const CARGO_DIRETOR_GERAL = "diretor geral lasant";
 export const CARGOS_ACESSO_TOTAL = [
-  "diretor",
-  "gerente executivo",
-  "coordenador de departamento",
-  "coordenador tecnico",
-  "coordenador técnico",
-  "coordenador administrativo",
+  CARGO_DIRETOR_GERAL,
+  "gerente executivo lasant",
+  "coordenador administrativo lasant",
+  "coordenador técnico lasant",
+  "coordenador tecnico lasant",
 ];
 
+export function normalizarCargo(nomeCargo: string | null | undefined): string {
+  return (nomeCargo || "").trim().toLowerCase().replace(/\s+/g, " ");
+}
+
 export function cargoTemAcessoTotal(nomeCargo: string | null | undefined): boolean {
-  return CARGOS_ACESSO_TOTAL.includes((nomeCargo || "").trim().toLowerCase());
+  return CARGOS_ACESSO_TOTAL.includes(normalizarCargo(nomeCargo));
+}
+
+export function cargoEhDiretorGeral(nomeCargo: string | null | undefined): boolean {
+  return normalizarCargo(nomeCargo) === CARGO_DIRETOR_GERAL;
 }
 
 /** Ação exata do perfil (ex.: "usuarios.editar"). Acesso total libera tudo. */

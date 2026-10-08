@@ -54,11 +54,23 @@ export const verificarAssinaturaPublica = createServerFn({ method: "POST" })
     return null;
   });
 
-const ids = z.object({ processoId: z.string().uuid(), candidatoId: z.string().min(1).max(100) });
+const ids = z.object({
+  processoId: z.string().uuid(),
+  candidatoId: z.string().min(1).max(100),
+  // Link assinado pelo servidor: sem ele não há leitura nem gravação.
+  token: z.string().min(10).max(2000),
+});
+
+async function exigirLinkCandidato(processoId: string, candidatoId: string, token: string) {
+  const { lerToken, ESCOPO_CANDIDATO } = await import("@/lib/edge/fns/_shared/token-assinado");
+  const sujeito = await lerToken(ESCOPO_CANDIDATO, token);
+  if (sujeito !== `${processoId}:${candidatoId}`) throw new Error("Link inválido ou expirado.");
+}
 
 export const getCandidatoPortal = createServerFn({ method: "POST" })
   .inputValidator((d) => ids.parse(d))
   .handler(async ({ data }) => {
+    await exigirLinkCandidato(data.processoId, data.candidatoId, data.token);
     const db = await admin();
     const { data: p } = await db.from("processos_seletivos").select("candidatos").eq("id", data.processoId).maybeSingle();
     const c = ((p?.candidatos as any[]) || []).find((x) => x?.id === data.candidatoId);
@@ -77,6 +89,7 @@ const patchSchema = z.object({
 export const salvarCandidatoPortal = createServerFn({ method: "POST" })
   .inputValidator((d) => ids.extend({ patch: patchSchema }).parse(d))
   .handler(async ({ data }) => {
+    await exigirLinkCandidato(data.processoId, data.candidatoId, data.token);
     const db = await admin();
     const { data: p } = await db.from("processos_seletivos").select("candidatos").eq("id", data.processoId).maybeSingle();
     const cands: any[] = (p?.candidatos as any[]) || [];

@@ -37,6 +37,9 @@ Deno.serve(async (req) => {
     }
 
     const numero = String(telefone).replace(/\D/g, '');
+    if (!(await telefoneCadastrado(numero))) {
+      return new Response(JSON.stringify({ success: false, error: MSG_DESTINO_NAO_CADASTRADO }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
     const results: any[] = [];
 
     // 1) Envia texto (se houver)

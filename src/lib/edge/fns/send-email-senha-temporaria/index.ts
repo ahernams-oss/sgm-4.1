@@ -2,6 +2,7 @@ import { createDenoSlot } from "@/lib/edge/deno-shim";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
+import { emailsCadastrados, MSG_DESTINO_NAO_CADASTRADO } from "@/lib/edge/fns/_shared/destinatarios";
 import { sendTemplateEmail } from '../_shared/transactional-email-templates/send-email.ts'
 import { enviarComLog } from '../_shared/transactional-email-templates/log-send.ts'
 import { exigirAcesso, pode, podeModulo } from '@/lib/edge/permissao'
@@ -48,6 +49,9 @@ Deno.serve(async (req) => {
 
   try {
     const result = await enviarComLog(TEMPLATE_NAME, recipientEmail, () =>
+      if (!(await emailsCadastrados(recipientEmail))) {
+        return new Response(JSON.stringify({ success: false, error: MSG_DESTINO_NAO_CADASTRADO }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
       sendTemplateEmail(TEMPLATE_NAME, recipientEmail, { templateData, idempotencyKey })
     )
     return json({ success: result.sent, reason: result.reason })

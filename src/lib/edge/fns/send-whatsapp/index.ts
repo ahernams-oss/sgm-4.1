@@ -48,6 +48,9 @@ serve(async (req) => {
           : `${apenasDigitos}@g.us`
       : numero;
 
+    if (!(await telefoneCadastrado(destino))) {
+      return new Response(JSON.stringify({ success: false, error: MSG_DESTINO_NAO_CADASTRADO }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
     const results: unknown[] = [];
 
     if (mensagem && mensagem.toString().trim()) {

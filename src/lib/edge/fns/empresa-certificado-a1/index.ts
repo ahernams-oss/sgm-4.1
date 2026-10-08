@@ -6,6 +6,7 @@ const Deno = __slot.Deno;
 // O bucket "certificados-digitais" é privado e a senha fica em empresa_credenciais (RLS deny-all).
 import { createClient } from "@supabase/supabase-js";
 import { corsHeaders } from "@/lib/edge/cors";
+import { exigirAcesso, pode } from "@/lib/edge/permissao";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -13,6 +14,10 @@ Deno.serve(async (req) => {
     new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
   try {
+    // Os botões do certificado na tela Dados da Empresa exigem "Editar dados".
+    const acesso = await exigirAcesso(req, (c) => pode(c, "empresa.editar"));
+    if (!acesso.ok) return acesso.resposta;
+
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const url = new URL(req.url);
     const action = url.searchParams.get("action") || "";

@@ -4,6 +4,7 @@ const serve = __slot.serve;
 const Deno = __slot.Deno;
 
 import { createClient } from "@supabase/supabase-js";
+import { ehOProprio, exigirAcesso } from "@/lib/edge/permissao";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -25,6 +26,9 @@ serve(async (req) => {
       return new Response(JSON.stringify({ success: false, error: "usuario_id e purpose obrigatórios" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
+    const acesso = await exigirAcesso(req, (c) => c.tipo === "servico" || ehOProprio(c, String(usuario_id)),
+      "O código só pode ser pedido e conferido pelo próprio usuário.");
+    if (!acesso.ok) return acesso.resposta;
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,

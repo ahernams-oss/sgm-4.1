@@ -6,6 +6,7 @@ const Deno = __slot.Deno;
 import { createClient } from "@supabase/supabase-js";
 import { sendTemplateEmail } from "../_shared/transactional-email-templates/send-email.ts";
 import { enviarComLog } from "../_shared/transactional-email-templates/log-send.ts";
+import { ehOProprio, exigirAcesso } from "@/lib/edge/permissao";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -42,6 +43,11 @@ serve(async (req) => {
     if (!usuario_id || !purpose) {
       return json({ success: false, error: "usuario_id e purpose são obrigatórios" }, 400);
     }
+
+    // Assinatura eletrônica: só o próprio usuário pede e confere o código dele.
+    const acesso = await exigirAcesso(req, (c) => c.tipo === "servico" || ehOProprio(c, usuario_id),
+      "O código só pode ser pedido e conferido pelo próprio usuário.");
+    if (!acesso.ok) return acesso.resposta;
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,

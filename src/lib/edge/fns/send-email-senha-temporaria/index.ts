@@ -4,6 +4,7 @@ const serve = __slot.serve;
 const Deno = __slot.Deno;
 import { sendTemplateEmail } from '../_shared/transactional-email-templates/send-email.ts'
 import { enviarComLog } from '../_shared/transactional-email-templates/log-send.ts'
+import { exigirAcesso, pode, podeModulo } from '@/lib/edge/permissao'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,6 +23,10 @@ const json = (body: unknown, status = 200) =>
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405)
+
+  // Quem chama: "Resetar senha" da tela Usuários e a senha do portal na tela Fornecedores.
+  const acesso = await exigirAcesso(req, (c) => pode(c, 'usuarios.resetar_senha') || podeModulo(c, 'fornecedores'))
+  if (!acesso.ok) return acesso.resposta
 
   let recipientEmail = ''
   let idempotencyKey: string | undefined

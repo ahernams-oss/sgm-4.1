@@ -1,8 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { usePerfisAcesso } from "@/contexts/PerfisAcessoContext";
 import { useCargos } from "@/contexts/CargosContext";
-
-const CARGOS_ACESSO_TOTAL = ["diretor", "gerente executivo", "coordenador de departamento", "coordenador tecnico", "coordenador técnico", "coordenador administrativo"];
+import { cargoTemAcessoTotal, temPermissao, temPermissaoNoModulo } from "@/lib/permissoes";
 
 export function usePermissao() {
   const { usuarioLogado } = useAuth();
@@ -11,15 +10,14 @@ export function usePermissao() {
 
   const cargo = cargos.find(c => c.id === usuarioLogado?.cargoId);
   const cargoNome = (cargo?.nome || "").trim().toLowerCase();
-  const acessoTotal = cargo ? CARGOS_ACESSO_TOTAL.includes(cargoNome) : false;
+  const acessoTotal = cargo ? cargoTemAcessoTotal(cargo.nome) : false;
   const isDiretor = cargoNome === "diretor";
 
   const perfil = perfis.find(p => p.id === usuarioLogado?.perfilAcessoId);
 
   const tem = (key: string): boolean => {
     if (!usuarioLogado) return false;
-    if (acessoTotal) return true;
-    return !!perfil?.permissoes?.[key];
+    return temPermissao(acessoTotal, perfil?.permissoes, key);
   };
 
   /**
@@ -29,14 +27,7 @@ export function usePermissao() {
    */
   const temModulo = (prefix: string): boolean => {
     if (!usuarioLogado) return false;
-    if (acessoTotal) return true;
-    const perms = perfil?.permissoes || {};
-    if (perms[prefix]) return true;
-    const dot = `${prefix}.`;
-    for (const k of Object.keys(perms)) {
-      if (perms[k] && k.startsWith(dot)) return true;
-    }
-    return false;
+    return temPermissaoNoModulo(acessoTotal, perfil?.permissoes, prefix);
   };
 
   return { tem, temModulo, acessoTotal, isDiretor, perfil, usuarioLogado };

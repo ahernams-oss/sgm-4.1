@@ -1,6 +1,6 @@
 // Quem pode chamar cada função da ponte /api/public/edge/<nome>.
-// As funções portadas usam a service role e quase nenhuma confere quem chamou,
-// então esta é a barreira de acesso delas.
+// As funções portadas usam a service role, então esta é a primeira barreira de acesso
+// delas. As sensíveis conferem também o perfil do usuário (src/lib/edge/permissao.ts).
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 export type Nivel = "publica" | "chave-publica" | "cron" | "usuario";
@@ -89,18 +89,21 @@ function clienteVerificador(): SupabaseClient {
   return verificador;
 }
 
+// Dono de um JWT já conferido: id em auth.users e e-mail da conta.
+type Dono = { authId: string; email: string | null };
+
 // Tokens já conferidos, por até 60 s (nunca além do exp). Com chave de assinatura
 // simétrica (HS256) cada conferência é uma ida ao Auth do Supabase.
-const conferidos = new Map<string, number>();
+const conferidos = new Map<string, Dono & { ate: number }>();
 
-async function usuarioValido(token: string | null): Promise<boolean> {
-  if (!token || token.split(".").length !== 3) return false;
-  if (chavesPublicas().some((k) => iguais(token, k))) return false;
+async function donoDoToken(token: string | null): Promise<Dono | null> {
+  if (!token || token.split(".").length !== 3) return null;
+  if (chavesPublicas().some((k) => iguais(token, k))) return null;
 
   const agora = Date.now();
-  const validoAte = conferidos.get(token);
-  if (validoAte !== undefined) {
-    if (validoAte > agora) return true;
+  const salvo = conferidos.get(token);
+  if (salvo !== undefined) {
+    if (salvo.ate > agora) return { authId: salvo.authId, email: salvo.email };
     conferidos.delete(token);
   }
 
@@ -110,15 +113,41 @@ async function usuarioValido(token: string | null): Promise<boolean> {
     const { data, error } = await clienteVerificador().auth.getClaims(token);
     const claims = data?.claims;
     if (error || !claims?.sub || claims.role !== "authenticated" || claims.is_anonymous) {
-      return false;
+      return null;
     }
+    const dono: Dono = {
+      authId: String(claims.sub),
+      email: typeof claims.email === "string" && claims.email ? claims.email.trim().toLowerCase() : null,
+    };
     if (conferidos.size >= 1000) conferidos.clear();
-    conferidos.set(token, Math.min(agora + 60_000, Number(claims.exp ?? 0) * 1000));
-    return true;
+    conferidos.set(token, { ...dono, ate: Math.min(agora + 60_000, Number(claims.exp ?? 0) * 1000) });
+    return dono;
   } catch (e) {
     console.error("[edge:auth] falha ao conferir o JWT", e);
-    return false;
+    return null;
   }
+}
+
+function credenciais(request: Request) {
+  const apikey = request.headers.get("apikey");
+  const bearer = (request.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "") || null;
+  const servico = process.env["SUPABASE_SERVICE_ROLE_KEY"];
+  const ehServico = !!servico && (iguais(bearer, servico) || iguais(apikey, servico));
+  return { apikey, bearer, ehServico };
+}
+
+export type Identidade =
+  | { tipo: "servico" }
+  | ({ tipo: "usuario" } & Dono)
+  | { tipo: "anonimo" };
+
+// Quem fez a chamada, para as funções decidirem a permissão (src/lib/edge/permissao.ts).
+// Depois da ponte o token já está no cache, então isto não vai de novo ao Auth.
+export async function identificar(request: Request): Promise<Identidade> {
+  const { bearer, ehServico } = credenciais(request);
+  if (ehServico) return { tipo: "servico" };
+  const dono = await donoDoToken(bearer);
+  return dono ? { tipo: "usuario", ...dono } : { tipo: "anonimo" };
 }
 
 export async function autorizar(request: Request, nome: string): Promise<Autorizacao> {
@@ -136,12 +165,10 @@ export async function autorizar(request: Request, nome: string): Promise<Autoriz
     return NEGADO;
   }
 
-  const apikey = request.headers.get("apikey");
-  const bearer = (request.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "") || null;
+  const { apikey, bearer, ehServico } = credenciais(request);
 
   // Chamadas de servidor para servidor com a service role.
-  const servico = process.env["SUPABASE_SERVICE_ROLE_KEY"];
-  if (servico && (iguais(bearer, servico) || iguais(apikey, servico))) return LIBERADO;
+  if (ehServico) return LIBERADO;
 
   if (
     nivel === "chave-publica" &&
@@ -150,5 +177,7 @@ export async function autorizar(request: Request, nome: string): Promise<Autoriz
     return LIBERADO;
   }
 
-  return (await usuarioValido(bearer)) ? LIBERADO : NEGADO;
+  // Aqui só se confere que o JWT é válido; quem pode o quê é decidido dentro de
+  // cada função sensível (src/lib/edge/permissao.ts).
+  return (await donoDoToken(bearer)) ? LIBERADO : NEGADO;
 }

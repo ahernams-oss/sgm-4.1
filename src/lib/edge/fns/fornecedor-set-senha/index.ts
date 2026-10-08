@@ -4,6 +4,7 @@ const serve = __slot.serve;
 const Deno = __slot.Deno;
 import { createClient } from "@supabase/supabase-js";
 import * as bcrypt from "@/lib/edge/bcrypt";
+import { exigirAcesso, podeModulo } from "@/lib/edge/permissao";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,6 +27,10 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
+    // Quem abre a tela Fornecedores (o botão "Gerar senha" não tem permissão própria).
+    const acesso = await exigirAcesso(req, (c) => podeModulo(c, "fornecedores"));
+    if (!acesso.ok) return acesso.resposta;
+
     const body = await req.json().catch(() => ({}));
     const fornecedorId = String(body?.fornecedorId ?? "");
     const senhaCustom = body?.senha ? String(body.senha) : null;

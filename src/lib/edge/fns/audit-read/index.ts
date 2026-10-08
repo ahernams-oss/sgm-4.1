@@ -8,6 +8,7 @@ const Deno = __slot.Deno;
 // A paginação é feita no servidor (range) e retorna o total para a UI.
 import { createClient } from "@supabase/supabase-js";
 import { corsHeaders } from "@/lib/edge/cors";
+import { exigirAcesso, podeModulo } from "@/lib/edge/permissao";
 
 const LIST_COLS =
   "id,created_at,usuario_id,usuario_nome,usuario_email,modulo,acao,entidade_id,entidade_descricao";
@@ -17,6 +18,10 @@ Deno.serve(async (req) => {
   const json = (b: unknown, s = 200) =>
     new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   try {
+    // Mesma regra da rota /auditoria no front.
+    const acesso = await exigirAcesso(req, (c) => podeModulo(c, "auditoria"));
+    if (!acesso.ok) return acesso.resposta;
+
     const body = await req.json().catch(() => ({}));
     const { dataIni, dataFim, id, modulo, acao, busca } = body ?? {};
     // Origem: "atual" (tabela de auditoria) ou "historico" (registros arquivados a cada 15 dias)

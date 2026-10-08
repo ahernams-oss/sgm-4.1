@@ -71,8 +71,8 @@ const conta = (apelido: string) => {
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-4${h.slice(13, 16)}-8${h.slice(17, 20)}-${h.slice(20, 32)}`;
 };
 const cargos = [
-  { id: "c-dir", nome: "Diretor" },
-  { id: "c-coord", nome: " Coordenador Técnico " },
+  { id: "c-dir", nome: "Diretor Geral Lasant" },
+  { id: "c-coord", nome: " Coordenador Técnico Lasant " },
   { id: "c-aux", nome: "Auxiliar Administrativo" },
 ];
 const perfis = [

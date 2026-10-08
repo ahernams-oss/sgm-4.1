@@ -518,15 +518,17 @@ export default function PregaoSalaFornecedorPage() {
       }
     }
 
-    const { error } = await supabase.from("pregao_lances").insert({
-      pregao_id: pregaoId,
-      item_id: activeItem.id,
-      participante_id: participante.id,
-      valor,
-    });
-    if (error) { toast.error("Erro ao enviar lance."); return; }
+    try {
+      await enviarLancePregao({
+        data: { pregaoId, fornecedorId: session.id, itemId: activeItem.id, valor },
+      });
+    } catch (e: any) {
+      toast.error(e?.message || "Erro ao enviar lance.");
+      return;
+    }
     toast.success("Lance enviado!");
     setValorLance("");
+    loadDisputa();
   };
 
   const enviarMensagem = async () => {
@@ -535,14 +537,16 @@ export default function PregaoSalaFornecedorPage() {
       toast.error("O chat está fechado pelo pregoeiro. Aguarde a liberação.");
       return;
     }
-    await supabase.from("pregao_mensagens").insert({
-      pregao_id: pregaoId,
-      autor_tipo: "participante",
-      autor_id: participante.id,
-      autor_nome_exibicao: participante.apelido,
-      mensagem: msgTexto.trim(),
-    });
+    try {
+      await enviarMensagemPregao({
+        data: { pregaoId, fornecedorId: session.id, mensagem: msgTexto.trim() },
+      });
+    } catch (e: any) {
+      toast.error(e?.message || "Erro ao enviar mensagem.");
+      return;
+    }
     setMsgTexto("");
+    loadDisputa();
   };
 
   if (!session) {

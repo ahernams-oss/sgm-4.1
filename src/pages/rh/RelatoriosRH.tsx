@@ -15,6 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { FileDown, FileSpreadsheet, Users, UserPlus, CalendarClock, Hourglass } from "lucide-react";
 import { toast } from "sonner";
 import { exportarPdfRH, exportarExcelRH, type RelatorioRH } from "@/lib/gerarRelatoriosRH";
+import PaginationControls, { paginate } from "@/components/PaginationControls";
 
 const parseData = (s?: string | null): Date | null => {
   if (!s) return null;

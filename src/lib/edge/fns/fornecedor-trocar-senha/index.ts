@@ -4,6 +4,7 @@ const serve = __slot.serve;
 const Deno = __slot.Deno;
 import { createClient } from "@supabase/supabase-js";
 import * as bcrypt from "@/lib/edge/bcrypt";
+import { MSG_SENHA_VAZADA, senhaVazada } from "../_shared/senha-vazada.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -39,6 +40,11 @@ Deno.serve(async (req) => {
     const erroValid = validar(novaSenha);
     if (erroValid) {
       return new Response(JSON.stringify({ error: erroValid }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (await senhaVazada(novaSenha)) {
+      return new Response(JSON.stringify({ error: MSG_SENHA_VAZADA }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }

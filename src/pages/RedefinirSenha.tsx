@@ -5,6 +5,7 @@ import { Lock, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { verificarSenhaVazada } from "@/lib/senhaVazada.functions";
 import logoLasant from "@/assets/Logo_Lasant.png";
 
 /**
@@ -46,6 +47,11 @@ export default function RedefinirSenha() {
     }
     setLoading(true);
     try {
+      const v = await verificarSenhaVazada({ data: { senha } });
+      if (v.vazada) {
+        toast.error(v.mensagem || "Esta senha já apareceu em vazamentos de dados.");
+        return;
+      }
       const { error } = await supabase.auth.updateUser({ password: senha });
       if (error) {
         toast.error(error.message || "Não foi possível redefinir a senha.");

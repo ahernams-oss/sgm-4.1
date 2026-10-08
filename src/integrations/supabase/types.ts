@@ -9284,6 +9284,7 @@ export type Database = {
       has_module: { Args: { _modulo: string }; Returns: boolean }
       has_module_prefix: { Args: { _prefixo: string }; Returns: boolean }
       is_acesso_total: { Args: never; Returns: boolean }
+      is_diretor_geral: { Args: never; Returns: boolean }
       kb_buscar_semantico: {
         Args: {
           match_count?: number
@@ -9316,6 +9317,8 @@ export type Database = {
       }
       req_header: { Args: { _name: string }; Returns: string }
       sgm_cargo_acesso_total: { Args: { _nome: string }; Returns: boolean }
+      sgm_cargo_id_protegido: { Args: { _id: string }; Returns: boolean }
+      sgm_normaliza_cargo: { Args: { _nome: string }; Returns: string }
       sgm_tem_permissao: { Args: { _chave: string }; Returns: boolean }
       strip_anexo_base64: { Args: { _a: Json }; Returns: Json }
     }

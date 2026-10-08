@@ -1,4 +1,5 @@
 import { createDenoSlot } from "@/lib/edge/deno-shim";
+import { invocarFuncao } from "@/lib/edge/invocar";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
@@ -42,16 +43,13 @@ async function enviarParaCampanha(supabase: any, campanha: any) {
   let sucesso = 0, erro = 0;
   for (const f of destinatarios) {
     try {
-      const resp = await fetch(`${SUPABASE_URL}/functions/v1/send-whatsapp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` },
-        body: JSON.stringify({ telefone: f.telefone_whatsapp, mensagem: campanha.mensagem }),
+      const { data: json, error: waErr } = await invocarFuncao('send-whatsapp', {
+        body: { telefone: f.telefone_whatsapp, mensagem: campanha.mensagem },
       });
-      const json = await resp.json();
-      const ok = !!json.success;
+      const ok = !waErr && !!json?.success;
       await supabase.from('whatsapp_envios').insert({
         campanha_id: campanha.id, funcionario_id: f.id, funcionario_nome: f.nome,
-        telefone: f.telefone_whatsapp, sucesso: ok, erro: ok ? null : (json.error || 'Erro desconhecido'),
+        telefone: f.telefone_whatsapp, sucesso: ok, erro: ok ? null : (waErr?.message || json?.error || 'Erro desconhecido'),
       });
       if (ok) sucesso++; else erro++;
     } catch (e: any) {

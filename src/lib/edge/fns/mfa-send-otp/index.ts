@@ -1,4 +1,5 @@
 import { createDenoSlot } from "@/lib/edge/deno-shim";
+import { invocarFuncao } from "@/lib/edge/invocar";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
@@ -60,7 +61,7 @@ serve(async (req) => {
 
     const mensagem = `🔐 *Código de confirmação Lasant*\n\nSeu código é: *${code}*\n\nVálido por 5 minutos.\nSe você não solicitou, ignore esta mensagem.`;
 
-    const { error: waErr } = await supabase.functions.invoke("send-whatsapp", {
+    const { error: waErr } = await invocarFuncao("send-whatsapp", {
       body: { telefone, mensagem },
     });
     if (waErr) throw new Error(`Falha ao enviar WhatsApp: ${waErr.message}`);

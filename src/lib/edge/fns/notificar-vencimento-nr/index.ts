@@ -1,4 +1,5 @@
 import { createDenoSlot } from "@/lib/edge/deno-shim";
+import { invocarFuncao } from "@/lib/edge/invocar";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
@@ -102,7 +103,7 @@ serve(async (req) => {
 
     const resultados: Array<{ destino: string; ok: boolean; erro?: string }> = [];
     for (const d of destinos) {
-      const { error } = await supabase.functions.invoke("send-whatsapp", {
+      const { error } = await invocarFuncao("send-whatsapp", {
         body: { telefone: d.numero, mensagem },
       });
       resultados.push({ destino: d.nome, ok: !error, erro: error?.message });

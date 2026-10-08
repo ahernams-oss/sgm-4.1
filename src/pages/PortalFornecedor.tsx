@@ -37,6 +37,7 @@ interface FornecedorSession {
   email: string;
   cnpj?: string;
   mustChangePassword?: boolean;
+  token?: string;
 }
 
 interface ConviteRow {

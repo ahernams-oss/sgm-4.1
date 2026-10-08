@@ -287,6 +287,7 @@ interface FornecedorSession {
   nomeFantasia?: string;
   email: string;
   cnpj?: string;
+  token?: string;
 }
 
 interface PregaoData {

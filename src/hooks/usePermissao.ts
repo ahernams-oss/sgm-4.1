@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { usePerfisAcesso } from "@/contexts/PerfisAcessoContext";
 import { useCargos } from "@/contexts/CargosContext";
-import { cargoTemAcessoTotal, temPermissao, temPermissaoNoModulo } from "@/lib/permissoes";
+import { cargoEhDiretorGeral, cargoTemAcessoTotal, temPermissao, temPermissaoNoModulo } from "@/lib/permissoes";
 
 export function usePermissao() {
   const { usuarioLogado } = useAuth();
@@ -9,9 +9,8 @@ export function usePermissao() {
   const { cargos } = useCargos();
 
   const cargo = cargos.find(c => c.id === usuarioLogado?.cargoId);
-  const cargoNome = (cargo?.nome || "").trim().toLowerCase();
   const acessoTotal = cargo ? cargoTemAcessoTotal(cargo.nome) : false;
-  const isDiretor = cargoNome === "diretor";
+  const isDiretor = cargoEhDiretorGeral(cargo?.nome);
 
   const perfil = perfis.find(p => p.id === usuarioLogado?.perfilAcessoId);
 

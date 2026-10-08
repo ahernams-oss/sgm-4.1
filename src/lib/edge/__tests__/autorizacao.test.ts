@@ -581,15 +581,15 @@ await caso(
   "cargos de acesso total iguais aos do front, sem diferenciar maiúsculas e espaços",
   () => {
     for (const c of [
-      "Diretor",
-      " Gerente Executivo ",
-      "COORDENADOR DE DEPARTAMENTO",
-      "Coordenador Técnico",
-      "coordenador tecnico",
-      "Coordenador Administrativo",
+      "Diretor Geral Lasant",
+      " Gerente Executivo  Lasant ",
+      "Coordenador Técnico Lasant",
+      "coordenador tecnico lasant",
+      "COORDENADOR ADMINISTRATIVO LASANT",
     ])
       confere(regra.cargoTemAcessoTotal(c), `${c} deveria ter acesso total`);
-    for (const c of ["Gerente", "Coordenador", "Auxiliar Administrativo", "", null, undefined])
+    for (const c of ["Diretor", "Gerente Executivo", "Coordenador Técnico", "Coordenador Administrativo",
+      "Coordenador de Departamento", "Gerente", "Coordenador", "Auxiliar Administrativo", "", null, undefined])
       confere(!regra.cargoTemAcessoTotal(c), `${c} não deveria ter acesso total`);
   },
 );

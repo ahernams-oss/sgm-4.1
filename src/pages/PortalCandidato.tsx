@@ -19,6 +19,7 @@ const DOCS_REMOVIDOS = ["Atestado de Antecedentes Criminais"];
 
 export default function PortalCandidato() {
   const { processoId, candidatoId } = useParams<{ processoId: string; candidatoId: string }>();
+  const token = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("t") ?? "" : "";
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [candidato, setCandidato] = useState<Candidato | null>(null);
@@ -28,7 +29,7 @@ export default function PortalCandidato() {
   useEffect(() => {
     (async () => {
       if (!processoId || !candidatoId) return;
-      const c: Candidato | null = await getCandidatoPortal({ data: { processoId, candidatoId } }).catch(() => null);
+      const c: Candidato | null = await getCandidatoPortal({ data: { processoId, candidatoId, token } }).catch(() => null);
       if (!c) { toast.error("Link inválido."); setLoading(false); return; }
       setAllCandidatos([c]);
       // Normaliza lista de documentos (sem exame admissional, sem antecedentes)
@@ -50,7 +51,7 @@ export default function PortalCandidato() {
     setCandidato(novo);
     setAllCandidatos([novo]);
     try {
-      await salvarCandidatoPortal({ data: { processoId, candidatoId, patch: patch as any } });
+      await salvarCandidatoPortal({ data: { processoId, candidatoId, token, patch: patch as any } });
     } catch (error) {
       toast.error("Erro ao salvar."); console.error(error);
     } finally {

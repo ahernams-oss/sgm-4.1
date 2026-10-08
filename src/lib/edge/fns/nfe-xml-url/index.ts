@@ -16,6 +16,21 @@ Deno.serve(async (req) => {
     if (!path && !chave) return json({ ok: false, error: "path ou chave obrigatório" }, 400);
 
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const tblNota = tabela === "nfse" ? "nfses_tomadas" : "nfes_recebidas";
+
+    // Só nota já cadastrada no sistema: o caminho ou a chave precisam existir na tabela.
+    if (path) {
+      const p = String(path);
+      if (p.includes("..")) return json({ ok: false, error: "Caminho inválido" }, 400);
+      const [a, b] = await Promise.all([
+        admin.from("nfes_recebidas").select("id").eq("xml_url", p).limit(1),
+        admin.from("nfses_tomadas").select("id").eq("xml_url", p).limit(1),
+      ]);
+      if (!(a.data?.length || b.data?.length)) return json({ ok: false, error: "Nota não encontrada" }, 404);
+    } else {
+      const { data: nota } = await admin.from(tblNota).select("id").eq("chave", String(chave)).limit(1);
+      if (!nota?.length) return json({ ok: false, error: "Nota não encontrada" }, 404);
+    }
 
     let storagePath: string | null = path ?? null;
 

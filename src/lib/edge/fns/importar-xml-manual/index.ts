@@ -24,9 +24,14 @@ Deno.serve(async (req) => {
     const { empresaId, xmlBase64, tipo } = await req.json().catch(() => ({}));
     if (!empresaId) return json({ ok: false, error: "empresaId obrigatório" }, 400);
     if (!xmlBase64) return json({ ok: false, error: "xmlBase64 obrigatório" }, 400);
+    // XML de nota tem poucos KB; limita a ~5 MB.
+    if (typeof xmlBase64 !== "string" || xmlBase64.length > 7_000_000) {
+      return json({ ok: false, error: "Arquivo XML muito grande (máx. 5 MB)" }, 400);
+    }
 
     const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const { data: emp } = await admin.from("empresa").select("cnpj").eq("id", empresaId).maybeSingle();
+    if (!emp) return json({ ok: false, error: "Empresa não encontrada" }, 404);
     const cnpjEmpresa = digitsOnly(emp?.cnpj || "");
 
     const bin = atob(xmlBase64);

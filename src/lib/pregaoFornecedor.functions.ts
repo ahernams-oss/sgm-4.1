@@ -13,7 +13,18 @@ async function admin() {
 const salaIds = z.object({
   pregaoId: z.string().uuid(),
   fornecedorId: z.string().min(1).max(100),
+  token: z.string().min(10).max(2000),
 });
+
+// O fornecedor é quem o token de sessão (emitido no login do portal) diz que é;
+// o fornecedorId enviado pelo navegador precisa ser o mesmo.
+async function exigirFornecedor(fornecedorId: string, token: string) {
+  const { lerToken, ESCOPO_FORNECEDOR } = await import("@/lib/edge/fns/_shared/token-assinado");
+  const dono = await lerToken(ESCOPO_FORNECEDOR, token);
+  if (!dono || dono !== fornecedorId) {
+    throw new Error("Sessão do portal expirada. Saia e entre de novo.");
+  }
+}
 
 // Garante que o fornecedor é participante do pregão e devolve a participação.
 async function participacaoValida(db: any, pregaoId: string, fornecedorId: string) {
@@ -30,6 +41,7 @@ async function participacaoValida(db: any, pregaoId: string, fornecedorId: strin
 export const getPregaoSalaFornecedor = createServerFn({ method: "POST" })
   .inputValidator((d) => salaIds.parse(d))
   .handler(async ({ data }) => {
+    await exigirFornecedor(data.fornecedorId, data.token);
     const db = await admin();
     const participante = await participacaoValida(db, data.pregaoId, data.fornecedorId);
     const [{ data: pregao }, { data: itens }] = await Promise.all([
@@ -42,6 +54,7 @@ export const getPregaoSalaFornecedor = createServerFn({ method: "POST" })
 export const getPregaoDisputaFornecedor = createServerFn({ method: "POST" })
   .inputValidator((d) => salaIds.parse(d))
   .handler(async ({ data }) => {
+    await exigirFornecedor(data.fornecedorId, data.token);
     const db = await admin();
     const participante = await participacaoValida(db, data.pregaoId, data.fornecedorId);
     const [{ data: lances }, { data: mensagens }, { data: itens }] = await Promise.all([
@@ -62,6 +75,7 @@ export const enviarLancePregao = createServerFn({ method: "POST" })
       .parse(d)
   )
   .handler(async ({ data }) => {
+    await exigirFornecedor(data.fornecedorId, data.token);
     const db = await admin();
     const participante = await participacaoValida(db, data.pregaoId, data.fornecedorId);
     if (participante.status !== "Habilitado" && participante.status !== "Credenciado") {
@@ -103,6 +117,7 @@ export const enviarMensagemPregao = createServerFn({ method: "POST" })
     salaIds.extend({ mensagem: z.string().trim().min(1).max(1000) }).parse(d)
   )
   .handler(async ({ data }) => {
+    await exigirFornecedor(data.fornecedorId, data.token);
     const db = await admin();
     const participante = await participacaoValida(db, data.pregaoId, data.fornecedorId);
     if (!participante.chat_aberto) {
@@ -121,8 +136,11 @@ export const enviarMensagemPregao = createServerFn({ method: "POST" })
 
 // Lista do portal do fornecedor: pregões abertos + participações do fornecedor.
 export const getPregoesPortalFornecedor = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({ fornecedorId: z.string().min(1).max(100) }).parse(d))
+  .inputValidator((d) =>
+    z.object({ fornecedorId: z.string().min(1).max(100), token: z.string().min(10).max(2000) }).parse(d)
+  )
   .handler(async ({ data }) => {
+    await exigirFornecedor(data.fornecedorId, data.token);
     const db = await admin();
     const [{ data: pregoes }, { data: partes }] = await Promise.all([
       db

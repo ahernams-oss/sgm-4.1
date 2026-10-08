@@ -287,6 +287,7 @@ interface FornecedorSession {
   nomeFantasia?: string;
   email: string;
   cnpj?: string;
+  token?: string;
 }
 
 interface PregaoData {
@@ -415,7 +416,7 @@ export default function PregaoSalaFornecedorPage() {
     (async () => {
       setLoading(true);
       try {
-        const r = await getPregaoSalaFornecedor({ data: { pregaoId, fornecedorId: session.id } });
+        const r = await getPregaoSalaFornecedor({ data: { pregaoId, fornecedorId: session.id, token: session.token ?? "" } });
         setPregao(r.pregao as PregaoData);
         setItens((r.itens as PregaoItem[]) || []);
         setParticipante(r.participante as Participante);
@@ -431,7 +432,7 @@ export default function PregaoSalaFornecedorPage() {
   const loadDisputa = useCallback(async () => {
     if (!pregaoId || !session) return;
     try {
-      const r = await getPregaoDisputaFornecedor({ data: { pregaoId, fornecedorId: session.id } });
+      const r = await getPregaoDisputaFornecedor({ data: { pregaoId, fornecedorId: session.id, token: session.token ?? "" } });
       setLances((r.lances as Lance[]) || []);
       setMensagens((r.mensagens as Mensagem[]) || []);
       setItens((r.itens as PregaoItem[]) || []);
@@ -520,7 +521,7 @@ export default function PregaoSalaFornecedorPage() {
 
     try {
       await enviarLancePregao({
-        data: { pregaoId, fornecedorId: session!.id, itemId: activeItem.id, valor },
+        data: { pregaoId, fornecedorId: session!.id, token: session!.token ?? "", itemId: activeItem.id, valor },
       });
     } catch (e: any) {
       toast.error(e?.message || "Erro ao enviar lance.");
@@ -539,7 +540,7 @@ export default function PregaoSalaFornecedorPage() {
     }
     try {
       await enviarMensagemPregao({
-        data: { pregaoId, fornecedorId: session!.id, mensagem: msgTexto.trim() },
+        data: { pregaoId, fornecedorId: session!.id, token: session!.token ?? "", mensagem: msgTexto.trim() },
       });
     } catch (e: any) {
       toast.error(e?.message || "Erro ao enviar mensagem.");

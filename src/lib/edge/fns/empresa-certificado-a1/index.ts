@@ -46,7 +46,15 @@ Deno.serve(async (req) => {
     if (action === "remove") {
       const empresaId = String(body?.empresaId || "");
       const path = String(body?.path || "");
-      if (path) await admin.storage.from("certificados-digitais").remove([path]);
+      if (path) {
+        // Só remove arquivo da pasta da própria empresa, sem "..".
+        if (!empresaId || !path.startsWith(`${empresaId}/`) || path.includes("..")) {
+          return json({ ok: false, error: "Caminho do certificado inválido para esta empresa" }, 400);
+        }
+        const { data: emp } = await admin.from("empresa").select("id").eq("id", empresaId).maybeSingle();
+        if (!emp) return json({ ok: false, error: "Empresa não encontrada" }, 404);
+        await admin.storage.from("certificados-digitais").remove([path]);
+      }
       if (empresaId) {
         await admin.from("empresa_credenciais").delete().eq("empresa_id", empresaId);
       }

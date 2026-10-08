@@ -10,8 +10,6 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  const acesso = await exigirAcesso(req, (c) => podeModulo(c, "orcamentos_sco", "sco"));
-  if (!acesso.ok) return acesso.resposta;
 };
 
 const supabase = createClient(
@@ -130,6 +128,8 @@ function parseComposicoes(rows: any[][]) {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  const acesso = await exigirAcesso(req, (c) => podeModulo(c, "orcamentos_sco", "sco"));
+  if (!acesso.ok) return acesso.resposta;
   try {
     const body = await req.json();
     const { fgv04, fgv06, fgv07 } = body as { fgv04?: string; fgv06?: string; fgv07?: string };

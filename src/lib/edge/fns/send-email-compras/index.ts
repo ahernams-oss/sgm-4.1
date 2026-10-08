@@ -53,13 +53,13 @@ Deno.serve(async (req) => {
   if (!EMAIL_RE.test(recipientEmail)) {
     return json({ error: 'recipientEmail inválido' }, 400)
   }
+  if (!(await emailsCadastrados(recipientEmail))) {
+    return new Response(JSON.stringify({ success: false, error: MSG_DESTINO_NAO_CADASTRADO }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+  }
 
   let principal: { sent: boolean; reason?: string }
   try {
     principal = await enviarComLog(templateName, recipientEmail, () =>
-      if (!(await emailsCadastrados(recipientEmail))) {
-        return new Response(JSON.stringify({ success: false, error: MSG_DESTINO_NAO_CADASTRADO }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-      }
       sendTemplateEmail(templateName, recipientEmail, { templateData, idempotencyKey })
     )
   } catch (error) {

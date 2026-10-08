@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "@/lib/router-compat";
-import { supabase } from "@/integrations/supabase/client";
+import { verificarAssinaturaPublica } from "@/lib/publico.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -51,147 +51,50 @@ export default function VerificarAssinatura() {
     setHashAtual("");
     setTipo(null);
     try {
-      const codTrim = cod.trim();
-
-      // 1. Tenta RDO
-      const { data: assRdo } = await supabase
-        .from("rdo_assinaturas")
-        .select("*")
-        .eq("codigo_verificador", codTrim)
-        .maybeSingle();
-
-      if (assRdo) {
-        setTipo("rdo");
-        setAssinatura(assRdo);
-        const { data: r } = await supabase.from("rdos").select("*").eq("id", assRdo.rdo_id).maybeSingle();
-        setDocumento(r);
-        const { data: outras } = await supabase
-          .from("rdo_assinaturas").select("*").eq("rdo_id", assRdo.rdo_id).order("signed_at");
-        setTodasAssinaturas(outras || []);
-        if (r) {
-          try { setHashAtual(await gerarHashRdo(r as any)); } catch { /* ignore */ }
+      const r = await verificarAssinaturaPublica({ data: { codigo: cod.trim() } }).catch(() => null);
+      if (!r) { setNaoEncontrado(true); return; }
+      const t = r.tipo as Tipo;
+      const doc: any = r.documento;
+      setTipo(t);
+      setAssinatura(r.assinatura);
+      setDocumento(doc);
+      setTodasAssinaturas(r.todas || []);
+      if (!doc) return;
+      try {
+        if (t === "rdo") setHashAtual(await gerarHashRdo(doc));
+        else if (t === "os") setHashAtual(await gerarHashOs(doc));
+        else if (t === "boletim") setHashAtual(await gerarHashBoletim(doc));
+        else if (t === "pc") {
+          const p = doc;
+          setHashAtual(await gerarHashPc({
+            numero: p.numero, cotacaoId: p.cotacao_id, requisicaoId: p.requisicao_id,
+            requisicaoNumero: p.requisicao_numero, dataCriacao: p.data_criacao,
+            comprador: p.comprador, fornecedorId: p.fornecedor_id, fornecedorNome: p.fornecedor_nome,
+            itens: p.itens, condicaoPagamento: p.condicao_pagamento, prazoEntrega: p.prazo_entrega,
+            localEntrega: p.local_entrega, observacoes: p.observacoes, valorTotal: Number(p.valor_total) || 0,
+          } as any));
+        } else if (t === "laudo") {
+          const l = doc;
+          setHashAtual(await gerarHashLaudo({
+            numero: l.numero, equipamento_id: l.equipamento_id, equipamento_tag: l.equipamento_tag,
+            equipamento_nome: l.equipamento_nome, tipo: l.tipo, marca: l.marca, modelo: l.modelo,
+            serie: l.serie, patrimonio: l.patrimonio, ano_fabricacao: l.ano_fabricacao,
+            data_aquisicao: l.data_aquisicao, localizacao: l.localizacao,
+            estado_conservacao: l.estado_conservacao, data_emissao: l.data_emissao,
+            data_inspecao: l.data_inspecao, local_inspecao: l.local_inspecao,
+            responsavel_tecnico: l.responsavel_tecnico, registro_profissional: l.registro_profissional,
+            historico: l.historico, insp_condicoes_fisicas: l.insp_condicoes_fisicas,
+            insp_condicoes_eletricas: l.insp_condicoes_eletricas,
+            insp_condicoes_mecanicas: l.insp_condicoes_mecanicas,
+            insp_funcionalidade: l.insp_funcionalidade,
+            motivos_condenacao: l.motivos_condenacao,
+            custo_reparo: Number(l.custo_reparo) || 0,
+            valor_residual: Number(l.valor_residual) || 0,
+            valor_novo_equivalente: Number(l.valor_novo_equivalente) || 0,
+            parecer: l.parecer, conclusao_condicoes: l.conclusao_condicoes,
+          } as any));
         }
-        return;
-      }
-
-      // 2. Tenta OS
-      const { data: assOs } = await supabase
-        .from("os_assinaturas")
-        .select("*")
-        .eq("codigo_verificador", codTrim)
-        .maybeSingle();
-
-      if (assOs) {
-        setTipo("os");
-        setAssinatura(assOs);
-        const { data: o } = await supabase.from("ordens_servico").select("*").eq("id", assOs.os_id).maybeSingle();
-        setDocumento(o);
-        const { data: outras } = await supabase
-          .from("os_assinaturas").select("*").eq("os_id", assOs.os_id).order("signed_at");
-        setTodasAssinaturas(outras || []);
-        if (o) {
-          try { setHashAtual(await gerarHashOs(o as any)); } catch { /* ignore */ }
-        }
-        return;
-      }
-
-      // 3. Tenta PC (Ordem de Compra)
-      const { data: assPc } = await supabase
-        .from("pc_assinaturas")
-        .select("*")
-        .eq("codigo_verificador", codTrim)
-        .maybeSingle();
-
-      if (assPc) {
-        setTipo("pc");
-        setAssinatura(assPc);
-        const { data: p } = await supabase.from("pedidos_compra").select("*").eq("id", assPc.pedido_id).maybeSingle();
-        setDocumento(p);
-        const { data: outras } = await supabase
-          .from("pc_assinaturas").select("*").eq("pedido_id", assPc.pedido_id).order("signed_at");
-        setTodasAssinaturas(outras || []);
-        if (p) {
-          try {
-            const pedidoMapped: any = {
-              numero: p.numero, cotacaoId: p.cotacao_id, requisicaoId: p.requisicao_id,
-              requisicaoNumero: p.requisicao_numero, dataCriacao: p.data_criacao,
-              comprador: p.comprador, fornecedorId: p.fornecedor_id, fornecedorNome: p.fornecedor_nome,
-              itens: p.itens, condicaoPagamento: p.condicao_pagamento, prazoEntrega: p.prazo_entrega,
-              localEntrega: p.local_entrega, observacoes: p.observacoes, valorTotal: Number(p.valor_total) || 0,
-            };
-            setHashAtual(await gerarHashPc(pedidoMapped));
-          } catch { /* ignore */ }
-        }
-        return;
-      }
-
-      // 4. Tenta Laudo de Condenação
-      const { data: assLaudo } = await (supabase as any)
-        .from("equipamentos_laudos_assinaturas")
-        .select("*")
-        .eq("codigo_verificador", codTrim)
-        .maybeSingle();
-
-      if (assLaudo) {
-        setTipo("laudo");
-        setAssinatura(assLaudo);
-        const { data: l } = await (supabase as any)
-          .from("equipamentos_laudos_condenacao")
-          .select("*").eq("id", assLaudo.laudo_id).maybeSingle();
-        setDocumento(l);
-        const { data: outras } = await (supabase as any)
-          .from("equipamentos_laudos_assinaturas")
-          .select("*").eq("laudo_id", assLaudo.laudo_id).order("signed_at");
-        setTodasAssinaturas(outras || []);
-        if (l) {
-          try {
-            const laudoMapped: any = {
-              numero: l.numero, equipamento_id: l.equipamento_id, equipamento_tag: l.equipamento_tag,
-              equipamento_nome: l.equipamento_nome, tipo: l.tipo, marca: l.marca, modelo: l.modelo,
-              serie: l.serie, patrimonio: l.patrimonio, ano_fabricacao: l.ano_fabricacao,
-              data_aquisicao: l.data_aquisicao, localizacao: l.localizacao,
-              estado_conservacao: l.estado_conservacao, data_emissao: l.data_emissao,
-              data_inspecao: l.data_inspecao, local_inspecao: l.local_inspecao,
-              responsavel_tecnico: l.responsavel_tecnico, registro_profissional: l.registro_profissional,
-              historico: l.historico, insp_condicoes_fisicas: l.insp_condicoes_fisicas,
-              insp_condicoes_eletricas: l.insp_condicoes_eletricas,
-              insp_condicoes_mecanicas: l.insp_condicoes_mecanicas,
-              insp_funcionalidade: l.insp_funcionalidade,
-              motivos_condenacao: l.motivos_condenacao,
-              custo_reparo: Number(l.custo_reparo) || 0,
-              valor_residual: Number(l.valor_residual) || 0,
-              valor_novo_equivalente: Number(l.valor_novo_equivalente) || 0,
-              parecer: l.parecer, conclusao_condicoes: l.conclusao_condicoes,
-            };
-            setHashAtual(await gerarHashLaudo(laudoMapped));
-          } catch { /* ignore */ }
-        }
-        return;
-      }
-
-      // 5. Tenta Boletim de Medição
-      const { data: assBol } = await (supabase as any)
-        .from("boletim_assinaturas")
-        .select("*")
-        .eq("codigo_verificador", codTrim)
-        .maybeSingle();
-
-      if (assBol) {
-        setTipo("boletim");
-        setAssinatura(assBol);
-        const { data: b } = await (supabase as any)
-          .from("boletins_medicao").select("*").eq("id", assBol.boletim_id).maybeSingle();
-        setDocumento(b);
-        const { data: outras } = await (supabase as any)
-          .from("boletim_assinaturas").select("*").eq("boletim_id", assBol.boletim_id).order("signed_at");
-        setTodasAssinaturas(outras || []);
-        if (b) {
-          try { setHashAtual(await gerarHashBoletim(b as any)); } catch { /* ignore */ }
-        }
-        return;
-      }
-
-      setNaoEncontrado(true);
+      } catch { /* ignore */ }
     } finally {
       setLoading(false);
     }

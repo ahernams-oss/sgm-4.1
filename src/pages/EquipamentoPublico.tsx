@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "@/lib/router-compat";
-import { supabase } from "@/integrations/supabase/client";
+import { getEquipamentoPublico } from "@/lib/publico.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -20,23 +20,12 @@ export default function EquipamentoPublico() {
   useEffect(() => {
     if (!id) return;
     (async () => {
-      const { data: eq } = await supabase.from("equipamentos").select("*").eq("id", id).maybeSingle();
-      if (!eq) { setNotFound(true); setLoading(false); return; }
-      setEquip(eq);
-      const [{ data: ss }, { data: ats }, { data: exs }] = await Promise.all([
-        supabase.from("solicitacoes_servicos")
-          .select("id, numero, descricao_servicos, situacao, tipo, prioridade, data_hora_solicitacao, created_at")
-          .eq("equipamento_id", id).order("created_at", { ascending: false }),
-        supabase.from("pmoc_atividades")
-          .select("id, descricao, periodicidade, ultima_execucao, proxima_execucao, ativa")
-          .eq("equipamento_id", id),
-        supabase.from("pmoc_atividades_execucoes")
-          .select("id, atividade_id, atividade_descricao, periodicidade, data_execucao, proxima_execucao, status, data_confirmacao")
-          .eq("equipamento_id", id).order("data_execucao", { ascending: false }),
-      ]);
-      setManutencoes(ss || []);
-      setAtividades(ats || []);
-      setExecucoes(exs || []);
+      const r = await getEquipamentoPublico({ data: { id } }).catch(() => null);
+      if (!r?.equip) { setNotFound(true); setLoading(false); return; }
+      setEquip(r.equip);
+      setManutencoes(r.manutencoes || []);
+      setAtividades(r.atividades || []);
+      setExecucoes(r.execucoes || []);
       setLoading(false);
     })();
   }, [id]);

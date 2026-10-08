@@ -1,7 +1,7 @@
 import { lerArquivoBase64 } from "@/lib/compressFile";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "@/lib/router-compat";
-import { supabase } from "@/integrations/supabase/client";
+import { getCandidatoPortal, salvarCandidatoPortal } from "@/lib/publico.functions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,16 +28,9 @@ export default function PortalCandidato() {
   useEffect(() => {
     (async () => {
       if (!processoId || !candidatoId) return;
-      const { data, error } = await (supabase as any)
-        .from("processos_seletivos")
-        .select("candidatos")
-        .eq("id", processoId)
-        .maybeSingle();
-      if (error || !data) { toast.error("Link inválido."); setLoading(false); return; }
-      const cands: Candidato[] = data.candidatos || [];
-      setAllCandidatos(cands);
-      const c = cands.find((x) => x.id === candidatoId);
-      if (!c) { toast.error("Candidato não encontrado."); setLoading(false); return; }
+      const c: Candidato | null = await getCandidatoPortal({ data: { processoId, candidatoId } }).catch(() => null);
+      if (!c) { toast.error("Link inválido."); setLoading(false); return; }
+      setAllCandidatos([c]);
       // Normaliza lista de documentos (sem exame admissional, sem antecedentes)
       const docs: DocumentoContratacao[] =
         (c.documentos && c.documentos.length > 0
@@ -51,18 +44,18 @@ export default function PortalCandidato() {
   }, [processoId, candidatoId]);
 
   const persist = async (patch: Partial<Candidato>) => {
-    if (!candidato) return;
+    if (!candidato || !processoId || !candidatoId) return;
     setSaving(true);
     const novo = { ...candidato, ...patch };
     setCandidato(novo);
-    const novos = allCandidatos.map((c) => (c.id === candidato.id ? novo : c));
-    setAllCandidatos(novos);
-    const { error } = await (supabase as any)
-      .from("processos_seletivos")
-      .update({ candidatos: novos })
-      .eq("id", processoId);
-    setSaving(false);
-    if (error) { toast.error("Erro ao salvar."); console.error(error); }
+    setAllCandidatos([novo]);
+    try {
+      await salvarCandidatoPortal({ data: { processoId, candidatoId, patch: patch as any } });
+    } catch (error) {
+      toast.error("Erro ao salvar."); console.error(error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const aceitarLgpd = async () => {

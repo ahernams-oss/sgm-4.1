@@ -414,61 +414,43 @@ export default function PregaoSalaFornecedorPage() {
     if (!pregaoId || !session) return;
     (async () => {
       setLoading(true);
-      const [{ data: pData }, { data: iData }, { data: partData }] = await Promise.all([
-        supabase.from("pregoes").select("*").eq("id", pregaoId).single(),
-        supabase.from("pregao_itens").select("*").eq("pregao_id", pregaoId).order("ordem", { ascending: true }),
-        supabase.from("pregao_participantes").select("*").eq("pregao_id", pregaoId).eq("fornecedor_id", session.id).maybeSingle(),
-      ]);
-      setPregao(pData as PregaoData);
-      setItens((iData as PregaoItem[]) || []);
-      setParticipante(partData as Participante);
-      if ((iData as PregaoItem[])?.length) setItemAtivo((iData as PregaoItem[])[0].id);
+      try {
+        const r = await getPregaoSalaFornecedor({ data: { pregaoId, fornecedorId: session.id } });
+        setPregao(r.pregao as PregaoData);
+        setItens((r.itens as PregaoItem[]) || []);
+        setParticipante(r.participante as Participante);
+        if ((r.itens as PregaoItem[])?.length) setItemAtivo((r.itens as PregaoItem[])[0].id);
+      } catch {
+        setPregao(null);
+      }
       setLoading(false);
     })();
   }, [pregaoId, session]);
 
   // Carrega lances e mensagens do item ativo
   const loadDisputa = useCallback(async () => {
-    if (!pregaoId) return;
-    const [{ data: lData }, { data: mData }] = await Promise.all([
-      supabase.from("pregao_lances").select("*").eq("pregao_id", pregaoId).order("ts", { ascending: true }),
-      supabase.from("pregao_mensagens").select("*").eq("pregao_id", pregaoId).order("ts", { ascending: true }),
-    ]);
-    setLances((lData as Lance[]) || []);
-    setMensagens((mData as Mensagem[]) || []);
-  }, [pregaoId]);
+    if (!pregaoId || !session) return;
+    try {
+      const r = await getPregaoDisputaFornecedor({ data: { pregaoId, fornecedorId: session.id } });
+      setLances((r.lances as Lance[]) || []);
+      setMensagens((r.mensagens as Mensagem[]) || []);
+      setItens((r.itens as PregaoItem[]) || []);
+      setParticipante(r.participante as Participante);
+    } catch {
+      // mantém os dados atuais em caso de falha de rede
+    }
+  }, [pregaoId, session]);
 
   useEffect(() => {
     loadDisputa();
   }, [loadDisputa]);
 
-  // Realtime
+  // Atualização periódica (a sala do fornecedor não usa mais acesso direto às tabelas)
   useEffect(() => {
-    if (!pregaoId) return;
-    const ch = supabase
-      .channel("pregao-fornecedor-" + pregaoId)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "pregao_lances" }, (payload: any) => {
-        if (payload.new.pregao_id === pregaoId) {
-          setLances(prev => [...prev, payload.new as Lance]);
-        }
-      })
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "pregao_lances" }, (payload: any) => {
-        setLances(prev => prev.map(l => l.id === payload.new.id ? payload.new as Lance : l));
-      })
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "pregao_mensagens" }, (payload: any) => {
-        if (payload.new.pregao_id === pregaoId) {
-          setMensagens(prev => [...prev, payload.new as Mensagem]);
-        }
-      })
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "pregao_itens" }, (payload: any) => {
-        setItens(prev => prev.map(i => i.id === payload.new.id ? { ...i, ...payload.new } : i));
-      })
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "pregao_participantes" }, (payload: any) => {
-        setParticipante(prev => (prev && prev.id === payload.new.id) ? { ...prev, ...payload.new } : prev);
-      })
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
-  }, [pregaoId]);
+    if (!pregaoId || !session) return;
+    const t = setInterval(loadDisputa, 3000);
+    return () => clearInterval(t);
+  }, [pregaoId, session, loadDisputa]);
 
   // Scroll chat
   useEffect(() => {

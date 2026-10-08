@@ -1,6 +1,12 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  getPregaoSalaFornecedor,
+  getPregaoDisputaFornecedor,
+  enviarLancePregao,
+  enviarMensagemPregao,
+} from "@/lib/pregaoFornecedor.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";

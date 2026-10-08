@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useFuncionarios } from "@/contexts/FuncionariosContext";
 import { useCargos } from "@/contexts/CargosContext";
 import { useClientes } from "@/contexts/ClientesContext";
@@ -63,6 +63,7 @@ export default function RelatoriosRH() {
   const [busca, setBusca] = useState("");
   const [diasExp, setDiasExp] = useState("30");
   const [pagina, setPagina] = useState(1);
+  useEffect(() => { setPagina(1); }, [dataIni, dataFim, clienteId, status, busca]);
 
   const cargoNome = (id: string) => cargos.find((c) => c.id === id)?.nome || "—";
   const clienteNome = (id: string) => {

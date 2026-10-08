@@ -9315,6 +9315,8 @@ export type Database = {
         Returns: undefined
       }
       req_header: { Args: { _name: string }; Returns: string }
+      sgm_cargo_acesso_total: { Args: { _nome: string }; Returns: boolean }
+      sgm_tem_permissao: { Args: { _chave: string }; Returns: boolean }
       strip_anexo_base64: { Args: { _a: Json }; Returns: Json }
     }
     Enums: {

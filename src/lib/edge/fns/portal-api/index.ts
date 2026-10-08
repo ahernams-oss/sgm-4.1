@@ -94,6 +94,17 @@ async function requireAuth(req: Request) {
   return cred;
 }
 
+// Anexos do portal: até 10 MB, só PDF e imagens (conferido pelo conteúdo).
+const ANEXO_MAX = 10 * 1024 * 1024;
+function tipoAnexo(bin: Uint8Array): string | null {
+  if (bin.length < 4 || bin.length > ANEXO_MAX) return null;
+  if (bin[0] === 0x25 && bin[1] === 0x50 && bin[2] === 0x44 && bin[3] === 0x46) return "application/pdf";
+  if (bin[0] === 0xff && bin[1] === 0xd8) return "image/jpeg";
+  if (bin[0] === 0x89 && bin[1] === 0x50 && bin[2] === 0x4e && bin[3] === 0x47) return "image/png";
+  if (bin.length > 12 && bin[8] === 0x57 && bin[9] === 0x45 && bin[10] === 0x42 && bin[11] === 0x50) return "image/webp";
+  return null;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
@@ -218,9 +229,9 @@ Deno.serve(async (req) => {
         const { data: f } = await sb.from("funcionarios").select("data_nascimento").eq("id", cred.funcionario_id).maybeSingle();
         match = f?.data_nascimento === dataNasc;
       } else {
-        // MODO TESTE: candidato pode redefinir a senha apenas com o CPF.
+        // Candidato precisa informar CPF + data de nascimento cadastrados (sem atalho de teste).
         const cand = await findCandidato(cpf, dataNasc);
-        match = PORTAL_TESTE_CANDIDATO ? true : !!cand;
+        match = !!cand;
       }
       if (!match) return json({ error: "Dados não conferem." }, 401);
 
@@ -541,7 +552,10 @@ Deno.serve(async (req) => {
       const nome = String(body.nome_arquivo || "arquivo");
       const b64 = String(body.arquivo_base64 || "");
       if (!tipo || !b64) return json({ error: "Documento inválido." }, 400);
+      if (b64.length > ANEXO_MAX * 1.4) return json({ error: "Arquivo muito grande (máx. 10 MB)." }, 400);
       const bin = Uint8Array.from(atob(b64.split(",").pop() || b64), (c) => c.charCodeAt(0));
+      const mimeDoc = tipoAnexo(bin);
+      if (!mimeDoc) return json({ error: "Envie PDF ou imagem (JPG, PNG, WebP) de até 10 MB." }, 400);
       const sanitize = (s: string) =>
         s.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
           .replace(/[^a-zA-Z0-9._-]+/g, "_").replace(/_+/g, "_").replace(/^_+|_+$/g, "");
@@ -549,7 +563,7 @@ Deno.serve(async (req) => {
       const safeNome = sanitize(nome) || "arquivo";
       const path = `${cred.cpf}/${safeTipo}/${Date.now()}-${safeNome}`;
       const { error: upErr } = await sb.storage.from("portal-candidato-docs").upload(path, bin, {
-        contentType: body.content_type || "application/octet-stream", upsert: false,
+        contentType: mimeDoc, upsert: false,
       });
       if (upErr) return json({ error: upErr.message }, 500);
       await sb.from("portal_documentos_candidato").insert({
@@ -673,13 +687,16 @@ Deno.serve(async (req) => {
       let anexo_nome: string | null = null;
       const b64 = String(body.arquivo_base64 || "");
       if (b64) {
+        if (b64.length > ANEXO_MAX * 1.4) return json({ error: "Arquivo muito grande (máx. 10 MB)." }, 400);
         const bin = Uint8Array.from(atob(b64.split(",").pop() || b64), (c) => c.charCodeAt(0));
+        const mimeAnexo = tipoAnexo(bin);
+        if (!mimeAnexo) return json({ error: "Envie PDF ou imagem (JPG, PNG, WebP) de até 10 MB." }, 400);
         const sanitize = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9._-]+/g, "_");
         anexo_nome = String(body.nome_arquivo || "anexo");
         const safe = sanitize(anexo_nome) || "arquivo";
         anexo_path = `${cred.funcionario_id}/${Date.now()}-${safe}`;
         const { error: upErr } = await sb.storage.from("funcionarios-anexos").upload(anexo_path, bin, {
-          contentType: body.content_type || "application/octet-stream", upsert: false,
+          contentType: mimeAnexo, upsert: false,
         });
         if (upErr) return json({ error: upErr.message }, 500);
       }

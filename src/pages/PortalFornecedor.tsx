@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { getFornecedorClient } from "@/lib/supabaseScoped";
+import { getPregoesPortalFornecedor } from "@/lib/pregaoFornecedor.functions";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -516,7 +517,7 @@ function Dashboard({ session, onLogout }: { session: FornecedorSession; onLogout
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const [{ data: c }, { data: p }, { data: pr }, { data: part }] = await Promise.all([
+      const [{ data: c }, { data: p }, { pr, part }] = await Promise.all([
         getFornecedorClient(session.id)
           .from("cotacao_convites")
           .select("id,token,cotacao_numero,comprador,status,expires_at,created_at,itens")

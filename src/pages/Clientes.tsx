@@ -421,6 +421,7 @@ const Clientes = () => {
                   const headers = ["Nº", "Nome", "CNPJ", "Contato", "Cidade/UF"];
                   return (
                     <>
+                      <style>{`@media (min-width: 640px) { .clientes-grid-cols { grid-template-columns: ${gridTemplate} !important; } }`}</style>
                       <div className="hidden sm:flex items-center gap-4 py-2 border-b border-border">
                         <span className="w-5 shrink-0" />
                         <div className="min-w-0 flex-1 grid gap-x-0" style={{ gridTemplateColumns: gridTemplate }}>
@@ -443,7 +444,7 @@ const Clientes = () => {
                       checked={selectedIds.includes(cliente.id)}
                       onCheckedChange={() => toggleOne(cliente.id)}
                     />
-                    <div className="min-w-0 flex-1 grid grid-cols-1 sm:gap-x-3 gap-y-1" style={{ gridTemplateColumns: undefined }} data-grid={gridTemplate}>
+                    <div className="min-w-0 flex-1 grid grid-cols-1 sm:gap-x-3 gap-y-1 clientes-grid-cols">
                       <p className="text-sm font-semibold text-primary tabular-nums">Nº {cliente.codigo ?? "—"}</p>
                       <p className="text-sm font-medium text-foreground break-words leading-snug">{cliente.nome}</p>
                       <p className="text-sm text-muted-foreground truncate tabular-nums">{cliente.cnpj || "—"}</p>

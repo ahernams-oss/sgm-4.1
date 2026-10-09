@@ -152,6 +152,7 @@ const Clientes = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [colWidths, setColWidths] = useState<number[]>([80, 340, 170, 170, 150]);
   const [locaisClienteId, setLocaisClienteId] = useState<string | null>(null);
    const [locaisEntregaClienteId, setLocaisEntregaClienteId] = useState<string | null>(null);
    const [contratosClienteId, setContratosClienteId] = useState<string | null>(null);

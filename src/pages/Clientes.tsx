@@ -314,7 +314,7 @@ const Clientes = () => {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <OrdemServicoVaziaDialog empresa={empresa} clientes={apenasClientes} clienteInicialId={editingId ?? undefined} />
+              <OrdemServicoVaziaDialog empresa={empresa} clientes={apenasClientes} clienteInicialId={editingId ?? undefined} buttonClassName="h-9 w-9" />
               <Button variant="outline" size="sm" onClick={() => setRelatorioOpen(true)} className="gap-2">
                 <FileBarChart className="h-4 w-4" /> Relatório
               </Button>

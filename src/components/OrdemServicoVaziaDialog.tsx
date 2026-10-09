@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-export default function OrdemServicoVaziaDialog({ empresa, clientes, clienteInicialId }: { empresa: Empresa; clientes: Cliente[]; clienteInicialId?: string }) {
+export default function OrdemServicoVaziaDialog({ empresa, clientes, clienteInicialId, buttonClassName }: { empresa: Empresa; clientes: Cliente[]; clienteInicialId?: string; buttonClassName?: string }) {
   const [open, setOpen] = useState(false);
   const [clienteId, setClienteId] = useState("nenhum");
   const [url, setUrl] = useState("");
@@ -37,7 +37,7 @@ export default function OrdemServicoVaziaDialog({ empresa, clientes, clienteInic
   return <>
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant="outline" size="icon" aria-label="Visualizar O.S. em branco" onClick={() => { setClienteId(clienteInicialId || "nenhum"); setOpen(true); }}>
+        <Button variant="outline" size="icon" className={buttonClassName} aria-label="Visualizar O.S. em branco" onClick={() => { setClienteId(clienteInicialId || "nenhum"); setOpen(true); }}>
           <Eye className="h-4 w-4" />
         </Button>
       </TooltipTrigger>

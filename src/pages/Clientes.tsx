@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { useClientes, type Cliente, type Contrato, type ContratoAnexo } from "@/contexts/ClientesContext";
 import ContratoAnexos from "@/components/ContratoAnexos";
 import { useI0 } from "@/contexts/I0Context";
+import { useEmpresa } from "@/contexts/EmpresaContext";
+import OrdemServicoVaziaDialog from "@/components/OrdemServicoVaziaDialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ClienteForm, { emptyForm, type FormData } from "@/components/ClienteForm";
 import LocaisSection from "@/components/LocaisSection";
@@ -143,6 +145,7 @@ const Clientes = () => {
   const [formOpen, setFormOpen] = useState(true);
   const { items: i0Items } = useI0();
   const { clientes, addCliente, updateCliente, deleteCliente } = useClientes();
+  const { empresa } = useEmpresa();
   const { tem } = usePermissao();
   const podeCriar = tem("clientes.criar");
   const podeEditar = tem("clientes.editar");
@@ -311,6 +314,7 @@ const Clientes = () => {
               </p>
             </div>
             <div className="flex items-center gap-2">
+              <OrdemServicoVaziaDialog empresa={empresa} clientes={apenasClientes} clienteInicialId={editingId ?? undefined} />
               <Button variant="outline" size="sm" onClick={() => setRelatorioOpen(true)} className="gap-2">
                 <FileBarChart className="h-4 w-4" /> Relatório
               </Button>

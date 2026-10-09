@@ -1,0 +1,1 @@
+ALTER TABLE public.usuarios ADD COLUMN IF NOT EXISTS locais_permitidos jsonb NOT NULL DEFAULT '[]'::jsonb;

@@ -152,6 +152,7 @@ const Clientes = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [colWidths, setColWidths] = useState<number[]>([80, 340, 170, 170, 150]);
   const [locaisClienteId, setLocaisClienteId] = useState<string | null>(null);
    const [locaisEntregaClienteId, setLocaisEntregaClienteId] = useState<string | null>(null);
    const [contratosClienteId, setContratosClienteId] = useState<string | null>(null);
@@ -397,15 +398,56 @@ const Clientes = () => {
                 );
               })()}
               <div className="divide-y divide-border">
-                {paginate(filteredClientes, page, pageSize).paginated.map((cliente) => (
+                {(() => {
+                  const gridTemplate = colWidths.map(w => `${w}px`).join(" ");
+                  const startResize = (idx: number) => (e: React.MouseEvent) => {
+                    e.preventDefault();
+                    const startX = e.clientX;
+                    const startW = colWidths[idx];
+                    const onMove = (ev: MouseEvent) => {
+                      const delta = ev.clientX - startX;
+                      setColWidths(prev => {
+                        const next = [...prev];
+                        next[idx] = Math.max(70, startW + delta);
+                        return next;
+                      });
+                    };
+                    const onUp = () => {
+                      window.removeEventListener("mousemove", onMove);
+                      window.removeEventListener("mouseup", onUp);
+                    };
+                    window.addEventListener("mousemove", onMove);
+                    window.addEventListener("mouseup", onUp);
+                  };
+                  const headers = ["Nº", "Nome", "CNPJ", "Contato", "Cidade/UF"];
+                  return (
+                    <>
+                      <style>{`@media (min-width: 640px) { .clientes-grid-cols { grid-template-columns: ${gridTemplate} !important; } }`}</style>
+                      <div className="hidden sm:flex items-center gap-4 py-2 border-b border-border">
+                        <span className="w-5 shrink-0" />
+                        <div className="min-w-0 flex-1 grid gap-x-0" style={{ gridTemplateColumns: gridTemplate }}>
+                          {headers.map((h, i) => (
+                            <div key={h} className="relative flex items-center pr-3">
+                              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{h}</span>
+                              <span
+                                onMouseDown={startResize(i)}
+                                className="absolute right-0 top-0 h-full w-2 cursor-col-resize select-none hover:bg-primary/30 rounded"
+                                title="Arraste para ajustar a largura"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        <span className="w-40 shrink-0" />
+                      </div>
+                      {paginate(filteredClientes, page, pageSize).paginated.map((cliente) => (
                   <div key={cliente.id} className="flex items-center justify-between py-3 gap-4">
                     <Checkbox
                       checked={selectedIds.includes(cliente.id)}
                       onCheckedChange={() => toggleOne(cliente.id)}
                     />
-                    <div className="min-w-0 flex-1 grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-5 gap-x-4 gap-y-1">
+                    <div className="min-w-0 flex-1 grid grid-cols-1 sm:gap-x-3 gap-y-1 clientes-grid-cols">
                       <p className="text-sm font-semibold text-primary tabular-nums">Nº {cliente.codigo ?? "—"}</p>
-                      <p className="text-sm font-medium text-foreground truncate">{cliente.nome}</p>
+                      <p className="text-sm font-medium text-foreground break-words leading-snug">{cliente.nome}</p>
                       <p className="text-sm text-muted-foreground truncate tabular-nums">{cliente.cnpj || "—"}</p>
                       <p className="text-sm text-muted-foreground truncate">{cliente.contato || "—"}</p>
                       <p className="text-sm text-muted-foreground truncate">{cliente.cidade ? `${cliente.cidade}/${cliente.uf}` : "—"}</p>
@@ -459,10 +501,13 @@ const Clientes = () => {
                     </DropdownMenu>
                   </div>
                 </div>
-              ))}
-              </div>
-            </>
-          )}
+               ))}
+                    </>
+                  );
+                })()}
+               </div>
+             </>
+           )}
           <PaginationControls currentPage={page} totalItems={filteredClientes.length} onPageChange={setPage} pageSize={pageSize} onPageSizeChange={(s) => { setPageSize(s); setPage(1); }} />
         </div>
 

@@ -127,7 +127,7 @@ A IA e os e-mails usavam serviços da Lovable que só funcionam dentro da hosped
 2. Se o SkyMail oferecer DKIM para `lasant.com.br` e ele ainda não estiver ativo, ative: melhora a entrega na caixa de entrada.
 3. Siga o 8.3 com as variáveis de SMTP.
 
-Validado em 07/10/2026: a VPS alcança `smtp.skymail.net.br` nas portas 587 (STARTTLS, certificado válido) e 465; o servidor aceita `AUTH PLAIN/LOGIN` e mensagens de até 50 MB.
+**Use a porta 465 no SkyMail.** Na 587 (STARTTLS) ele aceita o login mas recusa o envio com `554 5.7.1 ... smtp nao seguro`. Em produção desde 08/10/2026 com a caixa `sgm41@lasant.com.br` e `SMTP_PORT=465`. A VPS alcança `smtp.skymail.net.br` nas duas portas; o servidor aceita `AUTH PLAIN/LOGIN` e mensagens de até 50 MB.
 
 **8.2b Alternativa: conta e domínio no Resend**
 
@@ -151,7 +151,7 @@ No editor, apague as linhas `LOVABLE_API_KEY=` e `LOVABLE_SEND_URL=` (se existir
 ```
 GEMINI_API_KEY=AIza...
 SMTP_HOST=smtp.skymail.net.br
-SMTP_PORT=587
+SMTP_PORT=465
 SMTP_USER=sgm@lasant.com.br
 SMTP_PASS=senha-da-caixa
 EMAIL_FROM="SGM Lasant <sgm@lasant.com.br>"
@@ -291,6 +291,33 @@ Tem que responder `401` (sem o segredo, recusado). `503` = o `CRON_SECRET` não 
 **4. No dia seguinte**, rode as duas consultas comentadas no fim do SQL: as respostas da VPS devem ter `status_code` 200.
 
 Para trocar o segredo: apague a linha `CRON_SECRET=` do `/opt/sgm/.env`, repita o passo 1 e rode no Supabase só o bloco 2 do SQL com o valor novo.
+
+## Regras de acesso no banco (RLS)
+
+As telas escondem botões conforme o cargo e o perfil, mas o navegador fala direto com o Supabase. Quem vale de verdade são as regras do banco. Até 08/10/2026, `usuarios`, `cargos`, `perfis_acesso` e `empresa` tinham só a regra "Allow all" (`auth.uid() IS NOT NULL`): qualquer usuário logado, pelo console do navegador, mudava o próprio cargo para Diretor, criava e excluía usuários e trocava os WhatsApp da empresa.
+
+Regras atuais ([20261008220000_sgm_rls_acesso](supabase/migrations/20261008220000_sgm_rls_acesso.sql), [sgm_rls_locais_permitidos](supabase/migrations/20261009005743_sgm_rls_locais_permitidos.sql) e, por cima, as travas da Lovable em 20261008222403):
+
+| Tabela | Ler | Criar / editar / excluir |
+|---|---|---|
+| `usuarios` | usuário logado | `usuarios.criar` / `usuarios.editar` / `usuarios.excluir` |
+| `cargos` | usuário logado | `cargos.criar` / `cargos.editar` ou `cargos.gerenciar_*` / `cargos.excluir` |
+| `perfis_acesso` | usuário logado | `perfis_acesso.criar` ou `.duplicar` / `perfis_acesso.editar` / `perfis_acesso.excluir` |
+| `empresa` | usuário logado | `empresa.editar` (excluir: só acesso total) |
+
+Acesso total (cargo "Diretor Geral Lasant", "Gerente Executivo Lasant", "Coordenador Administrativo/Técnico Lasant", função `sgm_cargo_acesso_total`) libera tudo. Travas que valem mesmo com a permissão:
+
+- quem não tem acesso total não atribui nem altera cargo de acesso total, não cria nem renomeia cargo com esse nome, não altera o próprio cargo, perfil, limites de aprovação, clientes, locais ou e-mail e não edita o próprio perfil de acesso (`sgm_guarda_usuarios`, `sgm_guarda_cargos`, `sgm_guarda_perfis`);
+- só o Diretor Geral Lasant cria, renomeia, apaga ou atribui cargo de acesso total (travas da Lovable);
+- `auth_user_id` (vínculo com o login) e `senha_status` só mudam pelo servidor (service role).
+
+`usuarios_credenciais`, `mfa_otps`, `auditoria`, `login_auditoria`, `empresa_credenciais` e `empresa_dados_bancarios` têm RLS ligado e nenhuma regra: só o servidor lê e grava.
+
+**Estas migrations não rodam sozinhas no deploy**: o deploy só troca o app na VPS. SQL novo vai pelo SQL Editor do Supabase (ou pela Lovable).
+
+- **Conferir em produção:** rode [deploy/sql/rls-verificar.sql](deploy/sql/rls-verificar.sql) no SQL Editor. Ele escolhe um usuário comum, tenta 7 alterações proibidas como se fosse ele e desfaz tudo. Esperado: linhas 1 a 7 "bloqueado" e a 8 "OK: leu N usuários".
+- **Emergência (alguma tela parou de salvar):** [deploy/sql/rls-reverter.sql](deploy/sql/rls-reverter.sql) volta as 4 tabelas para "Allow all", sem mexer nas travas da Lovable. Depois de corrigir, reaplique `20261008220000_sgm_rls_acesso` e `sgm_rls_locais_permitidos`, nessa ordem.
+- **Coluna nova que dá acesso** (como `locais_permitidos`): inclua-a na lista de campos que o próprio usuário não pode alterar em `sgm_guarda_usuarios`.
 
 ## Alternativa: painel na VPS (Coolify, Dokploy, Easypanel)
 

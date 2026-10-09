@@ -65,6 +65,7 @@ export interface RenderOSOptions {
   assinaturas?: OsAssinatura[];
   numeroIdentificador?: string;
   aprovacaoTexto?: string;
+  emBranco?: boolean;
 }
 
 async function gerarQRCodeDataUrl(text: string): Promise<string | null> {
@@ -152,7 +153,9 @@ async function renderAssinaturas(doc: jsPDF, assinaturas: OsAssinatura[], y: num
   return y;
 }
 
-export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, numeroIdentificador, aprovacaoTexto }: RenderOSOptions) {
+export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, numeroIdentificador, aprovacaoTexto, emBranco = false }: RenderOSOptions) {
+  const vazio = emBranco ? "" : "-";
+  const valor = (n: number) => emBranco ? "" : fmtBRL(n);
   const pw = doc.internal.pageSize.getWidth();
   const ml = 12, mr = 12;
   const cw = pw - ml - mr;
@@ -199,7 +202,7 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
     const d = os.createdAt ? new Date(os.createdAt) : new Date();
     return isNaN(d.getTime()) ? new Date().getFullYear() : d.getFullYear();
   })();
-  const numeroFormatado = numeroIdentificador || `${String(os.numero).padStart(2, "0")}-${cliente?.cap || "0"}/${anoOS}-${os.tipoOs?.sigla || ""}`;
+  const numeroFormatado = emBranco ? "" : numeroIdentificador || `${String(os.numero).padStart(2, "0")}-${cliente?.cap || "0"}/${anoOS}-${os.tipoOs?.sigla || ""}`;
   const boxW = 38, boxH = 8;
   const boxX = pw - mr - boxW;
   const boxY = y + 19;
@@ -235,9 +238,9 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
     body: [
       [
         { content: "Unidade Requisitante:", styles: { fontStyle: "bold", fontSize: 7.5, halign: "left" } },
-        { content: localText || "-", styles: { fontStyle: "bold", fontSize: 9.5, halign: "left" } },
+        { content: localText || vazio, styles: { fontStyle: "bold", fontSize: 9.5, halign: "left" } },
         { content: "Data aprovação:", styles: { fontStyle: "bold", fontSize: 7.5, halign: "left" } },
-        { content: dataValidacao || "-", styles: { fontStyle: "bold", fontSize: 9, halign: "center" } },
+        { content: dataValidacao || vazio, styles: { fontStyle: "bold", fontSize: 9, halign: "center" } },
       ],
     ],
     columnStyles: {
@@ -258,15 +261,15 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
     body: [
       [
         { content: "Data da Solicitação:", styles: { fontStyle: "bold" } },
-        { content: dataSolicitacao || "-", styles: { fontStyle: "bold" } },
+        { content: dataSolicitacao || vazio, styles: { fontStyle: "bold" } },
         { content: "Data de Execução:", styles: { fontStyle: "bold" } },
-        { content: dataExecucao || "-", styles: { fontStyle: "bold" } },
+        { content: dataExecucao || vazio, styles: { fontStyle: "bold" } },
       ],
       [
         { content: "Pavimento:", styles: { fontStyle: "bold" } },
-        { content: os.pavimentoDescricao || "-", styles: { fontStyle: "bold" } },
+        { content: os.pavimentoDescricao || vazio, styles: { fontStyle: "bold" } },
         { content: "Setor:", styles: { fontStyle: "bold" } },
-        { content: os.setorDescricao || "-", styles: { fontStyle: "bold" } },
+        { content: os.setorDescricao || vazio, styles: { fontStyle: "bold" } },
       ],
       [
         { content: "Processo:", styles: { fontStyle: "bold" } },
@@ -274,12 +277,12 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
           content: (() => {
             const contratos = (cliente as any)?.contratos || [];
             const ativo = contratos.find((c: any) => c?.numero) || contratos[0];
-            return ativo?.numero || "-";
+            return emBranco ? "" : ativo?.numero || "-";
           })(),
           styles: { fontStyle: "bold" },
         },
         { content: "Tipo de serviço:", styles: { fontStyle: "bold" } },
-        { content: os.categoria || os.servico || "-", styles: { fontStyle: "bold" } },
+        { content: os.categoria || os.servico || vazio, styles: { fontStyle: "bold" } },
       ],
     ],
     columnStyles: {
@@ -297,12 +300,12 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
     styles: { fontSize: 7.5, cellPadding: 1.8, lineColor: BORDER, lineWidth: 0.3, textColor: [30, 30, 30] },
     body: [
       [
-        { content: `Descrição do Serviço Pretendido — Nº da SS: ${os.solicitacaoNumero || "-"}`, styles: { fontSize: 6.5 } },
+        { content: `Descrição do Serviço Pretendido — Nº da SS: ${emBranco ? "" : os.solicitacaoNumero || "-"}`, styles: { fontSize: 6.5 } },
         { content: "Nome do solicitante:", styles: { fontSize: 6.5 } },
       ],
       [
         { content: os.descricaoServicos || "", styles: { fontStyle: "bold", minCellHeight: 14, valign: "middle" } },
-        { content: os.solicitante || "-", styles: { fontStyle: "bold", fontSize: 10, halign: "center", valign: "middle", minCellHeight: 14 } },
+        { content: os.solicitante || vazio, styles: { fontStyle: "bold", fontSize: 10, halign: "center", valign: "middle", minCellHeight: 14 } },
       ],
     ],
     columnStyles: { 0: { cellWidth: cw * 0.75 }, 1: { cellWidth: cw * 0.25 } },
@@ -378,20 +381,20 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
         fmtBRL(Number(m.valorTotal) || 0),
       ]);
       if (rows.length === 0) {
-        rows.push([{ content: "Sem materiais SCO", colSpan: 6, styles: { fontStyle: "italic", textColor: [120, 120, 120] } }]);
+        rows.push(emBranco ? ["", "", "", "", "", ""] : [{ content: "Sem materiais SCO", colSpan: 6, styles: { fontStyle: "italic", textColor: [120, 120, 120] } }]);
       }
       rows.push([
         { content: "TOTAL MATERIAL SCO", colSpan: 5, styles: { fontStyle: "bold", halign: "right" } },
-        { content: fmtBRL(totalSCO), styles: { fontStyle: "bold", halign: "right" } },
+        { content: valor(totalSCO), styles: { fontStyle: "bold", halign: "right" } },
       ]);
       rows.push([
         { content: "BDI (Benefícios e Despesas Indiretas)", colSpan: 4, styles: { fontStyle: "bold", halign: "left" } },
-        { content: `${bdi.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}%`, styles: { fontStyle: "bold", halign: "right" } },
-        { content: fmtBRL(bdiSCO), styles: { fontStyle: "bold", halign: "right" } },
+        { content: emBranco ? "" : `${bdi.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}%`, styles: { fontStyle: "bold", halign: "right" } },
+        { content: valor(bdiSCO), styles: { fontStyle: "bold", halign: "right" } },
       ]);
       rows.push([
         { content: "TOTAL SCO + BDI", colSpan: 5, styles: { fontStyle: "bold", halign: "right", fillColor: [240, 240, 240] } },
-        { content: fmtBRL(totalSCOcomBDI), styles: { fontStyle: "bold", halign: "right", fillColor: [240, 240, 240] } },
+        { content: valor(totalSCOcomBDI), styles: { fontStyle: "bold", halign: "right", fillColor: [240, 240, 240] } },
       ]);
       return rows;
     })(),
@@ -422,7 +425,7 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
       ];
       const itens = os.materiaisEstoque || [];
       if (itens.length === 0) {
-        rows.push([{ content: "Sem materiais de estoque", colSpan: 6, styles: { fontStyle: "italic", textColor: [120, 120, 120] } }]);
+        rows.push(emBranco ? ["", "", "", "", "", ""] : [{ content: "Sem materiais de estoque", colSpan: 6, styles: { fontStyle: "italic", textColor: [120, 120, 120] } }]);
       } else {
         itens.forEach((m: MaterialOS) => {
           rows.push([
@@ -437,20 +440,20 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
       }
       rows.push([
         { content: "TOTAL MATERIAL ESTOQUE", colSpan: 5, styles: { fontStyle: "bold", halign: "right" } },
-        { content: fmtBRL(totalEst), styles: { fontStyle: "bold", halign: "right" } },
+        { content: valor(totalEst), styles: { fontStyle: "bold", halign: "right" } },
       ]);
       rows.push([
         { content: "BDI (Benefícios e Despesas Indiretas)", colSpan: 4, styles: { fontStyle: "bold", halign: "left" } },
-        { content: `${bdi.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}%`, styles: { fontStyle: "bold", halign: "right" } },
-        { content: fmtBRL(bdiEst), styles: { fontStyle: "bold", halign: "right" } },
+        { content: emBranco ? "" : `${bdi.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}%`, styles: { fontStyle: "bold", halign: "right" } },
+        { content: valor(bdiEst), styles: { fontStyle: "bold", halign: "right" } },
       ]);
       rows.push([
         { content: "TOTAL MATERIAIS ESTOQUE + BDI", colSpan: 5, styles: { fontStyle: "bold", halign: "right", fillColor: [240, 240, 240] } },
-        { content: fmtBRL(totalEstcomBDI), styles: { fontStyle: "bold", halign: "right", fillColor: [240, 240, 240] } },
+        { content: valor(totalEstcomBDI), styles: { fontStyle: "bold", halign: "right", fillColor: [240, 240, 240] } },
       ]);
       rows.push([
         { content: "TOTAL GERAL", colSpan: 5, styles: { fontStyle: "bold", halign: "right", fillColor: [220, 220, 220], fontSize: 9 } },
-        { content: fmtBRL(totalSCOcomBDI + totalEstcomBDI), styles: { fontStyle: "bold", halign: "right", fillColor: [220, 220, 220], fontSize: 9 } },
+        { content: valor(totalSCOcomBDI + totalEstcomBDI), styles: { fontStyle: "bold", halign: "right", fillColor: [220, 220, 220], fontSize: 9 } },
       ]);
       return rows;
     })(),
@@ -599,6 +602,13 @@ export function addContinuationHeaders(doc: jsPDF, osNumero?: number | string, c
     doc.setFont("helvetica", "normal");
     doc.text(`Página ${i} de ${pages}`, pw - mr, 13, { align: "right" });
   }
+}
+
+export async function visualizarPdfOrdemServicoVazia(opts: RenderOSOptions): Promise<Blob> {
+  const doc = new (await getJsPDF())({ compress: true, unit: "mm", format: "a4" });
+  await renderOS(doc, { ...opts, emBranco: true });
+  addContinuationHeaders(doc, "", opts.cliente?.nome || "");
+  return doc.output("blob");
 }
 
 export async function gerarPdfOrdemServico(opts: RenderOSOptions) {

@@ -53,6 +53,7 @@ import { gerarPdfOrdemServicoComFotos, gerarPdfOrdemServicoFotosMemoria, gerarPd
 import WorkflowTimeline from "@/components/WorkflowTimeline";
 import WorkflowHistorico from "@/components/WorkflowHistorico";
 import RelatorioFechamentoOSDialog from "@/components/RelatorioFechamentoOSDialog";
+import OrdemServicoVaziaDialog from "@/components/OrdemServicoVaziaDialog";
 import { AssinaturaEletronicaOs } from "@/components/AssinaturaEletronicaOs";
 import { AvaliacaoOs } from "@/components/AvaliacaoOs";
 import MemoriaCalculoView from "@/components/orcamento/MemoriaCalculoView";
@@ -1349,6 +1350,7 @@ export default function OrdensServicoPage() {
           <Wrench className="h-6 w-6" /> Ordem de Serviço
         </h1>
         <div className="flex items-center gap-2 mx-[24px] my-[2px]">
+          <OrdemServicoVaziaDialog empresa={empresa} clientes={clientesFiltrados} />
           {podeImprimirLote && (
             <Button variant="outline" onClick={() => navigate('/engenharia/imprimir-lote-os')}>
               <Printer className="mr-2 h-4 w-4" /> Imprimir em Lote

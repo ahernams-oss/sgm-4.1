@@ -6,6 +6,7 @@ import { useProviderGate, useActivateProvider } from "@/lib/providerGate";
 export interface Usuario {
   id: string; nome: string; cargoId: string; telefone: string;
   email: string; senha: string; clientesPermitidos: string[];
+  locaisPermitidos?: string[];
   perfilAcessoId: string; matricula: string; ramal: string;
   limiteAprovacaoCompras: number; limiteAprovacaoOS: number;
   senhaStatus?: "sem_senha" | "legado" | "seguro";
@@ -24,6 +25,7 @@ const rowToUsuario = (r: any): Usuario => ({
   id: r.id, nome: r.nome ?? "", cargoId: r.cargo_id ?? "",
   telefone: r.telefone ?? "", email: r.email ?? "", senha: "",
   clientesPermitidos: r.clientes_permitidos ?? [],
+  locaisPermitidos: r.locais_permitidos ?? [],
   perfilAcessoId: r.perfil_acesso_id ?? "",
   matricula: r.matricula ?? "", ramal: r.ramal ?? "",
   limiteAprovacaoCompras: Number(r.limite_aprovacao_compras ?? 0),
@@ -34,6 +36,7 @@ const rowToUsuario = (r: any): Usuario => ({
 const usuarioToRow = (u: Omit<Usuario, "id">) => ({
   nome: u.nome, cargo_id: u.cargoId, telefone: u.telefone,
   email: u.email, clientes_permitidos: u.clientesPermitidos as any,
+  locais_permitidos: (u.locaisPermitidos ?? []) as any,
   perfil_acesso_id: u.perfilAcessoId, matricula: u.matricula, ramal: u.ramal,
   limite_aprovacao_compras: u.limiteAprovacaoCompras ?? 0,
   limite_aprovacao_os: u.limiteAprovacaoOS ?? 0,

@@ -26,10 +26,11 @@ import { passwordSchema, isBcryptHash } from "@/lib/passwordPolicy";
 import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import AcessosPorLocal from "@/components/AcessosPorLocal";
 
 const emptyForm = {
   nome: "", cargoId: "", telefone: "+55 ", email: "", senha: "",
-  clientesPermitidos: [] as string[], perfilAcessoId: "",
+  clientesPermitidos: [] as string[], locaisPermitidos: [] as string[], perfilAcessoId: "",
   matricula: "", ramal: "",
   limiteAprovacaoCompras: 0, limiteAprovacaoOS: 0,
 };
@@ -164,7 +165,7 @@ const Usuarios = () => {
   const handleEdit = (u: (typeof usuarios)[0]) => {
     setForm({
       nome: u.nome, cargoId: u.cargoId, telefone: u.telefone,
-      email: u.email, senha: "", clientesPermitidos: [...u.clientesPermitidos],
+      email: u.email, senha: "", clientesPermitidos: [...u.clientesPermitidos], locaisPermitidos: [...(u.locaisPermitidos ?? [])],
       perfilAcessoId: u.perfilAcessoId, matricula: u.matricula, ramal: u.ramal,
       limiteAprovacaoCompras: u.limiteAprovacaoCompras ?? 0,
       limiteAprovacaoOS: u.limiteAprovacaoOS ?? 0,
@@ -313,6 +314,7 @@ const Usuarios = () => {
               <TabsList className="mb-6">
                 <TabsTrigger value="dados">Dados do Usuário</TabsTrigger>
                 <TabsTrigger value="acessos">Acessos por Cliente</TabsTrigger>
+                <TabsTrigger value="locais">Acessos por Local</TabsTrigger>
               </TabsList>
 
               <TabsContent value="dados">
@@ -518,6 +520,14 @@ const Usuarios = () => {
                     })()}
                   </div>
                 )}
+              </TabsContent>
+
+              <TabsContent value="locais">
+                <AcessosPorLocal
+                  clientes={clientes.filter((c) => c.tipo !== "Fornecedor" && form.clientesPermitidos.includes(c.id))}
+                  selecionados={form.locaisPermitidos}
+                  onChange={(ids) => setForm((prev) => ({ ...prev, locaisPermitidos: ids }))}
+                />
               </TabsContent>
             </Tabs>
 

@@ -145,6 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         email: r.email ?? "",
         senha: "", // nunca persistir senha no client
         clientesPermitidos: r.clientes_permitidos ?? [],
+        locaisPermitidos: r.locais_permitidos ?? [],
         perfilAcessoId: r.perfil_acesso_id ?? "",
         matricula: r.matricula ?? "",
         ramal: r.ramal ?? "",

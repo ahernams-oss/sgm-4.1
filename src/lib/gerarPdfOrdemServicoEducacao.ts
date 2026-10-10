@@ -167,13 +167,13 @@ export async function renderOrdemServicoEducacao(doc: jsPDF, { os, empresa, clie
       styles: { fontSize: 7, cellPadding: 1.5, lineColor: BORDER, lineWidth: 0.3, textColor: [20, 20, 20], valign: "middle" },
       body: [
         [
-          { content: "FISCALIZAÇÃO – EMPRESA", rowSpan: 3, styles: { fontStyle: "bold", halign: "center", fillColor: [230, 230, 230], fontSize: 8 } },
+          { content: "FISCALIZAÇÃO\n–\nEMPRESA", rowSpan: 3, styles: { fontStyle: "bold", halign: "center", valign: "middle", fillColor: [230, 230, 230], fontSize: 7.5 } },
           { content: "DESCRIÇÃO DO SERVIÇO:", styles: { fontStyle: "bold", fillColor: [245, 245, 245] } },
         ],
         [{ content: os.descricaoServicos || vazio, styles: { minCellHeight: 14, valign: "top" } }],
         [{ content: "COD. COMPOSIÇÕES SCO / DESCRIÇÃO / QUANTIDADE:", styles: { fontStyle: "bold", fillColor: [245, 245, 245] } }],
       ],
-      columnStyles: { 0: { cellWidth: cw * 0.08 }, 1: { cellWidth: cw * 0.92 } },
+      columnStyles: { 0: { cellWidth: cw * 0.13 }, 1: { cellWidth: cw * 0.87 } },
       margin: { left: ml, right: mr },
     });
     y = (doc as any).lastAutoTable.finalY;

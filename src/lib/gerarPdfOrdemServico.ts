@@ -606,7 +606,12 @@ export function addContinuationHeaders(doc: jsPDF, osNumero?: number | string, c
 
 export async function visualizarPdfOrdemServicoVazia(opts: RenderOSOptions): Promise<Blob> {
   const doc = new (await getJsPDF())({ compress: true, unit: "mm", format: "a4" });
-  await renderOS(doc, { ...opts, emBranco: true });
+  const modelo = await resolverModeloNome(opts.cliente);
+  if (modelo === "Modelo_Educação") {
+    await renderOrdemServicoEducacao(doc, { ...opts, emBranco: true });
+  } else {
+    await renderOS(doc, { ...opts, emBranco: true });
+  }
   addContinuationHeaders(doc, "", opts.cliente?.nome || "");
   return doc.output("blob");
 }

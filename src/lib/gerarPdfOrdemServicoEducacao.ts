@@ -95,11 +95,11 @@ export async function renderOrdemServicoEducacao(doc: jsPDF, { os, empresa, clie
     body: [
       [
         { content: "DATA", styles: { fontStyle: "bold", fillColor: [235, 235, 235] } },
-        { content: fmtDate(os.createdAt) || "-", styles: {} },
+        { content: fmtDate(os.createdAt) || vazio, styles: {} },
         { content: "Nº OS", styles: { fontStyle: "bold", fillColor: [235, 235, 235] } },
-        { content: `${String(os.numero).padStart(2, "0")}/${anoOS}`, styles: { fontStyle: "bold" } },
+        { content: emBranco ? "" : `${String(os.numero).padStart(2, "0")}/${anoOS}`, styles: { fontStyle: "bold" } },
         { content: "ITEM - SIGLA", styles: { fontStyle: "bold", fillColor: [235, 235, 235] } },
-        { content: os.tipoOs?.sigla || "-", styles: {} },
+        { content: os.tipoOs?.sigla || vazio, styles: {} },
         { content: "FL.", styles: { fontStyle: "bold", fillColor: [235, 235, 235] } },
         { content: "1 / 1", styles: {} },
       ],
@@ -123,29 +123,29 @@ export async function renderOrdemServicoEducacao(doc: jsPDF, { os, empresa, clie
     body: [
       [
         { content: "UNIDADE:", styles: { fontStyle: "bold", fillColor: [245, 245, 245] } },
-        { content: os.localDescricao || c.relLinha1 || "-", colSpan: 3 },
+        { content: os.localDescricao || c.relLinha1 || vazio, colSpan: 3 },
         { content: "SOLICITANTE:", styles: { fontStyle: "bold", fillColor: [245, 245, 245] } },
-        { content: os.solicitante || "-", colSpan: 2 },
+        { content: os.solicitante || vazio, colSpan: 2 },
       ],
       [
         { content: "END.:", styles: { fontStyle: "bold", fillColor: [245, 245, 245] } },
-        { content: c.relLinha2 || "-", colSpan: 2 },
+        { content: c.relLinha2 || vazio, colSpan: 2 },
         { content: "TEL.:", styles: { fontStyle: "bold", fillColor: [245, 245, 245] } },
-        { content: os.telefone || c.telefone || "-" },
+        { content: os.telefone || c.telefone || vazio },
         { content: "MATR.:", styles: { fontStyle: "bold", fillColor: [245, 245, 245] } },
-        { content: os.matricula || "-" },
+        { content: os.matricula || vazio },
       ],
       [
         { content: "CRE:", styles: { fontStyle: "bold", fillColor: [245, 245, 245] } },
-        { content: c.cre || c.relLinha3 || "-", colSpan: 2 },
+        { content: c.cre || c.relLinha3 || vazio, colSpan: 2 },
         { content: "EMPRESA:", styles: { fontStyle: "bold", fillColor: [245, 245, 245] } },
-        { content: empresa?.nomeFantasia || empresa?.razaoSocial || "-", colSpan: 3 },
+        { content: empresa?.nomeFantasia || empresa?.razaoSocial || vazio, colSpan: 3 },
       ],
       [
         { content: "RESP./MATR./DATA:", styles: { fontStyle: "bold", fillColor: [245, 245, 245] } },
-        { content: `${os.operadorNome || "-"}  ${fmtDate(os.createdAt)}`, colSpan: 2 },
+        { content: emBranco ? "" : `${os.operadorNome || "-"}  ${fmtDate(os.createdAt)}`, colSpan: 2 },
         { content: "Nº PROC. ORIGEM:", styles: { fontStyle: "bold", fillColor: [245, 245, 245] } },
-        { content: contrato?.numero || "-", colSpan: 3 },
+        { content: contrato?.numero || vazio, colSpan: 3 },
       ],
     ],
     columnStyles: {

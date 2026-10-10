@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 export default function OrdemServicoVaziaDialog({ empresa, clientes, clienteInicialId, buttonClassName }: { empresa: Empresa; clientes: Cliente[]; clienteInicialId?: string; buttonClassName?: string }) {
   const [open, setOpen] = useState(false);
   const [clienteId, setClienteId] = useState("nenhum");
+  const [buscaOpen, setBuscaOpen] = useState(false);
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   useEffect(() => {
@@ -49,13 +50,34 @@ export default function OrdemServicoVaziaDialog({ empresa, clientes, clienteInic
       <DialogContent className="flex h-[90dvh] max-w-5xl flex-col">
         <DialogHeader><DialogTitle>Ordem de Serviço em branco</DialogTitle></DialogHeader>
         <div className="flex flex-wrap items-center gap-3">
-          <Select value={clienteId} onValueChange={setClienteId}>
-            <SelectTrigger className="min-w-0 flex-1" aria-label="Cabeçalho do cliente"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="nenhum">Sem cabeçalho de cliente</SelectItem>
-              {clientes.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <Popover open={buscaOpen} onOpenChange={setBuscaOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" role="combobox" aria-expanded={buscaOpen} aria-label="Cabeçalho do cliente" className="min-w-0 flex-1 justify-between font-normal">
+                <span className="truncate">{clienteId === "nenhum" ? "Sem cabeçalho de cliente" : clientes.find(c => c.id === clienteId)?.nome || "Selecione o cliente"}</span>
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+              <Command>
+                <CommandInput placeholder="Buscar cliente…" />
+                <CommandList>
+                  <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
+                  <CommandGroup>
+                    <CommandItem value="Sem cabeçalho de cliente" onSelect={() => { setClienteId("nenhum"); setBuscaOpen(false); }}>
+                      <Check className={cn("mr-2 h-4 w-4", clienteId === "nenhum" ? "opacity-100" : "opacity-0")} />
+                      Sem cabeçalho de cliente
+                    </CommandItem>
+                    {clientes.map(c => (
+                      <CommandItem key={c.id} value={c.nome} onSelect={() => { setClienteId(c.id); setBuscaOpen(false); }}>
+                        <Check className={cn("mr-2 h-4 w-4", clienteId === c.id ? "opacity-100" : "opacity-0")} />
+                        {c.nome}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
           <Button variant="outline" disabled={!url || loading} asChild>
             <a href={url || undefined} download="OS_em_branco.pdf" aria-disabled={!url || loading} onClick={e => { if (!url || loading) e.preventDefault(); }}>
               <Download className="mr-2 h-4 w-4" /> Baixar PDF

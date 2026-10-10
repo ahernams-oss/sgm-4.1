@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Download, Eye, Loader2 } from "lucide-react";
+import { Check, ChevronsUpDown, Download, Eye, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Cliente } from "@/contexts/ClientesContext";
 import type { Empresa } from "@/contexts/EmpresaContext";
@@ -7,8 +7,10 @@ import { criarOrdemServicoVazia } from "@/lib/ordemServicoVazia";
 import { visualizarPdfOrdemServicoVazia } from "@/lib/gerarPdfOrdemServico";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 export default function OrdemServicoVaziaDialog({ empresa, clientes, clienteInicialId, buttonClassName }: { empresa: Empresa; clientes: Cliente[]; clienteInicialId?: string; buttonClassName?: string }) {
   const [open, setOpen] = useState(false);

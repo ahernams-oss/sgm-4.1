@@ -170,7 +170,7 @@ export async function renderOrdemServicoEducacao(doc: jsPDF, { os, empresa, clie
           { content: "FISCALIZAÇÃO – EMPRESA", rowSpan: 3, styles: { fontStyle: "bold", halign: "center", fillColor: [230, 230, 230], fontSize: 8 } },
           { content: "DESCRIÇÃO DO SERVIÇO:", styles: { fontStyle: "bold", fillColor: [245, 245, 245] } },
         ],
-        [{ content: os.descricaoServicos || "-", styles: { minCellHeight: 14, valign: "top" } }],
+        [{ content: os.descricaoServicos || vazio, styles: { minCellHeight: 14, valign: "top" } }],
         [{ content: "COD. COMPOSIÇÕES SCO / DESCRIÇÃO / QUANTIDADE:", styles: { fontStyle: "bold", fillColor: [245, 245, 245] } }],
       ],
       columnStyles: { 0: { cellWidth: cw * 0.08 }, 1: { cellWidth: cw * 0.92 } },
@@ -206,15 +206,15 @@ export async function renderOrdemServicoEducacao(doc: jsPDF, { os, empresa, clie
           m.codigo || "",
           m.descricao || "",
           m.unidade || "",
-          fmtBRL(Number(m.valorUnitario) || 0),
+          valor(Number(m.valorUnitario) || 0),
           String(m.quantidade ?? ""),
-          fmtBRL(Number(m.valorTotal) || 0),
+          valor(Number(m.valorTotal) || 0),
         ]);
         // padding até pelo menos 7 linhas (igual ao Excel)
         while (rows.length < 7) rows.push(["", "", "", "", "", "", ""]);
         rows.push([
           { content: "TOTAL", colSpan: 6, styles: { fontStyle: "bold", halign: "right", fillColor: [235, 235, 235] } },
-          { content: fmtBRL(total), styles: { fontStyle: "bold", halign: "right", fillColor: [235, 235, 235] } },
+          { content: valor(total), styles: { fontStyle: "bold", halign: "right", fillColor: [235, 235, 235] } },
         ]);
         return rows;
       })(),
@@ -230,13 +230,13 @@ export async function renderOrdemServicoEducacao(doc: jsPDF, { os, empresa, clie
       body: [
         [
           { content: `${dataLabel.inicio}:`, styles: { fontStyle: "bold", fillColor: [245, 245, 245] } },
-          { content: fmtDate(os.dataInicio) || "-" },
+          { content: fmtDate(os.dataInicio) || vazio },
           { content: rotuloRodape.esq, styles: { fontStyle: "bold", halign: "center", fillColor: [235, 235, 235] } },
           { content: rotuloRodape.dir, styles: { fontStyle: "bold", halign: "center", fillColor: [235, 235, 235] } },
         ],
         [
           { content: `${dataLabel.termino}:`, styles: { fontStyle: "bold", fillColor: [245, 245, 245] } },
-          { content: fmtDate(os.dataTermino) || "-" },
+          { content: fmtDate(os.dataTermino) || vazio },
           { content: "RUBRICA: ___________________\nMATR.: ____________  DATA: __________", styles: { halign: "left", minCellHeight: 10 } },
           { content: "RUBRICA: ___________________\nMATR.: ____________  DATA: __________", styles: { halign: "left", minCellHeight: 10 } },
         ],
@@ -260,7 +260,7 @@ export async function renderOrdemServicoEducacao(doc: jsPDF, { os, empresa, clie
   );
 
   // Tipos de OS
-  const tipoCod = os.tipoOs?.cod ?? 1;
+  const tipoCod = emBranco ? 0 : (os.tipoOs?.cod ?? 1);
   const mk = (n: number, label: string) =>
     `${tipoCod === n ? "[X]" : "[  ]"} ${label}`;
   (await getAutoTable())(doc, {

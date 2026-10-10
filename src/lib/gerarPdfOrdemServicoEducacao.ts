@@ -36,6 +36,7 @@ interface Opts {
   empresa?: Empresa;
   cliente?: Cliente;
   assinaturas?: OsAssinatura[];
+  emBranco?: boolean;
 }
 
 /**
@@ -43,7 +44,9 @@ interface Opts {
  * Estrutura: cabeçalho FISCAL.-ESCOLA-C.R.E., identificação, bloco ESTIMATIVA,
  * tipos de OS, bloco CUSTO FINAL, atestados (Fiscalização/Escola/C.R.E.).
  */
-export async function renderOrdemServicoEducacao(doc: jsPDF, { os, empresa, cliente }: Opts) {
+export async function renderOrdemServicoEducacao(doc: jsPDF, { os, empresa, cliente, emBranco = false }: Opts) {
+  const vazio = emBranco ? "" : "-";
+  const valor = (n: number) => emBranco ? "" : fmtBRL(n);
   const pw = doc.internal.pageSize.getWidth();
   const ml = 10, mr = 10;
   const cw = pw - ml - mr;

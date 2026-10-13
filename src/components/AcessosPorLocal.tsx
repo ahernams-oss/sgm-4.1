@@ -76,6 +76,12 @@ export default function AcessosPorLocal({ clientes, selecionados, onChange }: Pr
             <Input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar cliente ou local..." className="pl-8 h-8 text-xs" />
           </div>
           <Button type="button" size="sm" variant="outline" className="h-8"
+            disabled={todosIds.length === 0 || totalMarcados === todosIds.length}
+            onClick={() => setMany(todosIds, true)}>Marcar todos os locais</Button>
+          <Button type="button" size="sm" variant="ghost" className="h-8"
+            disabled={totalMarcados === 0}
+            onClick={() => setMany(todosIds, false)}>Limpar todos</Button>
+          <Button type="button" size="sm" variant="ghost" className="h-8"
             onClick={() => setAbertos(Object.fromEntries(clientes.map((c) => [c.id, true])))}>Expandir</Button>
           <Button type="button" size="sm" variant="ghost" className="h-8" onClick={() => setAbertos({})}>Recolher</Button>
         </div>

@@ -46,6 +46,15 @@ export default function AcessosPorLocal({ clientes, selecionados, onChange }: Pr
     onChange(Array.from(s));
   };
 
+  const todosIds = useMemo(
+    () => clientes.flatMap((c) => (c.locais ?? []).map((l) => l.id)),
+    [clientes],
+  );
+  const totalMarcados = useMemo(
+    () => todosIds.filter((id) => sel.has(id)).length,
+    [todosIds, sel],
+  );
+
   if (clientes.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-border p-8 text-center text-muted-foreground text-sm">

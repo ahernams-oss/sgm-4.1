@@ -472,6 +472,7 @@ const Clientes = () => {
                     >
                       <FileText className="h-3.5 w-3.5" /> Contratos
                     </Button>
+                    {podeEditar && <Button variant="ghost" size="sm" title={cliente.ativo === false ? "Reativar cliente" : "Inativar cliente"} onClick={async () => { const ok = await updateCliente(cliente.id, { ativo: cliente.ativo === false }); if (ok) toast.success(cliente.ativo === false ? "Cliente reativado." : "Cliente inativado."); }} className={cliente.ativo === false ? "text-xs text-destructive" : "text-xs text-muted-foreground"}>{cliente.ativo === false ? "Inativo" : "Ativo"}</Button>}
                     {podeEditar && <Button variant="ghost" size="sm" onClick={() => handleEdit(cliente)} className="text-xs">Editar</Button>}
                     {podeExcluir && <Button variant="ghost" size="sm" onClick={() => requestDelete(cliente.id)} className="text-destructive hover:text-destructive">
                       <Trash2 className="h-3.5 w-3.5" />

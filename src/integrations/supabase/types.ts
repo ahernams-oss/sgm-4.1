@@ -739,6 +739,7 @@ export type Database = {
       }
       clientes: {
         Row: {
+          ativo: boolean
           bairro: string | null
           cap: string | null
           celulares: string | null
@@ -791,6 +792,7 @@ export type Database = {
           uf: string | null
         }
         Insert: {
+          ativo?: boolean
           bairro?: string | null
           cap?: string | null
           celulares?: string | null
@@ -843,6 +845,7 @@ export type Database = {
           uf?: string | null
         }
         Update: {
+          ativo?: boolean
           bairro?: string | null
           cap?: string | null
           celulares?: string | null

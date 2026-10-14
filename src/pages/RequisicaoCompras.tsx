@@ -75,7 +75,8 @@ export default function RequisicaoComprasPage() {
     return full.split(".")[0] || "";
   };
   const { fabricantes } = useFabricantes();
-  const { clientes } = useClientes();
+  const { clientes: todosClientes } = useClientes();
+  const clientes = todosClientes.filter((c) => c.ativo !== false);
   const { usuarioLogado } = useAuth();
   const { tem } = usePermissao();
   const podeCriar = tem("requisicoes_compras.criar");

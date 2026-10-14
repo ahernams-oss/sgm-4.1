@@ -95,7 +95,8 @@ export default function SolicitacaoServicosPage() {
   const { solicitacoes, addSolicitacao, updateSolicitacao, deleteSolicitacao, refresh } = useSolicitacoesServicos();
   // Recarrega a grade do banco ao abrir a tela, sem precisar de F5
   useEffect(() => { refresh(); /* eslint-disable-line react-hooks/exhaustive-deps */ }, []);
-  const { clientes } = useClientes();
+  const { clientes: todosClientes } = useClientes();
+  const clientes = todosClientes.filter((c) => c.ativo !== false);
   const { equipamentos } = useEquipamentos();
   const { empresa } = useEmpresa();
   const { toast } = useToast();

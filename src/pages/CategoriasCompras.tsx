@@ -76,6 +76,8 @@ export default function CategoriasCompras() {
   const [pageSize, setPageSize] = useState(10);
   const [pageSubs, setPageSubs] = useState(1);
   const [pageClasses, setPageClasses] = useState(1);
+  const [pageArvore, setPageArvore] = useState(1);
+  const ARVORE_GRUPOS_POR_PAGINA = 2;
 
   // Grupo dialog
   const [grupoDialog, setGrupoDialog] = useState(false);
@@ -139,6 +141,11 @@ export default function CategoriasCompras() {
     const s = search.toLowerCase();
     return grupos.filter(g => g.codigo.toLowerCase().includes(s) || g.nome.toLowerCase().includes(s));
   }, [grupos, search]);
+
+  const arvoreGrupos = useMemo(
+    () => paginate(filteredGrupos, pageArvore, ARVORE_GRUPOS_POR_PAGINA),
+    [filteredGrupos, pageArvore]
+  );
 
   // === DUPLICIDADE ===
   type Tipo = "grupo" | "subgrupo" | "classe";
@@ -290,7 +297,7 @@ export default function CategoriasCompras() {
     <div className="space-y-6">
       <h1 className="text-xl sm:text-2xl font-bold text-foreground">Categorias de Compras</h1>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs value={activeTab} onValueChange={v => { setActiveTab(v); setPageArvore(1); }}>
         <TabsList>
           <TabsTrigger value="grupos">Grupos</TabsTrigger>
           <TabsTrigger value="subgrupos">SubGrupos</TabsTrigger>
@@ -302,7 +309,7 @@ export default function CategoriasCompras() {
         <div className="flex flex-wrap items-center justify-between gap-2 mt-4">
           <div className="relative max-w-sm flex-1 min-w-[220px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Buscar..." value={search} onChange={e => { setSearch(e.target.value); setPageGrupos(1); setPageSubs(1); setPageClasses(1); }} className="pl-9" />
+            <Input placeholder="Buscar..." value={search} onChange={e => { setSearch(e.target.value); setPageGrupos(1); setPageSubs(1); setPageClasses(1); setPageArvore(1); }} className="pl-9" />
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => exportarRelatorio("pdf")} disabled={exportando}>
@@ -493,9 +500,9 @@ export default function CategoriasCompras() {
 
         {/* === VISÃO GERAL (ÁRVORE) === */}
         <TabsContent value="arvore" className="space-y-4">
-          {grupos.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">Nenhum grupo cadastrado</p>
-          ) : grupos.map(g => (
+          {filteredGrupos.length === 0 ? (
+            <p className="text-muted-foreground text-center py-8">Nenhum grupo encontrado</p>
+          ) : arvoreGrupos.paginated.map(g => (
             <div key={g.id} className="border rounded-lg p-4 space-y-2">
               <div className="flex items-center gap-2">
                 <Badge className="font-mono">{g.codigo}</Badge>
@@ -519,6 +526,12 @@ export default function CategoriasCompras() {
               ))}
             </div>
           ))}
+          <PaginationControls
+            currentPage={pageArvore}
+            totalItems={filteredGrupos.length}
+            onPageChange={setPageArvore}
+            pageSize={ARVORE_GRUPOS_POR_PAGINA}
+          />
         </TabsContent>
       </Tabs>
 

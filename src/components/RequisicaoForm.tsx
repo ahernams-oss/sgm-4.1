@@ -49,7 +49,8 @@ const fileToBase64 = (file: File) => lerArquivoBase64(file);
 const RequisicaoForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   const { cargos } = useCargos();
   const { addRequisicao } = useRequisicoes();
-  const { clientes } = useClientes();
+  const { clientes: todosClientes } = useClientes();
+  const clientes = todosClientes.filter((c) => c.ativo !== false);
   const { usuarioLogado } = useAuth();
   const [cargoOpen, setCargoOpen] = useState(false);
   const [form, setForm] = useState({

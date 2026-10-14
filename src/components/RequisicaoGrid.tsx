@@ -55,7 +55,8 @@ const statusOptions: Requisicao["status"][] = ["Pendente", "Em Análise", "Aprov
 
 const RequisicaoGrid = () => {
   const { requisicoes, updateStatus, updateRequisicao } = useRequisicoes();
-  const { clientes } = useClientes();
+  const { clientes: todosClientes } = useClientes();
+  const clientes = todosClientes.filter((c) => c.ativo !== false);
   const { cargos } = useCargos();
   const { usuarioLogado } = useAuth();
   const { empresa } = useEmpresa();

@@ -45,6 +45,30 @@ export default function CategoriasCompras() {
   const podeEditar = tem("categorias_compras.editar");
   const podeExcluir = tem("categorias_compras.excluir");
   const guard = (ok: boolean) => { if (!ok) { toast({ title: "Você não possui permissão para esta ação.", variant: "destructive" }); return false; } return true; };
+  const { fabricantes } = useFabricantes();
+  const [exportando, setExportando] = useState(false);
+
+  const exportarRelatorio = async (tipo: "pdf" | "excel") => {
+    setExportando(true);
+    try {
+      const nomes: Record<string, string> = {};
+      fabricantes.forEach((f: any) => { nomes[f.id] = f.nome; });
+      const fabricantesPorGrupo = await carregarFabricantesPorGrupo(nomes);
+      const dados: DadosRelatorioCategorias = {
+        grupos, subGrupos, classes,
+        fabricantesPorGrupo,
+        codigoCompleto: getCodigoCompleto,
+        busca: search.trim() || undefined,
+      };
+      if (tipo === "pdf") await gerarPdfCategoriasCompras(dados);
+      else await gerarExcelCategoriasCompras(dados);
+    } catch (e) {
+      console.error("Erro ao gerar relatório de categorias:", e);
+      toast({ title: "Erro ao gerar o relatório. Tente novamente.", variant: "destructive" });
+    } finally {
+      setExportando(false);
+    }
+  };
 
   const [activeTab, setActiveTab] = useState("grupos");
   const [search, setSearch] = useState("");

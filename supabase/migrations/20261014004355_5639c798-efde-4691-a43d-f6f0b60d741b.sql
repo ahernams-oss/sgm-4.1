@@ -1,0 +1,1 @@
+ALTER TABLE public.materiais_servicos ADD COLUMN IF NOT EXISTS nome_pratico text NOT NULL DEFAULT '';

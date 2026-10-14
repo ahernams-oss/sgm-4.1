@@ -506,7 +506,19 @@ export default function CategoriasCompras() {
 
         {/* === VISÃO GERAL (ÁRVORE) === */}
         <TabsContent value="arvore" className="space-y-4">
-          {filteredGrupos.length === 0 ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <Select value={filterGrupoId} onValueChange={v => { setFilterGrupoId(v); setPageArvore(1); }}>
+              <SelectTrigger className="w-64"><SelectValue placeholder="Filtrar por Grupo" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os Grupos</SelectItem>
+                {grupos.map(g => <SelectItem key={g.id} value={g.id}>{g.codigo} - {g.nome}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-muted-foreground">
+              {gruposArvore.length} grupo(s) na visão geral
+            </span>
+          </div>
+          {gruposArvore.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">Nenhum grupo encontrado</p>
           ) : arvoreGrupos.paginated.map(g => (
             <div key={g.id} className="border rounded-lg p-4 space-y-2">
@@ -534,7 +546,7 @@ export default function CategoriasCompras() {
           ))}
           <PaginationControls
             currentPage={pageArvore}
-            totalItems={filteredGrupos.length}
+            totalItems={gruposArvore.length}
             onPageChange={setPageArvore}
             pageSize={ARVORE_GRUPOS_POR_PAGINA}
           />

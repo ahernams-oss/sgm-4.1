@@ -22,6 +22,7 @@ import { guardDuplicates, scanDuplicatesGrouped, type DuplicateMatch, type Group
 import { DuplicateWarningDialog, DuplicateAnalysisDialog } from "@/components/DuplicateDialogs";
 
 import SubGrupoCombobox, { type SubGrupoOption } from "@/components/SubGrupoCombobox";
+import GrupoFabricantesDialog from "@/components/GrupoFabricantesDialog";
 
 export default function CategoriasCompras() {
   const {
@@ -306,6 +307,7 @@ export default function CategoriasCompras() {
                     {colOrderGrupos.map(key => <TableCell key={key} className={colDefsGrupos[key]?.className}>{cellMap[key]}</TableCell>)}
                     <TableCell>
                       <div className="flex gap-1">
+                        <GrupoFabricantesDialog grupo={g} podeEditar={podeEditar} />
                         {podeEditar && <Button variant="ghost" size="icon" onClick={() => openEditGrupo(g)}><Pencil className="h-4 w-4" /></Button>}
                         {podeExcluir && <Button variant="ghost" size="icon" onClick={() => { deleteGrupo(g.id); toast({ title: "Grupo excluído" }); }}><Trash2 className="h-4 w-4 text-destructive" /></Button>}
                       </div>

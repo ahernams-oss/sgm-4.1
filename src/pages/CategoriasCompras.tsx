@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Search, ChevronRight, ShieldAlert, AlertTriangle, Check, ChevronsUpDown } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ChevronRight, ShieldAlert, AlertTriangle, Check, ChevronsUpDown, FileText, FileSpreadsheet } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
@@ -23,6 +23,13 @@ import { DuplicateWarningDialog, DuplicateAnalysisDialog } from "@/components/Du
 
 import SubGrupoCombobox, { type SubGrupoOption } from "@/components/SubGrupoCombobox";
 import GrupoFabricantesDialog from "@/components/GrupoFabricantesDialog";
+import { useFabricantes } from "@/contexts/FabricantesContext";
+import {
+  gerarPdfCategoriasCompras,
+  gerarExcelCategoriasCompras,
+  carregarFabricantesPorGrupo,
+  type DadosRelatorioCategorias,
+} from "@/lib/gerarRelatorioCategoriasCompras";
 
 export default function CategoriasCompras() {
   const {
@@ -38,6 +45,30 @@ export default function CategoriasCompras() {
   const podeEditar = tem("categorias_compras.editar");
   const podeExcluir = tem("categorias_compras.excluir");
   const guard = (ok: boolean) => { if (!ok) { toast({ title: "Você não possui permissão para esta ação.", variant: "destructive" }); return false; } return true; };
+  const { fabricantes } = useFabricantes();
+  const [exportando, setExportando] = useState(false);
+
+  const exportarRelatorio = async (tipo: "pdf" | "excel") => {
+    setExportando(true);
+    try {
+      const nomes: Record<string, string> = {};
+      fabricantes.forEach((f: any) => { nomes[f.id] = f.nome; });
+      const fabricantesPorGrupo = await carregarFabricantesPorGrupo(nomes);
+      const dados: DadosRelatorioCategorias = {
+        grupos, subGrupos, classes,
+        fabricantesPorGrupo,
+        codigoCompleto: getCodigoCompleto,
+        busca: search.trim() || undefined,
+      };
+      if (tipo === "pdf") await gerarPdfCategoriasCompras(dados);
+      else await gerarExcelCategoriasCompras(dados);
+    } catch (e) {
+      console.error("Erro ao gerar relatório de categorias:", e);
+      toast({ title: "Erro ao gerar o relatório. Tente novamente.", variant: "destructive" });
+    } finally {
+      setExportando(false);
+    }
+  };
 
   const [activeTab, setActiveTab] = useState("grupos");
   const [search, setSearch] = useState("");
@@ -267,10 +298,20 @@ export default function CategoriasCompras() {
           <TabsTrigger value="arvore">Visão Geral</TabsTrigger>
         </TabsList>
 
-        {/* Search bar */}
-        <div className="relative max-w-sm mt-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar..." value={search} onChange={e => { setSearch(e.target.value); setPageGrupos(1); setPageSubs(1); setPageClasses(1); }} className="pl-9" />
+        {/* Search + Export bar */}
+        <div className="flex flex-wrap items-center justify-between gap-2 mt-4">
+          <div className="relative max-w-sm flex-1 min-w-[220px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="Buscar..." value={search} onChange={e => { setSearch(e.target.value); setPageGrupos(1); setPageSubs(1); setPageClasses(1); }} className="pl-9" />
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => exportarRelatorio("pdf")} disabled={exportando}>
+              <FileText className="mr-2 h-4 w-4" />Relatório PDF
+            </Button>
+            <Button variant="outline" onClick={() => exportarRelatorio("excel")} disabled={exportando}>
+              <FileSpreadsheet className="mr-2 h-4 w-4" />Relatório Excel
+            </Button>
+          </div>
         </div>
 
         {/* === GRUPOS === */}

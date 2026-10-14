@@ -194,6 +194,28 @@ export default function RequisicaoComprasPage() {
   const [itemAnexo, setItemAnexo] = useState<{ nome: string; tipo: string; base64: string } | null>(null);
   const itemAnexoInputRef = useRef<HTMLInputElement>(null);
 
+  const [vinculosFabricantes, setVinculosFabricantes] = useState<{ grupo_id: string; fabricante_id: string }[]>([]);
+  useEffect(() => {
+    fetchAll("categorias_compras_fabricantes").then((rows: any[]) =>
+      setVinculosFabricantes(rows.map(r => ({ grupo_id: r.grupo_id, fabricante_id: r.fabricante_id })))
+    ).catch(() => setVinculosFabricantes([]));
+  }, []);
+
+  const grupoIdDoMaterial = (materialId: string): string => {
+    const mat = materiais.find(m => m.id === materialId);
+    const classe = classes.find(c => c.id === mat?.categoriaId);
+    const sub = subGrupos.find(s => s.id === classe?.subGrupoId);
+    return sub?.grupoId ?? "";
+  };
+
+  const grupoIdMaterialItem = itemMaterialId ? grupoIdDoMaterial(itemMaterialId) : "";
+  const fabricantesDoGrupo = useMemo(() => {
+    if (!grupoIdMaterialItem) return [];
+    const ids = new Set(vinculosFabricantes.filter(v => v.grupo_id === grupoIdMaterialItem).map(v => v.fabricante_id));
+    return fabricantes.filter(f => ids.has(f.id));
+  }, [grupoIdMaterialItem, vinculosFabricantes, fabricantes]);
+  const grupoTemFabricantes = fabricantesDoGrupo.length > 0;
+
   const clientesLista = useMemo(() => clientes.filter(c => c.tipo === "Cliente"), [clientes]);
 
   const locaisEntregaDoCliente = useMemo(() => {

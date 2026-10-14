@@ -63,7 +63,7 @@ export default function RequisicaoComprasPage() {
   const { pedidos } = usePedidoCompra();
 
   const { materiais } = useMateriaisServicos();
-  const { getCodigoCompleto, grupos: gruposMercadoria } = useCategoriasCompras();
+  const { getCodigoCompleto, grupos: gruposMercadoria, subGrupos, classes } = useCategoriasCompras();
   const codigoComposto = (m: any) => {
     const cat = m?.categoriaId ? getCodigoCompleto(m.categoriaId) : "";
     return cat ? `${cat}.${m.codigo}` : m.codigo;

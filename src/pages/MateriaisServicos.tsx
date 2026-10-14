@@ -134,7 +134,7 @@ export default function MateriaisServicosPage() {
           const cols = line.split(/[;\t,]/).map(c => c.trim());
           if (cols[0]?.toLowerCase().includes("cod")) continue;
           if (cols.length >= 2) {
-            addMaterial({ descricao: cols[1] || cols[0] || "", tipo: (cols[2] === "Serviço" ? "Serviço" : "Material"), unidadeMedida: cols[3] || "UN", categoriaId: cols[4] || "", fabricanteId: "", estoqueMinimo: 0, fotos: [] });
+            addMaterial({ descricao: cols[1] || cols[0] || "", nomePratico: cols[5] || "", tipo: (cols[2] === "Serviço" ? "Serviço" : "Material"), unidadeMedida: cols[3] || "UN", categoriaId: cols[4] || "", fabricanteId: "", estoqueMinimo: 0, fotos: [] });
             count++;
           }
         }
@@ -151,7 +151,7 @@ export default function MateriaisServicosPage() {
         for (const row of rows) {
           if (String(row[0] || "").toLowerCase().includes("cod")) continue;
           if (row.length >= 2) {
-            addMaterial({ descricao: String(row[1] || row[0] || ""), tipo: (String(row[2] || "") === "Serviço" ? "Serviço" : "Material"), unidadeMedida: String(row[3] || "UN"), categoriaId: String(row[4] || ""), fabricanteId: "", estoqueMinimo: 0, fotos: [] });
+            addMaterial({ descricao: String(row[1] || row[0] || ""), nomePratico: String(row[5] || ""), tipo: (String(row[2] || "") === "Serviço" ? "Serviço" : "Material"), unidadeMedida: String(row[3] || "UN"), categoriaId: String(row[4] || ""), fabricanteId: "", estoqueMinimo: 0, fotos: [] });
             count++;
           }
         }

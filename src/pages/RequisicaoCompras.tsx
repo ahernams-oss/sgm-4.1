@@ -950,7 +950,11 @@ export default function RequisicaoComprasPage() {
                       <Label>Fabricante</Label>
                       <Select value={itemFabricanteId} onValueChange={setItemFabricanteId}>
                         <SelectTrigger><SelectValue placeholder="Selecionar (opcional)..." /></SelectTrigger>
-                        <SelectContent>{fabricantes.map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}</SelectContent>
+                        <SelectContent>
+                          {fabricantesDoGrupo.map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}
+                          {!grupoIdMaterialItem && <div className="px-2 py-1.5 text-sm text-muted-foreground">Selecione o material para ver os fabricantes do grupo.</div>}
+                          {grupoIdMaterialItem && !grupoTemFabricantes && <div className="px-2 py-1.5 text-sm text-muted-foreground">Nenhum fabricante vinculado ao grupo deste material.</div>}
+                        </SelectContent>
                       </Select>
                     </div>
                   </div>

@@ -63,7 +63,7 @@ export default function RequisicaoComprasPage() {
   const { pedidos } = usePedidoCompra();
 
   const { materiais } = useMateriaisServicos();
-  const { getCodigoCompleto, grupos: gruposMercadoria } = useCategoriasCompras();
+  const { getCodigoCompleto, grupos: gruposMercadoria, subGrupos, classes } = useCategoriasCompras();
   const codigoComposto = (m: any) => {
     const cat = m?.categoriaId ? getCodigoCompleto(m.categoriaId) : "";
     return cat ? `${cat}.${m.codigo}` : m.codigo;
@@ -193,6 +193,28 @@ export default function RequisicaoComprasPage() {
   const [itemFabricanteId, setItemFabricanteId] = useState("");
   const [itemAnexo, setItemAnexo] = useState<{ nome: string; tipo: string; base64: string } | null>(null);
   const itemAnexoInputRef = useRef<HTMLInputElement>(null);
+
+  const [vinculosFabricantes, setVinculosFabricantes] = useState<{ grupo_id: string; fabricante_id: string }[]>([]);
+  useEffect(() => {
+    fetchAll("categorias_compras_fabricantes").then((rows: any[]) =>
+      setVinculosFabricantes(rows.map(r => ({ grupo_id: r.grupo_id, fabricante_id: r.fabricante_id })))
+    ).catch(() => setVinculosFabricantes([]));
+  }, []);
+
+  const grupoIdDoMaterial = (materialId: string): string => {
+    const mat = materiais.find(m => m.id === materialId);
+    const classe = classes.find(c => c.id === mat?.categoriaId);
+    const sub = subGrupos.find(s => s.id === classe?.subGrupoId);
+    return sub?.grupoId ?? "";
+  };
+
+  const grupoIdMaterialItem = itemMaterialId ? grupoIdDoMaterial(itemMaterialId) : "";
+  const fabricantesDoGrupo = useMemo(() => {
+    if (!grupoIdMaterialItem) return [];
+    const ids = new Set(vinculosFabricantes.filter(v => v.grupo_id === grupoIdMaterialItem).map(v => v.fabricante_id));
+    return fabricantes.filter(f => ids.has(f.id));
+  }, [grupoIdMaterialItem, vinculosFabricantes, fabricantes]);
+  const grupoTemFabricantes = fabricantesDoGrupo.length > 0;
 
   const clientesLista = useMemo(() => clientes.filter(c => c.tipo === "Cliente"), [clientes]);
 
@@ -529,7 +551,11 @@ export default function RequisicaoComprasPage() {
     if (mat) {
       setItemDescricao(mat.descricao);
       setItemUnidade(mat.unidadeMedida);
-      if (mat.fabricanteId) setItemFabricanteId(mat.fabricanteId);
+      if (mat.fabricanteId) {
+        const gid = grupoIdDoMaterial(materialId);
+        const permitido = vinculosFabricantes.some(v => v.grupo_id === gid && v.fabricante_id === mat.fabricanteId);
+        setItemFabricanteId(permitido ? mat.fabricanteId : "");
+      }
     }
   };
 
@@ -924,7 +950,11 @@ export default function RequisicaoComprasPage() {
                       <Label>Fabricante</Label>
                       <Select value={itemFabricanteId} onValueChange={setItemFabricanteId}>
                         <SelectTrigger><SelectValue placeholder="Selecionar (opcional)..." /></SelectTrigger>
-                        <SelectContent>{fabricantes.map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}</SelectContent>
+                        <SelectContent>
+                          {fabricantesDoGrupo.map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}
+                          {!grupoIdMaterialItem && <div className="px-2 py-1.5 text-sm text-muted-foreground">Selecione o material para ver os fabricantes do grupo.</div>}
+                          {grupoIdMaterialItem && !grupoTemFabricantes && <div className="px-2 py-1.5 text-sm text-muted-foreground">Nenhum fabricante vinculado ao grupo deste material.</div>}
+                        </SelectContent>
                       </Select>
                     </div>
                   </div>

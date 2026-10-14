@@ -500,9 +500,9 @@ export default function CategoriasCompras() {
 
         {/* === VISÃO GERAL (ÁRVORE) === */}
         <TabsContent value="arvore" className="space-y-4">
-          {grupos.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">Nenhum grupo cadastrado</p>
-          ) : grupos.map(g => (
+          {filteredGrupos.length === 0 ? (
+            <p className="text-muted-foreground text-center py-8">Nenhum grupo encontrado</p>
+          ) : arvoreGrupos.paginated.map(g => (
             <div key={g.id} className="border rounded-lg p-4 space-y-2">
               <div className="flex items-center gap-2">
                 <Badge className="font-mono">{g.codigo}</Badge>
@@ -526,6 +526,12 @@ export default function CategoriasCompras() {
               ))}
             </div>
           ))}
+          <PaginationControls
+            currentPage={pageArvore}
+            totalItems={filteredGrupos.length}
+            onPageChange={setPageArvore}
+            pageSize={ARVORE_GRUPOS_POR_PAGINA}
+          />
         </TabsContent>
       </Tabs>
 

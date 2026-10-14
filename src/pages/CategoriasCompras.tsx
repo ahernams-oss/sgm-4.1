@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Search, ChevronRight, ShieldAlert, AlertTriangle, Check, ChevronsUpDown } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, ChevronRight, ShieldAlert, AlertTriangle, Check, ChevronsUpDown, FileText, FileSpreadsheet } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
@@ -23,6 +23,13 @@ import { DuplicateWarningDialog, DuplicateAnalysisDialog } from "@/components/Du
 
 import SubGrupoCombobox, { type SubGrupoOption } from "@/components/SubGrupoCombobox";
 import GrupoFabricantesDialog from "@/components/GrupoFabricantesDialog";
+import { useFabricantes } from "@/contexts/FabricantesContext";
+import {
+  gerarPdfCategoriasCompras,
+  gerarExcelCategoriasCompras,
+  carregarFabricantesPorGrupo,
+  type DadosRelatorioCategorias,
+} from "@/lib/gerarRelatorioCategoriasCompras";
 
 export default function CategoriasCompras() {
   const {

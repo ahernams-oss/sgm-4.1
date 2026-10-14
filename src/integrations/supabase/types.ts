@@ -548,6 +548,42 @@ export type Database = {
         }
         Relationships: []
       }
+      categorias_compras_fabricantes: {
+        Row: {
+          created_at: string
+          fabricante_id: string
+          grupo_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          fabricante_id: string
+          grupo_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          fabricante_id?: string
+          grupo_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "categorias_compras_fabricantes_fabricante_id_fkey"
+            columns: ["fabricante_id"]
+            isOneToOne: false
+            referencedRelation: "fabricantes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "categorias_compras_fabricantes_grupo_id_fkey"
+            columns: ["grupo_id"]
+            isOneToOne: false
+            referencedRelation: "categorias_compras_grupos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categorias_compras_grupos: {
         Row: {
           codigo: string | null

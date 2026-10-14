@@ -298,10 +298,20 @@ export default function CategoriasCompras() {
           <TabsTrigger value="arvore">Visão Geral</TabsTrigger>
         </TabsList>
 
-        {/* Search bar */}
-        <div className="relative max-w-sm mt-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar..." value={search} onChange={e => { setSearch(e.target.value); setPageGrupos(1); setPageSubs(1); setPageClasses(1); }} className="pl-9" />
+        {/* Search + Export bar */}
+        <div className="flex flex-wrap items-center justify-between gap-2 mt-4">
+          <div className="relative max-w-sm flex-1 min-w-[220px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="Buscar..." value={search} onChange={e => { setSearch(e.target.value); setPageGrupos(1); setPageSubs(1); setPageClasses(1); }} className="pl-9" />
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => exportarRelatorio("pdf")} disabled={exportando}>
+              <FileText className="mr-2 h-4 w-4" />Relatório PDF
+            </Button>
+            <Button variant="outline" onClick={() => exportarRelatorio("excel")} disabled={exportando}>
+              <FileSpreadsheet className="mr-2 h-4 w-4" />Relatório Excel
+            </Button>
+          </div>
         </div>
 
         {/* === GRUPOS === */}

@@ -142,9 +142,15 @@ export default function CategoriasCompras() {
     return grupos.filter(g => g.codigo.toLowerCase().includes(s) || g.nome.toLowerCase().includes(s));
   }, [grupos, search]);
 
+  // Visão Geral: busca + filtro por grupo
+  const gruposArvore = useMemo(
+    () => (filterGrupoId === "all" ? filteredGrupos : filteredGrupos.filter(g => g.id === filterGrupoId)),
+    [filteredGrupos, filterGrupoId]
+  );
+
   const arvoreGrupos = useMemo(
-    () => paginate(filteredGrupos, pageArvore, ARVORE_GRUPOS_POR_PAGINA),
-    [filteredGrupos, pageArvore]
+    () => paginate(gruposArvore, pageArvore, ARVORE_GRUPOS_POR_PAGINA),
+    [gruposArvore, pageArvore]
   );
 
   // === DUPLICIDADE ===
@@ -500,7 +506,19 @@ export default function CategoriasCompras() {
 
         {/* === VISÃO GERAL (ÁRVORE) === */}
         <TabsContent value="arvore" className="space-y-4">
-          {filteredGrupos.length === 0 ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <Select value={filterGrupoId} onValueChange={v => { setFilterGrupoId(v); setPageArvore(1); }}>
+              <SelectTrigger className="w-64"><SelectValue placeholder="Filtrar por Grupo" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os Grupos</SelectItem>
+                {grupos.map(g => <SelectItem key={g.id} value={g.id}>{g.codigo} - {g.nome}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-muted-foreground">
+              {gruposArvore.length} grupo(s) na visão geral
+            </span>
+          </div>
+          {gruposArvore.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">Nenhum grupo encontrado</p>
           ) : arvoreGrupos.paginated.map(g => (
             <div key={g.id} className="border rounded-lg p-4 space-y-2">
@@ -528,7 +546,7 @@ export default function CategoriasCompras() {
           ))}
           <PaginationControls
             currentPage={pageArvore}
-            totalItems={filteredGrupos.length}
+            totalItems={gruposArvore.length}
             onPageChange={setPageArvore}
             pageSize={ARVORE_GRUPOS_POR_PAGINA}
           />

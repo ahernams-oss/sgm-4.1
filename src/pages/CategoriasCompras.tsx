@@ -142,9 +142,15 @@ export default function CategoriasCompras() {
     return grupos.filter(g => g.codigo.toLowerCase().includes(s) || g.nome.toLowerCase().includes(s));
   }, [grupos, search]);
 
+  // Visão Geral: busca + filtro por grupo
+  const gruposArvore = useMemo(
+    () => (filterGrupoId === "all" ? filteredGrupos : filteredGrupos.filter(g => g.id === filterGrupoId)),
+    [filteredGrupos, filterGrupoId]
+  );
+
   const arvoreGrupos = useMemo(
-    () => paginate(filteredGrupos, pageArvore, ARVORE_GRUPOS_POR_PAGINA),
-    [filteredGrupos, pageArvore]
+    () => paginate(gruposArvore, pageArvore, ARVORE_GRUPOS_POR_PAGINA),
+    [gruposArvore, pageArvore]
   );
 
   // === DUPLICIDADE ===

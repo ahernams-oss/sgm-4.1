@@ -45,7 +45,7 @@ export default function MateriaisServicosPage() {
   const { toast } = useToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ descricao: "", tipo: "Material" as "Material" | "Serviço", unidadeMedida: "UN", categoriaId: "", estoqueMinimo: 0, fotos: [] as string[] });
+  const [form, setForm] = useState({ descricao: "", nomePratico: "", tipo: "Material" as "Material" | "Serviço", unidadeMedida: "UN", categoriaId: "", estoqueMinimo: 0, fotos: [] as string[] });
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [search, setSearch] = useState("");
   const [filterTipo, setFilterTipo] = useState<string>("Todos");
@@ -71,7 +71,7 @@ export default function MateriaisServicosPage() {
     if (filterTipo !== "Todos") list = list.filter(m => m.tipo === filterTipo);
     if (search) {
       const s = search.toLowerCase();
-      list = list.filter(m => m.codigo.toLowerCase().includes(s) || m.descricao.toLowerCase().includes(s));
+      list = list.filter(m => m.codigo.toLowerCase().includes(s) || m.descricao.toLowerCase().includes(s) || (m.nomePratico || "").toLowerCase().includes(s));
     }
     return list;
   }, [materiais, search, filterTipo]);
@@ -79,8 +79,8 @@ export default function MateriaisServicosPage() {
   // Reset page when filters change
   const resetPage = () => setPage(1);
 
-  const openNew = () => { setForm({ descricao: "", tipo: "Material", unidadeMedida: "UN", categoriaId: "", estoqueMinimo: 0, fotos: [] }); setEditingId(null); setDialogOpen(true); };
-  const openEdit = (m: MaterialServico) => { setForm({ descricao: m.descricao, tipo: m.tipo, unidadeMedida: m.unidadeMedida, categoriaId: m.categoriaId, estoqueMinimo: m.estoqueMinimo, fotos: m.fotos || [] }); setEditingId(m.id); setDialogOpen(true); };
+  const openNew = () => { setForm({ descricao: "", nomePratico: "", tipo: "Material", unidadeMedida: "UN", categoriaId: "", estoqueMinimo: 0, fotos: [] }); setEditingId(null); setDialogOpen(true); };
+  const openEdit = (m: MaterialServico) => { setForm({ descricao: m.descricao, nomePratico: m.nomePratico || "", tipo: m.tipo, unidadeMedida: m.unidadeMedida, categoriaId: m.categoriaId, estoqueMinimo: m.estoqueMinimo, fotos: m.fotos || [] }); setEditingId(m.id); setDialogOpen(true); };
 
   const [dupWarn, setDupWarn] = useState<{ open: boolean; matches: DuplicateMatch<MaterialServico>[]; onConfirm: () => void }>({ open: false, matches: [], onConfirm: () => {} });
   const [analiseOpen, setAnaliseOpen] = useState(false);
@@ -134,7 +134,7 @@ export default function MateriaisServicosPage() {
           const cols = line.split(/[;\t,]/).map(c => c.trim());
           if (cols[0]?.toLowerCase().includes("cod")) continue;
           if (cols.length >= 2) {
-            addMaterial({ descricao: cols[1] || cols[0] || "", tipo: (cols[2] === "Serviço" ? "Serviço" : "Material"), unidadeMedida: cols[3] || "UN", categoriaId: cols[4] || "", fabricanteId: "", estoqueMinimo: 0, fotos: [] });
+            addMaterial({ descricao: cols[1] || cols[0] || "", nomePratico: cols[5] || "", tipo: (cols[2] === "Serviço" ? "Serviço" : "Material"), unidadeMedida: cols[3] || "UN", categoriaId: cols[4] || "", fabricanteId: "", estoqueMinimo: 0, fotos: [] });
             count++;
           }
         }
@@ -151,7 +151,7 @@ export default function MateriaisServicosPage() {
         for (const row of rows) {
           if (String(row[0] || "").toLowerCase().includes("cod")) continue;
           if (row.length >= 2) {
-            addMaterial({ descricao: String(row[1] || row[0] || ""), tipo: (String(row[2] || "") === "Serviço" ? "Serviço" : "Material"), unidadeMedida: String(row[3] || "UN"), categoriaId: String(row[4] || ""), fabricanteId: "", estoqueMinimo: 0, fotos: [] });
+            addMaterial({ descricao: String(row[1] || row[0] || ""), nomePratico: String(row[5] || ""), tipo: (String(row[2] || "") === "Serviço" ? "Serviço" : "Material"), unidadeMedida: String(row[3] || "UN"), categoriaId: String(row[4] || ""), fabricanteId: "", estoqueMinimo: 0, fotos: [] });
             count++;
           }
         }
@@ -259,6 +259,7 @@ export default function MateriaisServicosPage() {
           <DialogHeader><DialogTitle>{editingId ? "Editar" : "Novo"} Material/Serviço</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div><Label>Descrição *</Label><Input value={form.descricao} onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} placeholder="Descrição obrigatória" /></div>
+            <div><Label>Nome Prático</Label><Input value={form.nomePratico} onChange={e => setForm(f => ({ ...f, nomePratico: e.target.value }))} placeholder="Como o item é conhecido no dia a dia" /></div>
             <div><Label>Tipo</Label>
               <Select value={form.tipo} onValueChange={v => setForm(f => ({ ...f, tipo: v as any }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>

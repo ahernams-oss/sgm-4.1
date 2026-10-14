@@ -551,7 +551,11 @@ export default function RequisicaoComprasPage() {
     if (mat) {
       setItemDescricao(mat.descricao);
       setItemUnidade(mat.unidadeMedida);
-      if (mat.fabricanteId) setItemFabricanteId(mat.fabricanteId);
+      if (mat.fabricanteId) {
+        const gid = grupoIdDoMaterial(materialId);
+        const permitido = vinculosFabricantes.some(v => v.grupo_id === gid && v.fabricante_id === mat.fabricanteId);
+        setItemFabricanteId(permitido ? mat.fabricanteId : "");
+      }
     }
   };
 

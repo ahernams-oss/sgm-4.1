@@ -10,7 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { SearchableFilter } from "@/components/SearchableFilter";
 import { useClientes } from "@/contexts/ClientesContext";
 import { useEquipamentos } from "@/contexts/EquipamentosContext";
-import { DollarSign, Plus, Trash2, FileSpreadsheet, Save } from "lucide-react";
+import { gerarPdfFinanceiro, gerarExcelFinanceiro } from "@/lib/gerarRelatoriosFinanceiros";
+import { DollarSign, Plus, Trash2, FileSpreadsheet, FileDown, Save } from "lucide-react";
 
 interface Faixa { id?: string; btu_min: number; btu_max: number; valor: number; descricao: string | null; cliente_id?: string | null }
 interface Item {

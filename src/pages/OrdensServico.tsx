@@ -652,18 +652,24 @@ export default function OrdensServicoPage() {
     }
   };
 
+  const [scoTipoFiltro, setScoTipoFiltro] = useState<string>("todos");
+  const scoTiposDisponiveis = useMemo(
+    () => Array.from(new Set(scos.map(s => (s.tipo || "").trim()).filter(Boolean))).sort((a, b) => a.localeCompare(b, "pt-BR")),
+    [scos],
+  );
   const scosFiltered = useMemo(() => {
     const raw = scoBusca.trim();
     if (!raw) return [];
+    const base = scoTipoFiltro === "todos" ? scos : scos.filter(s => (s.tipo || "").trim() === scoTipoFiltro);
     // "*" abre a listagem completa (igual ao mecanismo da aba de Estoque)
     if (raw.startsWith("*")) {
       const q = raw.slice(1).trim().toLowerCase();
-      if (!q) return scos;
-      return scos.filter(s => s.codSco.toLowerCase().includes(q) || s.descricaoSco.toLowerCase().includes(q));
+      if (!q) return base;
+      return base.filter(s => s.codSco.toLowerCase().includes(q) || s.descricaoSco.toLowerCase().includes(q));
     }
     const q = raw.toLowerCase();
-    return scos.filter(s => s.codSco.toLowerCase().includes(q) || s.descricaoSco.toLowerCase().includes(q));
-  }, [scos, scoBusca]);
+    return base.filter(s => s.codSco.toLowerCase().includes(q) || s.descricaoSco.toLowerCase().includes(q));
+  }, [scos, scoBusca, scoTipoFiltro]);
 
 
   // Recalculate financial values for an OS based on current client contract
@@ -2183,6 +2189,16 @@ export default function OrdensServicoPage() {
                         <Input type="number" min={1} value={scoQtd} onChange={e => setScoQtd(Math.max(1, Number(e.target.value) || 1))} className="text-center text-base font-medium" />
                         <Button type="button" variant="outline" size="icon" className="h-10 w-10 shrink-0" onClick={() => setScoQtd(scoQtd + 1)}>+</Button>
                       </div>
+                    </div>
+                    <div className="w-[170px]">
+                      <Label>Tabela</Label>
+                      <Select value={scoTipoFiltro} onValueChange={v => { setScoTipoFiltro(v); setScoResultPage(1); }}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="todos">Todas</SelectItem>
+                          {scoTiposDisponiveis.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                   {scosFiltered.length > 0 && (

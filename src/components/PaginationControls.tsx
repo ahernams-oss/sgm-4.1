@@ -31,10 +31,13 @@ export default function PaginationControls({
 }: PaginationControlsProps) {
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
   const safePage = Math.min(currentPage, totalPages);
+  const primeiro = totalItems === 0 ? 0 : (safePage - 1) * pageSize + 1;
+  const ultimo = Math.min(safePage * pageSize, totalItems);
+  const fmt = (n: number) => n.toLocaleString("pt-BR");
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
         {onPageSizeChange ? (
           <>
             <span>Mostrando</span>
@@ -48,10 +51,16 @@ export default function PaginationControls({
               ))}
             </select>
             <span>registros</span>
+            <span aria-hidden="true">·</span>
+            <span>
+              {totalItems === 0
+                ? "Nenhum registro"
+                : `${fmt(primeiro)}–${fmt(ultimo)} de ${fmt(totalItems)} registro(s)`}
+            </span>
           </>
         ) : (
           <span>
-            Página {safePage} de {totalPages} — {totalItems} registro(s)
+            Página {safePage} de {totalPages} — {fmt(totalItems)} registro(s)
           </span>
         )}
       </div>

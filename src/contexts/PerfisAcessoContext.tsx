@@ -416,6 +416,10 @@ const MODULOS_CADASTRADOS: GrupoPermissao[] = [
         ],
       },
       {
+        key: "os_modelos",
+        label: "Modelo de OS",
+      },
+      {
         key: "epis_catalogo",
         label: "Catálogo de EPIs",
         acoes: [

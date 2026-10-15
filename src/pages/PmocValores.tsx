@@ -252,12 +252,14 @@ export default function PmocValores() {
                   <Button variant="ghost" size="icon" onClick={() => excluirFaixa(i)} aria-label="Excluir faixa"><Trash2 className="h-4 w-4 text-destructive" /></Button>
                 </div>
               ))}
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button variant="outline" onClick={() => {
                   const ult = faixas[faixas.length - 1];
                   setFaixas([...faixas, { btu_min: ult ? ult.btu_max + 1 : 0, btu_max: ult ? ult.btu_max + 12000 : 12000, valor: 0, descricao: "" }]);
                 }}><Plus className="h-4 w-4 mr-2" />Adicionar faixa</Button>
                 <Button onClick={salvarFaixas} disabled={salvando}><Save className="h-4 w-4 mr-2" />Salvar tabela</Button>
+                <Button variant="outline" onClick={() => exportarPrecos("pdf")} disabled={!faixas.length}><FileDown className="h-4 w-4 mr-2" />Exportar PDF</Button>
+                <Button variant="outline" onClick={() => exportarPrecos("excel")} disabled={!faixas.length}><FileSpreadsheet className="h-4 w-4 mr-2" />Exportar Excel</Button>
               </div>
             </CardContent>
           </Card>

@@ -44,9 +44,10 @@ import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { toast } from "sonner";
 import {
   Plus, Search, MoreHorizontal, Pencil, Trash2, Eye, ChevronDown, ChevronUp,
-  ClipboardList, Clock, CheckCircle2, XCircle, AlertTriangle, Wrench, Play, ShieldCheck, ShieldX, RotateCcw, BadgeCheck, Ban, History, Printer, FileSignature,
-  ArrowUpDown, ArrowUp, ArrowDown, Receipt
+   ClipboardList, Clock, CheckCircle2, XCircle, AlertTriangle, Wrench, Play, ShieldCheck, ShieldX, RotateCcw, BadgeCheck, Ban, History, Printer, FileSignature,
+  ArrowUpDown, ArrowUp, ArrowDown, Receipt, Check, ChevronsUpDown
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useEmpresa } from "@/contexts/EmpresaContext";
 import { gerarPdfOrdemServico, gerarPdfOrdemServicoLote } from "@/lib/gerarPdfOrdemServico";
 import { gerarPdfOrdemServicoComFotos, gerarPdfOrdemServicoFotosMemoria, gerarPdfOrdemServicoFotosMemoriaFotos } from "@/lib/gerarPdfOrdemServicoFotos";
@@ -407,6 +408,7 @@ export default function OrdensServicoPage() {
 
   const [filtroCliente, setFiltroCliente] = useState(() => localStorage.getItem("os_filtroCliente") || "Todos");
   const [clienteTodosEscolhido, setClienteTodosEscolhido] = useState(false);
+  const [clienteFiltroOpen, setClienteFiltroOpen] = useState(false);
   const [filtroPrioridade, setFiltroPrioridade] = useState(_osSavedFilters?.filtroPrioridade ?? "Todas");
   const [filtroDataInicio, setFiltroDataInicio] = useState(_osSavedFilters?.filtroDataInicio ?? "");
   const [filtroDataFim, setFiltroDataFim] = useState(_osSavedFilters?.filtroDataFim ?? "");
@@ -1379,15 +1381,45 @@ export default function OrdensServicoPage() {
                 <Input placeholder="Nº, cliente, descrição, local, setor..." value={busca} onChange={e => { setBusca(e.target.value); setPage(1); }} className="pl-8" />
               </div>
             </div>
-            <div className="w-[200px]">
+            <div className="w-[280px]">
               <Label>Cliente</Label>
-              <Select value={filtroCliente} onValueChange={v => { setFiltroCliente(v); setClienteTodosEscolhido(v === "Todos"); localStorage.setItem("os_filtroCliente", v); setPage(1); }}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Todos" onPointerUp={() => setClienteTodosEscolhido(true)} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") setClienteTodosEscolhido(true); }}>Todos</SelectItem>
-                  {clientesFiltrados.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Popover open={clienteFiltroOpen} onOpenChange={setClienteFiltroOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" role="combobox" aria-expanded={clienteFiltroOpen} className="w-full justify-between font-normal">
+                    <span className="truncate text-left">
+                      {filtroCliente === "Todos" ? "Todos" : clientesFiltrados.find(c => c.id === filtroCliente)?.nome || "Todos"}
+                    </span>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Buscar cliente…" />
+                    <CommandList>
+                      <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
+                      <CommandGroup>
+                        <CommandItem
+                          value="Todos"
+                          onSelect={() => { setFiltroCliente("Todos"); setClienteTodosEscolhido(true); localStorage.setItem("os_filtroCliente", "Todos"); setPage(1); setClienteFiltroOpen(false); }}
+                        >
+                          <Check className={cn("mr-2 h-4 w-4", filtroCliente === "Todos" ? "opacity-100" : "opacity-0")} />
+                          Todos
+                        </CommandItem>
+                        {clientesFiltrados.map(c => (
+                          <CommandItem
+                            key={c.id}
+                            value={c.nome}
+                            onSelect={() => { setFiltroCliente(c.id); setClienteTodosEscolhido(false); localStorage.setItem("os_filtroCliente", c.id); setPage(1); setClienteFiltroOpen(false); }}
+                          >
+                            <Check className={cn("mr-2 h-4 w-4", filtroCliente === c.id ? "opacity-100" : "opacity-0")} />
+                            {c.nome}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="w-[180px]">
               <Label>Prioridade</Label>

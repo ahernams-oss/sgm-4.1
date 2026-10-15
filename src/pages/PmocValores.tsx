@@ -86,6 +86,28 @@ export default function PmocValores() {
     setFaixas((x) => x.filter((_, idx) => idx !== i));
   };
 
+  const exportarPrecos = async (formato: "pdf" | "excel") => {
+    if (!faixas.length) { toast.error("Nenhuma faixa cadastrada para exportar."); return; }
+    const nomeCliente = clienteTabela
+      ? (clientesOrdenados.find((c) => c.id === clienteTabela)?.nome || "Cliente")
+      : "Padrão geral";
+    const relatorio = {
+      titulo: "PMOC Tabela de Preços (BTUs)",
+      subtitulo: `Tabela: ${nomeCliente}`,
+      filtros: `Cliente (contrato): ${nomeCliente}`,
+      colunas: ["BTU mínimo", "BTU máximo", "Valor (R$)", "Descrição"],
+      linhas: faixas.map((f) => [Number(f.btu_min) || 0, Number(f.btu_max) || 0, Number(f.valor) || 0, f.descricao || ""]),
+      totais: [{ label: "Faixas cadastradas", valor: String(faixas.length) }],
+    };
+    try {
+      if (formato === "pdf") await gerarPdfFinanceiro(relatorio);
+      else await gerarExcelFinanceiro(relatorio);
+      toast.success(formato === "pdf" ? "PDF gerado com sucesso." : "Excel gerado com sucesso.");
+    } catch {
+      toast.error(`Erro ao gerar o ${formato === "pdf" ? "PDF" : "Excel"}.`);
+    }
+  };
+
   // Cliente e local: prioriza o cadastro do equipamento; cai para o que foi gravado na manutenção.
   const clienteDoItem = (i: Item) => {
     const eq = equipamentos.find((e) => e.id === i.equipamento_id);

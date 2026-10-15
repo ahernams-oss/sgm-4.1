@@ -2,6 +2,13 @@ import { describe, expect, test } from "vitest";
 import { organizarPermissoesPorMenu } from "./gruposPermissoes";
 
 describe("organização dos perfis por menu", () => {
+  test("modelos de OS pertencem ao menu Cadastros preservando a chave de acesso", () => {
+    const modulo = { key: "os_modelos", label: "Modelo de OS" };
+    const grupos = organizarPermissoesPorMenu([{ grupo: "Engenharia", modulos: [modulo] }]);
+    expect(grupos.find(g => g.grupo === "Cadastros")?.modulos).toEqual([modulo]);
+    expect(grupos.flatMap(g => g.modulos).filter(m => m.key === "os_modelos")).toHaveLength(1);
+  });
+
   test("assinatura de ordens de compra pertence a Compras e Suprimentos", () => {
     const assinatura = { key: "pc_assinatura", label: "Assinatura de Ordens de Compra", acoes: [{ key: "pc.assinar", label: "Assinar PC" }] };
     const grupos = organizarPermissoesPorMenu([{ grupo: "Engenharia", modulos: [assinatura] }]);

@@ -42,6 +42,7 @@ export const ACCESS_ROUTES: { perm: string; url: string }[] = [
   { perm: "comunicacao_notificacoes", url: "/comunicacao/notificacoes" },
   { perm: "comunicacao_whatsapp", url: "/comunicacao/whatsapp" },
   { perm: "pmoc", url: "/pmoc" },
+  { perm: "pmoc_valores", url: "/pmoc/valores" },
   { perm: "evidencias", url: "/qualidade/evidencias" },
   { perm: "checklists", url: "/qualidade/checklists" },
   { perm: "chat_duda", url: "/chat-duda" },

@@ -193,6 +193,7 @@ const menuItems = [
       { title: "PMOC", url: "/pmoc", icon: Fan, perm: "pmoc" },
       { title: "Gerenciar Operação", url: "/pmoc/gerenciar-operacao", icon: Fan, perm: "pmoc" },
       { title: "O.S. PMOC", url: "/pmoc/ordens-servico", icon: Fan, perm: "pmoc" },
+      { title: "Valores PMOC", url: "/pmoc/valores", icon: Fan, perm: "pmoc_valores" },
     ],
   },
   {

@@ -6402,6 +6402,51 @@ export type Database = {
         }
         Relationships: []
       }
+      pmoc_faturamento_itens: {
+        Row: {
+          capacidade_btu: number | null
+          cliente_nome: string | null
+          confirmado_por: string | null
+          created_at: string
+          data_execucao: string
+          equipamento_id: string
+          equipamento_nome: string | null
+          execucao_id: string | null
+          id: string
+          local_descricao: string | null
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          capacidade_btu?: number | null
+          cliente_nome?: string | null
+          confirmado_por?: string | null
+          created_at?: string
+          data_execucao: string
+          equipamento_id: string
+          equipamento_nome?: string | null
+          execucao_id?: string | null
+          id?: string
+          local_descricao?: string | null
+          updated_at?: string
+          valor?: number
+        }
+        Update: {
+          capacidade_btu?: number | null
+          cliente_nome?: string | null
+          confirmado_por?: string | null
+          created_at?: string
+          data_execucao?: string
+          equipamento_id?: string
+          equipamento_nome?: string | null
+          execucao_id?: string | null
+          id?: string
+          local_descricao?: string | null
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: []
+      }
       pmoc_inconformidades: {
         Row: {
           ambiente: string | null
@@ -6639,6 +6684,36 @@ export type Database = {
           unidade?: string | null
           vigencia_fim?: string | null
           vigencia_inicio?: string | null
+        }
+        Relationships: []
+      }
+      pmoc_precos_btu: {
+        Row: {
+          btu_max: number
+          btu_min: number
+          created_at: string
+          descricao: string | null
+          id: string
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          btu_max: number
+          btu_min?: number
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          updated_at?: string
+          valor?: number
+        }
+        Update: {
+          btu_max?: number
+          btu_min?: number
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          updated_at?: string
+          valor?: number
         }
         Relationships: []
       }

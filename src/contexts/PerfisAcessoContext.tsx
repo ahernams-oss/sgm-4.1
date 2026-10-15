@@ -568,6 +568,11 @@ export const MODULOS_SISTEMA: GrupoPermissao[] = [
         ],
       },
       {
+        key: "pmoc_valores",
+        label: "PMOC – Valores (preços e faturamento)",
+        acoes: [],
+      },
+      {
         key: "bim",
         label: "BIM - Modelos 3D",
         acoes: [

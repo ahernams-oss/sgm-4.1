@@ -2211,6 +2211,7 @@ export default function OrdensServicoPage() {
                               <TableHead>Descrição</TableHead>
                               <TableHead>Un.</TableHead>
                               <TableHead>Tipo</TableHead>
+                              <TableHead className="text-right">Valor Unit.</TableHead>
                               <TableHead className="w-[80px]"></TableHead>
                             </TableRow>
                           </TableHeader>
@@ -2221,6 +2222,7 @@ export default function OrdensServicoPage() {
                                 <TableCell className="text-xs">{s.descricaoSco}</TableCell>
                                 <TableCell className="text-xs">{s.unidade}</TableCell>
                                 <TableCell className="text-xs">{s.tipo}</TableCell>
+                                <TableCell className="text-xs text-right whitespace-nowrap">{getI0Valor(s.codSco).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</TableCell>
                                 <TableCell>
                                   <Button size="sm" onClick={() => handleAddScoMaterial(s)}>Adicionar</Button>
                                 </TableCell>

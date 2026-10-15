@@ -378,6 +378,10 @@ export default function Equipamentos() {
               </div>
             </div>
 
+            <div className="grid grid-cols-1 gap-4">
+              <div><Label>Equipamento *</Label><Input value={form.equipamento} onChange={e => setField("equipamento", e.target.value)} /></div>
+            </div>
+
             {/* Dados do equipamento */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
@@ -385,9 +389,9 @@ export default function Equipamentos() {
                 <Input value={codLasantAtual} readOnly disabled placeholder="Gerado automaticamente (LST-00000)" className="font-mono" />
               </div>
               <div><Label>TAG / Patrimônio</Label><Input value={form.tag} onChange={e => setField("tag", e.target.value)} /></div>
-              <div><Label>Equipamento *</Label><Input value={form.equipamento} onChange={e => setField("equipamento", e.target.value)} /></div>
               <div><Label>Série</Label><Input value={form.serie} onChange={e => setField("serie", e.target.value)} /></div>
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div><Label>Grupo</Label><Input value={form.grupo} onChange={e => setField("grupo", e.target.value)} /></div>
               <div><Label>Subgrupo</Label><Input value={form.subgrupo} onChange={e => setField("subgrupo", e.target.value)} /></div>

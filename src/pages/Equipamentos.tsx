@@ -58,6 +58,11 @@ export default function Equipamentos() {
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [codLasantAtual, setCodLasantAtual] = useState("");
+  const [capacidades, setCapacidades] = useState<{ btu: number; descricao: string }[]>([]);
+  useEffect(() => {
+    (supabase as any).from("equipamentos_capacidades").select("btu, descricao").order("btu")
+      .then(({ data }: any) => setCapacidades(data || []));
+  }, []);
   const [search, setSearch] = useState("");
   const [filterCliente, setFilterCliente] = useState("");
   const [page, setPage] = useState(1);
@@ -380,6 +385,19 @@ export default function Equipamentos() {
 
             <div className="grid grid-cols-1 gap-4">
               <div><Label>Equipamento *</Label><Input value={form.equipamento} onChange={e => setField("equipamento", e.target.value)} /></div>
+              <div>
+                <Label>Capacidade (BTU)</Label>
+                <Select value={form.capacidadeBtu || "__none"} onValueChange={v => setField("capacidadeBtu", v === "__none" ? "" : v)}>
+                  <SelectTrigger><SelectValue placeholder="Selecione a capacidade" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none">Não se aplica</SelectItem>
+                    {form.capacidadeBtu && !capacidades.some(c => c.descricao === form.capacidadeBtu) && (
+                      <SelectItem value={form.capacidadeBtu}>{form.capacidadeBtu} (valor antigo)</SelectItem>
+                    )}
+                    {capacidades.map(c => <SelectItem key={c.btu} value={c.descricao}>{c.descricao}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Dados do equipamento */}
@@ -428,7 +446,6 @@ export default function Equipamentos() {
               <div><Label>Tensão (V)</Label><Input value={form.tensao} onChange={e => setField("tensao", e.target.value)} /></div>
               <div><Label>Corrente (A)</Label><Input value={form.corrente} onChange={e => setField("corrente", e.target.value)} /></div>
               <div><Label>Potência (W)</Label><Input value={form.potencia} onChange={e => setField("potencia", e.target.value)} /></div>
-              <div><Label>Capacidade (BTU)</Label><Input value={form.capacidadeBtu} onChange={e => setField("capacidadeBtu", e.target.value)} /></div>
             </div>
 
             {/* Outros */}

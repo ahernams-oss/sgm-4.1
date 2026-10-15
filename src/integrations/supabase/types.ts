@@ -2249,6 +2249,27 @@ export type Database = {
         }
         Relationships: []
       }
+      equipamentos_capacidades: {
+        Row: {
+          btu: number
+          created_at: string
+          descricao: string
+          id: string
+        }
+        Insert: {
+          btu: number
+          created_at?: string
+          descricao: string
+          id?: string
+        }
+        Update: {
+          btu?: number
+          created_at?: string
+          descricao?: string
+          id?: string
+        }
+        Relationships: []
+      }
       equipamentos_laudos_assinaturas: {
         Row: {
           base_legal: string

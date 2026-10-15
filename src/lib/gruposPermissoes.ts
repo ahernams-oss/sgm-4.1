@@ -8,6 +8,7 @@ const MENUS_PERMISSOES: { grupo: string; chaves: string[] }[] = [
   { grupo: "Solicitações de Serviço", chaves: ["solicitacao_servicos"] },
   { grupo: "Ordens de Serviço", chaves: ["ordem_servico", "os_assinatura"] },
   { grupo: "Obras", chaves: ["dashboard_medicoes", "rdo", "cronograma", "boletim_medicao", "eventograma", "contratos_terceiros", "medicoes", "bim"] },
+  { grupo: "Orçamentos", chaves: ["sco"] },
   { grupo: "Compras e Suprimentos", chaves: ["dashboard_compras", "requisicoes_compras", "cotacoes", "pedidos_compra", "pc_assinatura", "inteligencia_compras", "recebimento", "estoque", "relatorios_estoque", "pregao"] },
   { grupo: "Licitações", chaves: ["licitacoes"] },
   { grupo: "Jurídico", chaves: ["juridico"] },
@@ -18,7 +19,7 @@ const MENUS_PERMISSOES: { grupo: string; chaves: string[] }[] = [
   { grupo: "Financeiro", chaves: ["financeiro.dashboard", "financeiro.contas_pagar", "financeiro.contas_receber", "financeiro.contas_bancarias", "financeiro.plano_contas", "financeiro.centros_custo", "financeiro.fluxo_caixa", "financeiro.dre", "financeiro.conciliacao", "financeiro.lancamentos", "financeiro.condicoes_pagamento", "financeiro.nfes_recebidas", "financeiro.relatorios"] },
   { grupo: "Faturamento", chaves: ["faturamentos"] },
   { grupo: "Gerencial", chaves: ["monitor_tv", "gerencial_dashboard", "gerencial_relatorios", "gerencial_multidim", "gerencial_mapa_clientes"] },
-  { grupo: "Cadastros", chaves: ["empresa", "clientes", "equipamentos", "fornecedores", "cargos", "epis_catalogo", "nrs_catalogo", "categorias_servicos", "servicos", "responsaveis_tecnicos", "sco", "i0", "materiais_servicos", "categorias_compras", "fabricantes"] },
+  { grupo: "Cadastros", chaves: ["empresa", "clientes", "equipamentos", "fornecedores", "cargos", "epis_catalogo", "nrs_catalogo", "categorias_servicos", "servicos", "responsaveis_tecnicos", "i0", "materiais_servicos", "categorias_compras", "fabricantes"] },
   { grupo: "Administração", chaves: ["usuarios", "perfis_acesso", "auditoria"] },
 ];
 

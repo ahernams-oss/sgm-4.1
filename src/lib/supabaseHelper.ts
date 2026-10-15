@@ -10,17 +10,29 @@ const SKIP_AUDIT = new Set<string>([
   "kb_artigos_embeddings",
 ]);
 
+const PAGE_SIZE = 1000;
+
 export async function fetchAll(table: string, orderBy = "created_at"): Promise<any[]> {
-  const { data, error } = await (supabase as any)
-    .from(table)
-    .select("*")
-    .order(orderBy, { ascending: true });
-  if (error) {
-    console.error(`Erro ao carregar ${table}:`, error);
-    toast.error(`Erro ao carregar dados.`);
-    return [];
+  const all: any[] = [];
+  let from = 0;
+  // O Supabase limita cada consulta a 1000 linhas; paginamos até o fim.
+  for (;;) {
+    const { data, error } = await (supabase as any)
+      .from(table)
+      .select("*")
+      .order(orderBy, { ascending: true })
+      .range(from, from + PAGE_SIZE - 1);
+    if (error) {
+      console.error(`Erro ao carregar ${table}:`, error);
+      toast.error(`Erro ao carregar dados.`);
+      return all;
+    }
+    const rows = data || [];
+    all.push(...rows);
+    if (rows.length < PAGE_SIZE) break;
+    from += PAGE_SIZE;
   }
-  return data || [];
+  return all;
 }
 
 export async function insertRow(table: string, row: any): Promise<any> {

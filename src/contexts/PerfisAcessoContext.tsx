@@ -2,6 +2,7 @@ import { createContext, useContext, ReactNode, type Context } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
 import { useProviderGate, useActivateProvider } from "@/lib/providerGate";
+import { organizarPermissoesPorMenu } from "@/lib/gruposPermissoes";
 
 const PERFIS_QK = ["perfis_acesso"] as const;
 
@@ -21,7 +22,7 @@ export interface GrupoPermissao {
   }[];
 }
 
-export const MODULOS_SISTEMA: GrupoPermissao[] = [
+const MODULOS_CADASTRADOS: GrupoPermissao[] = [
   {
     grupo: "Gestão de Pessoas",
     modulos: [
@@ -951,7 +952,7 @@ export const MODULOS_SISTEMA: GrupoPermissao[] = [
 
 // Adiciona módulo de Inteligência de Compras ao grupo Compras e Suprimentos
 (() => {
-  const compras = MODULOS_SISTEMA.find(g => g.grupo === "Compras e Suprimentos");
+  const compras = MODULOS_CADASTRADOS.find(g => g.grupo === "Compras e Suprimentos");
   if (compras && !compras.modulos.some(m => m.key === "inteligencia_compras")) {
     compras.modulos.push({
       key: "inteligencia_compras",
@@ -962,7 +963,7 @@ export const MODULOS_SISTEMA: GrupoPermissao[] = [
       ],
     });
   }
-  const compras2 = MODULOS_SISTEMA.find(g => g.grupo === "Compras e Suprimentos");
+  const compras2 = MODULOS_CADASTRADOS.find(g => g.grupo === "Compras e Suprimentos");
   if (compras2 && !compras2.modulos.some(m => m.key === "relatorios_estoque")) {
     compras2.modulos.push({
       key: "relatorios_estoque",
@@ -973,7 +974,7 @@ export const MODULOS_SISTEMA: GrupoPermissao[] = [
       ],
     });
   }
-  const compras3 = MODULOS_SISTEMA.find(g => g.grupo === "Compras e Suprimentos");
+  const compras3 = MODULOS_CADASTRADOS.find(g => g.grupo === "Compras e Suprimentos");
   if (compras3 && !compras3.modulos.some(m => m.key === "pregao")) {
     compras3.modulos.push({
       key: "pregao",
@@ -992,6 +993,7 @@ export const MODULOS_SISTEMA: GrupoPermissao[] = [
 })();
 
 // Collect all permission keys
+export const MODULOS_SISTEMA = organizarPermissoesPorMenu(MODULOS_CADASTRADOS);
 export const ALL_MODULE_KEYS = MODULOS_SISTEMA.flatMap(g => g.modulos.map(m => m.key));
 export const ALL_PERMISSION_KEYS = MODULOS_SISTEMA.flatMap(g =>
   g.modulos.flatMap(m => [

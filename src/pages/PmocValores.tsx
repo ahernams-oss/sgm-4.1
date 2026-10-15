@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { SearchableFilter } from "@/components/SearchableFilter";
 import { useClientes } from "@/contexts/ClientesContext";
+import { useEquipamentos } from "@/contexts/EquipamentosContext";
 import { DollarSign, Plus, Trash2, FileSpreadsheet, Save } from "lucide-react";
 
 interface Faixa { id?: string; btu_min: number; btu_max: number; valor: number; descricao: string | null; cliente_id?: string | null }
@@ -28,8 +30,10 @@ export default function PmocValores() {
   const hoje = new Date();
   const [dataIni, setDataIni] = useState(new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().slice(0, 10));
   const [dataFim, setDataFim] = useState(hoje.toISOString().slice(0, 10));
-  const [cliente, setCliente] = useState("");
+  const [clienteFiltro, setClienteFiltro] = useState("todos");
+  const [localFiltro, setLocalFiltro] = useState("todos");
   const { clientes } = useClientes();
+  const { equipamentos } = useEquipamentos();
   const [clienteTabela, setClienteTabela] = useState("");
   const clientesOrdenados = useMemo(() => [...clientes].filter((c) => c.tipo !== "Fornecedor").sort((a, b) => a.nome.localeCompare(b.nome)), [clientes]);
 
@@ -48,6 +52,7 @@ export default function PmocValores() {
   };
   useEffect(() => { carregarFaixas(); }, [clienteTabela]);
   useEffect(() => { carregarItens(); }, [dataIni, dataFim]);
+  useEffect(() => { setLocalFiltro("todos"); }, [clienteFiltro]);
 
   const setFaixa = (i: number, patch: Partial<Faixa>) =>
     setFaixas((f) => f.map((x, idx) => (idx === i ? { ...x, ...patch } : x)));
@@ -80,17 +85,43 @@ export default function PmocValores() {
     setFaixas((x) => x.filter((_, idx) => idx !== i));
   };
 
+  // Cliente e local: prioriza o cadastro do equipamento; cai para o que foi gravado na manutenção.
+  const clienteDoItem = (i: Item) => {
+    const eq = equipamentos.find((e) => e.id === i.equipamento_id);
+    return (eq?.clienteNome || i.cliente_nome || "").trim();
+  };
+  const localDoItem = (i: Item) => {
+    const eq = equipamentos.find((e) => e.id === i.equipamento_id);
+    return (eq?.localDescricao || i.local_descricao || "").trim();
+  };
+
+  const clientesOptions = useMemo(
+    () => Array.from(new Set(itens.map(clienteDoItem).filter(Boolean)))
+      .sort((a, b) => a.localeCompare(b))
+      .map((n) => ({ value: n, label: n })),
+    [itens, equipamentos]
+  );
+  const locaisOptions = useMemo(() => {
+    const fonte = clienteFiltro !== "todos" ? itens.filter((i) => clienteDoItem(i) === clienteFiltro) : itens;
+    return Array.from(new Set(fonte.map(localDoItem).filter(Boolean)))
+      .sort((a, b) => a.localeCompare(b))
+      .map((n) => ({ value: n, label: n }));
+  }, [itens, equipamentos, clienteFiltro]);
+
   const filtrados = useMemo(() => {
-    const t = cliente.trim().toLowerCase();
-    return t ? itens.filter((i) => (i.cliente_nome || "").toLowerCase().includes(t) || (i.local_descricao || "").toLowerCase().includes(t)) : itens;
-  }, [itens, cliente]);
+    return itens.filter((i) => {
+      if (clienteFiltro !== "todos" && clienteDoItem(i) !== clienteFiltro) return false;
+      if (localFiltro !== "todos" && localDoItem(i) !== localFiltro) return false;
+      return true;
+    });
+  }, [itens, equipamentos, clienteFiltro, localFiltro]);
   const total = filtrados.reduce((s, i) => s + Number(i.valor || 0), 0);
   const semPreco = filtrados.filter((i) => !Number(i.valor)).length;
 
   const exportar = async () => {
     const XLSX = await import("xlsx");
     const ws = XLSX.utils.json_to_sheet(filtrados.map((i) => ({
-      Data: fmtData(i.data_execucao), Cliente: i.cliente_nome || "", Local: i.local_descricao || "",
+      Data: fmtData(i.data_execucao), Cliente: clienteDoItem(i), Local: localDoItem(i),
       Equipamento: i.equipamento_nome || "", BTUs: i.capacidade_btu ?? "", Valor: Number(i.valor) || 0,
       "Confirmado por": i.confirmado_por || "",
     })));
@@ -114,10 +145,31 @@ export default function PmocValores() {
 
         <TabsContent value="manutencoes" className="space-y-4">
           <Card>
-            <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+            <CardContent className="pt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
               <div><Label>Data início</Label><Input type="date" value={dataIni} onChange={(e) => setDataIni(e.target.value)} /></div>
               <div><Label>Data fim</Label><Input type="date" value={dataFim} onChange={(e) => setDataFim(e.target.value)} /></div>
-              <div><Label>Cliente ou local</Label><Input placeholder="Buscar..." value={cliente} onChange={(e) => setCliente(e.target.value)} /></div>
+              <div>
+                <Label>Cliente</Label>
+                <SearchableFilter
+                  value={clienteFiltro}
+                  onChange={setClienteFiltro}
+                  options={clientesOptions}
+                  allLabel="Todos os clientes"
+                  placeholder="Buscar cliente..."
+                  className="w-full"
+                />
+              </div>
+              <div>
+                <Label>Local</Label>
+                <SearchableFilter
+                  value={localFiltro}
+                  onChange={setLocalFiltro}
+                  options={locaisOptions}
+                  allLabel="Todos os locais"
+                  placeholder="Buscar local..."
+                  className="w-full"
+                />
+              </div>
               <Button variant="outline" onClick={exportar} disabled={!filtrados.length}><FileSpreadsheet className="h-4 w-4 mr-2" />Exportar Excel</Button>
             </CardContent>
           </Card>
@@ -139,8 +191,8 @@ export default function PmocValores() {
                   ) : filtrados.map((i) => (
                     <TableRow key={i.id}>
                       <TableCell>{fmtData(i.data_execucao)}</TableCell>
-                      <TableCell>{i.cliente_nome || "-"}</TableCell>
-                      <TableCell>{i.local_descricao || "-"}</TableCell>
+                      <TableCell>{clienteDoItem(i) || "-"}</TableCell>
+                      <TableCell>{localDoItem(i) || "-"}</TableCell>
                       <TableCell>{i.equipamento_nome || "-"}</TableCell>
                       <TableCell>{i.capacidade_btu?.toLocaleString("pt-BR") ?? "-"}</TableCell>
                       <TableCell className={Number(i.valor) ? "" : "text-destructive"}>{brl(i.valor)}</TableCell>

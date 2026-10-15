@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useClientes } from "@/contexts/ClientesContext";
 import { DollarSign, Plus, Trash2, FileSpreadsheet, Save } from "lucide-react";
 
-interface Faixa { id?: string; btu_min: number; btu_max: number; valor: number; descricao: string | null }
+interface Faixa { id?: string; btu_min: number; btu_max: number; valor: number; descricao: string | null; cliente_id?: string | null }
 interface Item {
   id: string; equipamento_id: string; data_execucao: string; equipamento_nome: string | null;
   cliente_nome: string | null; local_descricao: string | null; capacidade_btu: number | null;
@@ -28,11 +29,15 @@ export default function PmocValores() {
   const [dataIni, setDataIni] = useState(new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().slice(0, 10));
   const [dataFim, setDataFim] = useState(hoje.toISOString().slice(0, 10));
   const [cliente, setCliente] = useState("");
+  const { clientes } = useClientes();
+  const [clienteTabela, setClienteTabela] = useState("");
+  const clientesOrdenados = useMemo(() => [...clientes].filter((c) => c.tipo !== "Fornecedor").sort((a, b) => a.nome.localeCompare(b.nome)), [clientes]);
 
   const carregarFaixas = async () => {
     const { data, error } = await sb.from("pmoc_precos_btu").select("*").order("btu_min");
+    const lista = (data || []).filter((f: Faixa) => (f.cliente_id || "") === clienteTabela);
     if (error) { toast.error("Erro ao carregar a tabela de preços."); return; }
-    setFaixas(data || []);
+    setFaixas(lista);
   };
   const carregarItens = async () => {
     const { data, error } = await sb.from("pmoc_faturamento_itens").select("*")
@@ -41,7 +46,7 @@ export default function PmocValores() {
     if (error) { toast.error("Erro ao carregar as manutenções."); return; }
     setItens(data || []);
   };
-  useEffect(() => { carregarFaixas(); }, []);
+  useEffect(() => { carregarFaixas(); }, [clienteTabela]);
   useEffect(() => { carregarItens(); }, [dataIni, dataFim]);
 
   const setFaixa = (i: number, patch: Partial<Faixa>) =>
@@ -54,7 +59,7 @@ export default function PmocValores() {
     setSalvando(true);
     try {
       for (const f of faixas) {
-        const row = { btu_min: Number(f.btu_min) || 0, btu_max: Number(f.btu_max) || 0, valor: Number(f.valor) || 0, descricao: f.descricao || null };
+        const row = { btu_min: Number(f.btu_min) || 0, btu_max: Number(f.btu_max) || 0, valor: Number(f.valor) || 0, descricao: f.descricao || null, cliente_id: clienteTabela || null };
         const { error } = f.id
           ? await sb.from("pmoc_precos_btu").update(row).eq("id", f.id)
           : await sb.from("pmoc_precos_btu").insert(row);
@@ -155,6 +160,14 @@ export default function PmocValores() {
               <p className="text-sm text-muted-foreground">Ex.: de 0 a 12.000 BTUs = R$ 65,00. Mudanças valem só para as próximas confirmações; as antigas mantêm o valor da época.</p>
             </CardHeader>
             <CardContent className="space-y-3">
+              <div className="max-w-md">
+                <Label>Cliente (contrato)</Label>
+                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={clienteTabela} onChange={(e) => setClienteTabela(e.target.value)}>
+                  <option value="">Padrão geral (clientes sem tabela própria)</option>
+                  {clientesOrdenados.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                </select>
+                <p className="text-xs text-muted-foreground mt-1">{clienteTabela ? (faixas.length ? "Tabela própria deste cliente." : "Este cliente ainda usa o padrão geral. Adicione faixas para criar uma tabela própria.") : "Usada quando o cliente não tem faixa própria para a capacidade."}</p>
+              </div>
               {faixas.map((f, i) => (
                 <div key={f.id || `n${i}`} className="grid grid-cols-2 md:grid-cols-[1fr_1fr_1fr_2fr_auto] gap-2 items-end">
                   <div><Label>BTU mínimo</Label><Input type="number" value={f.btu_min} onChange={(e) => setFaixa(i, { btu_min: Number(e.target.value) })} /></div>

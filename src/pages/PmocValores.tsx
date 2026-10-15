@@ -10,7 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { SearchableFilter } from "@/components/SearchableFilter";
 import { useClientes } from "@/contexts/ClientesContext";
 import { useEquipamentos } from "@/contexts/EquipamentosContext";
-import { DollarSign, Plus, Trash2, FileSpreadsheet, Save } from "lucide-react";
+import { gerarPdfFinanceiro, gerarExcelFinanceiro } from "@/lib/gerarRelatoriosFinanceiros";
+import { DollarSign, Plus, Trash2, FileSpreadsheet, FileDown, Save } from "lucide-react";
 
 interface Faixa { id?: string; btu_min: number; btu_max: number; valor: number; descricao: string | null; cliente_id?: string | null }
 interface Item {
@@ -83,6 +84,28 @@ export default function PmocValores() {
       if (error) { toast.error("Erro ao excluir a faixa."); return; }
     }
     setFaixas((x) => x.filter((_, idx) => idx !== i));
+  };
+
+  const exportarPrecos = async (formato: "pdf" | "excel") => {
+    if (!faixas.length) { toast.error("Nenhuma faixa cadastrada para exportar."); return; }
+    const nomeCliente = clienteTabela
+      ? (clientesOrdenados.find((c) => c.id === clienteTabela)?.nome || "Cliente")
+      : "Padrão geral";
+    const relatorio = {
+      titulo: "PMOC Tabela de Preços (BTUs)",
+      subtitulo: `Tabela: ${nomeCliente}`,
+      filtros: `Cliente (contrato): ${nomeCliente}`,
+      colunas: ["BTU mínimo", "BTU máximo", "Valor (R$)", "Descrição"],
+      linhas: faixas.map((f) => [Number(f.btu_min) || 0, Number(f.btu_max) || 0, Number(f.valor) || 0, f.descricao || ""]),
+      totais: [{ label: "Faixas cadastradas", valor: String(faixas.length) }],
+    };
+    try {
+      if (formato === "pdf") await gerarPdfFinanceiro(relatorio);
+      else await gerarExcelFinanceiro(relatorio);
+      toast.success(formato === "pdf" ? "PDF gerado com sucesso." : "Excel gerado com sucesso.");
+    } catch {
+      toast.error(`Erro ao gerar o ${formato === "pdf" ? "PDF" : "Excel"}.`);
+    }
   };
 
   // Cliente e local: prioriza o cadastro do equipamento; cai para o que foi gravado na manutenção.
@@ -229,12 +252,14 @@ export default function PmocValores() {
                   <Button variant="ghost" size="icon" onClick={() => excluirFaixa(i)} aria-label="Excluir faixa"><Trash2 className="h-4 w-4 text-destructive" /></Button>
                 </div>
               ))}
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button variant="outline" onClick={() => {
                   const ult = faixas[faixas.length - 1];
                   setFaixas([...faixas, { btu_min: ult ? ult.btu_max + 1 : 0, btu_max: ult ? ult.btu_max + 12000 : 12000, valor: 0, descricao: "" }]);
                 }}><Plus className="h-4 w-4 mr-2" />Adicionar faixa</Button>
                 <Button onClick={salvarFaixas} disabled={salvando}><Save className="h-4 w-4 mr-2" />Salvar tabela</Button>
+                <Button variant="outline" onClick={() => exportarPrecos("pdf")} disabled={!faixas.length}><FileDown className="h-4 w-4 mr-2" />Exportar PDF</Button>
+                <Button variant="outline" onClick={() => exportarPrecos("excel")} disabled={!faixas.length}><FileSpreadsheet className="h-4 w-4 mr-2" />Exportar Excel</Button>
               </div>
             </CardContent>
           </Card>

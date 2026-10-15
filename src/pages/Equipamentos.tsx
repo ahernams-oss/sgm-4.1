@@ -390,8 +390,8 @@ export default function Equipamentos() {
               </div>
               <div><Label>TAG / Patrimônio</Label><Input value={form.tag} onChange={e => setField("tag", e.target.value)} /></div>
               <div><Label>Série</Label><Input value={form.serie} onChange={e => setField("serie", e.target.value)} /></div>
-
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div><Label>Grupo</Label><Input value={form.grupo} onChange={e => setField("grupo", e.target.value)} /></div>
               <div><Label>Subgrupo</Label><Input value={form.subgrupo} onChange={e => setField("subgrupo", e.target.value)} /></div>

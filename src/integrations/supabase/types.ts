@@ -6691,6 +6691,7 @@ export type Database = {
         Row: {
           btu_max: number
           btu_min: number
+          cliente_id: string | null
           created_at: string
           descricao: string | null
           id: string
@@ -6700,6 +6701,7 @@ export type Database = {
         Insert: {
           btu_max: number
           btu_min?: number
+          cliente_id?: string | null
           created_at?: string
           descricao?: string | null
           id?: string
@@ -6709,6 +6711,7 @@ export type Database = {
         Update: {
           btu_max?: number
           btu_min?: number
+          cliente_id?: string | null
           created_at?: string
           descricao?: string | null
           id?: string

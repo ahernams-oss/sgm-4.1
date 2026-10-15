@@ -11,6 +11,8 @@ import { SearchableFilter } from "@/components/SearchableFilter";
 import { useClientes } from "@/contexts/ClientesContext";
 import { useEquipamentos } from "@/contexts/EquipamentosContext";
 import { gerarPdfFinanceiro, gerarExcelFinanceiro } from "@/lib/gerarRelatoriosFinanceiros";
+import { PmocDashboard } from "@/components/pmoc/PmocDashboard";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DollarSign, Plus, Trash2, FileSpreadsheet, FileDown, Save } from "lucide-react";
 
 interface Faixa { id?: string; btu_min: number; btu_max: number; valor: number; descricao: string | null; cliente_id?: string | null }
@@ -154,21 +156,43 @@ export default function PmocValores() {
     XLSX.writeFile(wb, `pmoc-valores-${dataIni}_a_${dataFim}.xlsx`);
   };
 
-  return (
-    <div className="p-4 md:p-6 space-y-4">
-      <div className="flex items-center gap-2">
-        <DollarSign className="h-6 w-6 text-primary" />
-        <h1 className="text-xl font-bold">PMOC – Valores e Manutenções</h1>
-      </div>
-      <Tabs defaultValue="manutencoes">
-        <TabsList>
-          <TabsTrigger value="manutencoes">Manutenções confirmadas</TabsTrigger>
-          <TabsTrigger value="precos">Tabela de preços (BTUs)</TabsTrigger>
-        </TabsList>
+  const [tipoRel, setTipoRel] = useState<"detalhado" | "cliente" | "local" | "btu" | "mes">("detalhado");
+  const agrupar = (chave: (i: Item) => string) => {
+    const m = new Map<string, { qtd: number; valor: number }>();
+    filtrados.forEach((i) => { const k = chave(i) || "Não informado"; const a = m.get(k) || { qtd: 0, valor: 0 }; a.qtd++; a.valor += Number(i.valor) || 0; m.set(k, a); });
+    return Array.from(m.entries()).sort((a, b) => b[1].valor - a[1].valor);
+  };
+  const gerarRelatorio = async (formato: "pdf" | "excel") => {
+    if (!filtrados.length) { toast.error("Nenhuma manutenção para o relatório."); return; }
+    const nomes = { detalhado: "Detalhado", cliente: "Por cliente", local: "Por local", btu: "Por capacidade (BTUs)", mes: "Por mês" } as const;
+    let colunas: string[]; let linhas: (string | number)[][];
+    if (tipoRel === "detalhado") {
+      colunas = ["Data", "Cliente", "Local", "Equipamento", "BTUs", "Valor (R$)", "Confirmado por"];
+      linhas = filtrados.map((i) => [fmtData(i.data_execucao), clienteDoItem(i), localDoItem(i), i.equipamento_nome || "", i.capacidade_btu ?? "", Number(i.valor) || 0, i.confirmado_por || ""]);
+    } else {
+      const chave = tipoRel === "cliente" ? clienteDoItem : tipoRel === "local" ? (i: Item) => `${localDoItem(i)}${clienteDoItem(i) ? " – " + clienteDoItem(i) : ""}`
+        : tipoRel === "btu" ? (i: Item) => (i.capacidade_btu ? `${i.capacidade_btu.toLocaleString("pt-BR")} BTUs` : "")
+        : (i: Item) => (i.data_execucao || "").slice(0, 7).split("-").reverse().join("/");
+      colunas = [nomes[tipoRel].replace("Por ", "").replace(/^./, (c) => c.toUpperCase()), "Manutenções", "Valor (R$)", "% do valor"];
+      linhas = agrupar(chave).map(([k, a]) => [k, a.qtd, a.valor, total ? `${((a.valor / total) * 100).toFixed(1)}%` : "0%"]);
+    }
+    const nomeCli = clienteFiltro === "todos" ? "Todos" : clienteFiltro; const nomeLoc = localFiltro === "todos" ? "Todos" : localFiltro;
+    const relatorio = {
+      titulo: `PMOC Manutenções Confirmadas – ${nomes[tipoRel]}`,
+      subtitulo: `Período: ${fmtData(dataIni)} a ${fmtData(dataFim)}`,
+      filtros: `Cliente: ${nomeCli} | Local: ${nomeLoc}`,
+      colunas, linhas,
+      totais: [{ label: "Manutenções", valor: String(filtrados.length) }, { label: "Valor total", valor: brl(total) }, { label: "Sem faixa de preço", valor: String(semPreco) }],
+    };
+    try {
+      if (formato === "pdf") await gerarPdfFinanceiro(relatorio); else await gerarExcelFinanceiro(relatorio);
+      toast.success(formato === "pdf" ? "PDF gerado com sucesso." : "Excel gerado com sucesso.");
+    } catch { toast.error(`Erro ao gerar o ${formato === "pdf" ? "PDF" : "Excel"}.`); }
+  };
 
-        <TabsContent value="manutencoes" className="space-y-4">
+  const filtrosCard = (
           <Card>
-            <CardContent className="pt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+            <CardContent className="pt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
               <div><Label>Data início</Label><Input type="date" value={dataIni} onChange={(e) => setDataIni(e.target.value)} /></div>
               <div><Label>Data fim</Label><Input type="date" value={dataFim} onChange={(e) => setDataFim(e.target.value)} /></div>
               <div>
@@ -193,9 +217,47 @@ export default function PmocValores() {
                   className="w-full"
                 />
               </div>
-              <Button variant="outline" onClick={exportar} disabled={!filtrados.length}><FileSpreadsheet className="h-4 w-4 mr-2" />Exportar Excel</Button>
+              <div className="flex gap-2 items-end lg:col-span-4 flex-wrap">
+                <div className="min-w-[220px]"><Label>Relatório</Label>
+                  <Select value={tipoRel} onValueChange={(v) => setTipoRel(v as typeof tipoRel)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="detalhado">Detalhado</SelectItem>
+                      <SelectItem value="cliente">Resumo por cliente</SelectItem>
+                      <SelectItem value="local">Resumo por local</SelectItem>
+                      <SelectItem value="btu">Resumo por capacidade (BTUs)</SelectItem>
+                      <SelectItem value="mes">Resumo por mês</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button variant="outline" onClick={() => gerarRelatorio("pdf")} disabled={!filtrados.length}><FileDown className="h-4 w-4 mr-2" />Relatório PDF</Button>
+                <Button variant="outline" onClick={() => gerarRelatorio("excel")} disabled={!filtrados.length}><FileSpreadsheet className="h-4 w-4 mr-2" />Relatório Excel</Button>
+                <Button variant="ghost" onClick={exportar} disabled={!filtrados.length}><FileSpreadsheet className="h-4 w-4 mr-2" />Planilha bruta</Button>
+              </div>
             </CardContent>
           </Card>
+  );
+
+  return (
+    <div className="p-4 md:p-6 space-y-4">
+      <div className="flex items-center gap-2">
+        <DollarSign className="h-6 w-6 text-primary" />
+        <h1 className="text-xl font-bold">PMOC – Valores e Manutenções</h1>
+      </div>
+      <Tabs defaultValue="dashboard">
+        <TabsList>
+          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+          <TabsTrigger value="manutencoes">Manutenções confirmadas</TabsTrigger>
+          <TabsTrigger value="precos">Tabela de preços (BTUs)</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="dashboard" className="space-y-4">
+          {filtrosCard}
+          <PmocDashboard itens={filtrados} clienteDoItem={clienteDoItem} localDoItem={localDoItem} />
+        </TabsContent>
+
+        <TabsContent value="manutencoes" className="space-y-4">
+          {filtrosCard}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Manutenções</CardTitle></CardHeader><CardContent className="text-2xl font-bold">{filtrados.length}</CardContent></Card>
             <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">Valor total</CardTitle></CardHeader><CardContent className="text-2xl font-bold">{brl(total)}</CardContent></Card>

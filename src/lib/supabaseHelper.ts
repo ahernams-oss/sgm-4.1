@@ -21,6 +21,9 @@ export async function fetchAll(table: string, orderBy = "created_at"): Promise<a
       .from(table)
       .select("*")
       .order(orderBy, { ascending: true })
+      // Desempate estável: importações em lote têm o mesmo created_at e,
+      // sem isso, a paginação pula/duplica linhas.
+      .order("id", { ascending: true })
       .range(from, from + PAGE_SIZE - 1);
     if (error) {
       console.error(`Erro ao carregar ${table}:`, error);

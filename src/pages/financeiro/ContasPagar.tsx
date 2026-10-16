@@ -348,13 +348,63 @@ export default function ContasPagar() {
               {planoContas.filter(p => p.tipo === "despesa" && p.ativo).map(p => <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>)}
             </SelectContent>
           </Select>
-          <Select value={form.centro_custo_id || "none"} onValueChange={(v) => setForm({ ...form, centro_custo_id: v === "none" ? null : v })}>
-            <SelectTrigger><SelectValue placeholder="Centro de custo" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">—</SelectItem>
-              {centrosCusto.filter(c => c.ativo).map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          {!usarRateio && (
+            <Select value={form.centro_custo_id || "none"} onValueChange={(v) => setForm({ ...form, centro_custo_id: v === "none" ? null : v })}>
+              <SelectTrigger><SelectValue placeholder="Centro de custo" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">—</SelectItem>
+                {centrosCusto.filter(c => c.ativo).map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          )}
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant={usarRateio ? "default" : "outline"}
+              size="sm"
+              onClick={() => {
+                if (usarRateio) { setUsarRateio(false); setRateio([]); }
+                else { setUsarRateio(true); setRateio([{ centro_custo_id: null, percentual: "" }, { centro_custo_id: null, percentual: "" }]); }
+              }}
+            >
+              <Plus className="h-4 w-4 mr-1" />{usarRateio ? "Remover rateio" : "Ratear entre centros de custo"}
+            </Button>
+          </div>
+          {usarRateio && (
+            <div className="md:col-span-2 lg:col-span-4 space-y-2 rounded-md border p-3">
+              <p className="text-xs text-muted-foreground">
+                Distribua o valor entre os centros de custo. A soma dos percentuais deve fechar em 100%.
+              </p>
+              {rateio.map((r, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <Select value={r.centro_custo_id || "none"} onValueChange={(v) => setRateio(rateio.map((x, i) => i === idx ? { ...x, centro_custo_id: v === "none" ? null : v } : x))}>
+                    <SelectTrigger className="flex-1"><SelectValue placeholder="Centro de custo" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">—</SelectItem>
+                      {centrosCusto.filter(c => c.ativo).map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    className="w-28"
+                    placeholder="%"
+                    value={r.percentual}
+                    onChange={(e) => setRateio(rateio.map((x, i) => i === idx ? { ...x, percentual: e.target.value } : x))}
+                  />
+                  <Button type="button" size="sm" variant="ghost" onClick={() => setRateio(rateio.filter((_, i) => i !== idx))} disabled={rateio.length <= 2}>
+                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                  </Button>
+                </div>
+              ))}
+              <div className="flex items-center justify-between">
+                <Button type="button" size="sm" variant="outline" onClick={() => setRateio([...rateio, { centro_custo_id: null, percentual: "" }])}>
+                  <Plus className="h-4 w-4 mr-1" />Adicionar centro
+                </Button>
+                <span className="text-xs tabular-nums text-muted-foreground">
+                  Soma: {rateio.reduce((s, r) => s + (parseFloat(String(r.percentual).replace(",", ".")) || 0), 0).toFixed(2)}%
+                </span>
+              </div>
+            </div>
+          )}
           <Select value={form.conta_bancaria_id || "none"} onValueChange={(v) => setForm({ ...form, conta_bancaria_id: v === "none" ? null : v })}>
             <SelectTrigger><SelectValue placeholder="Conta bancária" /></SelectTrigger>
             <SelectContent>

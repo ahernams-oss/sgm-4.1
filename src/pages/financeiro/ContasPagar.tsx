@@ -203,12 +203,35 @@ export default function ContasPagar() {
     }
   };
 
+  const montarRateio = (valorConta: number) => {
+    // Converte os percentuais em valores; o último centro absorve a diferença de arredondamento.
+    const itens = rateio.map((r) => ({
+      centro_custo_id: r.centro_custo_id as string,
+      percentual: parseFloat(String(r.percentual).replace(",", ".")) || 0,
+      valor: 0,
+    }));
+    let acumulado = 0;
+    itens.forEach((it, idx) => {
+      if (idx === itens.length - 1) it.valor = +(valorConta - acumulado).toFixed(2);
+      else { it.valor = +(valorConta * it.percentual / 100).toFixed(2); acumulado += it.valor; }
+    });
+    return itens;
+  };
+
   const handleSave = async () => {
     if (editingId ? !podeEditar : !podeCriar) { toast.error("Você não possui permissão para esta ação."); return; }
     if (!form.descricao || !form.data_vencimento || !form.valor_total) {
       toast.error("Preencha descrição, vencimento e valor."); return;
     }
     const valor = parseFloat(String(form.valor_total).replace(",", "."));
+    if (usarRateio) {
+      const validos = rateio.filter(r => r.centro_custo_id);
+      if (validos.length < 2) { toast.error("O rateio precisa de pelo menos 2 centros de custo."); return; }
+      const soma = validos.reduce((s, r) => s + (parseFloat(String(r.percentual).replace(",", ".")) || 0), 0);
+      if (Math.abs(soma - 100) > 0.01) { toast.error(`O rateio deve fechar em 100%. Soma atual: ${soma.toFixed(2)}%.`); return; }
+      const ids = validos.map(r => r.centro_custo_id);
+      if (new Set(ids).size !== ids.length) { toast.error("Há centros de custo repetidos no rateio."); return; }
+    }
     const total = Number(form.parcela_total) || 1;
     const fornecedor = fornecedores.find(f => f.id === form.fornecedor_id);
     const baseRow = {
@@ -217,9 +240,11 @@ export default function ContasPagar() {
       valor_pago: 0,
       status: "aberta",
       fornecedor_nome: fornecedor?.nome || form.fornecedor_nome || "",
+      centro_custo_id: usarRateio ? null : form.centro_custo_id,
     };
     if (editingId) {
       await updateContaPagar(editingId, baseRow);
+      await saveRateioPagar(editingId, usarRateio ? montarRateio(valor) : []);
       toast.success("Conta atualizada!");
     } else if (total > 1) {
       // Gerar parcelas
@@ -227,21 +252,24 @@ export default function ContasPagar() {
       const venc = new Date(form.data_vencimento + "T00:00:00");
       for (let i = 1; i <= total; i++) {
         const v = new Date(venc); v.setMonth(v.getMonth() + (i - 1));
-        await addContaPagar({
+        const valorParc = i === total ? +(valor - valorParcela * (total - 1)).toFixed(2) : valorParcela;
+        const criada = await addContaPagar({
           ...baseRow,
-          valor_total: i === total ? +(valor - valorParcela * (total - 1)).toFixed(2) : valorParcela,
+          valor_total: valorParc,
           parcela_num: i,
           parcela_total: total,
           data_vencimento: v.toISOString().slice(0, 10),
           descricao: `${baseRow.descricao} (${i}/${total})`,
         } as any);
+        if (usarRateio && criada?.id) await saveRateioPagar(criada.id, montarRateio(valorParc));
       }
       toast.success(`${total} parcelas criadas!`);
     } else {
-      await addContaPagar(baseRow as any);
+      const criada = await addContaPagar(baseRow as any);
+      if (usarRateio && criada?.id) await saveRateioPagar(criada.id, montarRateio(valor));
       toast.success("Conta a pagar criada!");
     }
-    setForm(empty); setEditingId(null);
+    setForm(empty); setEditingId(null); setUsarRateio(false); setRateio([]);
   };
 
   const filtradas = useMemo(() => {

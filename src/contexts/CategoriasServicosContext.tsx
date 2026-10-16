@@ -7,6 +7,7 @@ export interface CategoriaServico {
   id: string;
   nome: string;
   descricao: string;
+  sigla: string;
 }
 
 interface CategoriasServicosContextType {
@@ -15,6 +16,7 @@ interface CategoriasServicosContextType {
   updateCategoria: (id: string, data: Partial<Omit<CategoriaServico, "id">>) => Promise<void>;
   deleteCategoria: (id: string) => Promise<void>;
 }
+
 
 const CategoriasServicosContext = createContext<CategoriasServicosContextType | undefined>(undefined);
 const QK = ["categorias_servicos"] as const;
@@ -26,7 +28,7 @@ export function CategoriasServicosProvider({ children }: { children: ReactNode }
     enabled: __active,
     queryKey: QK,
     queryFn: async () => (await fetchAll("categorias_servicos", "nome")).map((r: any) => ({
-      id: r.id, nome: r.nome ?? "", descricao: r.descricao ?? "",
+      id: r.id, nome: r.nome ?? "", descricao: r.descricao ?? "", sigla: r.sigla ?? "",
     })),
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
@@ -34,7 +36,7 @@ export function CategoriasServicosProvider({ children }: { children: ReactNode }
   const invalidate = () => qc.invalidateQueries({ queryKey: QK });
 
   const addCategoria = async (c: Omit<CategoriaServico, "id">) => {
-    await insertRow("categorias_servicos", { nome: c.nome, descricao: c.descricao });
+    await insertRow("categorias_servicos", { nome: c.nome, descricao: c.descricao, sigla: c.sigla || null });
     invalidate();
   };
   const updateCategoria = async (id: string, data: Partial<Omit<CategoriaServico, "id">>) => {

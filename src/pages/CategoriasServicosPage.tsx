@@ -19,26 +19,27 @@ const CategoriasServicosPage = () => {
   const [editId, setEditId] = useState<string | null>(null);
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
+  const [sigla, setSigla] = useState("");
   const [search, setSearch] = useState("");
   const [deleteOpen, setDeleteOpen] = useState<string | null>(null);
 
-  const resetForm = () => { setNome(""); setDescricao(""); setEditId(null); setShowForm(false); };
+  const resetForm = () => { setNome(""); setDescricao(""); setSigla(""); setEditId(null); setShowForm(false); };
 
   const handleSave = async () => {
     if (editId ? !podeEditar : !podeCriar) { toast.error("Você não possui permissão para esta ação."); return; }
     if (!nome.trim()) { toast.error("Nome é obrigatório"); return; }
     if (editId) {
-      await updateCategoria(editId, { nome, descricao });
+      await updateCategoria(editId, { nome, descricao, sigla });
       toast.success("Categoria atualizada");
     } else {
-      await addCategoria({ nome, descricao });
+      await addCategoria({ nome, descricao, sigla });
       toast.success("Categoria adicionada");
     }
     resetForm();
   };
 
   const handleEdit = (c: any) => {
-    setEditId(c.id); setNome(c.nome); setDescricao(c.descricao); setShowForm(true);
+    setEditId(c.id); setNome(c.nome); setDescricao(c.descricao); setSigla(c.sigla ?? ""); setShowForm(true);
   };
 
   const filtered = categorias.filter(c =>
@@ -70,7 +71,7 @@ const CategoriasServicosPage = () => {
               <h2 className="text-lg font-semibold">{editId ? "Editar Categoria" : "Nova Categoria"}</h2>
               <Button variant="ghost" size="sm" onClick={resetForm}>Cancelar</Button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="text-sm font-medium">Nome *</label>
                 <Input value={nome} onChange={e => setNome(e.target.value)} placeholder="Nome da categoria" />
@@ -78,6 +79,10 @@ const CategoriasServicosPage = () => {
               <div>
                 <label className="text-sm font-medium">Descrição</label>
                 <Textarea value={descricao} onChange={e => setDescricao(e.target.value)} placeholder="Descrição" rows={1} />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Sigla</label>
+                <Input value={sigla} onChange={e => setSigla(e.target.value)} placeholder="Sigla" maxLength={20} />
               </div>
             </div>
             <div className="mt-4 flex justify-end">
@@ -95,16 +100,18 @@ const CategoriasServicosPage = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Nome</TableHead>
+                <TableHead>Sigla</TableHead>
                 <TableHead>Descrição</TableHead>
                 <TableHead className="w-[100px]">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground">Nenhuma categoria encontrada</TableCell></TableRow>
+                <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">Nenhuma categoria encontrada</TableCell></TableRow>
               ) : filtered.map(c => (
                 <TableRow key={c.id}>
                   <TableCell className="font-medium">{c.nome}</TableCell>
+                  <TableCell>{c.sigla || "—"}</TableCell>
                   <TableCell className="text-muted-foreground">{c.descricao || "—"}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">

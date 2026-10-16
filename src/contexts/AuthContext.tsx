@@ -97,7 +97,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (usuarioLogado) {
       const atualizado = usuarios.find((u) => u.id === usuarioLogado.id);
-      if (atualizado) {
+      if (atualizado?.ativo === false) {
+        supabase.auth.signOut().catch(() => undefined);
+        setUsuarioLogado(null);
+      } else if (atualizado) {
         setUsuarioLogado(atualizado);
       }
     }

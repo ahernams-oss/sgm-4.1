@@ -10,6 +10,7 @@ export interface Usuario {
   perfilAcessoId: string; matricula: string; ramal: string;
   limiteAprovacaoCompras: number; limiteAprovacaoOS: number;
   senhaStatus?: "sem_senha" | "legado" | "seguro";
+  ativo?: boolean;
 }
 
 interface UsuariosContextType {
@@ -30,6 +31,7 @@ const rowToUsuario = (r: any): Usuario => ({
   matricula: r.matricula ?? "", ramal: r.ramal ?? "",
   limiteAprovacaoCompras: Number(r.limite_aprovacao_compras ?? 0),
   limiteAprovacaoOS: Number(r.limite_aprovacao_os ?? 0),
+  ativo: r.ativo !== false,
   senhaStatus: (r.senha_status ?? "sem_senha") as Usuario["senhaStatus"],
 });
 

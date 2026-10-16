@@ -124,6 +124,14 @@ Deno.serve(async (req) => {
       });
     }
 
+    if (user.ativo === false) {
+      await logAudit({ usuario_id: user.id, email, nome: user.nome, sucesso: false, motivo: "Usuário inativo" });
+      return new Response(JSON.stringify({ error: "Usuário inativo. Procure o administrador do sistema." }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Senha agora reside em tabela separada (não publicamente legível)
     const { data: cred } = await supabase
       .from("usuarios_credenciais")

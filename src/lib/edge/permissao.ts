@@ -50,9 +50,10 @@ type LinhaUsuario = {
   auth_user_id: string | null;
   cargo_id: string | null;
   perfil_acesso_id: string | null;
+  ativo?: boolean | null;
 };
 
-const COLUNAS = "id, nome, email, auth_user_id, cargo_id, perfil_acesso_id";
+const COLUNAS = "id, nome, email, auth_user_id, cargo_id, perfil_acesso_id, ativo";
 
 const emailNormal = (s: string | null | undefined) => (s ?? "").trim().toLowerCase();
 
@@ -107,7 +108,7 @@ async function usuarioDaConta(authId: string, email: string | null): Promise<Usu
     console.warn(`[edge:permissao] mais de um usuário ligado à conta ${authId}`);
     return null;
   }
-  if (vinculados.length === 1) return completar(vinculados[0]);
+  if (vinculados.length === 1) return vinculados[0].ativo === false ? null : completar(vinculados[0]);
 
   const alvo = emailNormal(email);
   if (!alvo) return null;
@@ -122,6 +123,7 @@ async function usuarioDaConta(authId: string, email: string | null): Promise<Usu
   );
   if (mesmos.length !== 1) return null;
   const linha = mesmos[0];
+  if (linha.ativo === false) return null;
   if (
     linha.auth_user_id &&
     linha.auth_user_id !== authId &&

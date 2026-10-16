@@ -9228,6 +9228,7 @@ export type Database = {
       }
       usuarios: {
         Row: {
+          ativo: boolean
           auth_user_id: string | null
           cargo_id: string | null
           clientes_permitidos: Json | null
@@ -9245,6 +9246,7 @@ export type Database = {
           telefone: string | null
         }
         Insert: {
+          ativo?: boolean
           auth_user_id?: string | null
           cargo_id?: string | null
           clientes_permitidos?: Json | null
@@ -9262,6 +9264,7 @@ export type Database = {
           telefone?: string | null
         }
         Update: {
+          ativo?: boolean
           auth_user_id?: string | null
           cargo_id?: string | null
           clientes_permitidos?: Json | null

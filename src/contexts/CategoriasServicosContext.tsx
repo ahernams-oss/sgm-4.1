@@ -36,7 +36,7 @@ export function CategoriasServicosProvider({ children }: { children: ReactNode }
   const invalidate = () => qc.invalidateQueries({ queryKey: QK });
 
   const addCategoria = async (c: Omit<CategoriaServico, "id">) => {
-    await insertRow("categorias_servicos", { nome: c.nome, descricao: c.descricao });
+    await insertRow("categorias_servicos", { nome: c.nome, descricao: c.descricao, sigla: c.sigla || null });
     invalidate();
   };
   const updateCategoria = async (id: string, data: Partial<Omit<CategoriaServico, "id">>) => {

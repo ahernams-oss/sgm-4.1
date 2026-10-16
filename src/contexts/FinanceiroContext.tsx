@@ -203,6 +203,7 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
     ], __active);
   (gated[3] as any).enabled = __active && __loadOk;
   (gated[4] as any).enabled = __active && __loadOk;
+  (gated[8] as any).enabled = __active && __loadOk;
   const results = useQueries({ queries: gated });
 
   const contasBancarias = (results[0].data as ContaBancaria[]) || [];
@@ -213,6 +214,7 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
   const lancamentos = (results[5].data as Lancamento[]) || [];
   const movimentosOfx = (results[6].data as MovimentoOfx[]) || [];
   const fluxoAjustes = (results[7].data as FluxoAjuste[]) || [];
+  const rateiosPagar = (results[8].data as RateioCentroCusto[]) || [];
   const loading = results.some((r) => r.isLoading);
 
   const invCB = () => qc.invalidateQueries({ queryKey: QK_CB });

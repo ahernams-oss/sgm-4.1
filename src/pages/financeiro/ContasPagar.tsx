@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Textarea } from "@/components/ui/textarea";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
-import { useFinanceiro, formatBRL, formatDate, isVencida, ContaPagar } from "@/contexts/FinanceiroContext";
+import { useFinanceiro, formatBRL, formatDate, isVencida, ContaPagar, RateioCentroCusto } from "@/contexts/FinanceiroContext";
 import { useClientes } from "@/contexts/ClientesContext";
 import { DoubleConfirmDelete, useDoubleConfirmDelete } from "@/components/DoubleConfirmDelete";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
@@ -39,7 +39,7 @@ const empty = {
 
 export default function ContasPagar() {
   ensureLoadGate("Financeiro");
-  const { contasPagar, planoContas, centrosCusto, contasBancarias, addContaPagar, updateContaPagar, deleteContaPagar } = useFinanceiro();
+  const { contasPagar, planoContas, centrosCusto, contasBancarias, addContaPagar, updateContaPagar, deleteContaPagar, rateiosPagar, saveRateioPagar } = useFinanceiro();
   const { clientes } = useClientes();
   const fornecedores = useMemo(() => clientes.filter(c => c.tipo === "Fornecedor"), [clientes]);
   const navigate = useNavigate();

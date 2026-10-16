@@ -9,7 +9,6 @@ import {
   UserCheck,
   Shield,
   LogOut,
-  KeyRound,
   ClipboardCheck,
   Receipt,
   Truck,
@@ -73,6 +72,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState, useEffect } from "react";
+import { AlterarMinhaSenhaDialog } from "@/components/AlterarMinhaSenhaDialog";
 
 const menuItems = [
   {

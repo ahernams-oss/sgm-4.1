@@ -60,5 +60,6 @@ export const edgeFunctions: Record<string, () => Promise<{ default: EdgeFn }>> =
   "send-email-senha-temporaria": () => import("./fns/send-email-senha-temporaria/index"),
   "send-plugsend": () => import("./fns/send-plugsend/index"),
   "send-whatsapp": () => import("./fns/send-whatsapp/index"),
+  "usuario-status": () => import("./fns/usuario-status/index"),
   "validar-certificado-a1": () => import("./fns/validar-certificado-a1/index"),
 };

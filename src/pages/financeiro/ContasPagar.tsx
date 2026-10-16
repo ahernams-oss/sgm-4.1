@@ -119,6 +119,8 @@ export default function ContasPagar() {
   };
   const [form, setForm] = useState<any>(empty);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [usarRateio, setUsarRateio] = useState(false);
+  const [rateio, setRateio] = useState<{ centro_custo_id: string | null; percentual: string }[]>([]);
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
   const [busca, setBusca] = useState("");
   const [fFornecedor, setFFornecedor] = useState<string>("todos");

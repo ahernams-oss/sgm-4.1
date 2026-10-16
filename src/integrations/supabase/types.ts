@@ -3296,6 +3296,48 @@ export type Database = {
           },
         ]
       }
+      fin_contas_pagar_rateio: {
+        Row: {
+          centro_custo_id: string
+          conta_pagar_id: string
+          created_at: string
+          id: string
+          percentual: number
+          valor: number
+        }
+        Insert: {
+          centro_custo_id: string
+          conta_pagar_id: string
+          created_at?: string
+          id?: string
+          percentual?: number
+          valor?: number
+        }
+        Update: {
+          centro_custo_id?: string
+          conta_pagar_id?: string
+          created_at?: string
+          id?: string
+          percentual?: number
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_contas_pagar_rateio_centro_custo_id_fkey"
+            columns: ["centro_custo_id"]
+            isOneToOne: false
+            referencedRelation: "fin_centros_custo"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fin_contas_pagar_rateio_conta_pagar_id_fkey"
+            columns: ["conta_pagar_id"]
+            isOneToOne: false
+            referencedRelation: "fin_contas_pagar"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fin_contas_receber: {
         Row: {
           anexo_nome: string | null

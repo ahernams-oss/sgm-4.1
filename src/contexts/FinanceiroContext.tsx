@@ -101,6 +101,14 @@ export interface Lancamento {
   anexos?: { url: string; nome: string }[];
 }
 
+export interface RateioCentroCusto {
+  id: string;
+  conta_pagar_id: string;
+  centro_custo_id: string;
+  percentual: number;
+  valor: number;
+}
+
 export interface MovimentoOfx {
   id: string;
   conta_bancaria_id: string;
@@ -129,6 +137,8 @@ interface Ctx {
   centrosCusto: CentroCusto[];
   contasPagar: ContaPagar[];
   contasReceber: ContaReceber[];
+  rateiosPagar: RateioCentroCusto[];
+  saveRateioPagar: (contaPagarId: string, itens: { centro_custo_id: string; percentual: number; valor: number }[]) => Promise<void>;
   lancamentos: Lancamento[];
   movimentosOfx: MovimentoOfx[];
   fluxoAjustes: FluxoAjuste[];
@@ -170,6 +180,7 @@ const QK_CR = ["fin_contas_receber"] as const;
 const QK_LN = ["fin_lancamentos"] as const;
 const QK_OFX = ["fin_movimentos_ofx"] as const;
 const QK_FA = ["fin_fluxo_ajustes"] as const;
+const QK_RT = ["fin_contas_pagar_rateio"] as const;
 
 export function FinanceiroProvider({ children }: { children: ReactNode }) {
   const __active = useProviderGate("Financeiro");
@@ -188,9 +199,11 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
       { queryKey: QK_LN, queryFn: async () => fetchAll("fin_lancamentos", "data"), staleTime: 5 * 60 * 1000, gcTime: 30 * 60 * 1000 },
       { queryKey: QK_OFX, queryFn: async () => fetchAll("fin_movimentos_ofx", "data"), staleTime: 5 * 60 * 1000, gcTime: 30 * 60 * 1000 },
       { queryKey: QK_FA, queryFn: async () => fetchAll("fin_fluxo_ajustes", "data"), staleTime: 5 * 60 * 1000, gcTime: 30 * 60 * 1000 },
+      { queryKey: QK_RT, queryFn: async () => fetchAll("fin_contas_pagar_rateio", "created_at"), staleTime: 5 * 60 * 1000, gcTime: 30 * 60 * 1000 },
     ], __active);
   (gated[3] as any).enabled = __active && __loadOk;
   (gated[4] as any).enabled = __active && __loadOk;
+  (gated[8] as any).enabled = __active && __loadOk;
   const results = useQueries({ queries: gated });
 
   const contasBancarias = (results[0].data as ContaBancaria[]) || [];
@@ -201,6 +214,7 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
   const lancamentos = (results[5].data as Lancamento[]) || [];
   const movimentosOfx = (results[6].data as MovimentoOfx[]) || [];
   const fluxoAjustes = (results[7].data as FluxoAjuste[]) || [];
+  const rateiosPagar = (results[8].data as RateioCentroCusto[]) || [];
   const loading = results.some((r) => r.isLoading);
 
   const invCB = () => qc.invalidateQueries({ queryKey: QK_CB });
@@ -211,6 +225,19 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
   const invLN = () => qc.invalidateQueries({ queryKey: QK_LN });
   const invOFX = () => qc.invalidateQueries({ queryKey: QK_OFX });
   const invFA = () => qc.invalidateQueries({ queryKey: QK_FA });
+  const invRT = () => qc.invalidateQueries({ queryKey: QK_RT });
+
+  const saveRateioPagar = async (contaPagarId: string, itens: { centro_custo_id: string; percentual: number; valor: number }[]) => {
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { error: delErr } = await (supabase as any).from("fin_contas_pagar_rateio").delete().eq("conta_pagar_id", contaPagarId);
+    if (delErr) throw delErr;
+    if (itens.length) {
+      const { error } = await (supabase as any).from("fin_contas_pagar_rateio")
+        .insert(itens.map((i) => ({ conta_pagar_id: contaPagarId, ...i })));
+      if (error) throw error;
+    }
+    invRT();
+  };
 
   const reload = async () => {
     invCB(); invPC(); invCC(); invCP(); invCR(); invLN(); invOFX(); invFA();
@@ -238,6 +265,7 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
       value={{
         loading, contasBancarias, planoContas, centrosCusto,
         contasPagar, contasReceber, lancamentos, movimentosOfx, fluxoAjustes, reload,
+        rateiosPagar, saveRateioPagar,
         addFluxoAjuste: async (r) => { await insertRow("fin_fluxo_ajustes", r); invFA(); },
         updateFluxoAjuste: async (id, r) => { await updateRow("fin_fluxo_ajustes", id, r); invFA(); },
         deleteFluxoAjuste: async (id) => { await deleteRow("fin_fluxo_ajustes", id); invFA(); },

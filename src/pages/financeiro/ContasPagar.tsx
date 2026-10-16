@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Textarea } from "@/components/ui/textarea";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
-import { useFinanceiro, formatBRL, formatDate, isVencida, ContaPagar } from "@/contexts/FinanceiroContext";
+import { useFinanceiro, formatBRL, formatDate, isVencida, ContaPagar, RateioCentroCusto } from "@/contexts/FinanceiroContext";
 import { useClientes } from "@/contexts/ClientesContext";
 import { DoubleConfirmDelete, useDoubleConfirmDelete } from "@/components/DoubleConfirmDelete";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
@@ -39,7 +39,7 @@ const empty = {
 
 export default function ContasPagar() {
   ensureLoadGate("Financeiro");
-  const { contasPagar, planoContas, centrosCusto, contasBancarias, addContaPagar, updateContaPagar, deleteContaPagar } = useFinanceiro();
+  const { contasPagar, planoContas, centrosCusto, contasBancarias, addContaPagar, updateContaPagar, deleteContaPagar, rateiosPagar, saveRateioPagar } = useFinanceiro();
   const { clientes } = useClientes();
   const fornecedores = useMemo(() => clientes.filter(c => c.tipo === "Fornecedor"), [clientes]);
   const navigate = useNavigate();
@@ -119,6 +119,8 @@ export default function ContasPagar() {
   };
   const [form, setForm] = useState<any>(empty);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [usarRateio, setUsarRateio] = useState(false);
+  const [rateio, setRateio] = useState<{ centro_custo_id: string | null; percentual: string }[]>([]);
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
   const [busca, setBusca] = useState("");
   const [fFornecedor, setFFornecedor] = useState<string>("todos");
@@ -201,12 +203,35 @@ export default function ContasPagar() {
     }
   };
 
+  const montarRateio = (valorConta: number) => {
+    // Converte os percentuais em valores; o último centro absorve a diferença de arredondamento.
+    const itens = rateio.map((r) => ({
+      centro_custo_id: r.centro_custo_id as string,
+      percentual: parseFloat(String(r.percentual).replace(",", ".")) || 0,
+      valor: 0,
+    }));
+    let acumulado = 0;
+    itens.forEach((it, idx) => {
+      if (idx === itens.length - 1) it.valor = +(valorConta - acumulado).toFixed(2);
+      else { it.valor = +(valorConta * it.percentual / 100).toFixed(2); acumulado += it.valor; }
+    });
+    return itens;
+  };
+
   const handleSave = async () => {
     if (editingId ? !podeEditar : !podeCriar) { toast.error("Você não possui permissão para esta ação."); return; }
     if (!form.descricao || !form.data_vencimento || !form.valor_total) {
       toast.error("Preencha descrição, vencimento e valor."); return;
     }
     const valor = parseFloat(String(form.valor_total).replace(",", "."));
+    if (usarRateio) {
+      const validos = rateio.filter(r => r.centro_custo_id);
+      if (validos.length < 2) { toast.error("O rateio precisa de pelo menos 2 centros de custo."); return; }
+      const soma = validos.reduce((s, r) => s + (parseFloat(String(r.percentual).replace(",", ".")) || 0), 0);
+      if (Math.abs(soma - 100) > 0.01) { toast.error(`O rateio deve fechar em 100%. Soma atual: ${soma.toFixed(2)}%.`); return; }
+      const ids = validos.map(r => r.centro_custo_id);
+      if (new Set(ids).size !== ids.length) { toast.error("Há centros de custo repetidos no rateio."); return; }
+    }
     const total = Number(form.parcela_total) || 1;
     const fornecedor = fornecedores.find(f => f.id === form.fornecedor_id);
     const baseRow = {
@@ -215,9 +240,11 @@ export default function ContasPagar() {
       valor_pago: 0,
       status: "aberta",
       fornecedor_nome: fornecedor?.nome || form.fornecedor_nome || "",
+      centro_custo_id: usarRateio ? null : form.centro_custo_id,
     };
     if (editingId) {
       await updateContaPagar(editingId, baseRow);
+      await saveRateioPagar(editingId, usarRateio ? montarRateio(valor) : []);
       toast.success("Conta atualizada!");
     } else if (total > 1) {
       // Gerar parcelas
@@ -225,21 +252,24 @@ export default function ContasPagar() {
       const venc = new Date(form.data_vencimento + "T00:00:00");
       for (let i = 1; i <= total; i++) {
         const v = new Date(venc); v.setMonth(v.getMonth() + (i - 1));
-        await addContaPagar({
+        const valorParc = i === total ? +(valor - valorParcela * (total - 1)).toFixed(2) : valorParcela;
+        const criada = await addContaPagar({
           ...baseRow,
-          valor_total: i === total ? +(valor - valorParcela * (total - 1)).toFixed(2) : valorParcela,
+          valor_total: valorParc,
           parcela_num: i,
           parcela_total: total,
           data_vencimento: v.toISOString().slice(0, 10),
           descricao: `${baseRow.descricao} (${i}/${total})`,
         } as any);
+        if (usarRateio && criada?.id) await saveRateioPagar(criada.id, montarRateio(valorParc));
       }
       toast.success(`${total} parcelas criadas!`);
     } else {
-      await addContaPagar(baseRow as any);
+      const criada = await addContaPagar(baseRow as any);
+      if (usarRateio && criada?.id) await saveRateioPagar(criada.id, montarRateio(valor));
       toast.success("Conta a pagar criada!");
     }
-    setForm(empty); setEditingId(null);
+    setForm(empty); setEditingId(null); setUsarRateio(false); setRateio([]);
   };
 
   const filtradas = useMemo(() => {
@@ -256,7 +286,8 @@ export default function ContasPagar() {
         else if (c.fornecedor_id !== fFornecedor) return false;
       }
       if (fPlanoConta !== "todos" && c.plano_conta_id !== fPlanoConta) return false;
-      if (fCentroCusto !== "todos" && c.centro_custo_id !== fCentroCusto) return false;
+      if (fCentroCusto !== "todos" && c.centro_custo_id !== fCentroCusto &&
+          !rateiosPagar.some(r => r.conta_pagar_id === c.id && r.centro_custo_id === fCentroCusto)) return false;
       if (fContaBanc !== "todos" && c.conta_bancaria_id !== fContaBanc) return false;
       if (fDataIni && c.data_vencimento < fDataIni) return false;
       if (fDataFim && c.data_vencimento > fDataFim) return false;
@@ -264,7 +295,7 @@ export default function ContasPagar() {
       if (vmax !== null && Number(c.valor_total) > vmax) return false;
       return true;
     }).sort((a, b) => a.data_vencimento.localeCompare(b.data_vencimento));
-  }, [contasPagar, busca, filtroStatus, fFornecedor, fPlanoConta, fCentroCusto, fContaBanc, fDataIni, fDataFim, fValorMin, fValorMax]);
+  }, [contasPagar, rateiosPagar, busca, filtroStatus, fFornecedor, fPlanoConta, fCentroCusto, fContaBanc, fDataIni, fDataFim, fValorMin, fValorMax]);
 
   const { paginated, totalPages } = paginate(filtradas, page, pageSize);
   const totais = useMemo(() => ({
@@ -317,13 +348,63 @@ export default function ContasPagar() {
               {planoContas.filter(p => p.tipo === "despesa" && p.ativo).map(p => <SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>)}
             </SelectContent>
           </Select>
-          <Select value={form.centro_custo_id || "none"} onValueChange={(v) => setForm({ ...form, centro_custo_id: v === "none" ? null : v })}>
-            <SelectTrigger><SelectValue placeholder="Centro de custo" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">—</SelectItem>
-              {centrosCusto.filter(c => c.ativo).map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          {!usarRateio && (
+            <Select value={form.centro_custo_id || "none"} onValueChange={(v) => setForm({ ...form, centro_custo_id: v === "none" ? null : v })}>
+              <SelectTrigger><SelectValue placeholder="Centro de custo" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">—</SelectItem>
+                {centrosCusto.filter(c => c.ativo).map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          )}
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant={usarRateio ? "default" : "outline"}
+              size="sm"
+              onClick={() => {
+                if (usarRateio) { setUsarRateio(false); setRateio([]); }
+                else { setUsarRateio(true); setRateio([{ centro_custo_id: null, percentual: "" }, { centro_custo_id: null, percentual: "" }]); }
+              }}
+            >
+              <Plus className="h-4 w-4 mr-1" />{usarRateio ? "Remover rateio" : "Ratear entre centros de custo"}
+            </Button>
+          </div>
+          {usarRateio && (
+            <div className="md:col-span-2 lg:col-span-4 space-y-2 rounded-md border p-3">
+              <p className="text-xs text-muted-foreground">
+                Distribua o valor entre os centros de custo. A soma dos percentuais deve fechar em 100%.
+              </p>
+              {rateio.map((r, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <Select value={r.centro_custo_id || "none"} onValueChange={(v) => setRateio(rateio.map((x, i) => i === idx ? { ...x, centro_custo_id: v === "none" ? null : v } : x))}>
+                    <SelectTrigger className="flex-1"><SelectValue placeholder="Centro de custo" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">—</SelectItem>
+                      {centrosCusto.filter(c => c.ativo).map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    className="w-28"
+                    placeholder="%"
+                    value={r.percentual}
+                    onChange={(e) => setRateio(rateio.map((x, i) => i === idx ? { ...x, percentual: e.target.value } : x))}
+                  />
+                  <Button type="button" size="sm" variant="ghost" onClick={() => setRateio(rateio.filter((_, i) => i !== idx))} disabled={rateio.length <= 2}>
+                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                  </Button>
+                </div>
+              ))}
+              <div className="flex items-center justify-between">
+                <Button type="button" size="sm" variant="outline" onClick={() => setRateio([...rateio, { centro_custo_id: null, percentual: "" }])}>
+                  <Plus className="h-4 w-4 mr-1" />Adicionar centro
+                </Button>
+                <span className="text-xs tabular-nums text-muted-foreground">
+                  Soma: {rateio.reduce((s, r) => s + (parseFloat(String(r.percentual).replace(",", ".")) || 0), 0).toFixed(2)}%
+                </span>
+              </div>
+            </div>
+          )}
           <Select value={form.conta_bancaria_id || "none"} onValueChange={(v) => setForm({ ...form, conta_bancaria_id: v === "none" ? null : v })}>
             <SelectTrigger><SelectValue placeholder="Conta bancária" /></SelectTrigger>
             <SelectContent>
@@ -456,7 +537,15 @@ export default function ContasPagar() {
               {paginated.map((c) => (
                 <TableRow key={c.id} className={isVencida(c) ? "bg-red-50/50" : ""}>
                   <TableCell className="tabular-nums">{formatDate(c.data_vencimento)}</TableCell>
-                  <TableCell className="font-medium">{c.descricao}</TableCell>
+                  <TableCell className="font-medium">
+                    {c.descricao}
+                    {(() => {
+                      const itens = rateiosPagar.filter(r => r.conta_pagar_id === c.id);
+                      if (itens.length === 0) return null;
+                      const detalhe = itens.map(r => `${centrosCusto.find(cc => cc.id === r.centro_custo_id)?.nome || "?"}: ${Number(r.percentual).toFixed(2)}% (${formatBRL(Number(r.valor))})`).join("\n");
+                      return <Badge variant="secondary" className="ml-2" title={detalhe}>Rateio ({itens.length})</Badge>;
+                    })()}
+                  </TableCell>
                   <TableCell className="text-center">
                     {(() => {
                       const pcId = (c as any).pedido_compra_id as string | null | undefined;
@@ -551,6 +640,13 @@ export default function ContasPagar() {
           const carimbo = `[AJUSTE AUTORIZADO ${new Date().toLocaleString("pt-BR")} por ${email}] ${justificativa}`;
           const novaObs = c.observacao ? `${c.observacao}\n${carimbo}` : carimbo;
           setEditingId(c.id);
+          const existentes = rateiosPagar.filter(r => r.conta_pagar_id === c.id);
+          if (existentes.length > 0) {
+            setUsarRateio(true);
+            setRateio(existentes.map(r => ({ centro_custo_id: r.centro_custo_id, percentual: String(r.percentual) })));
+          } else {
+            setUsarRateio(false); setRateio([]);
+          }
           setForm({
             ...c,
             observacao: novaObs,

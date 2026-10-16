@@ -180,6 +180,7 @@ const QK_CR = ["fin_contas_receber"] as const;
 const QK_LN = ["fin_lancamentos"] as const;
 const QK_OFX = ["fin_movimentos_ofx"] as const;
 const QK_FA = ["fin_fluxo_ajustes"] as const;
+const QK_RT = ["fin_contas_pagar_rateio"] as const;
 
 export function FinanceiroProvider({ children }: { children: ReactNode }) {
   const __active = useProviderGate("Financeiro");
@@ -198,6 +199,7 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
       { queryKey: QK_LN, queryFn: async () => fetchAll("fin_lancamentos", "data"), staleTime: 5 * 60 * 1000, gcTime: 30 * 60 * 1000 },
       { queryKey: QK_OFX, queryFn: async () => fetchAll("fin_movimentos_ofx", "data"), staleTime: 5 * 60 * 1000, gcTime: 30 * 60 * 1000 },
       { queryKey: QK_FA, queryFn: async () => fetchAll("fin_fluxo_ajustes", "data"), staleTime: 5 * 60 * 1000, gcTime: 30 * 60 * 1000 },
+      { queryKey: QK_RT, queryFn: async () => fetchAll("fin_contas_pagar_rateio", "created_at"), staleTime: 5 * 60 * 1000, gcTime: 30 * 60 * 1000 },
     ], __active);
   (gated[3] as any).enabled = __active && __loadOk;
   (gated[4] as any).enabled = __active && __loadOk;

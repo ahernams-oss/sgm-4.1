@@ -286,7 +286,8 @@ export default function ContasPagar() {
         else if (c.fornecedor_id !== fFornecedor) return false;
       }
       if (fPlanoConta !== "todos" && c.plano_conta_id !== fPlanoConta) return false;
-      if (fCentroCusto !== "todos" && c.centro_custo_id !== fCentroCusto) return false;
+      if (fCentroCusto !== "todos" && c.centro_custo_id !== fCentroCusto &&
+          !rateiosPagar.some(r => r.conta_pagar_id === c.id && r.centro_custo_id === fCentroCusto)) return false;
       if (fContaBanc !== "todos" && c.conta_bancaria_id !== fContaBanc) return false;
       if (fDataIni && c.data_vencimento < fDataIni) return false;
       if (fDataFim && c.data_vencimento > fDataFim) return false;
@@ -294,7 +295,7 @@ export default function ContasPagar() {
       if (vmax !== null && Number(c.valor_total) > vmax) return false;
       return true;
     }).sort((a, b) => a.data_vencimento.localeCompare(b.data_vencimento));
-  }, [contasPagar, busca, filtroStatus, fFornecedor, fPlanoConta, fCentroCusto, fContaBanc, fDataIni, fDataFim, fValorMin, fValorMax]);
+  }, [contasPagar, rateiosPagar, busca, filtroStatus, fFornecedor, fPlanoConta, fCentroCusto, fContaBanc, fDataIni, fDataFim, fValorMin, fValorMax]);
 
   const { paginated, totalPages } = paginate(filtradas, page, pageSize);
   const totais = useMemo(() => ({
@@ -581,6 +582,13 @@ export default function ContasPagar() {
           const carimbo = `[AJUSTE AUTORIZADO ${new Date().toLocaleString("pt-BR")} por ${email}] ${justificativa}`;
           const novaObs = c.observacao ? `${c.observacao}\n${carimbo}` : carimbo;
           setEditingId(c.id);
+          const existentes = rateiosPagar.filter(r => r.conta_pagar_id === c.id);
+          if (existentes.length > 0) {
+            setUsarRateio(true);
+            setRateio(existentes.map(r => ({ centro_custo_id: r.centro_custo_id, percentual: String(r.percentual) })));
+          } else {
+            setUsarRateio(false); setRateio([]);
+          }
           setForm({
             ...c,
             observacao: novaObs,

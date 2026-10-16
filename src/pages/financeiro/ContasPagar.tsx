@@ -537,7 +537,15 @@ export default function ContasPagar() {
               {paginated.map((c) => (
                 <TableRow key={c.id} className={isVencida(c) ? "bg-red-50/50" : ""}>
                   <TableCell className="tabular-nums">{formatDate(c.data_vencimento)}</TableCell>
-                  <TableCell className="font-medium">{c.descricao}</TableCell>
+                  <TableCell className="font-medium">
+                    {c.descricao}
+                    {(() => {
+                      const itens = rateiosPagar.filter(r => r.conta_pagar_id === c.id);
+                      if (itens.length === 0) return null;
+                      const detalhe = itens.map(r => `${centrosCusto.find(cc => cc.id === r.centro_custo_id)?.nome || "?"}: ${Number(r.percentual).toFixed(2)}% (${formatBRL(Number(r.valor))})`).join("\n");
+                      return <Badge variant="secondary" className="ml-2" title={detalhe}>Rateio ({itens.length})</Badge>;
+                    })()}
+                  </TableCell>
                   <TableCell className="text-center">
                     {(() => {
                       const pcId = (c as any).pedido_compra_id as string | null | undefined;

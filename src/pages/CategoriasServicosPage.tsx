@@ -19,6 +19,7 @@ const CategoriasServicosPage = () => {
   const [editId, setEditId] = useState<string | null>(null);
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
+  const [sigla, setSigla] = useState("");
   const [search, setSearch] = useState("");
   const [deleteOpen, setDeleteOpen] = useState<string | null>(null);
 

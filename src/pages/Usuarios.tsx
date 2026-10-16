@@ -1,7 +1,8 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { DoubleConfirmDelete, useDoubleConfirmDelete } from "@/components/DoubleConfirmDelete";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
-import { Shield, Trash2, Pencil, Eye, EyeOff, Search, KeyRound, AlertTriangle, History, CheckCircle2, XCircle, RefreshCw } from "lucide-react";
+import { Shield, Trash2, Pencil, Eye, EyeOff, Search, KeyRound, AlertTriangle, History, CheckCircle2, XCircle, RefreshCw, UserX, UserCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -179,6 +180,20 @@ const Usuarios = () => {
     deleteUsuario(id);
     if (editingId === id) resetForm();
     toast.success("Usuário removido.");
+  };
+  const qcStatus = useQueryClient();
+  const handleToggleAtivo = async (u: { id: string; nome: string; ativo?: boolean }) => {
+    const novo = u.ativo === false;
+    if (!novo && !window.confirm(`Inativar ${u.nome}? Ele perderá todo o acesso ao sistema.`)) return;
+    const { data, error } = await supabase.functions.invoke("usuario-status", { body: { userId: u.id, ativo: novo } });
+    if (error || data?.error) {
+      let msg = data?.error;
+      try { msg = msg || (await (error as any)?.context?.json())?.error; } catch { /* ignore */ }
+      toast.error(msg || "Não foi possível alterar o status.");
+      return;
+    }
+    qcStatus.invalidateQueries({ queryKey: ["usuarios"] });
+    toast.success(novo ? "Usuário reativado." : "Usuário inativado.");
   };
   const handleConfirmDelete = () => { if (deleteId) handleDelete(deleteId); };
 
@@ -580,8 +595,8 @@ const Usuarios = () => {
               </TableHeader>
               <TableBody>
                 {paginate(filteredUsuarios, page, pageSize).paginated.map((u) => (
-                  <TableRow key={u.id}>
-                    <TableCell className="font-medium">{u.nome}</TableCell>
+                  <TableRow key={u.id} className={u.ativo === false ? "opacity-60" : ""}>
+                    <TableCell className="font-medium">{u.nome}{u.ativo === false && <span className="ml-2 inline-flex rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">Inativo</span>}</TableCell>
                     <TableCell>{getCargoNome(u.cargoId)}</TableCell>
                     <TableCell>
                       <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${u.perfilAcessoId ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
@@ -594,6 +609,7 @@ const Usuarios = () => {
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
                         {podeEditar && <Button size="icon" variant="ghost" onClick={() => handleEdit(u)} className="h-8 w-8"><Pencil className="h-3.5 w-3.5" /></Button>}
+                        {podeEditar && <Button size="icon" variant="ghost" title={u.ativo === false ? "Reativar usuário" : "Inativar usuário"} onClick={() => handleToggleAtivo(u)} className={`h-8 w-8 ${u.ativo === false ? "text-primary" : "text-muted-foreground"}`}>{u.ativo === false ? <UserCheck className="h-3.5 w-3.5" /> : <UserX className="h-3.5 w-3.5" />}</Button>}
                         {podeExcluir && <Button size="icon" variant="ghost" onClick={() => requestDelete(u.id)} className="h-8 w-8 text-destructive hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>}
                       </div>
                     </TableCell>

@@ -228,9 +228,10 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
   const invRT = () => qc.invalidateQueries({ queryKey: QK_RT });
 
   const saveRateioPagar = async (contaPagarId: string, itens: { centro_custo_id: string; percentual: number; valor: number }[]) => {
-    await deleteRow("fin_contas_pagar_rateio", contaPagarId, "conta_pagar_id");
+    const { supabase } = await import("@/integrations/supabase/client");
+    const { error: delErr } = await (supabase as any).from("fin_contas_pagar_rateio").delete().eq("conta_pagar_id", contaPagarId);
+    if (delErr) throw delErr;
     if (itens.length) {
-      const { supabase } = await import("@/integrations/supabase/client");
       const { error } = await (supabase as any).from("fin_contas_pagar_rateio")
         .insert(itens.map((i) => ({ conta_pagar_id: contaPagarId, ...i })));
       if (error) throw error;

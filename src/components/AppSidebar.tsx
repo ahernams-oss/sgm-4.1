@@ -9,6 +9,7 @@ import {
   UserCheck,
   Shield,
   LogOut,
+  KeyRound,
   ClipboardCheck,
   Receipt,
   Truck,
@@ -274,6 +275,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const { usuarioLogado, logout } = useAuth();
+  const [trocarSenhaOpen, setTrocarSenhaOpen] = useState(false);
   const { temModulo, acessoTotal, isDiretor } = usePermissao();
 
   const visibleGroups = menuItems
@@ -433,6 +435,13 @@ export function AppSidebar() {
                 )}
               </div>
               <button
+                onClick={() => setTrocarSenhaOpen(true)}
+                className="shrink-0 text-muted-foreground hover:text-primary transition-colors"
+                title="Alterar minha senha"
+              >
+                <KeyRound className="h-4 w-4" />
+              </button>
+              <button
                 onClick={logout}
                 className="shrink-0 text-muted-foreground hover:text-destructive transition-colors"
                 title="Sair"
@@ -440,6 +449,7 @@ export function AppSidebar() {
                 <LogOut className="h-4 w-4" />
               </button>
             </div>
+            <AlterarMinhaSenhaDialog open={trocarSenhaOpen} onOpenChange={setTrocarSenhaOpen} />
           </div>
         )}
       </SidebarFooter>

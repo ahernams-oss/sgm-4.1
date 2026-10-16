@@ -100,16 +100,18 @@ const CategoriasServicosPage = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Nome</TableHead>
+                <TableHead>Sigla</TableHead>
                 <TableHead>Descrição</TableHead>
                 <TableHead className="w-[100px]">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={3} className="text-center text-muted-foreground">Nenhuma categoria encontrada</TableCell></TableRow>
+                <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">Nenhuma categoria encontrada</TableCell></TableRow>
               ) : filtered.map(c => (
                 <TableRow key={c.id}>
                   <TableCell className="font-medium">{c.nome}</TableCell>
+                  <TableCell>{c.sigla || "—"}</TableCell>
                   <TableCell className="text-muted-foreground">{c.descricao || "—"}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">

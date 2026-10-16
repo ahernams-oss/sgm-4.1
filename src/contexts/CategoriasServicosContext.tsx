@@ -7,6 +7,7 @@ export interface CategoriaServico {
   id: string;
   nome: string;
   descricao: string;
+  sigla: string;
 }
 
 interface CategoriasServicosContextType {

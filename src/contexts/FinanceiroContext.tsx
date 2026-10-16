@@ -101,6 +101,14 @@ export interface Lancamento {
   anexos?: { url: string; nome: string }[];
 }
 
+export interface RateioCentroCusto {
+  id: string;
+  conta_pagar_id: string;
+  centro_custo_id: string;
+  percentual: number;
+  valor: number;
+}
+
 export interface MovimentoOfx {
   id: string;
   conta_bancaria_id: string;
@@ -129,6 +137,8 @@ interface Ctx {
   centrosCusto: CentroCusto[];
   contasPagar: ContaPagar[];
   contasReceber: ContaReceber[];
+  rateiosPagar: RateioCentroCusto[];
+  saveRateioPagar: (contaPagarId: string, itens: { centro_custo_id: string; percentual: number; valor: number }[]) => Promise<void>;
   lancamentos: Lancamento[];
   movimentosOfx: MovimentoOfx[];
   fluxoAjustes: FluxoAjuste[];

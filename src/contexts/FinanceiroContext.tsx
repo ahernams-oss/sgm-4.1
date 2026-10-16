@@ -225,6 +225,18 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
   const invLN = () => qc.invalidateQueries({ queryKey: QK_LN });
   const invOFX = () => qc.invalidateQueries({ queryKey: QK_OFX });
   const invFA = () => qc.invalidateQueries({ queryKey: QK_FA });
+  const invRT = () => qc.invalidateQueries({ queryKey: QK_RT });
+
+  const saveRateioPagar = async (contaPagarId: string, itens: { centro_custo_id: string; percentual: number; valor: number }[]) => {
+    await deleteRow("fin_contas_pagar_rateio", contaPagarId, "conta_pagar_id");
+    if (itens.length) {
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { error } = await (supabase as any).from("fin_contas_pagar_rateio")
+        .insert(itens.map((i) => ({ conta_pagar_id: contaPagarId, ...i })));
+      if (error) throw error;
+    }
+    invRT();
+  };
 
   const reload = async () => {
     invCB(); invPC(); invCC(); invCP(); invCR(); invLN(); invOFX(); invFA();
@@ -252,6 +264,7 @@ export function FinanceiroProvider({ children }: { children: ReactNode }) {
       value={{
         loading, contasBancarias, planoContas, centrosCusto,
         contasPagar, contasReceber, lancamentos, movimentosOfx, fluxoAjustes, reload,
+        rateiosPagar, saveRateioPagar,
         addFluxoAjuste: async (r) => { await insertRow("fin_fluxo_ajustes", r); invFA(); },
         updateFluxoAjuste: async (id, r) => { await updateRow("fin_fluxo_ajustes", id, r); invFA(); },
         deleteFluxoAjuste: async (id) => { await deleteRow("fin_fluxo_ajustes", id); invFA(); },

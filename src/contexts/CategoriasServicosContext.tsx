@@ -28,7 +28,7 @@ export function CategoriasServicosProvider({ children }: { children: ReactNode }
     enabled: __active,
     queryKey: QK,
     queryFn: async () => (await fetchAll("categorias_servicos", "nome")).map((r: any) => ({
-      id: r.id, nome: r.nome ?? "", descricao: r.descricao ?? "",
+      id: r.id, nome: r.nome ?? "", descricao: r.descricao ?? "", sigla: r.sigla ?? "",
     })),
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,

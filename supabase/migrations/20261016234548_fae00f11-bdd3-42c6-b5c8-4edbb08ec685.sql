@@ -1,0 +1,1 @@
+ALTER TABLE public.categorias_servicos ADD COLUMN IF NOT EXISTS sigla TEXT;

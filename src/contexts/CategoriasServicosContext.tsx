@@ -17,6 +17,7 @@ interface CategoriasServicosContextType {
   deleteCategoria: (id: string) => Promise<void>;
 }
 
+
 const CategoriasServicosContext = createContext<CategoriasServicosContextType | undefined>(undefined);
 const QK = ["categorias_servicos"] as const;
 

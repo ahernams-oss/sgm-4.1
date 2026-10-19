@@ -29,6 +29,8 @@ const ServicosPage = () => {
   const [search, setSearch] = useState("");
   const [filterCategoria, setFilterCategoria] = useState("all");
   const [deleteOpen, setDeleteOpen] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [dupWarn, setDupWarn] = useState<{ open: boolean; matches: DuplicateMatch<any>[]; onConfirm: () => void }>({ open: false, matches: [], onConfirm: () => {} });
   const [analiseOpen, setAnaliseOpen] = useState(false);
 
@@ -80,6 +82,7 @@ const ServicosPage = () => {
     const matchCat = filterCategoria === "all" || s.categoriaId === filterCategoria;
     return matchSearch && matchCat;
   });
+  const { paginated, safePage } = paginate(filtered, page, pageSize);
 
   return (
     <div className="bg-background">

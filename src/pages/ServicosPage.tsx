@@ -184,6 +184,13 @@ const ServicosPage = () => {
             </TableBody>
           </Table>
         </div>
+        <PaginationControls
+          currentPage={safePage}
+          totalItems={filtered.length}
+          onPageChange={setPage}
+          pageSize={pageSize}
+          onPageSizeChange={size => { setPageSize(size); setPage(1); }}
+        />
       </div>
 
       <DuplicateWarningDialog

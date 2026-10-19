@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Tags } from "lucide-react";
+import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,6 +22,8 @@ const CategoriasServicosPage = () => {
   const [descricao, setDescricao] = useState("");
   const [sigla, setSigla] = useState("");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [deleteOpen, setDeleteOpen] = useState<string | null>(null);
 
   const resetForm = () => { setNome(""); setDescricao(""); setSigla(""); setEditId(null); setShowForm(false); };

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Plus, Pencil, Trash2, Tags } from "lucide-react";
+import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,6 +22,8 @@ const CategoriasServicosPage = () => {
   const [descricao, setDescricao] = useState("");
   const [sigla, setSigla] = useState("");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [deleteOpen, setDeleteOpen] = useState<string | null>(null);
 
   const resetForm = () => { setNome(""); setDescricao(""); setSigla(""); setEditId(null); setShowForm(false); };
@@ -45,6 +48,7 @@ const CategoriasServicosPage = () => {
   const filtered = categorias.filter(c =>
     c.nome.toLowerCase().includes(search.toLowerCase())
   );
+  const { paginated, safePage } = paginate(filtered, page, pageSize);
 
   return (
     <div className="bg-background">
@@ -92,7 +96,7 @@ const CategoriasServicosPage = () => {
         )}
 
         <div className="mb-4">
-          <Input placeholder="Buscar categoria..." value={search} onChange={e => setSearch(e.target.value)} className="max-w-sm" />
+          <Input placeholder="Buscar categoria..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} className="max-w-sm" />
         </div>
 
         <div className="border rounded-lg">
@@ -106,9 +110,9 @@ const CategoriasServicosPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.length === 0 ? (
+              {paginated.length === 0 ? (
                 <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">Nenhuma categoria encontrada</TableCell></TableRow>
-              ) : filtered.map(c => (
+              ) : paginated.map(c => (
                 <TableRow key={c.id}>
                   <TableCell className="font-medium">{c.nome}</TableCell>
                   <TableCell>{c.sigla || "—"}</TableCell>
@@ -125,6 +129,13 @@ const CategoriasServicosPage = () => {
             </TableBody>
           </Table>
         </div>
+        <PaginationControls
+          currentPage={safePage}
+          totalItems={filtered.length}
+          onPageChange={setPage}
+          pageSize={pageSize}
+          onPageSizeChange={size => { setPageSize(size); setPage(1); }}
+        />
       </div>
     </div>
   );

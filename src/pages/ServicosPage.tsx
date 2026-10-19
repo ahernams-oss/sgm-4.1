@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useServicos } from "@/contexts/ServicosContext";
 import { useCategoriasServicos } from "@/contexts/CategoriasServicosContext";
+import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { toast } from "sonner";
 import { DoubleConfirmDelete } from "@/components/DoubleConfirmDelete";
 import { usePermissao } from "@/hooks/usePermissao";
@@ -28,6 +29,8 @@ const ServicosPage = () => {
   const [search, setSearch] = useState("");
   const [filterCategoria, setFilterCategoria] = useState("all");
   const [deleteOpen, setDeleteOpen] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [dupWarn, setDupWarn] = useState<{ open: boolean; matches: DuplicateMatch<any>[]; onConfirm: () => void }>({ open: false, matches: [], onConfirm: () => {} });
   const [analiseOpen, setAnaliseOpen] = useState(false);
 
@@ -79,6 +82,7 @@ const ServicosPage = () => {
     const matchCat = filterCategoria === "all" || s.categoriaId === filterCategoria;
     return matchSearch && matchCat;
   });
+  const { paginated, safePage } = paginate(filtered, page, pageSize);
 
   return (
     <div className="bg-background">
@@ -138,8 +142,8 @@ const ServicosPage = () => {
         )}
 
         <div className="mb-4 flex gap-4">
-          <Input placeholder="Buscar serviço..." value={search} onChange={e => setSearch(e.target.value)} className="max-w-sm" />
-          <Select value={filterCategoria} onValueChange={setFilterCategoria}>
+          <Input placeholder="Buscar serviço..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} className="max-w-sm" />
+          <Select value={filterCategoria} onValueChange={v => { setFilterCategoria(v); setPage(1); }}>
             <SelectTrigger className="w-[220px]"><SelectValue placeholder="Categoria" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas as Categorias</SelectItem>
@@ -161,9 +165,9 @@ const ServicosPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.length === 0 ? (
+              {paginated.length === 0 ? (
                 <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">Nenhum serviço encontrado</TableCell></TableRow>
-              ) : filtered.map(s => (
+              ) : paginated.map(s => (
                 <TableRow key={s.id}>
                   <TableCell className="font-medium">{s.nome}</TableCell>
                   <TableCell>{getCategoriaNome(s.categoriaId)}</TableCell>
@@ -180,6 +184,13 @@ const ServicosPage = () => {
             </TableBody>
           </Table>
         </div>
+        <PaginationControls
+          currentPage={safePage}
+          totalItems={filtered.length}
+          onPageChange={setPage}
+          pageSize={pageSize}
+          onPageSizeChange={size => { setPageSize(size); setPage(1); }}
+        />
       </div>
 
       <DuplicateWarningDialog

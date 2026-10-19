@@ -1,6 +1,8 @@
 # Tarefas
 
-- [ ] Corrigir aprovação de orçamento sem limite, conferir todas as entradas e testar o bloqueio.
+- [x] Corrigir aprovação de orçamento sem limite no diálogo compartilhado (desktop e celular), impor proteção no banco e testar os critérios de bloqueio (4 testes).
+
+Limite desta correção: aprovação autenticada não testada; não testei com login no Supabase externo.
 
 - [x] Preparar base de sugestões somente com O.S. validadas de 2025 e 2026, associada aos cadastros atuais.
 - [x] Exibir e permitir aceitar sugestões de categoria e serviço na abertura de O.S., sem substituir a classificação manual.

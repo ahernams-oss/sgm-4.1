@@ -110,9 +110,9 @@ const CategoriasServicosPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.length === 0 ? (
+              {paginated.length === 0 ? (
                 <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">Nenhuma categoria encontrada</TableCell></TableRow>
-              ) : filtered.map(c => (
+              ) : paginated.map(c => (
                 <TableRow key={c.id}>
                   <TableCell className="font-medium">{c.nome}</TableCell>
                   <TableCell>{c.sigla || "—"}</TableCell>

@@ -96,7 +96,7 @@ const CategoriasServicosPage = () => {
         )}
 
         <div className="mb-4">
-          <Input placeholder="Buscar categoria..." value={search} onChange={e => setSearch(e.target.value)} className="max-w-sm" />
+          <Input placeholder="Buscar categoria..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} className="max-w-sm" />
         </div>
 
         <div className="border rounded-lg">

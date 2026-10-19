@@ -48,6 +48,7 @@ const CategoriasServicosPage = () => {
   const filtered = categorias.filter(c =>
     c.nome.toLowerCase().includes(search.toLowerCase())
   );
+  const { paginated, totalPages, safePage } = paginate(filtered, page, pageSize);
 
   return (
     <div className="bg-background">

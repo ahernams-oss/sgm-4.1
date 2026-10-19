@@ -142,8 +142,8 @@ const ServicosPage = () => {
         )}
 
         <div className="mb-4 flex gap-4">
-          <Input placeholder="Buscar serviço..." value={search} onChange={e => setSearch(e.target.value)} className="max-w-sm" />
-          <Select value={filterCategoria} onValueChange={setFilterCategoria}>
+          <Input placeholder="Buscar serviço..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} className="max-w-sm" />
+          <Select value={filterCategoria} onValueChange={v => { setFilterCategoria(v); setPage(1); }}>
             <SelectTrigger className="w-[220px]"><SelectValue placeholder="Categoria" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todas as Categorias</SelectItem>
@@ -165,9 +165,9 @@ const ServicosPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.length === 0 ? (
+              {paginated.length === 0 ? (
                 <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground">Nenhum serviço encontrado</TableCell></TableRow>
-              ) : filtered.map(s => (
+              ) : paginated.map(s => (
                 <TableRow key={s.id}>
                   <TableCell className="font-medium">{s.nome}</TableCell>
                   <TableCell>{getCategoriaNome(s.categoriaId)}</TableCell>

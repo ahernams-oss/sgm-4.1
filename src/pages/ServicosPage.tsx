@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useServicos } from "@/contexts/ServicosContext";
 import { useCategoriasServicos } from "@/contexts/CategoriasServicosContext";
+import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { toast } from "sonner";
 import { DoubleConfirmDelete } from "@/components/DoubleConfirmDelete";
 import { usePermissao } from "@/hooks/usePermissao";

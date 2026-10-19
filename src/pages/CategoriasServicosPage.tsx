@@ -129,6 +129,14 @@ const CategoriasServicosPage = () => {
             </TableBody>
           </Table>
         </div>
+        <PaginationControls
+          currentPage={safePage}
+          totalItems={filtered.length}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          pageSize={pageSize}
+          onPageSizeChange={size => { setPageSize(size); setPage(1); }}
+        />
       </div>
     </div>
   );

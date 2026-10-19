@@ -59,6 +59,7 @@ import { AssinaturaEletronicaOs } from "@/components/AssinaturaEletronicaOs";
 import { AvaliacaoOs } from "@/components/AvaliacaoOs";
 import MemoriaCalculoView from "@/components/orcamento/MemoriaCalculoView";
 import NfeOrigemPicker from "@/components/NfeOrigemPicker";
+import SugestaoClassificacaoOs from "@/components/SugestaoClassificacaoOs";
 
 import { useOsAssinaturas } from "@/contexts/OsAssinaturasContext";
 import { BarChart3, Camera, ImagePlus } from "lucide-react";
@@ -2111,6 +2112,13 @@ export default function OrdensServicoPage() {
             <div>
               <Label>Descrição dos Serviços *</Label>
               <Textarea rows={4} value={descricaoServicos} onChange={e => setDescricaoServicos(e.target.value)} placeholder="Descreva os serviços a serem realizados" />
+              {formOpen && <SugestaoClassificacaoOs descricao={descricaoServicos} categoria={categoria} servico={servico} onAceitar={sugestao => {
+                const cat = categoriasServicos.find(c => c.id === sugestao.categoriaId);
+                const item = servicosCadastrados.find(s => s.id === sugestao.servicoId && s.categoriaId === sugestao.categoriaId);
+                if (!cat || !item) { toast.error("Categoria ou serviço indisponível. Selecione manualmente."); return; }
+                setCategoria(cat.nome); setServico(item.nome);
+                toast.success("Sugestão selecionada. Confira os dados antes de salvar.");
+              }} />}
             </div>
             <div>
               <Label>Ressalva da Aprovação</Label>

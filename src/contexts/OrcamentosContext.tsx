@@ -75,7 +75,11 @@ export function OrcamentosProvider({ children }: { children: ReactNode }) {
     invalidate();
     return result;
   };
-  const updateOrcamento = async (id: string, d: any) => { await updateRow("orcamentos", id, d); invalidate(); };
+  const updateOrcamento = async (id: string, d: any) => {
+    const saved = await updateRow("orcamentos", id, d);
+    if (!saved) throw new Error("Orçamento não atualizado.");
+    await invalidate();
+  };
   const deleteOrcamento = async (id: string) => { await deleteRow("orcamentos", id); invalidate(); };
   const reload = async () => { await refetch(); };
 

@@ -17,6 +17,8 @@ import { useMateriaisServicos } from "@/contexts/MateriaisServicosContext";
 import { useOrcamentos, Orcamento } from "@/contexts/OrcamentosContext";
 import { useCategoriasServicos } from "@/contexts/CategoriasServicosContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLimiteAprovacao } from "@/hooks/useLimiteAprovacao";
+import { usePermissao } from "@/hooks/usePermissao";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Trash2, Upload, X, FileText, Check, RotateCcw, ChevronsUpDown, Download, FileSpreadsheet, Maximize2, Minimize2 } from "lucide-react";
@@ -58,6 +60,9 @@ export default function OrcamentoDialog({ open, onOpenChange, solicitacao, exist
   const { addOrcamento, updateOrcamento } = useOrcamentos();
   const { categorias: categoriasCadastradas } = useCategoriasServicos();
   const { usuarioLogado } = useAuth();
+  const { podeAprovar } = useLimiteAprovacao();
+  const { tem } = usePermissao();
+  const [aprovando, setAprovando] = useState(false);
   const { empresa } = useEmpresa();
   const { toast } = useToast();
 
@@ -381,13 +386,26 @@ export default function OrcamentoDialog({ open, onOpenChange, solicitacao, exist
   };
 
   const handleAprovar = async () => {
-    if (!existingOrcamento) return;
+    if (!existingOrcamento || aprovando) return;
+    if (!tem("solicitacao_servicos.status.aprovada")) {
+      toast({ title: "Você não possui permissão para aprovar este orçamento.", variant: "destructive" });
+      return;
+    }
+    if (!podeAprovar(existingOrcamento.valorTotal, "os")) return;
     const data = {
       status: "Aprovado",
       aprovado_por: usuarioLogado?.nome || "",
       data_aprovacao: new Date().toISOString(),
     };
-    await updateOrcamento(existingOrcamento.id, data);
+    setAprovando(true);
+    try {
+      await updateOrcamento(existingOrcamento.id, data);
+    } catch {
+      toast({ title: "Aprovação não realizada. Confira sua permissão e seu limite de aprovação.", variant: "destructive" });
+      return;
+    } finally {
+      setAprovando(false);
+    }
     toast({ title: "Orçamento aprovado!" });
     onApproved?.({ ...existingOrcamento, ...data, status: "Aprovado", aprovadoPor: data.aprovado_por, dataAprovacao: data.data_aprovacao });
     onOpenChange(false);
@@ -796,7 +814,7 @@ export default function OrcamentoDialog({ open, onOpenChange, solicitacao, exist
               <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10" onClick={handleSolicitarRevisao}>
                 <RotateCcw className="mr-2 h-4 w-4" /> Solicitar Revisão
               </Button>
-              <Button className="bg-green-600 hover:bg-green-700" onClick={handleAprovar}>
+              <Button className="bg-green-600 hover:bg-green-700" onClick={handleAprovar} disabled={aprovando || !tem("solicitacao_servicos.status.aprovada")}>
                 <Check className="mr-2 h-4 w-4" /> Aprovar Orçamento
               </Button>
             </>

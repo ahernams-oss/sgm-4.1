@@ -1,5 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { avaliarLimiteAprovacao } from "@/lib/limiteAprovacao";
 
 /**
  * Hook que valida se o usuário logado pode aprovar um valor financeiro,
@@ -28,7 +29,8 @@ export function useLimiteAprovacao() {
         ? usuarioLogado.limiteAprovacaoCompras ?? 0
         : usuarioLogado.limiteAprovacaoOS ?? 0;
 
-    if (limite <= 0) {
+    const resultado = avaliarLimiteAprovacao(valor, limite);
+    if (resultado === "sem_limite") {
       toast.error(
         `Você não possui permissão para aprovar ${
           tipo === "compras" ? "compras" : "Ordens/Solicitações de Serviço"
@@ -37,7 +39,12 @@ export function useLimiteAprovacao() {
       return false;
     }
 
-    if (valor > limite) {
+    if (resultado === "valor_invalido") {
+      toast.error("Aprovação bloqueada: valor inválido.");
+      return false;
+    }
+
+    if (resultado === "excedido") {
       toast.error(
         `Aprovação bloqueada: valor ${formatBRL(valor)} excede seu limite de ${formatBRL(limite)}.`
       );

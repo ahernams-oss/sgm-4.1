@@ -172,7 +172,22 @@ export default function NrsCatalogoPage() {
 
 
         <div className="section-card mb-6">
-          <h2 className="section-title">{editingId ? "Editar NR" : "Nova NR"}</h2>
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="section-title mb-0 flex-1">{editingId ? "Editar NR" : "Nova NR"}</h2>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              aria-expanded={!retraido}
+              onClick={alternarRetraido}
+              title={retraido ? "Expandir o cadastro" : "Retrair o cadastro"}
+              className="h-8 shrink-0 gap-1.5 text-xs"
+            >
+              {retraido ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              {retraido ? "Expandir" : "Retrair"}
+            </Button>
+          </div>
+          {!retraido && (
           <form onSubmit={submit} className="mt-4 grid grid-cols-1 md:grid-cols-6 gap-4">
             <div className="md:col-span-2">
               <label className="field-label">Cod/Nome NR *</label>
@@ -313,6 +328,12 @@ export default function NrsCatalogoPage() {
               {editingId && <Button type="button" variant="outline" onClick={reset}>Cancelar</Button>}
             </div>
           </form>
+          )}
+          {retraido && (
+            <p className="text-xs text-muted-foreground mt-3">
+              {editingId ? `Editando "${form.codigo || "NR"}". ` : ""}Cadastro recolhido — clique em Expandir para preencher o formulário.
+            </p>
+          )}
         </div>
 
         <div className="section-card">

@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { ShieldCheck, AlertTriangle, Plus, Search, Trash2, Pencil, Paperclip, X, FileText, FileDown, FileSpreadsheet } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { ShieldCheck, AlertTriangle, Plus, Search, Trash2, Pencil, Paperclip, X, FileText, FileDown, FileSpreadsheet, ChevronDown, ChevronRight } from "lucide-react";
 import { gerarPdfNrs, gerarExcelNrs } from "@/lib/gerarRelatorioNrs";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import { usePermissao } from "@/hooks/usePermissao";
 const emptyForm = { codigo: "", descricao: "", validadeDias: "", anexoUrl: "", anexoNome: "", observacao: "", dataPublicacao: "", dataVigencia: "" };
 const emptyRev: NrRevisao = { revisao: "", dataPublicacao: "", dataVigencia: "", observacao: "", anexos: [] };
 const fmtData = (d?: string | null) => (d ? new Date(d + "T00:00:00").toLocaleDateString("pt-BR") : "—");
+const RETRAIDO_KEY = "nrsCadastroRetraido";
 
 
 
@@ -33,6 +34,19 @@ export default function NrsCatalogoPage() {
   const [uploading, setUploading] = useState(false);
   const [revisoes, setRevisoes] = useState<NrRevisao[]>([]);
   const [novaRev, setNovaRev] = useState(emptyRev);
+  const [retraido, setRetraido] = useState(false);
+
+  // Lembra se o cadastro ficou recolhido (só preferência de tela, nada de permissão).
+  useEffect(() => {
+    try { setRetraido(localStorage.getItem(RETRAIDO_KEY) === "1"); } catch { /* sem armazenamento */ }
+  }, []);
+
+  const alternarRetraido = () => {
+    const proximo = !retraido;
+    setRetraido(proximo);
+    try { localStorage.setItem(RETRAIDO_KEY, proximo ? "1" : "0"); } catch { /* sem armazenamento */ }
+  };
+
 
   const handleUpload = async (file: File | undefined) => {
     if (!file) return;
@@ -121,6 +135,8 @@ export default function NrsCatalogoPage() {
     setEditingId(nr.id);
     setForm({ codigo: nr.codigo, descricao: nr.descricao, validadeDias: nr.validadeDias != null ? String(nr.validadeDias) : "", anexoUrl: nr.anexoUrl ?? "", anexoNome: nr.anexoNome ?? "", observacao: nr.observacao ?? "", dataPublicacao: nr.dataPublicacao ?? "", dataVigencia: nr.dataVigencia ?? "" });
     setRevisoes(nr.revisoes ?? []);
+    setRetraido(false);
+    try { localStorage.setItem(RETRAIDO_KEY, "0"); } catch { /* sem armazenamento */ }
   };
 
   const filtered = useMemo(() => {

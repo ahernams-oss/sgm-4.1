@@ -25,6 +25,7 @@ import { gerarExcelOrcamento } from "@/lib/gerarExcelOrcamento";
 import { supabase } from "@/integrations/supabase/client";
 import { enviarWhatsApp } from "@/lib/whatsapp";
 import { formatNumeroAno } from "@/lib/formatNumero";
+import { formatBRLValor } from "@/lib/faturamentoClientes";
 import iconRevisao from "@/assets/icon-revisao.png";
 import iconSetorCritico from "@/assets/icone-setor-critico.png";
 
@@ -802,6 +803,12 @@ export default function SolicitacaoServicosPage() {
         case "situacao":
           cmp = (a.situacao || "").localeCompare(b.situacao || "");
           break;
+        case "orcamento": {
+          const valorA = Number(orcamentos.find(o => o.solicitacaoId === a.id)?.valorTotal ?? 0);
+          const valorB = Number(orcamentos.find(o => o.solicitacaoId === b.id)?.valorTotal ?? 0);
+          cmp = valorA - valorB;
+          break;
+        }
         case "os": {
           const osA = ordens.find(o => o.solicitacaoId === a.id)?.numero ?? 0;
           const osB = ordens.find(o => o.solicitacaoId === b.id)?.numero ?? 0;
@@ -838,12 +845,13 @@ export default function SolicitacaoServicosPage() {
     equipamento: { label: <SortHeader field="equipamento">Equipamento</SortHeader> },
     descricao: { label: <SortHeader field="descricao">Descrição</SortHeader> },
     situacao: { label: <SortHeader field="situacao">Situação</SortHeader> },
+    orcamento: { label: <SortHeader field="orcamento">Valor do Orçamento</SortHeader>, className: "whitespace-nowrap text-right" },
     os: { label: <SortHeader field="os">OS</SortHeader>, className: "whitespace-nowrap" },
     visitado: { label: <SortHeader field="visitado">Visitado</SortHeader>, className: "w-20 text-center" },
   };
   const { order: colOrder, setOrder: setColOrder } = useColumnOrder(
     "solicitacao_servicos.lista",
-    ["numero", "dataHora", "solicitante", "tipo", "cliente", "local", "pavimento", "setor", "equipamento", "descricao", "situacao", "os", "visitado"]
+    ["numero", "dataHora", "solicitante", "tipo", "cliente", "local", "pavimento", "setor", "equipamento", "descricao", "situacao", "orcamento", "os", "visitado"]
   );
 
   const allPageIds = paginated.map(s => s.id);
@@ -1425,7 +1433,7 @@ export default function SolicitacaoServicosPage() {
           <TableBody>
             {paginated.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={15} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={16} className="text-center text-muted-foreground py-8">
                   Nenhuma solicitação cadastrada
                 </TableCell>
               </TableRow>
@@ -1507,6 +1515,10 @@ export default function SolicitacaoServicosPage() {
                       )}
                     </div>
                   ),
+                },
+                orcamento: {
+                  node: orcSS ? formatBRLValor(Number(orcSS.valorTotal) || 0) : "-",
+                  className: "text-right whitespace-nowrap tabular-nums",
                 },
                 os: {
                   node: osVinculada ? (

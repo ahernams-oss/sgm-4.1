@@ -3,6 +3,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 /**
+ * Reconcile a user's saved column order with the grid's defaults.
+ * Keeps the saved order, drops columns that no longer exist, and inserts new
+ * columns next to their default neighbours (not at the end of the list), so a
+ * column added later still shows up where the screen defines it.
+ */
+export function reconcileColumnOrder(defaultKeys: string[], saved: string[]): string[] {
+  const seen = new Set<string>();
+  const filtered = saved.filter((k) => defaultKeys.includes(k) && !seen.has(k) && seen.add(k));
+  const missing = defaultKeys.filter((k) => !filtered.includes(k));
+  const result = [...filtered];
+  missing.forEach((key) => {
+    const defaultIdx = defaultKeys.indexOf(key);
+    let anchor = -1;
+    for (let i = defaultIdx - 1; i >= 0; i--) {
+      const candidate = result.indexOf(defaultKeys[i]);
+      if (candidate >= 0) { anchor = candidate; break; }
+    }
+    result.splice(anchor + 1, 0, key);
+  });
+  return result;
+}
+
+/**
  * Reusable hook that persists per-user column ordering for a grid.
  * Persists in `user_grid_column_prefs` table (one row per user/page).
  */
@@ -12,13 +35,9 @@ export function useColumnOrder(pageKey: string, defaultKeys: string[]) {
   const [order, setOrder] = useState<string[]>(defaultKeys);
   const loadedRef = useRef(false);
 
-  // Reconcile with defaults: keep saved order, drop missing, append new
+  // Reconcile with defaults: keep saved order, drop missing, insert new in place
   const reconcile = useCallback(
-    (saved: string[]) => {
-      const filtered = saved.filter((k) => defaultKeys.includes(k));
-      const missing = defaultKeys.filter((k) => !filtered.includes(k));
-      return [...filtered, ...missing];
-    },
+    (saved: string[]) => reconcileColumnOrder(defaultKeys, saved),
     [defaultKeys]
   );
 

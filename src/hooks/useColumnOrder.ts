@@ -9,7 +9,8 @@ import { useAuth } from "@/contexts/AuthContext";
  * column added later still shows up where the screen defines it.
  */
 export function reconcileColumnOrder(defaultKeys: string[], saved: string[]): string[] {
-  const filtered = saved.filter((k) => defaultKeys.includes(k));
+  const seen = new Set<string>();
+  const filtered = saved.filter((k) => defaultKeys.includes(k) && !seen.has(k) && seen.add(k));
   const missing = defaultKeys.filter((k) => !filtered.includes(k));
   const result = [...filtered];
   missing.forEach((key) => {

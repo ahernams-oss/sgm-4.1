@@ -14,9 +14,12 @@ describe("reconcileColumnOrder", () => {
     expect(order[order.indexOf("situacao") + 1]).toBe("orcamento");
   });
 
-  it("mantém a ordem salva do usuário para as colunas existentes", () => {
+  it("mantém a ordem relativa salva do usuário para as colunas existentes", () => {
     const saved = ["cliente", "numero", "situacao", "os"];
-    expect(reconcileColumnOrder(DEFAULTS, saved).slice(0, 2)).toEqual(["cliente", "numero"]);
+    const order = reconcileColumnOrder(DEFAULTS, saved);
+    const pos = saved.map(k => order.indexOf(k));
+    expect(pos).toEqual([...pos].sort((a, b) => a - b));
+    expect(order).toHaveLength(DEFAULTS.length);
   });
 
   it("remove colunas que não existem mais e não duplica as existentes", () => {

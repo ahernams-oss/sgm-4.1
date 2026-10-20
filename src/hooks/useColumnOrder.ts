@@ -17,7 +17,18 @@ export function useColumnOrder(pageKey: string, defaultKeys: string[]) {
     (saved: string[]) => {
       const filtered = saved.filter((k) => defaultKeys.includes(k));
       const missing = defaultKeys.filter((k) => !filtered.includes(k));
-      return [...filtered, ...missing];
+      // Colunas novas entram ao lado das vizinhas padrão, não no fim da lista.
+      const result = [...filtered];
+      missing.forEach((key) => {
+        const defaultIdx = defaultKeys.indexOf(key);
+        let anchor = -1;
+        for (let i = defaultIdx - 1; i >= 0; i--) {
+          const candidate = result.indexOf(defaultKeys[i]);
+          if (candidate >= 0) { anchor = candidate; break; }
+        }
+        result.splice(anchor + 1, 0, key);
+      });
+      return result;
     },
     [defaultKeys]
   );

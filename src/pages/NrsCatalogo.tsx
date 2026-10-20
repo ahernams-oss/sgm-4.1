@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { ShieldCheck, AlertTriangle, Plus, Search, Trash2, Pencil, Paperclip, X, FileText, FileDown, FileSpreadsheet } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { ShieldCheck, AlertTriangle, Plus, Search, Trash2, Pencil, Paperclip, X, FileText, FileDown, FileSpreadsheet, ChevronDown, ChevronRight } from "lucide-react";
 import { gerarPdfNrs, gerarExcelNrs } from "@/lib/gerarRelatorioNrs";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
@@ -15,6 +15,7 @@ import { usePermissao } from "@/hooks/usePermissao";
 const emptyForm = { codigo: "", descricao: "", validadeDias: "", anexoUrl: "", anexoNome: "", observacao: "", dataPublicacao: "", dataVigencia: "" };
 const emptyRev: NrRevisao = { revisao: "", dataPublicacao: "", dataVigencia: "", observacao: "", anexos: [] };
 const fmtData = (d?: string | null) => (d ? new Date(d + "T00:00:00").toLocaleDateString("pt-BR") : "—");
+const RETRAIDO_KEY = "nrsCadastroRetraido";
 
 
 
@@ -33,6 +34,19 @@ export default function NrsCatalogoPage() {
   const [uploading, setUploading] = useState(false);
   const [revisoes, setRevisoes] = useState<NrRevisao[]>([]);
   const [novaRev, setNovaRev] = useState(emptyRev);
+  const [retraido, setRetraido] = useState(false);
+
+  // Lembra se o cadastro ficou recolhido (só preferência de tela, nada de permissão).
+  useEffect(() => {
+    try { setRetraido(localStorage.getItem(RETRAIDO_KEY) === "1"); } catch { /* sem armazenamento */ }
+  }, []);
+
+  const alternarRetraido = () => {
+    const proximo = !retraido;
+    setRetraido(proximo);
+    try { localStorage.setItem(RETRAIDO_KEY, proximo ? "1" : "0"); } catch { /* sem armazenamento */ }
+  };
+
 
   const handleUpload = async (file: File | undefined) => {
     if (!file) return;
@@ -121,6 +135,8 @@ export default function NrsCatalogoPage() {
     setEditingId(nr.id);
     setForm({ codigo: nr.codigo, descricao: nr.descricao, validadeDias: nr.validadeDias != null ? String(nr.validadeDias) : "", anexoUrl: nr.anexoUrl ?? "", anexoNome: nr.anexoNome ?? "", observacao: nr.observacao ?? "", dataPublicacao: nr.dataPublicacao ?? "", dataVigencia: nr.dataVigencia ?? "" });
     setRevisoes(nr.revisoes ?? []);
+    setRetraido(false);
+    try { localStorage.setItem(RETRAIDO_KEY, "0"); } catch { /* sem armazenamento */ }
   };
 
   const filtered = useMemo(() => {
@@ -156,7 +172,22 @@ export default function NrsCatalogoPage() {
 
 
         <div className="section-card mb-6">
-          <h2 className="section-title">{editingId ? "Editar NR" : "Nova NR"}</h2>
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="section-title mb-0 flex-1">{editingId ? "Editar NR" : "Nova NR"}</h2>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              aria-expanded={!retraido}
+              onClick={alternarRetraido}
+              title={retraido ? "Expandir o cadastro" : "Retrair o cadastro"}
+              className="h-8 shrink-0 gap-1.5 text-xs"
+            >
+              {retraido ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              {retraido ? "Expandir" : "Retrair"}
+            </Button>
+          </div>
+          {!retraido && (
           <form onSubmit={submit} className="mt-4 grid grid-cols-1 md:grid-cols-6 gap-4">
             <div className="md:col-span-2">
               <label className="field-label">Cod/Nome NR *</label>
@@ -297,6 +328,12 @@ export default function NrsCatalogoPage() {
               {editingId && <Button type="button" variant="outline" onClick={reset}>Cancelar</Button>}
             </div>
           </form>
+          )}
+          {retraido && (
+            <p className="text-xs text-muted-foreground mt-3">
+              {editingId ? `Editando "${form.codigo || "NR"}". ` : ""}Cadastro recolhido — clique em Expandir para preencher o formulário.
+            </p>
+          )}
         </div>
 
         <div className="section-card">

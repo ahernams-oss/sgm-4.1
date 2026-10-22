@@ -14,6 +14,13 @@ export interface NrCatalogo {
   dataPublicacao?: string | null;
   dataVigencia?: string | null;
   revisoes?: NrRevisao[];
+  cursos?: NrCurso[];
+}
+
+export interface NrCurso {
+  curso: string;
+  periodicidade: string;
+  cargaHoraria: string;
 }
 
 export interface NrRevisaoAnexo {
@@ -49,6 +56,7 @@ const rowTo = (r: any): NrCatalogo => ({
   dataPublicacao: r.data_publicacao ?? null,
   dataVigencia: r.data_vigencia ?? null,
   revisoes: Array.isArray(r.revisoes) ? r.revisoes : [],
+  cursos: Array.isArray(r.cursos) ? r.cursos : [],
 });
 
 const toRow = (n: Omit<NrCatalogo, "id">) => ({
@@ -61,6 +69,7 @@ const toRow = (n: Omit<NrCatalogo, "id">) => ({
   data_publicacao: n.dataPublicacao || null,
   data_vigencia: n.dataVigencia || null,
   revisoes: n.revisoes ?? [],
+  cursos: n.cursos ?? [],
 });
 
 

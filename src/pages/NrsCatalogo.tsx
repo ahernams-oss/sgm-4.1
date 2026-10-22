@@ -205,8 +205,8 @@ export default function NrsCatalogoPage() {
               <Input value={form.codigo} onChange={(e) => update("codigo", e.target.value)} placeholder="Ex: NR-06" />
             </div>
             <div className="md:col-span-2">
-              <label className="field-label">Validade (dias)</label>
-              <Input type="number" min={0} value={form.validadeDias} onChange={(e) => update("validadeDias", e.target.value)} placeholder="Ex: 365" />
+              <label className="field-label">Descrição NR *</label>
+              <Input value={form.descricao} onChange={(e) => update("descricao", e.target.value)} placeholder="Ex: Equipamentos de Proteção Individual" />
             </div>
             <div className="md:col-span-2">
               <label className="field-label">Anexo (documento ou imagem)</label>

@@ -9,11 +9,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { DoubleConfirmDelete, useDoubleConfirmDelete } from "@/components/DoubleConfirmDelete";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
-import { useNrsCatalogo, NrCatalogo, NrRevisao } from "@/contexts/NrsCatalogoContext";
+import { useNrsCatalogo, NrCatalogo, NrRevisao, NrCurso } from "@/contexts/NrsCatalogoContext";
 import { usePermissao } from "@/hooks/usePermissao";
 
 const emptyForm = { codigo: "", descricao: "", validadeDias: "", anexoUrl: "", anexoNome: "", observacao: "", dataPublicacao: "", dataVigencia: "" };
 const emptyRev: NrRevisao = { revisao: "", dataPublicacao: "", dataVigencia: "", observacao: "", anexos: [] };
+const emptyCurso: NrCurso = { curso: "", periodicidade: "", cargaHoraria: "" };
 const fmtData = (d?: string | null) => (d ? new Date(d + "T00:00:00").toLocaleDateString("pt-BR") : "—");
 const RETRAIDO_KEY = "nrsCadastroRetraido";
 
@@ -34,6 +35,8 @@ export default function NrsCatalogoPage() {
   const [uploading, setUploading] = useState(false);
   const [revisoes, setRevisoes] = useState<NrRevisao[]>([]);
   const [novaRev, setNovaRev] = useState(emptyRev);
+  const [cursos, setCursos] = useState<NrCurso[]>([]);
+  const [novoCurso, setNovoCurso] = useState(emptyCurso);
   const [retraido, setRetraido] = useState(false);
 
   // Lembra se o cadastro ficou recolhido (só preferência de tela, nada de permissão).
@@ -67,7 +70,7 @@ export default function NrsCatalogoPage() {
   };
 
   const update = (k: string, v: string) => setForm((p) => ({ ...p, [k]: v }));
-  const reset = () => { setForm(emptyForm); setEditingId(null); setRevisoes([]); setNovaRev(emptyRev); };
+  const reset = () => { setForm(emptyForm); setEditingId(null); setRevisoes([]); setNovaRev(emptyRev); setCursos([]); setNovoCurso(emptyCurso); };
 
   const [uploadingRev, setUploadingRev] = useState(false);
 
@@ -105,6 +108,12 @@ export default function NrsCatalogoPage() {
     setNovaRev(emptyRev);
   };
 
+  const addCurso = () => {
+    if (!novoCurso.curso.trim()) { toast.error("Informe o nome do curso."); return; }
+    setCursos((p) => [...p, { ...novoCurso, curso: novoCurso.curso.trim(), periodicidade: novoCurso.periodicidade.trim(), cargaHoraria: novoCurso.cargaHoraria.trim() }]);
+    setNovoCurso(emptyCurso);
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (editingId ? !podeEditar : !podeCriar) { toast.error("Você não possui permissão para esta ação."); return; }
@@ -120,6 +129,7 @@ export default function NrsCatalogoPage() {
       dataPublicacao: form.dataPublicacao || null,
       dataVigencia: form.dataVigencia || null,
       revisoes,
+      cursos,
     };
     if (editingId) {
       await updateNr(editingId, payload);
@@ -135,6 +145,7 @@ export default function NrsCatalogoPage() {
     setEditingId(nr.id);
     setForm({ codigo: nr.codigo, descricao: nr.descricao, validadeDias: nr.validadeDias != null ? String(nr.validadeDias) : "", anexoUrl: nr.anexoUrl ?? "", anexoNome: nr.anexoNome ?? "", observacao: nr.observacao ?? "", dataPublicacao: nr.dataPublicacao ?? "", dataVigencia: nr.dataVigencia ?? "" });
     setRevisoes(nr.revisoes ?? []);
+    setCursos(nr.cursos ?? []);
     setRetraido(false);
     try { localStorage.setItem(RETRAIDO_KEY, "0"); } catch { /* sem armazenamento */ }
   };

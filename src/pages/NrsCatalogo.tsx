@@ -224,11 +224,15 @@ export default function NrsCatalogoPage() {
                 <Input type="file" accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx" disabled={uploading} onChange={(e) => handleUpload(e.target.files?.[0])} />
               )}
             </div>
-            <div className="md:col-span-3">
+            <div className="md:col-span-2">
+              <label className="field-label">Validade (dias)</label>
+              <Input type="number" min={0} value={form.validadeDias} onChange={(e) => update("validadeDias", e.target.value)} placeholder="Ex: 365" />
+            </div>
+            <div className="md:col-span-2">
               <label className="field-label">Data de Publicação</label>
               <Input type="date" value={form.dataPublicacao} onChange={(e) => update("dataPublicacao", e.target.value)} />
             </div>
-            <div className="md:col-span-3">
+            <div className="md:col-span-2">
               <label className="field-label">Data de Vigência</label>
               <Input type="date" value={form.dataVigencia} onChange={(e) => update("dataVigencia", e.target.value)} />
             </div>

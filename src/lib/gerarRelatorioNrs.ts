@@ -65,6 +65,20 @@ export async function gerarPdfNrs(nrs: NrCatalogo[], filtros?: string) {
     });
   }
 
+  const comCursos = nrs.filter((n) => (n.cursos?.length || 0) > 0);
+  if (comCursos.length) {
+    (await getAutoTable())(doc, {
+      startY: (doc as any).lastAutoTable.finalY + 8,
+      head: [["NR", "Curso", "Periodicidade", "Carga horária de atualização"]],
+      body: comCursos.flatMap((n) =>
+        (n.cursos || []).map((c) => [n.codigo, c.curso, c.periodicidade || "—", c.cargaHoraria || "—"]),
+      ),
+      styles: { fontSize: 8, cellPadding: 2.5 },
+      headStyles: { fillColor: [30, 58, 107], textColor: 255, fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [245, 247, 250] },
+    });
+  }
+
   addFooter(doc);
   doc.save("relatorio-nrs.pdf");
 }
@@ -101,6 +115,20 @@ export async function gerarExcelNrs(nrs: NrCatalogo[]) {
     const wsRev = (await getXLSX()).utils.json_to_sheet(revRows);
     wsRev["!cols"] = [{ wch: 14 }, { wch: 14 }, { wch: 16 }, { wch: 16 }, { wch: 40 }, { wch: 40 }];
     (await getXLSX()).utils.book_append_sheet(wb, wsRev, "Revisões");
+  }
+
+  const cursoRows = nrs.flatMap((n) =>
+    (n.cursos || []).map((c) => ({
+      "Cod/Nome NR": n.codigo,
+      "Curso": c.curso,
+      "Periodicidade": c.periodicidade || "",
+      "Carga horária de atualização": c.cargaHoraria || "",
+    })),
+  );
+  if (cursoRows.length) {
+    const wsCur = (await getXLSX()).utils.json_to_sheet(cursoRows);
+    wsCur["!cols"] = [{ wch: 14 }, { wch: 40 }, { wch: 16 }, { wch: 26 }];
+    (await getXLSX()).utils.book_append_sheet(wb, wsCur, "Cursos");
   }
 
   (await getXLSX()).writeFile(wb, "relatorio-nrs.xlsx", { compression: true });

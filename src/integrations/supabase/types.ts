@@ -5462,6 +5462,7 @@ export type Database = {
           anexo_url: string | null
           codigo: string
           created_at: string
+          cursos: Json
           data_publicacao: string | null
           data_vigencia: string | null
           descricao: string
@@ -5476,6 +5477,7 @@ export type Database = {
           anexo_url?: string | null
           codigo: string
           created_at?: string
+          cursos?: Json
           data_publicacao?: string | null
           data_vigencia?: string | null
           descricao: string
@@ -5490,6 +5492,7 @@ export type Database = {
           anexo_url?: string | null
           codigo?: string
           created_at?: string
+          cursos?: Json
           data_publicacao?: string | null
           data_vigencia?: string | null
           descricao?: string

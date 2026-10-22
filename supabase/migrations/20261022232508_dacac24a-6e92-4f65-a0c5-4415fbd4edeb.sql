@@ -1,0 +1,1 @@
+ALTER TABLE public.nrs_catalogo ADD COLUMN IF NOT EXISTS cursos jsonb NOT NULL DEFAULT '[]'::jsonb;

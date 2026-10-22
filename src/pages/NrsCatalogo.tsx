@@ -205,8 +205,8 @@ export default function NrsCatalogoPage() {
               <Input value={form.codigo} onChange={(e) => update("codigo", e.target.value)} placeholder="Ex: NR-06" />
             </div>
             <div className="md:col-span-2">
-              <label className="field-label">Validade (dias)</label>
-              <Input type="number" min={0} value={form.validadeDias} onChange={(e) => update("validadeDias", e.target.value)} placeholder="Ex: 365" />
+              <label className="field-label">Descrição NR *</label>
+              <Input value={form.descricao} onChange={(e) => update("descricao", e.target.value)} placeholder="Ex: Equipamentos de Proteção Individual" />
             </div>
             <div className="md:col-span-2">
               <label className="field-label">Anexo (documento ou imagem)</label>
@@ -224,11 +224,15 @@ export default function NrsCatalogoPage() {
                 <Input type="file" accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx" disabled={uploading} onChange={(e) => handleUpload(e.target.files?.[0])} />
               )}
             </div>
-            <div className="md:col-span-3">
+            <div className="md:col-span-2">
+              <label className="field-label">Validade (dias)</label>
+              <Input type="number" min={0} value={form.validadeDias} onChange={(e) => update("validadeDias", e.target.value)} placeholder="Ex: 365" />
+            </div>
+            <div className="md:col-span-2">
               <label className="field-label">Data de Publicação</label>
               <Input type="date" value={form.dataPublicacao} onChange={(e) => update("dataPublicacao", e.target.value)} />
             </div>
-            <div className="md:col-span-3">
+            <div className="md:col-span-2">
               <label className="field-label">Data de Vigência</label>
               <Input type="date" value={form.dataVigencia} onChange={(e) => update("dataVigencia", e.target.value)} />
             </div>
@@ -376,10 +380,6 @@ export default function NrsCatalogoPage() {
                   </Button>
                 </div>
               </div>
-            </div>
-            <div className="md:col-span-6">
-              <label className="field-label">Descrição da NR *</label>
-              <Textarea rows={2} value={form.descricao} onChange={(e) => update("descricao", e.target.value)} placeholder="Ex: Equipamentos de Proteção Individual" />
             </div>
             <div className="md:col-span-6 flex gap-2">
               <Button type="submit" className="gap-2">

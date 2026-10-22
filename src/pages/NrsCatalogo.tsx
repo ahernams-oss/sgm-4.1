@@ -381,10 +381,6 @@ export default function NrsCatalogoPage() {
                 </div>
               </div>
             </div>
-            <div className="md:col-span-6">
-              <label className="field-label">Descrição da NR *</label>
-              <Textarea rows={2} value={form.descricao} onChange={(e) => update("descricao", e.target.value)} placeholder="Ex: Equipamentos de Proteção Individual" />
-            </div>
             <div className="md:col-span-6 flex gap-2">
               <Button type="submit" className="gap-2">
                 <Plus className="h-4 w-4" />

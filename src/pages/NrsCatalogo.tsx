@@ -327,6 +327,56 @@ export default function NrsCatalogoPage() {
               </div>
 
             </div>
+            <div className="md:col-span-6 rounded-lg border border-border p-3">
+              <p className="text-sm font-semibold text-primary mb-2">Cursos da NR</p>
+              {cursos.length > 0 && (
+                <div className="rounded-md border border-border mb-3 overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Curso</TableHead>
+                        <TableHead className="w-44">Periodicidade</TableHead>
+                        <TableHead className="w-52">Carga horária de atualização</TableHead>
+                        <TableHead className="w-16 text-right">Ações</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {cursos.map((c, i) => (
+                        <TableRow key={i}>
+                          <TableCell className="font-medium">{c.curso}</TableCell>
+                          <TableCell className="text-sm">{c.periodicidade || "—"}</TableCell>
+                          <TableCell className="text-sm">{c.cargaHoraria || "—"}</TableCell>
+                          <TableCell className="text-right">
+                            <Button type="button" size="icon" variant="ghost" className="text-destructive h-7 w-7" onClick={() => setCursos((p) => p.filter((_, idx) => idx !== i))}>
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-2 items-end">
+                <div className="md:col-span-5">
+                  <label className="field-label">Curso</label>
+                  <Input value={novoCurso.curso} onChange={(e) => setNovoCurso((p) => ({ ...p, curso: e.target.value }))} placeholder="Ex: Básico" />
+                </div>
+                <div className="md:col-span-3">
+                  <label className="field-label">Periodicidade</label>
+                  <Input value={novoCurso.periodicidade} onChange={(e) => setNovoCurso((p) => ({ ...p, periodicidade: e.target.value }))} placeholder="Ex: 3 anos" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="field-label">Carga horária</label>
+                  <Input value={novoCurso.cargaHoraria} onChange={(e) => setNovoCurso((p) => ({ ...p, cargaHoraria: e.target.value }))} placeholder="Ex: 4 horas" />
+                </div>
+                <div className="md:col-span-2">
+                  <Button type="button" variant="outline" className="w-full gap-2" onClick={addCurso}>
+                    <Plus className="h-4 w-4" /> Curso
+                  </Button>
+                </div>
+              </div>
+            </div>
             <div className="md:col-span-6">
               <label className="field-label">Descrição da NR *</label>
               <Textarea rows={2} value={form.descricao} onChange={(e) => update("descricao", e.target.value)} placeholder="Ex: Equipamentos de Proteção Individual" />
@@ -395,6 +445,7 @@ export default function NrsCatalogoPage() {
                     <TableHead className="w-32 text-center">Publicação</TableHead>
                     <TableHead className="w-32 text-center">Vigência</TableHead>
                     <TableHead className="w-24 text-center">Revisões</TableHead>
+                    <TableHead className="w-24 text-center">Cursos</TableHead>
                     <TableHead className="w-24 text-center">Anexo</TableHead>
                     <TableHead className="w-24 text-right">Ações</TableHead>
                   </TableRow>
@@ -408,6 +459,7 @@ export default function NrsCatalogoPage() {
                       <TableCell className="text-center text-sm">{fmtData(nr.dataPublicacao)}</TableCell>
                       <TableCell className="text-center text-sm">{fmtData(nr.dataVigencia)}</TableCell>
                       <TableCell className="text-center text-sm">{nr.revisoes?.length || 0}</TableCell>
+                      <TableCell className="text-center text-sm">{nr.cursos?.length || 0}</TableCell>
                       <TableCell className="text-center">
                         {nr.anexoUrl ? (
                           <a href={nr.anexoUrl} target="_blank" rel="noreferrer" title={nr.anexoNome ?? "Anexo"} className="inline-flex text-primary hover:underline">

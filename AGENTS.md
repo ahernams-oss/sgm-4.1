@@ -15,6 +15,7 @@
 - Budget approval validates the OS approval limit and SS approval permission before saving in the shared dialog; a database trigger independently enforces the authenticated active user's stored limit, and rejected writes must not run approval callbacks.
 - Service-request monetary search uses matchValorOrcamento against the same first linked budget shown in the grid; this keeps currency formats searchable without treating missing budgets as zero.
 - Combined OS calculation-memory PDFs resolve unit prices from that OS's material lists through valoresMemoriaOs, normalizing numeric-only code padding; this keeps individual and batch reports aligned with the order without fetching unrelated prices.
+- OS photo and calculation-memory printing refreshes only the selected order's photos and linked SS budgets through dadosImpressaoOs and signs internal storage image URLs with the browser session; this avoids stale grids and preserves private buckets.
 
 - RLS: tabelas e arquivos internos exigem usuário logado (auth.uid() IS NOT NULL); só tabelas das páginas públicas (QR equipamento, proposta fornecedor, portal candidato, verificação de assinatura, pregão) e o bucket pregao-documentos ficam sem login — porque essas páginas leem dados sem sessão.
 

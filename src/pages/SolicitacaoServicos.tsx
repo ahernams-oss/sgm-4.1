@@ -26,6 +26,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { enviarWhatsApp } from "@/lib/whatsapp";
 import { formatNumeroAno } from "@/lib/formatNumero";
 import { formatBRLValor } from "@/lib/faturamentoClientes";
+import { matchValorOrcamento } from "@/lib/matchValorOrcamento";
 import iconRevisao from "@/assets/icon-revisao.png";
 import iconSetorCritico from "@/assets/icone-setor-critico.png";
 
@@ -712,7 +713,13 @@ export default function SolicitacaoServicosPage() {
   const filtered = useMemo(() => {
     let result = solicitacoes;
     if (search.trim()) {
-      const q = search.toLowerCase();
+      const q = search.trim().toLowerCase();
+      const valoresOrcamentos = new Map<string, number>();
+      for (const orcamento of orcamentos) {
+        if (!valoresOrcamentos.has(orcamento.solicitacaoId)) {
+          valoresOrcamentos.set(orcamento.solicitacaoId, orcamento.valorTotal);
+        }
+      }
       result = result.filter(s =>
         s.clienteNome.toLowerCase().includes(q) ||
         s.descricaoServicos.toLowerCase().includes(q) ||
@@ -721,7 +728,8 @@ export default function SolicitacaoServicosPage() {
         String(s.numero).includes(q) ||
         formatNumeroAno(s.numero, s.createdAt).toLowerCase().includes(q) ||
         (s.setorDescricao || "").toLowerCase().includes(q) ||
-        (s.pavimentoDescricao || "").toLowerCase().includes(q)
+        (s.pavimentoDescricao || "").toLowerCase().includes(q) ||
+        matchValorOrcamento(valoresOrcamentos.get(s.id), q)
       );
     }
     if (filterCliente !== "all") result = result.filter(s => s.clienteId === filterCliente);
@@ -1292,7 +1300,7 @@ export default function SolicitacaoServicosPage() {
       {/* Search & Filters */}
       <div className="flex flex-wrap gap-3 items-end">
         <Input
-          placeholder="Buscar solicitação..."
+          placeholder="Buscar solicitação ou valor..."
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1); }}
           className="max-w-xs"

@@ -13,6 +13,7 @@
 - OS classification uses a server-only aggregated historical signature dataset through an authenticated, SGM-permission-checked server function; resolve names against current category/service links and apply only on explicit acceptance to avoid exposing original orders or overwriting manual choices.
 - Access-profile modules are grouped by the presentation-only mapping in gruposPermissoes; preserve permission keys and module objects so reorganizing menus never changes existing grants.
 - Budget approval validates the OS approval limit and SS approval permission before saving in the shared dialog; a database trigger independently enforces the authenticated active user's stored limit, and rejected writes must not run approval callbacks.
+- Service-request monetary search uses matchValorOrcamento against the same first linked budget shown in the grid; this keeps currency formats searchable without treating missing budgets as zero.
 
 - RLS: tabelas e arquivos internos exigem usuário logado (auth.uid() IS NOT NULL); só tabelas das páginas públicas (QR equipamento, proposta fornecedor, portal candidato, verificação de assinatura, pregão) e o bucket pregao-documentos ficam sem login — porque essas páginas leem dados sem sessão.
 

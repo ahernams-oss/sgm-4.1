@@ -577,9 +577,11 @@ export default function MemoriaCalculoTab({ grupos, onChange, readOnly, itensOri
                 })}
                 {(() => {
                   const porTipo = new Map<TipoMemoria, number>();
+                  const porValor = new Map<TipoMemoria, number>();
                   g.linhas.forEach(l => {
                     const t = tipoLinha(g, l);
                     porTipo.set(t, (porTipo.get(t) || 0) + calcLinha(t, l));
+                    porValor.set(t, (porValor.get(t) || 0) + calcLinha(t, l) * (valorUnitDe(l) ?? 0));
                   });
                   const linhasTotal = porTipo.size ? Array.from(porTipo) : ([[g.tipo, 0]] as [TipoMemoria, number][]);
                   return linhasTotal.map(([t, v], i) => (
@@ -590,6 +592,8 @@ export default function MemoriaCalculoTab({ grupos, onChange, readOnly, itensOri
                       </TableCell>
                       <TableCell className="font-bold">{nf(v)}</TableCell>
                       <TableCell className="text-xs font-semibold">{UNIDADE_CURTA[t]}</TableCell>
+                      <TableCell />
+                      <TableCell className="text-right text-xs font-bold">{fmtValor(porValor.get(t) ?? 0)}</TableCell>
                       <TableCell />
                       {!readOnly && <TableCell colSpan={2} />}
                     </TableRow>

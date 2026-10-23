@@ -1,3 +1,4 @@
+import { criarValoresMemoriaOs, valorUnitarioMemoriaOs } from "@/lib/valoresMemoriaOs";
 import { formatNumeroAno } from "@/lib/formatNumero";
 import { supabase } from "@/integrations/supabase/client";
 import { renderOS, addContinuationHeaders, type RenderOSOptions } from "@/lib/gerarPdfOrdemServico";
@@ -201,6 +202,7 @@ async function renderFotos(doc: jsPDF, opts: RenderOSOptions, startY: number) {
   }
 }
 
+const fmtValorMem = (v: number | undefined) => v === undefined ? "-" : `R$ ${nf2(v)}`;
 const nf2 = (v: number) => (Number(v) || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 function getEntradasMem(l: any): any[] {
@@ -226,10 +228,12 @@ function calcLinhaMem(tipo: string, l: any): number {
 
 
 /** Renderiza a memória de cálculo (grupos) em tabelas. */
-async function renderMemoriaCalculo(doc: jsPDF, grupos: any[], startY: number) {
+async function renderMemoriaCalculo(doc: jsPDF, grupos: any[], startY: number, opts: RenderOSOptions) {
   const pw = doc.internal.pageSize.getWidth();
   const ml = 12, mr = 12;
   let y = startY;
+  const valores = criarValoresMemoriaOs([...(opts.os.materiais || []), ...(opts.os.materiaisEstoque || [])]);
+  const valorDe = (l: any) => valorUnitarioMemoriaOs(valores, l.codigo);
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
@@ -264,11 +268,12 @@ async function renderMemoriaCalculo(doc: jsPDF, grupos: any[], startY: number) {
       ...(hasMo ? ["HR/DIA", "DIAS"] : []),
     ];
     const tipoLabel = (t: string) => (t === "area" ? "Área" : t === "mao_de_obra" ? "Mão de obra" : "Unidade");
-    const head = [["ITEM", "CÓDIGO", "DESCRIÇÃO", "TIPO", "SETOR", ...extra, totalLabel]];
+    const head = [["ITEM", "CÓDIGO", "DESCRIÇÃO", "TIPO", "SETOR", ...extra, totalLabel, "VALOR UNIT. (R$)", "VALOR TOTAL (R$)"]];
     const body: any[] = [];
     linhas.forEach((l: any) => {
       const tipo = tipoDe(l);
       const entradas = getEntradasMem(l);
+      const vu = valorDe(l);
       entradas.forEach((e: any, ei: number) => {
         const cols: string[] = [];
         if (hasQtd) cols.push(tipo === "mao_de_obra" ? "" : nf2(e.quantidade));
@@ -290,7 +295,7 @@ async function renderMemoriaCalculo(doc: jsPDF, grupos: any[], startY: number) {
               e.setor || "",
             ]
           : [e.setor || ""];
-        body.push([...base, ...cols, nf2(calcEntradaMem(tipo, e))]);
+        body.push([...base, ...cols, nf2(calcEntradaMem(tipo, e)), fmtValorMem(vu), fmtValorMem(vu === undefined ? undefined : calcEntradaMem(tipo, e) * vu)]);
       });
       body.push([
         {
@@ -299,11 +304,16 @@ async function renderMemoriaCalculo(doc: jsPDF, grupos: any[], startY: number) {
           styles: { halign: "right", fontStyle: "bold", fillColor: [248, 248, 248] },
         } as any,
         { content: nf2(calcLinhaMem(tipoDe(l), l)), styles: { fontStyle: "bold", fillColor: [248, 248, 248] } } as any,
+        "",
+        { content: fmtValorMem(vu === undefined ? undefined : calcLinhaMem(tipo, l) * vu), styles: { fontStyle: "bold", fillColor: [248, 248, 248] } },
       ]);
     });
     const total = linhas.reduce((s, l) => s + calcLinhaMem(tipoDe(l), l), 0);
-    const nCols = 5 + extra.length + 1;
-    body.push([{ content: "TOTAL", colSpan: nCols - 1, styles: { halign: "right", fontStyle: "bold" } } as any, nf2(total)]);
+    const totalValor = linhas.some(l => valorDe(l) !== undefined)
+      ? linhas.reduce((s, l) => s + calcLinhaMem(tipoDe(l), l) * (valorDe(l) ?? 0), 0)
+      : undefined;
+    const nCols = 5 + extra.length + 3;
+    body.push([{ content: "TOTAL", colSpan: nCols - 3, styles: { halign: "right", fontStyle: "bold" } } as any, nf2(total), "", fmtValorMem(totalValor)]);
 
 
     (await getAutoTable())(doc, {
@@ -362,7 +372,7 @@ export async function gerarPdfOrdemServicoFotosMemoria(
 
   doc.addPage();
   const y2 = await renderCabecalhoFotos(doc, opts);
-  renderMemoriaCalculo(doc, Array.isArray(opts.memoriaCalculo) ? opts.memoriaCalculo : [], y2);
+  await renderMemoriaCalculo(doc, Array.isArray(opts.memoriaCalculo) ? opts.memoriaCalculo : [], y2, opts);
 
   await finalizar(doc, opts, "Fotos_Memoria");
 }
@@ -384,11 +394,13 @@ async function carregarFotosLinha(l: any) {
 }
 
 /** Memória de cálculo item a item, com as fotos de cada sub-item logo abaixo. */
-async function renderMemoriaCalculoComFotos(doc: jsPDF, grupos: any[], startY: number) {
+async function renderMemoriaCalculoComFotos(doc: jsPDF, grupos: any[], startY: number, opts: RenderOSOptions) {
   const pw = doc.internal.pageSize.getWidth();
   const ph = doc.internal.pageSize.getHeight();
   const ml = 12, mr = 12;
   let y = startY;
+  const valores = criarValoresMemoriaOs([...(opts.os.materiais || []), ...(opts.os.materiaisEstoque || [])]);
+  const valorDe = (l: any) => valorUnitarioMemoriaOs(valores, l.codigo);
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
@@ -424,8 +436,8 @@ async function renderMemoriaCalculoComFotos(doc: jsPDF, grupos: any[], startY: n
       ...(hasArea ? ["COMP.", "LARG.", "ALT."] : []),
       ...(hasMo ? ["HR/DIA", "DIAS"] : []),
     ];
-    const head = [["ITEM", "CÓDIGO", "DESCRIÇÃO", "TIPO", "SETOR", ...extra, totalLabel]];
-    const nCols = 5 + extra.length + 1;
+    const head = [["ITEM", "CÓDIGO", "DESCRIÇÃO", "TIPO", "SETOR", ...extra, totalLabel, "VALOR UNIT. (R$)", "VALOR TOTAL (R$)"]];
+    const nCols = 5 + extra.length + 3;
 
     if (y > ph - 50) { doc.addPage(); y = 20; }
 
@@ -444,6 +456,7 @@ async function renderMemoriaCalculoComFotos(doc: jsPDF, grupos: any[], startY: n
     for (const l of linhas) {
       const tipo = tipoDe(l);
       const entradas = getEntradasMem(l);
+      const vu = valorDe(l);
       const body: any[] = [];
 
       entradas.forEach((e: any, ei: number) => {
@@ -467,16 +480,18 @@ async function renderMemoriaCalculoComFotos(doc: jsPDF, grupos: any[], startY: n
               e.setor || "",
             ]
           : [e.setor || ""];
-        body.push([...base, ...cols, nf2(calcEntradaMem(tipo, e))]);
+        body.push([...base, ...cols, nf2(calcEntradaMem(tipo, e)), fmtValorMem(vu), fmtValorMem(vu === undefined ? undefined : calcEntradaMem(tipo, e) * vu)]);
       });
 
       body.push([
         {
           content: `SUBTOTAL${l.item ? ` ITEM ${l.item}` : " DO ITEM"}`,
-          colSpan: nCols - 1,
+          colSpan: nCols - 3,
           styles: { halign: "right", fontStyle: "bold", fillColor: [248, 248, 248] },
         } as any,
         { content: nf2(calcLinhaMem(tipo, l)), styles: { fontStyle: "bold", fillColor: [248, 248, 248] } } as any,
+        "",
+        { content: fmtValorMem(vu === undefined ? undefined : calcLinhaMem(tipo, l) * vu), styles: { fontStyle: "bold", fillColor: [248, 248, 248] } },
       ]);
 
       (await getAutoTable())(doc, {
@@ -524,12 +539,16 @@ async function renderMemoriaCalculoComFotos(doc: jsPDF, grupos: any[], startY: n
     }
 
     const total = linhas.reduce((s, l) => s + calcLinhaMem(tipoDe(l), l), 0);
+    const totalValor = linhas.some(l => valorDe(l) !== undefined)
+      ? linhas.reduce((s, l) => s + calcLinhaMem(tipoDe(l), l) * (valorDe(l) ?? 0), 0)
+      : undefined;
     (await getAutoTable())(doc, {
       startY: y,
       theme: "grid",
       body: [[
         { content: "TOTAL:", styles: { halign: "right", fontStyle: "bold", fillColor: [245, 245, 245] } } as any,
-        { content: nf2(total), styles: { fontStyle: "bold", fillColor: [245, 245, 245], cellWidth: 30, halign: "right" } } as any,
+        { content: nf2(total), styles: { fontStyle: "bold", fillColor: [245, 245, 245], cellWidth: 22, halign: "right" } } as any,
+        { content: fmtValorMem(totalValor), styles: { fontStyle: "bold", fillColor: [245, 245, 245], cellWidth: 30, halign: "right" } },
       ]],
       styles: { fontSize: 8, cellPadding: 2, lineColor: BORDER, lineWidth: 0.2 },
       margin: { left: ml, right: mr },
@@ -552,7 +571,7 @@ export async function gerarPdfOrdemServicoFotosMemoriaFotos(
 
   doc.addPage();
   const y2 = await renderCabecalhoFotos(doc, opts);
-  await renderMemoriaCalculoComFotos(doc, Array.isArray(opts.memoriaCalculo) ? opts.memoriaCalculo : [], y2);
+  await renderMemoriaCalculoComFotos(doc, Array.isArray(opts.memoriaCalculo) ? opts.memoriaCalculo : [], y2, opts);
 
   await finalizar(doc, opts, "Fotos_Memoria_Fotos");
 }
@@ -595,7 +614,7 @@ export async function gerarPdfOrdemServicoFotosMemoriaLote(lista: LoteOpts[]) {
     await renderFotos(doc, lista[i], y);
     doc.addPage();
     const y2 = await renderCabecalhoFotos(doc, lista[i]);
-    renderMemoriaCalculo(doc, Array.isArray(lista[i].memoriaCalculo) ? lista[i].memoriaCalculo! : [], y2);
+    await renderMemoriaCalculo(doc, lista[i].memoriaCalculo ?? [], y2, lista[i]);
   }
   await finalizarLote(doc, lista, "Fotos_Memoria");
 }
@@ -612,7 +631,7 @@ export async function gerarPdfOrdemServicoFotosMemoriaFotosLote(lista: LoteOpts[
     await renderFotos(doc, lista[i], y);
     doc.addPage();
     const y2 = await renderCabecalhoFotos(doc, lista[i]);
-    await renderMemoriaCalculoComFotos(doc, Array.isArray(lista[i].memoriaCalculo) ? lista[i].memoriaCalculo! : [], y2);
+    await renderMemoriaCalculoComFotos(doc, lista[i].memoriaCalculo ?? [], y2, lista[i]);
   }
   await finalizarLote(doc, lista, "Fotos_Memoria_Fotos");
 }

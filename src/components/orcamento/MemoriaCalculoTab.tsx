@@ -566,6 +566,9 @@ export default function MemoriaCalculoTab({ grupos, onChange, readOnly, itensOri
                         </TableCell>
                         <TableCell className="font-bold">{nf(calcLinha(tl, l))}</TableCell>
                         <TableCell className="text-xs font-semibold">{unidadeLinha(l, tl)}</TableCell>
+                        <TableCell className="text-right text-xs font-bold">
+                          {vu == null ? "-" : nf(calcLinha(tl, l) * vu)}
+                        </TableCell>
                         <TableCell />
                         {!readOnly && <TableCell colSpan={2} />}
                       </TableRow>

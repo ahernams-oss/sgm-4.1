@@ -152,6 +152,22 @@ export default function MemoriaCalculoTab({ grupos, onChange, readOnly, itensOri
   const [scoPopoverGrupo, setScoPopoverGrupo] = useState<string | null>(null);
   const [scoSearch, setScoSearch] = useState("");
 
+  // Valor unitário por código de item, vindo das abas Itens SCO / Materiais
+  const mapaValores = useMemo(() => {
+    const m = new Map<string, number>();
+    itensOrigem.forEach(i => {
+      const c = (i.codigo || "").trim();
+      if (c && !m.has(c)) m.set(c, Number(i.valorUnitario) || 0);
+    });
+    return m;
+  }, [itensOrigem]);
+  const valorUnitDe = (l: LinhaMemoria): number | null => {
+    const c = (l.codigo || "").trim();
+    return mapaValores.has(c) ? (mapaValores.get(c) as number) : null;
+  };
+  const fmtValor = (v: number | null) => (v == null ? "-" : `R$ ${nf(v)}`);
+
+
   const catalogoFiltrado = useMemo(() => {
     const q = scoSearch.trim().toLowerCase();
     if (!q) return catalogoSco.slice(0, 50);

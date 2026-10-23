@@ -425,6 +425,7 @@ export default function MemoriaCalculoTab({ grupos, onChange, readOnly, itensOri
               <TableBody>
                 {g.linhas.map(l => {
                   const tl = tipoLinha(g, l);
+                  const vu = valorUnitDe(l);
                   const entradas = getEntradas(l);
                   const linhasEntradas = entradas.map((e, ei) => (
                     <TableRow key={e.id} className={ei > 0 ? "border-t-0" : ""}>
@@ -512,6 +513,14 @@ export default function MemoriaCalculoTab({ grupos, onChange, readOnly, itensOri
                         {nf(calcEntrada(tl, e))}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">{unidadeLinha(l, tl)}</TableCell>
+                      {ei === 0 && (
+                        <TableCell rowSpan={entradas.length + 1} className="align-top text-right text-xs font-medium pt-2">
+                          {fmtValor(vu)}
+                        </TableCell>
+                      )}
+                      <TableCell className="text-right text-xs">
+                        {vu == null ? "-" : nf(calcEntrada(tl, e) * vu)}
+                      </TableCell>
                       {ei === 0 && (
                         <TableCell rowSpan={entradas.length} className="align-top">
                           <ImagensSubItem

@@ -324,7 +324,9 @@ async function renderMemoriaCalculo(doc: jsPDF, grupos: any[], startY: number, o
       styles: { fontSize: 7, cellPadding: 1.5, lineColor: BORDER, lineWidth: 0.2, textColor: [30, 30, 30] },
       headStyles: { fillColor: [245, 245, 245], textColor: [30, 30, 30], fontStyle: "bold", fontSize: 7 },
       columnStyles: Object.fromEntries(
-        Array.from({ length: nCols }).map((_, i) => [i, i >= 5 ? { halign: "right" as const } : {}])
+        Array.from({ length: nCols }).map((_, i) => [i,
+          i >= nCols - 2 ? { halign: "right" as const, cellWidth: 25 } : i >= 5 ? { halign: "right" as const } : {}
+        ])
       ) as any,
       margin: { left: ml, right: mr },
     });
@@ -502,7 +504,9 @@ async function renderMemoriaCalculoComFotos(doc: jsPDF, grupos: any[], startY: n
         styles: { fontSize: 7, cellPadding: 1.5, lineColor: BORDER, lineWidth: 0.2, textColor: [30, 30, 30] },
         headStyles: { fillColor: [245, 245, 245], textColor: [30, 30, 30], fontStyle: "bold", fontSize: 7 },
         columnStyles: Object.fromEntries(
-          Array.from({ length: nCols }).map((_, i) => [i, i >= 5 ? { halign: "right" as const } : {}])
+          Array.from({ length: nCols }).map((_, i) => [i,
+            i >= nCols - 2 ? { halign: "right" as const, cellWidth: 25 } : i >= 5 ? { halign: "right" as const } : {}
+          ])
         ) as any,
         margin: { left: ml, right: mr },
       });

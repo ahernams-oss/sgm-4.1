@@ -19,7 +19,11 @@ export async function carregarDadosImpressaoOs(opts: Opcoes, comMemoria: boolean
     const { data, error } = await supabase.from("ordens_servico")
       .select("fotos, solicitacao_id").eq("id", os.id).single();
     if (error) throw new Error("Não foi possível carregar as fotos da O.S.: " + error.message);
-    os.fotos = Array.isArray(data.fotos) ? data.fotos : [];
+    os.fotos = Array.isArray(data.fotos) ? data.fotos.flatMap(foto => {
+      if (!foto || typeof foto !== "object" || Array.isArray(foto) || typeof foto.url !== "string") return [];
+      return [{ id: typeof foto.id === "string" ? foto.id : foto.url, url: foto.url,
+        observacao: typeof foto.observacao === "string" ? foto.observacao : undefined }];
+    }) : [];
     os.solicitacaoId = data.solicitacao_id || os.solicitacaoId;
   }
   let memoriaCalculo = opts.memoriaCalculo;

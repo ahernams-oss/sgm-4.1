@@ -12,7 +12,7 @@ describe("anexos da impressão de OS", () => {
       : Promise.resolve({ data: [{ status: "Aprovado", memoria_calculo: memoria }] }));
     mocks.from.mockReturnValue({ select: () => ({ eq }) });
     const result = await carregarDadosImpressaoOs({ os: { id: "os-5", fotos: [], solicitacaoId: "ss-4" } as any, memoriaCalculo: [] }, true);
-    expect(result.os.fotos).toEqual([{ url: "foto-atual" }]);
+    expect(result.os.fotos).toEqual([{ id: "foto-atual", url: "foto-atual", observacao: undefined }]);
     expect(result.memoriaCalculo).toEqual(memoria);
     expect(eq).toHaveBeenCalledWith("solicitacao_id", "ss-4");
   });

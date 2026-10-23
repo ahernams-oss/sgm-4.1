@@ -161,7 +161,7 @@ const Clientes = () => {
    const [contratosClienteId, setContratosClienteId] = useState<string | null>(null);
   const emptyContrato = { numero: "", numeroProcesso: "", descricao: "", dataInicio: "", dataFim: "", bdi: "", descontoLicitacao: "", valorBase: "", valorBase2: "", valorBase3: "", maoDeObraMensal: "", maoDeObraAnual: "", maoDeObraContratual: "", mesSco: "", anoSco: "", valorContrato: "", inss: "", pis: "", cofins: "", csll: "", irrf: "", iss: "", cbs: "", ibs: "", cbsMunicipal: "", ibsMunicipal: "", meta1: "", meta2: "", meta3: "", anexos: [] as ContratoAnexo[] };
   const [contratoForm, setContratoForm] = useState(emptyContrato);
-  const [contratoErrors, setContratoErrors] = useState<{ cbs?: string; ibs?: string; cbsMunicipal?: string; ibsMunicipal?: string; descontoLicitacao?: string }>({});
+  const [contratoErrors, setContratoErrors] = useState<{ cbs?: string; ibs?: string; cbsMunicipal?: string; ibsMunicipal?: string; descontoLicitacao?: string; bdi?: string }>({});
   const [editingContratoId, setEditingContratoId] = useState<string | null>(null);
   const [salvandoContrato, setSalvandoContrato] = useState(false);
   const [faturamentoContratoId, setFaturamentoContratoId] = useState<string | null>(null);
@@ -547,8 +547,9 @@ const Clientes = () => {
             const cbsMunicipalError = validarPercentual(contratoForm.cbsMunicipal, "CBS Municipal");
             const ibsMunicipalError = validarPercentual(contratoForm.ibsMunicipal, "IBS Municipal");
             const descontoLicitacaoError = validarPercentual(contratoForm.descontoLicitacao, "Desconto Licitação");
-            setContratoErrors({ cbs: cbsError, ibs: ibsError, cbsMunicipal: cbsMunicipalError, ibsMunicipal: ibsMunicipalError, descontoLicitacao: descontoLicitacaoError });
-            if (cbsError || ibsError || cbsMunicipalError || ibsMunicipalError || descontoLicitacaoError) { toast.error("Corrija os campos de porcentagem antes de salvar."); return; }
+            const bdiError = validarPercentual(contratoForm.bdi, "BDI");
+            setContratoErrors({ cbs: cbsError, ibs: ibsError, cbsMunicipal: cbsMunicipalError, ibsMunicipal: ibsMunicipalError, descontoLicitacao: descontoLicitacaoError, bdi: bdiError });
+            if (cbsError || ibsError || cbsMunicipalError || ibsMunicipalError || descontoLicitacaoError || bdiError) { toast.error("Corrija os campos de porcentagem antes de salvar."); return; }
             setSalvandoContrato(true);
             try {
               const contratosAtualizados = editingContratoId
@@ -600,7 +601,10 @@ const Clientes = () => {
                     <Input placeholder="Desconto Licitação (%)" type="number" step="0.01" value={contratoForm.descontoLicitacao} onChange={e => { setContratoForm(p => ({ ...p, descontoLicitacao: e.target.value })); setContratoErrors(prev => ({ ...prev, descontoLicitacao: validarPercentual(e.target.value, "Desconto Licitação") })); }} />
                     {contratoErrors.descontoLicitacao && <p className="text-xs text-destructive mt-1">{contratoErrors.descontoLicitacao}</p>}
                   </div>
-                  <Input placeholder="BDI" value={contratoForm.bdi} onChange={e => setContratoForm(p => ({ ...p, bdi: e.target.value }))} />
+                  <div>
+                    <Input placeholder="BDI (%)" type="number" step="0.01" value={contratoForm.bdi} onChange={e => { setContratoForm(p => ({ ...p, bdi: e.target.value })); setContratoErrors(prev => ({ ...prev, bdi: validarPercentual(e.target.value, "BDI") })); }} />
+                    {contratoErrors.bdi && <p className="text-xs text-destructive mt-1">{contratoErrors.bdi}</p>}
+                  </div>
                 </div>
               </div>
 
@@ -711,7 +715,7 @@ const Clientes = () => {
                           <p className="text-muted-foreground tabular-nums">
                             {ct.dataInicio ? new Date(ct.dataInicio + "T00:00:00").toLocaleDateString("pt-BR") : "—"} a {ct.dataFim ? new Date(ct.dataFim + "T00:00:00").toLocaleDateString("pt-BR") : "—"}
                           </p>
-                          <p className="text-muted-foreground">BDI: {ct.bdi || "—"}</p>
+                          <p className="text-muted-foreground">BDI: {ct.bdi ? `${ct.bdi}%` : "—"}</p>
                           <p className="text-muted-foreground">Desconto Licitação: {ct.descontoLicitacao ? `${ct.descontoLicitacao}%` : "—"}</p>
                           <p className="text-muted-foreground">VTM Mensal: {ct.valorBase || "—"}</p>
                           <p className="text-muted-foreground">VTM Anual: {ct.valorBase2 || "—"}</p>

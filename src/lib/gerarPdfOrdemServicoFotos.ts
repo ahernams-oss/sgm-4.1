@@ -1,4 +1,5 @@
 import { criarValoresMemoriaOs, valorUnitarioMemoriaOs } from "@/lib/valoresMemoriaOs";
+import { carregarDadosImpressaoOs, resolverImagemImpressaoOs } from "@/lib/dadosImpressaoOs";
 import { formatNumeroAno } from "@/lib/formatNumero";
 import { supabase } from "@/integrations/supabase/client";
 import { renderOS, addContinuationHeaders, type RenderOSOptions } from "@/lib/gerarPdfOrdemServico";
@@ -22,7 +23,8 @@ async function resolverModeloNome(cliente?: any): Promise<string> {
 
 async function loadImage(url: string): Promise<{ dataUrl: string; w: number; h: number } | null> {
   try {
-    const r = await fetch(url);
+    const r = await fetch(await resolverImagemImpressaoOs(url));
+    if (!r.ok) return null;
     const b = await r.blob();
     const dataUrl = await new Promise<string>((resolve) => {
       const fr = new FileReader();
@@ -354,6 +356,7 @@ async function renderBase(doc: jsPDF, opts: RenderOSOptions) {
 }
 
 export async function gerarPdfOrdemServicoComFotos(opts: RenderOSOptions) {
+  opts = await carregarDadosImpressaoOs(opts, false);
   const doc = new (await getJsPDF())({ compress: true, unit: "mm", format: "a4" });
   await renderBase(doc, opts);
   doc.addPage();
@@ -365,6 +368,7 @@ export async function gerarPdfOrdemServicoComFotos(opts: RenderOSOptions) {
 export async function gerarPdfOrdemServicoFotosMemoria(
   opts: RenderOSOptions & { memoriaCalculo?: any[] }
 ) {
+  opts = await carregarDadosImpressaoOs(opts, true);
   const doc = new (await getJsPDF())({ compress: true, unit: "mm", format: "a4" });
   await renderBase(doc, opts);
 
@@ -566,6 +570,7 @@ async function renderMemoriaCalculoComFotos(doc: jsPDF, grupos: any[], startY: n
 export async function gerarPdfOrdemServicoFotosMemoriaFotos(
   opts: RenderOSOptions & { memoriaCalculo?: any[] }
 ) {
+  opts = await carregarDadosImpressaoOs(opts, true);
   const doc = new (await getJsPDF())({ compress: true, unit: "mm", format: "a4" });
   await renderBase(doc, opts);
 
@@ -595,6 +600,7 @@ async function finalizarLote(doc: jsPDF, lista: LoteOpts[], sufixo: string) {
 /** Lote: OS + relatório fotográfico. */
 export async function gerarPdfOrdemServicoComFotosLote(lista: LoteOpts[]) {
   if (!lista.length) return;
+  lista = await Promise.all(lista.map(opts => carregarDadosImpressaoOs(opts, false)));
   const doc = new (await getJsPDF())({ compress: true, unit: "mm", format: "a4" });
   for (let i = 0; i < lista.length; i++) {
     if (i > 0) doc.addPage();
@@ -609,6 +615,7 @@ export async function gerarPdfOrdemServicoComFotosLote(lista: LoteOpts[]) {
 /** Lote: OS + fotos + memória de cálculo. */
 export async function gerarPdfOrdemServicoFotosMemoriaLote(lista: LoteOpts[]) {
   if (!lista.length) return;
+  lista = await Promise.all(lista.map(opts => carregarDadosImpressaoOs(opts, true)));
   const doc = new (await getJsPDF())({ compress: true, unit: "mm", format: "a4" });
   for (let i = 0; i < lista.length; i++) {
     if (i > 0) doc.addPage();
@@ -626,6 +633,7 @@ export async function gerarPdfOrdemServicoFotosMemoriaLote(lista: LoteOpts[]) {
 /** Lote: OS + fotos + memória de cálculo com fotos por sub-item. */
 export async function gerarPdfOrdemServicoFotosMemoriaFotosLote(lista: LoteOpts[]) {
   if (!lista.length) return;
+  lista = await Promise.all(lista.map(opts => carregarDadosImpressaoOs(opts, true)));
   const doc = new (await getJsPDF())({ compress: true, unit: "mm", format: "a4" });
   for (let i = 0; i < lista.length; i++) {
     if (i > 0) doc.addPage();

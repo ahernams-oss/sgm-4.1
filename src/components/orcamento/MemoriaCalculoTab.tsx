@@ -113,6 +113,8 @@ export interface ItemOrigem {
   quantidade: number;
   familia?: string;
   unidade?: string;
+  /** Valor unitário do item no orçamento (itens SCO / Materiais) */
+  valorUnitario?: number;
 }
 
 export interface CatalogoScoItem {

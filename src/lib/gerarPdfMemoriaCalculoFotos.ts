@@ -175,6 +175,8 @@ async function renderMemoriaFotos(doc: jsPDF, orc: Orcamento, empresa?: Empresa)
       ...(hasArea ? ["COMP.", "LARG.", "ALT."] : []),
       ...(hasMo ? ["HR/DIA", "DIAS"] : []),
       uniforme ? UNIDADE_LABEL[uniforme] : "TOTAL",
+      "VALOR UNIT. (R$)",
+      "VALOR TOTAL (R$)",
     ]];
     const nCols = head[0].length;
 
@@ -196,6 +198,7 @@ async function renderMemoriaFotos(doc: jsPDF, orc: Orcamento, empresa?: Empresa)
     for (const l of linhas) {
       const tipo = tipoDe(l);
       const entradas = getEntradas(l);
+      const vu = valorUnitDe(l);
       const body: any[] = [];
 
       entradas.forEach((e: any, ei: number) => {
@@ -221,16 +224,30 @@ async function renderMemoriaFotos(doc: jsPDF, orc: Orcamento, empresa?: Empresa)
           tipo === "mao_de_obra" ? nf(e.hrDia || 0) : "",
           tipo === "mao_de_obra" ? nf(e.dias || 0) : "",
         );
-        body.push([...base, ...medidas, nf(calcEntrada(tipo, e))]);
+        const valorUnitCell =
+          ei === 0
+            ? [{ content: fmtValor(vu), rowSpan: entradas.length + 1, styles: { halign: "right" as const } }]
+            : [];
+        body.push([
+          ...base,
+          ...medidas,
+          nf(calcEntrada(tipo, e)),
+          ...valorUnitCell,
+          vu == null ? "-" : nf(calcEntrada(tipo, e) * vu),
+        ]);
       });
 
       body.push([
         {
           content: `SUBTOTAL${l.item ? ` ITEM ${l.item}` : " DO ITEM"}`,
-          colSpan: nCols - 1,
+          colSpan: nCols - 3,
           styles: { halign: "right", fontStyle: "bold", fillColor: [248, 248, 248] },
         },
         { content: nf(calcLinha(tipo, l)), styles: { fontStyle: "bold", fillColor: [248, 248, 248] } },
+        {
+          content: vu == null ? "-" : nf(calcLinha(tipo, l) * vu),
+          styles: { fontStyle: "bold", fillColor: [248, 248, 248], halign: "right" },
+        },
       ]);
 
       (await getAutoTable())(doc, {
@@ -278,10 +295,17 @@ async function renderMemoriaFotos(doc: jsPDF, orc: Orcamento, empresa?: Empresa)
 
     (await getAutoTable())(doc, {
       startY: y,
-      body: [[
-        { content: "TOTAL:", styles: { halign: "right", fontStyle: "bold", fillColor: [245, 247, 252] } },
-        { content: nf(total), styles: { fontStyle: "bold", fillColor: [245, 247, 252], cellWidth: 30 } },
-      ]],
+      body: [
+        [
+          { content: "TOTAL:", colSpan: 2, styles: { halign: "right", fontStyle: "bold", fillColor: [245, 247, 252] } },
+          { content: nf(total), styles: { fontStyle: "bold", fillColor: [245, 247, 252], cellWidth: 30, halign: "right" } },
+          { content: "", styles: { fillColor: [245, 247, 252] } },
+          {
+            content: fmtValor(linhas.reduce((s, l) => s + calcLinha(tipoDe(l), l) * (valorUnitDe(l) ?? 0), 0)),
+            styles: { fontStyle: "bold", fillColor: [245, 247, 252], halign: "right" },
+          },
+        ],
+      ],
       styles: { fontSize: 8, cellPadding: 2 },
       theme: "grid",
       margin: { left: ml, right: mr },

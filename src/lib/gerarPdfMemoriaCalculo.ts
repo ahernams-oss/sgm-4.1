@@ -67,6 +67,20 @@ async function loadImageAsDataUrl(url: string): Promise<string | null> {
 
 async function renderMemoria(doc: jsPDF, orc: Orcamento, empresa?: Empresa) {
   const grupos: any[] = Array.isArray(orc.memoriaCalculo) ? orc.memoriaCalculo : [];
+
+  // Valor unitário de cada item: busca em itensSco/itensMateriais pelo código
+  const mapaValores = new Map<string, number>();
+  (orc.itensSco || []).forEach((it: any) => mapaValores.set(String(it.codSco || "").trim(), Number(it.valorUnitario) || 0));
+  (orc.itensMateriais || []).forEach((it: any) => {
+    const c = String(it.codigo || "").trim();
+    if (c && !mapaValores.has(c)) mapaValores.set(c, Number(it.valorUnitario) || 0);
+  });
+  const valorUnitDe = (l: any): number | null => {
+    const c = String(l?.codigo || "").trim();
+    return mapaValores.has(c) ? (mapaValores.get(c) as number) : null;
+  };
+  const fmtValor = (v: number | null) => (v == null ? "-" : `R$ ${nf(v)}`);
+
   const pw = doc.internal.pageSize.getWidth();
   const ml = 14;
   const mr = 14;
@@ -147,6 +161,8 @@ async function renderMemoria(doc: jsPDF, orc: Orcamento, empresa?: Empresa) {
       ...(hasArea ? ["COMP.", "LARG.", "ALT."] : []),
       ...(hasMo ? ["HR/DIA", "DIAS"] : []),
       uniforme ? UNIDADE_LABEL[uniforme] : "TOTAL",
+      "VALOR UNIT. (R$)",
+      "VALOR TOTAL (R$)",
     ]];
 
     const body: any[] = [

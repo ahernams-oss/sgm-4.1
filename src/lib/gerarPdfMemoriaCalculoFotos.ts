@@ -145,6 +145,19 @@ async function renderMemoriaFotos(doc: jsPDF, orc: Orcamento, empresa?: Empresa)
     doc.text("Nenhuma memória de cálculo cadastrada neste orçamento.", ml, y + 4);
   }
 
+  // Valor unitário de cada item: busca em itensSco/itensMateriais pelo código
+  const mapaValores = new Map<string, number>();
+  (orc.itensSco || []).forEach((it: any) => mapaValores.set(String(it.codSco || "").trim(), Number(it.valorUnitario) || 0));
+  (orc.itensMateriais || []).forEach((it: any) => {
+    const c = String(it.codigo || "").trim();
+    if (c && !mapaValores.has(c)) mapaValores.set(c, Number(it.valorUnitario) || 0);
+  });
+  const valorUnitDe = (l: any): number | null => {
+    const c = String(l?.codigo || "").trim();
+    return mapaValores.has(c) ? (mapaValores.get(c) as number) : null;
+  };
+  const fmtValor = (v: number | null) => (v == null ? "-" : `R$ ${nf(v)}`);
+
   for (const g of grupos) {
     const tipoGrupo: Tipo = (g.tipo || "unidade") as Tipo;
     const linhas: any[] = Array.isArray(g.linhas) ? g.linhas : [];

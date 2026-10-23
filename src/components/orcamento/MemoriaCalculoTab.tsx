@@ -390,7 +390,7 @@ export default function MemoriaCalculoTab({ grupos, onChange, readOnly, itensOri
             const { hasArea, hasMo, hasQtd, uniforme, m } = colunasGrupo(g);
             return (
           <div className="border rounded-md overflow-x-auto">
-            <Table className="min-w-[1250px]">
+            <Table className="min-w-[1500px]">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-20">ITEM</TableHead>
@@ -415,6 +415,8 @@ export default function MemoriaCalculoTab({ grupos, onChange, readOnly, itensOri
                   )}
                   <TableHead className="w-28">{uniforme ? UNIDADE_LABEL[uniforme] : "TOTAL"}</TableHead>
                   <TableHead className="w-16">UN.</TableHead>
+                  <TableHead className="w-24 text-right">VALOR UNIT.</TableHead>
+                  <TableHead className="w-28 text-right">VALOR TOTAL (R$)</TableHead>
                   <TableHead className="w-24">IMAGENS</TableHead>
                   {!readOnly && <TableHead className="w-10" />}
                   {!readOnly && <TableHead className="w-20" />}

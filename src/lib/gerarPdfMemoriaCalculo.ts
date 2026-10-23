@@ -176,6 +176,7 @@ async function renderMemoria(doc: jsPDF, orc: Orcamento, empresa?: Empresa) {
     for (const l of linhas) {
       const tipo = tipoDe(l);
       const entradas = getEntradas(l);
+      const vu = valorUnitDe(l);
       entradas.forEach((e: any, ei: number) => {
         const rowSpan = entradas.length;
         const base =
@@ -199,22 +200,42 @@ async function renderMemoria(doc: jsPDF, orc: Orcamento, empresa?: Empresa) {
           tipo === "mao_de_obra" ? nf(e.hrDia || 0) : "",
           tipo === "mao_de_obra" ? nf(e.dias || 0) : "",
         );
-        body.push([...base, ...medidas, nf(calcEntrada(tipo, e))]);
+        const valorUnitCell =
+          ei === 0
+            ? [{ content: fmtValor(vu), rowSpan: entradas.length + 1, styles: { halign: "right" as const } }]
+            : [];
+        body.push([
+          ...base,
+          ...medidas,
+          nf(calcEntrada(tipo, e)),
+          ...valorUnitCell,
+          vu == null ? "-" : nf(calcEntrada(tipo, e) * vu),
+        ]);
       });
       body.push([
         {
           content: `SUBTOTAL${l.item ? ` ITEM ${l.item}` : " DO ITEM"}`,
-          colSpan: head[0].length - 1,
+          colSpan: head[0].length - 3,
           styles: { halign: "right", fontStyle: "bold", fillColor: [248, 248, 248] },
         },
         { content: nf(calcLinha(tipo, l)), styles: { fontStyle: "bold", fillColor: [248, 248, 248] } },
+        {
+          content: vu == null ? "-" : nf(calcLinha(tipo, l) * vu),
+          styles: { fontStyle: "bold", fillColor: [248, 248, 248], halign: "right" },
+        },
       ]);
     }
 
+    const valorTotalGrupo = linhas.reduce((s, l) => s + calcLinha(tipoDe(l), l) * (valorUnitDe(l) ?? 0), 0);
 
     body.push([
-      { content: "TOTAL:", colSpan: head[0].length - 1, styles: { halign: "right", fontStyle: "bold", fillColor: [245, 247, 252] } },
+      { content: "TOTAL:", colSpan: head[0].length - 3, styles: { halign: "right", fontStyle: "bold", fillColor: [245, 247, 252] } },
       { content: nf(total), styles: { fontStyle: "bold", fillColor: [245, 247, 252] } },
+      { content: "", styles: { fillColor: [245, 247, 252] } },
+      {
+        content: fmtValor(valorTotalGrupo),
+        styles: { fontStyle: "bold", fillColor: [245, 247, 252], halign: "right" },
+      },
     ]);
 
     (await getAutoTable())(doc, {

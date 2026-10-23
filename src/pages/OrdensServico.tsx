@@ -1747,6 +1747,7 @@ export default function OrdensServicoPage() {
                         )}
                         {podeImprimirOS && (
                           <DropdownMenuItem onClick={async () => {
+                            try {
                             await gerarPdfOrdemServicoComFotos({
                               os,
                               empresa,
@@ -1754,12 +1755,16 @@ export default function OrdensServicoPage() {
                               assinaturas: assinaturasOs.filter(a => a.os_id === os.id),
                             });
                             await marcarOsImpressa([os.id]);
+                            } catch (erro) {
+                              toast.error(erro instanceof Error ? erro.message : "Não foi possível gerar a impressão com fotos.");
+                            }
                           }}>
                             <Printer className="mr-2 h-4 w-4" /> Imprimir OS com Fotos
                           </DropdownMenuItem>
                         )}
                         {podeImprimirOS && (
                           <DropdownMenuItem onClick={async () => {
+                            try {
                             await gerarPdfOrdemServicoFotosMemoria({
                               os,
                               empresa,
@@ -1768,6 +1773,9 @@ export default function OrdensServicoPage() {
                               memoriaCalculo: getMemoriaCalculoDaOS(os),
                             });
                             await marcarOsImpressa([os.id]);
+                            } catch (erro) {
+                              toast.error(erro instanceof Error ? erro.message : "Não foi possível gerar a impressão com fotos e memória.");
+                            }
                           }}>
                             <Printer className="mr-2 h-4 w-4" /> Imprimir OS com Fotos e Memória de Cálculo
                           </DropdownMenuItem>
@@ -1775,6 +1783,7 @@ export default function OrdensServicoPage() {
 
                         {podeImprimirOS && (
                           <DropdownMenuItem onClick={async () => {
+                            try {
                             await gerarPdfOrdemServicoFotosMemoriaFotos({
                               os,
                               empresa,
@@ -1783,6 +1792,9 @@ export default function OrdensServicoPage() {
                               memoriaCalculo: getMemoriaCalculoDaOS(os),
                             });
                             await marcarOsImpressa([os.id]);
+                            } catch (erro) {
+                              toast.error(erro instanceof Error ? erro.message : "Não foi possível gerar a impressão com fotos e memória.");
+                            }
                           }}>
                             <Printer className="mr-2 h-4 w-4" /> Imprimir OS com Fotos e Memória de Cálculo com Fotos
                           </DropdownMenuItem>

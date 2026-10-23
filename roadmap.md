@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Exibir valores unitários, por setor, subtotais e total na memória de cálculo dos PDFs combinados de O.S., com e sem fotos, individuais e em lote; três testes passaram e as duas folhas foram conferidas visualmente. Não testei com login.
+
 - [x] Corrigir aprovação de orçamento sem limite no diálogo compartilhado (desktop e celular), impor proteção no banco e testar os critérios de bloqueio (4 testes).
 
 Limite desta correção: aprovação autenticada não testada; não testei com login no Supabase externo.

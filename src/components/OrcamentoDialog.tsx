@@ -255,8 +255,8 @@ export default function OrcamentoDialog({ open, onOpenChange, solicitacao, exist
 
   // Itens (SCO + Materiais) que alimentam a memória de cálculo
   const itensOrigemMemoria = useMemo(() => [
-    ...itensSco.map(i => ({ codigo: i.codSco, descricao: i.descricao, quantidade: i.quantidade, familia: i.familia, unidade: i.unidade })),
-    ...itensMateriais.map(i => ({ codigo: i.codigo, descricao: i.descricao, quantidade: i.quantidade, familia: i.familia, unidade: (i as any).unidade })),
+    ...itensSco.map(i => ({ codigo: i.codSco, descricao: i.descricao, quantidade: i.quantidade, familia: i.familia, unidade: i.unidade, valorUnitario: i.valorUnitario })),
+    ...itensMateriais.map(i => ({ codigo: i.codigo, descricao: i.descricao, quantidade: i.quantidade, familia: i.familia, unidade: (i as any).unidade, valorUnitario: i.valorUnitario })),
   ], [itensSco, itensMateriais]);
 
   // Setores vinculados ao cliente do orçamento

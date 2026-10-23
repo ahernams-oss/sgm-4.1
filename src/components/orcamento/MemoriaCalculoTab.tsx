@@ -113,6 +113,8 @@ export interface ItemOrigem {
   quantidade: number;
   familia?: string;
   unidade?: string;
+  /** Valor unitário do item no orçamento (itens SCO / Materiais) */
+  valorUnitario?: number;
 }
 
 export interface CatalogoScoItem {
@@ -149,6 +151,22 @@ const SEM_FAMILIA = "SEM FAMÍLIA";
 export default function MemoriaCalculoTab({ grupos, onChange, readOnly, itensOrigem = [], setores = [], catalogoSco = [], onAplicarSubtotais, onEnviarItensParaSco }: Props) {
   const [scoPopoverGrupo, setScoPopoverGrupo] = useState<string | null>(null);
   const [scoSearch, setScoSearch] = useState("");
+
+  // Valor unitário por código de item, vindo das abas Itens SCO / Materiais
+  const mapaValores = useMemo(() => {
+    const m = new Map<string, number>();
+    itensOrigem.forEach(i => {
+      const c = (i.codigo || "").trim();
+      if (c && !m.has(c)) m.set(c, Number(i.valorUnitario) || 0);
+    });
+    return m;
+  }, [itensOrigem]);
+  const valorUnitDe = (l: LinhaMemoria): number | null => {
+    const c = (l.codigo || "").trim();
+    return mapaValores.has(c) ? (mapaValores.get(c) as number) : null;
+  };
+  const fmtValor = (v: number | null) => (v == null ? "-" : `R$ ${nf(v)}`);
+
 
   const catalogoFiltrado = useMemo(() => {
     const q = scoSearch.trim().toLowerCase();
@@ -372,7 +390,7 @@ export default function MemoriaCalculoTab({ grupos, onChange, readOnly, itensOri
             const { hasArea, hasMo, hasQtd, uniforme, m } = colunasGrupo(g);
             return (
           <div className="border rounded-md overflow-x-auto">
-            <Table className="min-w-[1250px]">
+            <Table className="min-w-[1500px]">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-20">ITEM</TableHead>
@@ -397,6 +415,8 @@ export default function MemoriaCalculoTab({ grupos, onChange, readOnly, itensOri
                   )}
                   <TableHead className="w-28">{uniforme ? UNIDADE_LABEL[uniforme] : "TOTAL"}</TableHead>
                   <TableHead className="w-16">UN.</TableHead>
+                  <TableHead className="w-24 text-right">VALOR UNIT.</TableHead>
+                  <TableHead className="w-28 text-right">VALOR TOTAL (R$)</TableHead>
                   <TableHead className="w-24">IMAGENS</TableHead>
                   {!readOnly && <TableHead className="w-10" />}
                   {!readOnly && <TableHead className="w-20" />}
@@ -405,6 +425,7 @@ export default function MemoriaCalculoTab({ grupos, onChange, readOnly, itensOri
               <TableBody>
                 {g.linhas.map(l => {
                   const tl = tipoLinha(g, l);
+                  const vu = valorUnitDe(l);
                   const entradas = getEntradas(l);
                   const linhasEntradas = entradas.map((e, ei) => (
                     <TableRow key={e.id} className={ei > 0 ? "border-t-0" : ""}>
@@ -493,6 +514,14 @@ export default function MemoriaCalculoTab({ grupos, onChange, readOnly, itensOri
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">{unidadeLinha(l, tl)}</TableCell>
                       {ei === 0 && (
+                        <TableCell rowSpan={entradas.length + 1} className="align-top text-right text-xs font-medium pt-2">
+                          {fmtValor(vu)}
+                        </TableCell>
+                      )}
+                      <TableCell className="text-right text-xs">
+                        {vu == null ? "-" : nf(calcEntrada(tl, e) * vu)}
+                      </TableCell>
+                      {ei === 0 && (
                         <TableCell rowSpan={entradas.length} className="align-top">
                           <ImagensSubItem
                             imagens={l.imagens || []}
@@ -537,6 +566,9 @@ export default function MemoriaCalculoTab({ grupos, onChange, readOnly, itensOri
                         </TableCell>
                         <TableCell className="font-bold">{nf(calcLinha(tl, l))}</TableCell>
                         <TableCell className="text-xs font-semibold">{unidadeLinha(l, tl)}</TableCell>
+                        <TableCell className="text-right text-xs font-bold">
+                          {vu == null ? "-" : nf(calcLinha(tl, l) * vu)}
+                        </TableCell>
                         <TableCell />
                         {!readOnly && <TableCell colSpan={2} />}
                       </TableRow>
@@ -545,9 +577,11 @@ export default function MemoriaCalculoTab({ grupos, onChange, readOnly, itensOri
                 })}
                 {(() => {
                   const porTipo = new Map<TipoMemoria, number>();
+                  const porValor = new Map<TipoMemoria, number>();
                   g.linhas.forEach(l => {
                     const t = tipoLinha(g, l);
                     porTipo.set(t, (porTipo.get(t) || 0) + calcLinha(t, l));
+                    porValor.set(t, (porValor.get(t) || 0) + calcLinha(t, l) * (valorUnitDe(l) ?? 0));
                   });
                   const linhasTotal = porTipo.size ? Array.from(porTipo) : ([[g.tipo, 0]] as [TipoMemoria, number][]);
                   return linhasTotal.map(([t, v], i) => (
@@ -558,6 +592,8 @@ export default function MemoriaCalculoTab({ grupos, onChange, readOnly, itensOri
                       </TableCell>
                       <TableCell className="font-bold">{nf(v)}</TableCell>
                       <TableCell className="text-xs font-semibold">{UNIDADE_CURTA[t]}</TableCell>
+                      <TableCell />
+                      <TableCell className="text-right text-xs font-bold">{fmtValor(porValor.get(t) ?? 0)}</TableCell>
                       <TableCell />
                       {!readOnly && <TableCell colSpan={2} />}
                     </TableRow>

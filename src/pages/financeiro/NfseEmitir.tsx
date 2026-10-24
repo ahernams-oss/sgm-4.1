@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import CodigoTributacaoSelect from "@/components/financeiro/CodigoTributacaoSelect";
+import TomadorSelect from "@/components/financeiro/TomadorSelect";
 
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
@@ -559,14 +560,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
 
           <TabsContent value="tomador" className="space-y-3 pt-3">
             <Label>Cliente / Tomador</Label>
-            <Select value={clienteId} onValueChange={setClienteId}>
-              <SelectTrigger><SelectValue placeholder="Selecione o tomador..." /></SelectTrigger>
-              <SelectContent>
-                {clientes.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>{c.nome || c.nomeFantasia} — {(c as any).cnpj || (c as any).cpf || "—"}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <TomadorSelect value={clienteId} onValueChange={setClienteId} options={clientes} />
             {cliente && (
               <div className="text-sm bg-muted p-3 rounded">
                 <p><strong>{cliente.nome}</strong></p>

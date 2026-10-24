@@ -12,6 +12,7 @@
 - Blank service-order previews reuse renderOS in blank mode with an in-memory order and revocable PDF blob URLs; they never persist records or consume order numbers.
 - Client billing payment submissions use an authenticated server function that verifies the current SGM user's password before persisting the credit date; ordinary unpaid edits retain the existing save path.
 - NFS-e tax-code selectors share CodigoTributacaoSelect and its normalized matching helper; filtering changes presentation only and preserves the original tax codes and descriptions.
+- NFS-e recipient selection uses TomadorSelect with normalized name/document matching; filtering is presentation-only and selection retains the original client ID.
 - NFS-e issuance uses the Brasil NFe fiscal API through a shared payload/response adapter; persist asynchronous lot references and never automatically resend uncertain submissions to avoid duplicate invoices.
 - OS classification uses a server-only aggregated historical signature dataset through an authenticated, SGM-permission-checked server function; resolve names against current category/service links and apply only on explicit acceptance to avoid exposing original orders or overwriting manual choices.
 - Access-profile modules are grouped by the presentation-only mapping in gruposPermissoes; preserve permission keys and module objects so reorganizing menus never changes existing grants.

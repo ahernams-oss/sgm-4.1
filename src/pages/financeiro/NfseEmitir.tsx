@@ -483,7 +483,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
         endereco: {
           logradouro: (cliente as any).logradouro, numero: (cliente as any).numero,
           complemento: (cliente as any).complemento, bairro: (cliente as any).bairro,
-          codigoMunicipio: (cliente as any).codigoMunicipio || config?.codigo_municipio_prestador,
+          municipio: cliente.cidade,
           uf: (cliente as any).uf, cep: (cliente as any).cep,
         },
       },

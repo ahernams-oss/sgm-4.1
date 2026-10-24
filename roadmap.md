@@ -1,5 +1,7 @@
 # Tarefas
 
+- [ ] Corrigir município do tomador na emissão NFS-e, resolver código IBGE pela cidade/UF e impedir envio com código ausente ou zero.
+
 - [x] Corrigir o erro 500 ao gravar o rascunho da NFS-e: o problema era o cast implícito de texto vazio para smallint na chave de bloqueio da numeração, não os campos do formulário. Migração aplicada; testes do gatilho em tabela temporária passaram em homologação, produção e número explícito; três testes Brasil NFe passaram e build OK. Nenhuma nota enviada; não testei com login.
 
 - [x] Substituir Focus por Brasil NFe na emissão de NFS-e com envio e consulta de lote conforme documentação oficial; três testes passaram. Emissão real e compatibilidade nacional do município não verificadas; não testei com login.

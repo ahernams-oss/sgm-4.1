@@ -6,12 +6,20 @@ describe("emissão Brasil NFe", () => {
     const payload = montarPayloadBrasilNfe(118, {
       servico: { descricao: "Manutenção", valorServico: 65, codigoTributacaoMunicipio: "14.01.07" },
       tributos: { aliquotaIss: 5, issRetido: false }, prestador: { codigoMunicipio: "3304557" },
-      tomador: { documento: "12.345.678/0001-90", razaoSocial: "Cliente" },
+      tomador: { documento: "12.345.678/0001-90", razaoSocial: "Cliente", endereco: { codigoMunicipio: "3303302" } },
     }, "nfse-118", 2);
     expect(BRASILNFE_FISCAL_URL).toBe("https://api.brasilnfe.com.br/services/fiscal");
     expect(payload.TipoAmbiente).toBe(2);
     expect(payload.nFSInfo[0]?.IdentificadorInterno).toBe("nfse-118");
     expect(payload.nFSInfo[0]?.Servico.Valores.ValorServico).toBe(65);
+    expect(payload.nFSInfo[0]?.Tomador.Endereco.CodMunicipio).toBe("3303302");
+    expect(payload.nFSInfo[0]?.Servico.CodMunicipioPrestacao).toBe("3304557");
+  });
+  it("bloqueia município ausente antes de montar o XML para envio", () => {
+    expect(() => montarPayloadBrasilNfe(0, {
+      servico: {}, tributos: {}, prestador: { codigoMunicipio: "3304557" },
+      tomador: { endereco: { codigoMunicipio: "0" } },
+    }, "validacao", 2)).toThrow("município IBGE válido");
   });
   it("não considera um lote aguardando processamento uma emissão", () => {
     expect(interpretarRetornoBrasilNfe({ StatusLote: 2, Notas: [] }, "x").status).toBe("processando");

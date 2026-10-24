@@ -1,7 +1,29 @@
-import { describe, expect, it } from "vitest";
-import { BRASILNFE_FISCAL_URL, montarPayloadBrasilNfe, interpretarRetornoBrasilNfe } from "./nfseBrasilNfe";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { BRASILNFE_FISCAL_URL, dataFiscalBrasilNfe, montarPayloadBrasilNfe, interpretarRetornoBrasilNfe } from "./nfseBrasilNfe";
 
 describe("emissão Brasil NFe", () => {
+  afterEach(() => vi.useRealTimers());
+  it.each([
+    ["2026-10-24T01:40:00.000Z", "2026-10-23"],
+    ["2026-10-24T02:59:59.999Z", "2026-10-23"],
+    ["2026-10-24T03:00:00.000Z", "2026-10-24"],
+    ["2027-01-01T01:00:00.000Z", "2026-12-31"],
+  ])("calcula o dia fiscal brasileiro em %s sem avançar a data", (instante, esperado) => {
+    expect(dataFiscalBrasilNfe(new Date(instante))).toBe(esperado);
+  });
+  it("envia a data documentada da DPS e preserva a competência informada", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-10-24T01:40:00.000Z"));
+    const modelo = {
+      dataCompetencia: "2026-09-30", servico: {}, tributos: {},
+      prestador: { codigoMunicipio: "3304557" },
+      tomador: { endereco: { codigoMunicipio: "3303302" } },
+    };
+    const nota = montarPayloadBrasilNfe(118, modelo, "nfse-118", 2).nFSInfo[0];
+    expect(nota?.DataEmissao).toBe("2026-10-23");
+    expect(nota?.DataCompetencia).toBe("2026-09-30");
+    expect(montarPayloadBrasilNfe(118, { ...modelo, dataCompetencia: undefined }, "nfse-118", 2).nFSInfo[0]?.DataCompetencia).toBe("2026-10-23");
+  });
   it("usa Brasil NFe e preserva ambiente e identificação do pedido", () => {
     const payload = montarPayloadBrasilNfe(118, {
       servico: { descricao: "Manutenção", valorServico: 65, codigoTributacaoMunicipio: "14.01.07" },

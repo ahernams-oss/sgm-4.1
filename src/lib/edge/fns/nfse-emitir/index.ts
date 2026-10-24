@@ -5,7 +5,7 @@ const Deno = __slot.Deno;
 import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
 import { createClient } from "@supabase/supabase-js";
 import { corsHeaders } from "@/lib/edge/cors";
-import { BRASILNFE_FISCAL_URL, montarPayloadBrasilNfe, interpretarRetornoBrasilNfe } from "@/lib/nfseBrasilNfe";
+import { BRASILNFE_FISCAL_URL, dataFiscalBrasilNfe, montarPayloadBrasilNfe, interpretarRetornoBrasilNfe } from "@/lib/nfseBrasilNfe";
 import { ErroMunicipioNfse, resolverEnderecoMunicipioNfse } from "@/lib/municipioNfse";
 
 const digits = (s: string) => (s || "").replace(/\D+/g, "");
@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
       status: "processando",
       cliente_id: modelo.clienteId || null,
       faturamento_id: modelo.faturamentoId || null,
-      data_competencia: modelo.dataCompetencia || new Date().toISOString().slice(0, 10),
+      data_competencia: modelo.dataCompetencia || dataFiscalBrasilNfe(),
       prestador: modelo.prestador,
       tomador: modelo.tomador,
       servico: modelo.servico,

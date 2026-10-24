@@ -1,5 +1,7 @@
 # Tarefas
 
+- [ ] Adicionar PDF de NFS-e na grade e nos detalhes, preservar identificação fiscal e validar o documento visualmente sem emitir notas.
+
 - [x] Ajustar a data de emissão da DPS ao formato YYYY-MM-DD documentado pela Brasil NFe e ao dia de São Paulo, sem avanço na virada UTC; competência explícita preservada. Quinze testes passaram e build OK. Não testei com login; nenhuma nota reenviada e emissão real não verificada.
 
 - [x] Remover a dependência da consulta IBGE indisponível na emissão: tabela local com 5.571 códigos únicos, origem/licença incluídas; validações de município retornam mensagem sem erro 500, antes de gravar ou enviar. Dez testes passaram, incluindo rede indisponível; build OK. Não testei com login e nenhuma nota foi reenviada.

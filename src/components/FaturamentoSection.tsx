@@ -5,7 +5,11 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
+import { registrarPagamentoFaturamento } from "@/lib/pagamentoFaturamento.functions";
+import { dataCreditoSchema } from "@/lib/pagamentoFaturamento";
 import { Plus, Trash2, Upload, FileText, X, Lock, FileDown, Receipt } from "lucide-react";
 import type { Cliente, Contrato, Faturamento } from "@/contexts/ClientesContext";
 import { DoubleConfirmDelete, useDoubleConfirmDelete } from "@/components/DoubleConfirmDelete";
@@ -54,6 +58,12 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
   const navigate = useNavigate();
   const [form, setForm] = useState<Omit<Faturamento, "id">>(emptyFaturamento);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [pagamentoOpen, setPagamentoOpen] = useState(false);
+  const [dataCredito, setDataCredito] = useState("");
+  const [senhaPagamento, setSenhaPagamento] = useState("");
+  const [salvando, setSalvando] = useState(false);
+  const registrarPagamento = useServerFn(registrarPagamentoFaturamento);
+  const queryClient = useQueryClient();
   const { deleteId, requestDelete, cancelDelete } = useDoubleConfirmDelete();
   const { tem } = usePermissao();
   const podeVerValorFolha = tem("clientes.ver_valor_folha");
@@ -232,7 +242,8 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
     toast.success("NF anexada.");
   };
 
-  const handleSave = async () => {
+  const handleSave = async (pagamento?: { data: string; senha: string }) => {
+    if (salvando) return;
     if (!form.periodoInicio || !form.periodoFim) {
       toast.error("Informe o período do faturamento.");
       return;
@@ -244,6 +255,14 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
       "provisaoFerias", "provisao13",
     ];
     const normalizedForm = { ...form };
+    if (pagamento) {
+      if (!dataCreditoSchema.safeParse(pagamento.data).success || !pagamento.senha) {
+        toast.error("Informe a data do crédito em conta e sua senha.");
+        return;
+      }
+      normalizedForm.pago = true;
+      normalizedForm.dataPagamento = pagamento.data;
+    }
     for (const field of moneyFields) {
       const raw = (form as any)[field];
       if (raw === "" || raw === undefined || raw === null) continue;
@@ -265,7 +284,17 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
       nextFaturamentos = [...faturamentos, novo];
     }
 
-    const ok = await onChange(nextFaturamentos);
+    setSalvando(true);
+    try {
+    let ok: boolean | void;
+    if (pagamento) {
+      if (!cliente || !contrato || !savedId) throw new Error("Dados do contrato indisponíveis.");
+      await registrarPagamento({ data: { clienteId: cliente.id, contratoId: contrato.id, senha: pagamento.senha, faturamento: { id: savedId, ...normalizedForm, pago: true } } });
+      await queryClient.invalidateQueries({ queryKey: ["clientes"] });
+      ok = true;
+    } else {
+      ok = await onChange(nextFaturamentos);
+    }
     if (ok === false) {
       toast.error("Não foi possível gravar o faturamento.");
       return;
@@ -281,6 +310,13 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
     }
     setForm(emptyFaturamento);
     setEditingId(null);
+    setPagamentoOpen(false);
+    setSenhaPagamento("");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível registrar o faturamento.");
+    } finally {
+      setSalvando(false);
+    }
   };
 
   const handleEdit = (f: Faturamento) => {
@@ -430,25 +466,20 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
           </label>
         </div>
         <div className="flex items-end gap-4">
-          <div className="flex items-center gap-2">
-            <Checkbox
-              checked={form.pago}
-              onCheckedChange={(v) => update("pago", !!v)}
-              id="pago"
-            />
-            <label htmlFor="pago" className="text-sm font-medium cursor-pointer">Pago</label>
-          </div>
+          <Button type="button" variant={form.pago ? "default" : "outline"} disabled={salvando || !tem("clientes.editar")} onClick={() => { setDataCredito(form.dataPagamento || ""); setSenhaPagamento(""); setPagamentoOpen(true); }}>
+            <Receipt className="h-4 w-4 mr-2" /> Pago
+          </Button>
           {form.pago && (
             <div className="flex-1">
-              <label className="field-label">Data Pagamento</label>
-              <Input type="date" value={form.dataPagamento} onChange={(e) => update("dataPagamento", e.target.value)} />
+              <label className="field-label">Data do crédito em conta</label>
+              <Input type="date" value={form.dataPagamento} readOnly />
             </div>
           )}
         </div>
       </div>
 
       <div className="flex gap-2 mb-4">
-        <Button size="sm" type="button" onClick={handleSave}>
+        <Button size="sm" type="button" disabled={salvando} onClick={() => handleSave()}>
           <Plus className="h-3.5 w-3.5 mr-1" />
           {editingId ? "Salvar Alterações" : "Adicionar Faturamento"}
         </Button>
@@ -500,7 +531,7 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
                   Emissão: {f.dataEmissaoNf ? new Date(f.dataEmissaoNf + "T00:00:00").toLocaleDateString("pt-BR") : "—"}
                 </p>
                 <p className={`font-medium ${f.pago ? "text-emerald-600" : "text-amber-600"}`}>
-                  {f.pago ? `Pago em ${f.dataPagamento ? new Date(f.dataPagamento + "T00:00:00").toLocaleDateString("pt-BR") : "—"}` : "Pendente"}
+                  {f.pago ? `Crédito em conta: ${f.dataPagamento ? new Date(f.dataPagamento + "T00:00:00").toLocaleDateString("pt-BR") : "—"}` : "Pendente"}
                 </p>
                 {f.anexoNfNome && (
                   <p className="text-muted-foreground flex items-center gap-1">
@@ -540,6 +571,28 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
           ))}
         </div>
       )}
+      <Dialog open={pagamentoOpen} onOpenChange={open => { if (salvando) return; setPagamentoOpen(open); if (!open) setSenhaPagamento(""); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Registrar pagamento</DialogTitle>
+            <DialogDescription>Faturamento — Contrato {contratoNumero}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="data-credito-faturamento" className="field-label">Data do crédito em conta *</label>
+              <Input id="data-credito-faturamento" type="date" value={dataCredito} onChange={e => setDataCredito(e.target.value)} disabled={salvando} />
+            </div>
+            <div>
+              <label htmlFor="senha-pagamento-faturamento" className="field-label">Confirme sua senha *</label>
+              <Input id="senha-pagamento-faturamento" type="password" autoComplete="current-password" maxLength={200} value={senhaPagamento} onChange={e => setSenhaPagamento(e.target.value)} disabled={salvando} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" disabled={salvando} onClick={() => { setPagamentoOpen(false); setSenhaPagamento(""); }}>Cancelar</Button>
+            <Button disabled={salvando || !dataCredito || !senhaPagamento} onClick={() => handleSave({ data: dataCredito, senha: senhaPagamento })}>{salvando ? "Registrando..." : "Confirmar pagamento"}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <DoubleConfirmDelete open={!!deleteId} onOpenChange={(open) => !open && cancelDelete()} onConfirm={() => { if (deleteId) { handleDelete(deleteId); cancelDelete(); } }} />
     </div>
   );

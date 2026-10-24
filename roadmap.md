@@ -1,5 +1,7 @@
 # Tarefas
 
+- [ ] Transformar Pago em botão no faturamento de clientes, exigir data do crédito em conta e senha do usuário; verificar bloqueios sem login.
+
 - [x] Corrigir recuperação de fotos e memória antes da impressão individual e em lote e acesso às fotos privadas; sete testes passaram e PDF de teste confirmou foto e memória com valores sem sobreposição. Não testei com login.
 
 - [x] Exibir valores unitários, por setor, subtotais e total na memória de cálculo dos PDFs combinados de O.S., com e sem fotos, individuais e em lote; três testes passaram e as duas folhas foram conferidas visualmente. Não testei com login.

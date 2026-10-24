@@ -3,7 +3,18 @@ import { codigoMunicipioNfse } from "./municipioNfse";
 export const BRASILNFE_FISCAL_URL = "https://api.brasilnfe.com.br/services/fiscal";
 const digits = (value: string = "") => value.replace(/\D/g, "");
 
+// Brasil NFe documents DataEmissao as YYYY-MM-DD, not a UTC timestamp.
+// Resolve the fiscal day in Brazil so UTC midnight cannot advance the DPS date.
+export function dataFiscalBrasilNfe(agora: Date = new Date()) {
+  const partes = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(agora);
+  const parte = (tipo: string) => partes.find(p => p.type === tipo)?.value;
+  return `${parte("year")}-${parte("month")}-${parte("day")}`;
+}
+
 export function montarPayloadBrasilNfe(numero: number, modelo: any, referencia: string, ambiente: number) {
+  const dataEmissao = dataFiscalBrasilNfe();
   const s = modelo.servico;
   const t = modelo.tributos;
   const federal = t.federal || {};
@@ -29,8 +40,8 @@ export function montarPayloadBrasilNfe(numero: number, modelo: any, referencia: 
     nFSInfo: [{
       SerieRps: modelo.serie || "00001", NumeroRps: numero,
       IdentificadorInterno: referencia, EnviarEmail: false,
-      DataCompetencia: modelo.dataCompetencia || new Date().toISOString().slice(0, 10),
-      DataEmissao: new Date().toISOString(),
+      DataCompetencia: modelo.dataCompetencia || dataEmissao,
+      DataEmissao: dataEmissao,
       Tomador: {
         CpfCnpj: digits(modelo.tomador.documento), NmTomador: modelo.tomador.razaoSocial,
         Im: modelo.tomador.inscricaoMunicipal,

@@ -1,6 +1,6 @@
 # Tarefas
 
-- [ ] Adicionar PDF de NFS-e na grade e nos detalhes, preservar identificação fiscal e validar o documento visualmente sem emitir notas.
+- [x] Adicionar Baixar PDF na grade e nos detalhes para notas emitidas/canceladas; representação local identificada como distinta do DANFSe oficial, número fiscal extraído do XML sem confundir com DPS. Doze testes passaram e build OK. PDF normal e duas páginas de descrição longa conferidos visualmente, sem cortes ou sobreposição. Não testei com login e nenhuma nota emitida.
 
 - [x] Ajustar a data de emissão da DPS ao formato YYYY-MM-DD documentado pela Brasil NFe e ao dia de São Paulo, sem avanço na virada UTC; competência explícita preservada. Quinze testes passaram e build OK. Não testei com login; nenhuma nota reenviada e emissão real não verificada.
 

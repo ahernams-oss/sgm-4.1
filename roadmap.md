@@ -1,5 +1,7 @@
 # Tarefas
 
+- [ ] Melhorar busca de códigos de tributação na NFS-e por código e descrição, ignorando acentos e pontuação; testar sem login.
+
 - [x] Transformar Pago em botão no faturamento de clientes e exigir data do crédito em conta e senha do usuário antes da gravação; quatro testes passaram e a página sem sessão redirecionou ao login sem erros. Não testei com login.
 
 - [x] Corrigir recuperação de fotos e memória antes da impressão individual e em lote e acesso às fotos privadas; sete testes passaram e PDF de teste confirmou foto e memória com valores sem sobreposição. Não testei com login.

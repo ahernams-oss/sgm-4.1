@@ -1,6 +1,6 @@
 # Tarefas
 
-- [ ] Substituir Focus por Brasil NFe na emissão de NFS-e; confirmar documentação de emissão e acesso contratado antes de alterar chamadas fiscais.
+- [x] Substituir Focus por Brasil NFe na emissão de NFS-e com envio e consulta de lote conforme documentação oficial; três testes passaram. Emissão real e compatibilidade nacional do município não verificadas; não testei com login.
 
 - [x] Melhorar os seletores de códigos de tributação nacional e municipal na NFS-e com busca por código e descrição sem acentos/pontuação, descrições completas e contagem dos resultados; três testes passaram e build OK. Não testei com login.
 

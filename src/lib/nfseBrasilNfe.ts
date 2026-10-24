@@ -1,4 +1,5 @@
 // Contract: https://brasilnfe.com.br/api/nfs-e
+import { codigoMunicipioNfse } from "./municipioNfse";
 export const BRASILNFE_FISCAL_URL = "https://api.brasilnfe.com.br/services/fiscal";
 const digits = (value: string = "") => value.replace(/\D/g, "");
 
@@ -6,12 +7,18 @@ export function montarPayloadBrasilNfe(numero: number, modelo: any, referencia: 
   const s = modelo.servico;
   const t = modelo.tributos;
   const federal = t.federal || {};
-  const endereco = (e: any) => e ? {
+  const municipioPrestacao = codigoMunicipioNfse(modelo.prestador.codigoMunicipio);
+  if (!municipioPrestacao) throw new Error("Selecione um município de prestação com código IBGE válido.");
+  const endereco = (e: any) => {
+    const codigo = codigoMunicipioNfse(e?.codigoMunicipio);
+    if (!codigo) throw new Error("Informe o município IBGE válido no endereço do tomador ou da obra.");
+    return {
     Cep: digits(e.cep), Logradouro: e.logradouro, Numero: e.numero,
     Complemento: e.complemento, Bairro: e.bairro,
-    CodMunicipio: e.codigoMunicipio, Municipio: e.municipio, Uf: e.uf,
+    CodMunicipio: codigo, Municipio: e.municipio, Uf: e.uf,
     Pais: e.pais || "Brasil",
-  } : undefined;
+    };
+  };
   const obra = s.informacoesObra;
   if (obra?.tipo === "endEX" && obra.enderecoExterior?.endereco) {
     throw new Error("A emissão Brasil NFe com endereço de obra no exterior exige confirmação do layout pelo provedor.");
@@ -32,7 +39,7 @@ export function montarPayloadBrasilNfe(numero: number, modelo: any, referencia: 
       ConstrucaoCivil: obra ? {
         CodObra: obra.codigoObra || s.codigoObra, Cib: obra.cib,
         InscricaoImobiliaria: obra.inscricaoMobiliariaFiscal,
-        EnderecoObra: endereco(obra.enderecoBrasil),
+        EnderecoObra: obra.enderecoBrasil ? endereco(obra.enderecoBrasil) : undefined,
       } : undefined,
       Servico: {
         Descricao: s.descricao,
@@ -40,8 +47,8 @@ export function montarPayloadBrasilNfe(numero: number, modelo: any, referencia: 
         CodTributacaoMunicipio: s.codigoTributacaoMunicipio,
         CodNBS: s.codigoNbs, CodigoCnae: s.cnae,
         NaturezaOperacao: 1, IssRetido: t.issRetido, ExigibilidadeISS: 1,
-        CodMunicipioIncidencia: modelo.prestador.codigoMunicipio,
-        CodMunicipioPrestacao: modelo.prestador.codigoMunicipio,
+        CodMunicipioIncidencia: municipioPrestacao,
+        CodMunicipioPrestacao: municipioPrestacao,
         Valores: {
           ValorServico: Number(s.valorServico), Aliquota: Number(t.aliquotaIss),
           ValorDeducoes: Number(s.deducoes || 0),

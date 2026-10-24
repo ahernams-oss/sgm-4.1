@@ -6,6 +6,7 @@ import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
 import { createClient } from "@supabase/supabase-js";
 import { corsHeaders } from "@/lib/edge/cors";
 import { BRASILNFE_FISCAL_URL, montarPayloadBrasilNfe, interpretarRetornoBrasilNfe } from "@/lib/nfseBrasilNfe";
+import { resolverEnderecoMunicipioNfse } from "@/lib/municipioNfse";
 
 const digits = (s: string) => (s || "").replace(/\D+/g, "");
 type Modelo = Record<string, any>;
@@ -46,6 +47,11 @@ Deno.serve(async (req) => {
 
     const token = Deno.env.get("BRASILNFE_TOKEN");
     if (!token) throw new Error("Conexão Brasil NFe não configurada");
+    // Resolve recipient/construction addresses before persisting or consuming a DPS number.
+    modelo.tomador.endereco = await resolverEnderecoMunicipioNfse(modelo.tomador?.endereco, "tomador");
+    if (modelo.servico?.informacoesObra?.enderecoBrasil) {
+      modelo.servico.informacoesObra.enderecoBrasil = await resolverEnderecoMunicipioNfse(modelo.servico.informacoesObra.enderecoBrasil, "local da obra");
+    }
     // Validate the provider payload before consuming a DPS number.
     montarPayloadBrasilNfe(0, modelo, "validacao", ambienteNum);
 

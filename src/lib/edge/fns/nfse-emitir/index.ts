@@ -6,7 +6,7 @@ import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
 import { createClient } from "@supabase/supabase-js";
 import { corsHeaders } from "@/lib/edge/cors";
 import { BRASILNFE_FISCAL_URL, montarPayloadBrasilNfe, interpretarRetornoBrasilNfe } from "@/lib/nfseBrasilNfe";
-import { resolverEnderecoMunicipioNfse } from "@/lib/municipioNfse";
+import { ErroMunicipioNfse, resolverEnderecoMunicipioNfse } from "@/lib/municipioNfse";
 
 const digits = (s: string) => (s || "").replace(/\D+/g, "");
 type Modelo = Record<string, any>;
@@ -141,6 +141,10 @@ Deno.serve(async (req) => {
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
   } catch (e) {
+    if (e instanceof ErroMunicipioNfse) {
+      return new Response(JSON.stringify({ ok: false, mensagem: e.message }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
     console.error("nfse-emitir erro:", e);
     return new Response(JSON.stringify({ ok: false, error: (e as Error).message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });

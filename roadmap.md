@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Remover a dependência da consulta IBGE indisponível na emissão: tabela local com 5.571 códigos únicos, origem/licença incluídas; validações de município retornam mensagem sem erro 500, antes de gravar ou enviar. Dez testes passaram, incluindo rede indisponível; build OK. Não testei com login e nenhuma nota foi reenviada.
+
 - [x] Corrigir município do tomador na emissão NFS-e: endereço usa a cidade/UF do cliente, consulta o IBGE antes de criar o rascunho e bloqueia códigos ausentes ou zero; mesma validação para endereço brasileiro da obra. Nove testes passaram e build OK; nenhuma nota reenviada; não testei com login.
 
 - [x] Corrigir o erro 500 ao gravar o rascunho da NFS-e: o problema era o cast implícito de texto vazio para smallint na chave de bloqueio da numeração, não os campos do formulário. Migração aplicada; testes do gatilho em tabela temporária passaram em homologação, produção e número explícito; três testes Brasil NFe passaram e build OK. Nenhuma nota enviada; não testei com login.

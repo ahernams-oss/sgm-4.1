@@ -1,6 +1,6 @@
 # Tarefas
 
-- [ ] Remover a dependência da consulta IBGE indisponível na emissão, usando tabela municipal local e retornando validações recuperáveis sem erro 500.
+- [x] Remover a dependência da consulta IBGE indisponível na emissão: tabela local com 5.571 códigos únicos, origem/licença incluídas; validações de município retornam mensagem sem erro 500, antes de gravar ou enviar. Dez testes passaram, incluindo rede indisponível; build OK. Não testei com login e nenhuma nota foi reenviada.
 
 - [x] Corrigir município do tomador na emissão NFS-e: endereço usa a cidade/UF do cliente, consulta o IBGE antes de criar o rascunho e bloqueia códigos ausentes ou zero; mesma validação para endereço brasileiro da obra. Nove testes passaram e build OK; nenhuma nota reenviada; não testei com login.
 

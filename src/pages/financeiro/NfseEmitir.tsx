@@ -20,6 +20,7 @@ import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import CodigoTributacaoSelect from "@/components/financeiro/CodigoTributacaoSelect";
 
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
@@ -624,31 +625,11 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
             <div className="grid grid-cols-1 gap-3">
               <div>
                 <Label>Código de Tributação Nacional</Label>
-                <Select value={codigoTribNacional} onValueChange={setCodigoTribNacional}>
-                  <SelectTrigger><SelectValue placeholder="Selecione o código nacional..." /></SelectTrigger>
-                  <SelectContent className="max-h-72">
-                    {CODIGOS_TRIB_NACIONAL.map((c) => (
-                      <SelectItem key={c.codigo} value={c.codigo}>
-                        <span className="font-mono mr-2">{c.codigo}</span>
-                        <span className="text-xs">{c.descricao.length > 90 ? c.descricao.slice(0, 90) + "…" : c.descricao}</span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <CodigoTributacaoSelect value={codigoTribNacional} onValueChange={setCodigoTribNacional} options={CODIGOS_TRIB_NACIONAL} label="Código de Tributação Nacional" placeholder="Selecione o código nacional..." />
               </div>
               <div>
                 <Label>Código de Tributação Municipal (LC 116)</Label>
-                <Select value={codigoTrib} onValueChange={setCodigoTrib}>
-                  <SelectTrigger><SelectValue placeholder="Selecione o código municipal..." /></SelectTrigger>
-                  <SelectContent className="max-h-72">
-                    {CODIGOS_TRIB_MUNICIPAL.map((c) => (
-                      <SelectItem key={c.codigo} value={c.codigo}>
-                        <span className="font-mono mr-2">{c.codigo}</span>
-                        <span className="text-xs">{c.descricao}</span>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <CodigoTributacaoSelect value={codigoTrib} onValueChange={setCodigoTrib} options={CODIGOS_TRIB_MUNICIPAL} label="Código de Tributação Municipal (LC 116)" placeholder="Selecione o código municipal..." />
               </div>
             </div>
             <div className="border rounded-md p-3 space-y-3">

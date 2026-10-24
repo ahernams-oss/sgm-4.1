@@ -22,6 +22,7 @@ import { Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import CodigoTributacaoSelect from "@/components/financeiro/CodigoTributacaoSelect";
 import TomadorSelect from "@/components/financeiro/TomadorSelect";
+import { baixarPdfNfse, podeGerarPdfNfse } from "@/lib/gerarPdfNfse";
 
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
@@ -111,6 +112,18 @@ export default function NfseEmitir() {
   const [viewNfse, setViewNfse] = useState<NfseEmitida | null>(null);
   const [cancelTarget, setCancelTarget] = useState<NfseEmitida | null>(null);
   const [motivoCancel, setMotivoCancel] = useState("");
+  const [pdfId, setPdfId] = useState<string | null>(null);
+
+  const gerarPdf = async (nota: NfseEmitida) => {
+    setPdfId(nota.id);
+    try {
+      await baixarPdfNfse(nota);
+    } catch (erro) {
+      toast.error(erro instanceof Error ? erro.message : "Não foi possível gerar o PDF da NFS-e.");
+    } finally {
+      setPdfId(null);
+    }
+  };
 
   const filtrados = useMemo(() => {
     let lista = nfses;
@@ -225,9 +238,15 @@ export default function NfseEmitir() {
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
                       <Button size="icon" variant="ghost" onClick={() => setViewNfse(n)} title="Ver detalhes"><Eye className="w-4 h-4" /></Button>
+                      {podeGerarPdfNfse(n) && (
+                        <Button size="icon" variant="ghost" title="Baixar PDF da NFS-e" aria-label="Baixar PDF da NFS-e"
+                          disabled={pdfId !== null} onClick={() => gerarPdf(n)}>
+                          {pdfId === n.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                        </Button>
+                      )}
                       {n.xml_nfse && (
                         <Button size="icon" variant="ghost" title="Baixar XML"
-                          onClick={() => downloadText(`nfse-${n.numero_dps}.xml`, n.xml_nfse!)}>
+                          onClick={() => { if (n.xml_nfse) downloadText(`nfse-${n.numero_dps}.xml`, n.xml_nfse); }}>
                           <Download className="w-4 h-4" />
                         </Button>
                       )}
@@ -294,6 +313,14 @@ export default function NfseEmitir() {
                   <summary className="cursor-pointer">Ver XML DPS assinado</summary>
                   <pre className="bg-muted p-2 rounded mt-2 overflow-auto max-h-80">{viewNfse.xml_dps}</pre>
                 </details>
+              )}
+              {podeGerarPdfNfse(viewNfse) && (
+                <DialogFooter>
+                  <Button variant="outline" disabled={pdfId !== null} onClick={() => gerarPdf(viewNfse)}>
+                    {pdfId === viewNfse.id ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <FileText className="w-4 h-4 mr-2" />}
+                    Baixar PDF
+                  </Button>
+                </DialogFooter>
               )}
             </div>
           )}

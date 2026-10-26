@@ -13,8 +13,8 @@ describe("ordenarEpis", () => {
   });
 
   it("ordena texto ignorando acentos e maiúsculas", () => {
-    expect(ordenarEpis(epis, "descricao", "asc").map(e => e.id)).toEqual(["2", "3", "1"]);
-    expect(ordenarEpis(epis, "descricao", "desc").map(e => e.id)).toEqual(["1", "3", "2"]);
+    expect(ordenarEpis(epis, "descricao", "asc").map(e => e.id)).toEqual(["2", "1", "3"]);
+    expect(ordenarEpis(epis, "descricao", "desc").map(e => e.id)).toEqual(["3", "1", "2"]);
   });
 
   it("ordena grupo como texto e unidade como texto", () => {

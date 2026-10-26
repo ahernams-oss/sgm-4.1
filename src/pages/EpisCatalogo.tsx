@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { HardHat, Plus, Search, Trash2, Pencil, Check, X } from "lucide-react";
+import { HardHat, Plus, Search, Trash2, Pencil, Check, X, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import { useEpisCatalogo, EpiCatalogo } from "@/contexts/EpisCatalogoContext";
 import { usePermissao } from "@/hooks/usePermissao";
 import EpiClassificacaoSelect from "@/components/EpiClassificacaoSelect";
 import { filtrarEpisPorClassificacao, normalizarClassificacaoEpi, opcoesClassificacaoEpi } from "@/lib/epiClassificacao";
+import { ordenarEpis, ColunaEpi } from "@/lib/ordenarEpis";
 
 const emptyForm = { codigo: "", descricao: "", grupo: "", subgrupo: "", unidade: "", ca: "", validadeMeses: "", observacao: "" };
 
@@ -28,6 +29,8 @@ export default function EpisCatalogoPage() {
   const [pageSize, setPageSize] = useState(10);
   const [filtroGrupo, setFiltroGrupo] = useState("");
   const [filtroSubgrupo, setFiltroSubgrupo] = useState("");
+  const [sortCol, setSortCol] = useState<ColunaEpi | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const { deleteId, requestDelete, cancelDelete } = useDoubleConfirmDelete();
   const [novosGrupos, setNovosGrupos] = useState<string[]>([]);
   const [novosSubgrupos, setNovosSubgrupos] = useState<{ grupo: string; nome: string }[]>([]);
@@ -97,7 +100,37 @@ export default function EpisCatalogoPage() {
     );
   }, [epis, search, filtroGrupo, filtroSubgrupo]);
 
-  const { paginated } = paginate(filtered, page, pageSize);
+  const ordenados = useMemo(() => ordenarEpis(filtered, sortCol, sortDir), [filtered, sortCol, sortDir]);
+  const { paginated } = paginate(ordenados, page, pageSize);
+
+  const alternarOrdenacao = (col: ColunaEpi) => {
+    if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else { setSortCol(col); setSortDir("asc"); }
+    setPage(1);
+  };
+
+  const cabecalhoOrdenavel = (col: ColunaEpi, label: string, alinhamento: "left" | "center" | "right" = "left", largura?: string) => {
+    const ativo = sortCol === col;
+    const Icon = ativo ? (sortDir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
+    const justify = alinhamento === "right" ? "justify-end" : alinhamento === "center" ? "justify-center" : "justify-start";
+    const alignClass = alinhamento === "right" ? "text-right" : alinhamento === "center" ? "text-center" : "";
+    return (
+      <TableHead
+        className={`${largura ? `${largura} ` : ""}${alignClass}`.trim()}
+        aria-sort={ativo ? (sortDir === "asc" ? "ascending" : "descending") : "none"}
+      >
+        <button
+          type="button"
+          onClick={() => alternarOrdenacao(col)}
+          title={`Ordenar por ${label}`}
+          className={`flex w-full items-center gap-1 ${justify} hover:text-foreground focus:outline-none`}
+        >
+          {label}
+          <Icon className={`h-3.5 w-3.5 shrink-0 ${ativo ? "text-foreground" : "text-muted-foreground/60"}`} />
+        </button>
+      </TableHead>
+    );
+  };
 
   return (
     <div className="bg-background">
@@ -198,14 +231,14 @@ export default function EpisCatalogoPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-24">Código</TableHead>
-                    <TableHead>Descrição</TableHead>
-                    <TableHead>Grupo</TableHead>
-                    <TableHead>SubGrupo</TableHead>
-                    <TableHead>Unidade</TableHead>
-                    <TableHead className="w-24 text-center">CA</TableHead>
-                    <TableHead className="w-28 text-center">Validade</TableHead>
-                    <TableHead>Observação</TableHead>
+                    {cabecalhoOrdenavel("codigo", "Código", "left", "w-24")}
+                    {cabecalhoOrdenavel("descricao", "Descrição")}
+                    {cabecalhoOrdenavel("grupo", "Grupo")}
+                    {cabecalhoOrdenavel("subgrupo", "SubGrupo")}
+                    {cabecalhoOrdenavel("unidade", "Unidade")}
+                    {cabecalhoOrdenavel("ca", "CA", "center", "w-24")}
+                    {cabecalhoOrdenavel("validadeMeses", "Validade", "center", "w-28")}
+                    {cabecalhoOrdenavel("observacao", "Observação")}
                     <TableHead className="w-24 text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>

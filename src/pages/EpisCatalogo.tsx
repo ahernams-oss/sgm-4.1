@@ -104,6 +104,32 @@ export default function EpisCatalogoPage() {
   const ordenados = useMemo(() => ordenarEpis(filtered, sortCol, sortDir), [filtered, sortCol, sortDir]);
   const { paginated } = paginate(ordenados, page, pageSize);
 
+  const descricaoFiltros = useMemo(() => {
+    const partes: string[] = [];
+    if (filtroGrupo) partes.push(`Grupo: ${filtroGrupo}`);
+    if (filtroSubgrupo) partes.push(`SubGrupo: ${filtroSubgrupo}`);
+    if (search.trim()) partes.push(`Pesquisa: ${search.trim()}`);
+    return partes.length ? partes.join(" | ") : undefined;
+  }, [filtroGrupo, filtroSubgrupo, search]);
+
+  const exportarPdf = async () => {
+    try {
+      await gerarPdfEpis(ordenados, descricaoFiltros);
+      toast.success("PDF do catálogo de EPIs gerado!");
+    } catch {
+      toast.error("Não foi possível gerar o PDF.");
+    }
+  };
+
+  const exportarExcel = async () => {
+    try {
+      await gerarExcelEpis(ordenados);
+      toast.success("Excel do catálogo de EPIs gerado!");
+    } catch {
+      toast.error("Não foi possível gerar o Excel.");
+    }
+  };
+
   const alternarOrdenacao = (col: ColunaEpi) => {
     if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     else { setSortCol(col); setSortDir("asc"); }
@@ -199,9 +225,17 @@ export default function EpisCatalogoPage() {
         <div className="section-card">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
             <h2 className="section-title mb-0">EPIs Cadastrados ({filtered.length})</h2>
-            <div className="relative w-64">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Pesquisar..." className="pl-9 h-9" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
+            <div className="flex items-center gap-2">
+              <div className="relative w-64">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Pesquisar..." className="pl-9 h-9" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
+              </div>
+              <Button type="button" variant="outline" size="sm" className="gap-2 h-9" onClick={exportarPdf} disabled={ordenados.length === 0} title="Exportar PDF">
+                <FileText className="h-4 w-4" />PDF
+              </Button>
+              <Button type="button" variant="outline" size="sm" className="gap-2 h-9" onClick={exportarExcel} disabled={ordenados.length === 0} title="Exportar Excel">
+                <FileSpreadsheet className="h-4 w-4" />Excel
+              </Button>
             </div>
           </div>
 

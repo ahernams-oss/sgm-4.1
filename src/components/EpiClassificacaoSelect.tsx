@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Check, ChevronsUpDown, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { normalizarClassificacaoEpi } from "@/lib/epiClassificacao";
@@ -12,9 +13,20 @@ export default function EpiClassificacaoSelect({ id, label, value, options, onCh
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [novo, setNovo] = useState("");
   const query = normalizarClassificacaoEpi(search);
   const filtered = options.filter(option => normalizarClassificacaoEpi(option).includes(query));
-  const canAdd = canCreate && query && !options.some(option => normalizarClassificacaoEpi(option) === query);
+  const novoNormalizado = normalizarClassificacaoEpi(novo);
+  const podeCadastrar = canCreate && novoNormalizado && !options.some(option => normalizarClassificacaoEpi(option) === novoNormalizado);
+  const cadastrar = () => {
+    if (!podeCadastrar) return;
+    const nome = novo.trim();
+    onCreate(nome);
+    onChange(nome);
+    setNovo("");
+    setSearch("");
+    setOpen(false);
+  };
   const select = (next: string) => { onChange(next); setOpen(false); setSearch(""); };
   return (
     <Popover open={open} onOpenChange={next => { setOpen(next); if (!next) setSearch(""); }}>
@@ -26,7 +38,7 @@ export default function EpiClassificacaoSelect({ id, label, value, options, onCh
       </PopoverTrigger>
       <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
         <Command shouldFilter={false}>
-          <CommandInput placeholder={canCreate ? `Buscar ou cadastrar ${label.toLowerCase()}...` : `Buscar ${label.toLowerCase()}...`} value={search} onValueChange={setSearch} />
+          <CommandInput placeholder={`Buscar ${label.toLowerCase()}...`} value={search} onValueChange={setSearch} />
           <CommandList>
             <CommandEmpty>Nenhuma opção encontrada.</CommandEmpty>
             <CommandGroup>
@@ -36,10 +48,21 @@ export default function EpiClassificacaoSelect({ id, label, value, options, onCh
               </CommandItem>)}
             </CommandGroup>
           </CommandList>
-          {(canAdd || value) && <div className="border-t border-border p-1">
-            {canAdd && <Button type="button" variant="ghost" className="w-full h-auto justify-start gap-2 whitespace-normal text-left" onClick={() => { const next = search.trim(); onCreate(next); select(next); }}>
-              <Plus className="h-4 w-4 shrink-0" />Cadastrar “{search.trim()}”
-            </Button>}
+          {(canCreate || value) && <div className="border-t border-border p-1">
+            {canCreate && (
+              <div className="flex items-center gap-1 px-1 pb-1">
+                <Input
+                  value={novo}
+                  onChange={e => setNovo(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); cadastrar(); } }}
+                  placeholder={`Novo ${label.toLowerCase()}`}
+                  className="h-8 flex-1 min-w-0"
+                />
+                <Button type="button" size="sm" variant="outline" className="gap-1 h-8 shrink-0" disabled={!podeCadastrar} onClick={cadastrar}>
+                  <Plus className="h-4 w-4 shrink-0" />Cadastrar
+                </Button>
+              </div>
+            )}
             {value && <Button type="button" variant="ghost" className="w-full justify-start gap-2" onClick={() => select("")}><X className="h-4 w-4" />Limpar seleção</Button>}
           </div>}
         </Command>

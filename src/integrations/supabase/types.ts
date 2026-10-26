@@ -1827,8 +1827,11 @@ export type Database = {
           codigo: string | null
           created_at: string
           descricao: string
+          grupo: string | null
           id: string
           observacao: string | null
+          subgrupo: string | null
+          unidade: string | null
           updated_at: string
           validade_meses: number | null
         }
@@ -1837,8 +1840,11 @@ export type Database = {
           codigo?: string | null
           created_at?: string
           descricao: string
+          grupo?: string | null
           id?: string
           observacao?: string | null
+          subgrupo?: string | null
+          unidade?: string | null
           updated_at?: string
           validade_meses?: number | null
         }
@@ -1847,8 +1853,11 @@ export type Database = {
           codigo?: string | null
           created_at?: string
           descricao?: string
+          grupo?: string | null
           id?: string
           observacao?: string | null
+          subgrupo?: string | null
+          unidade?: string | null
           updated_at?: string
           validade_meses?: number | null
         }

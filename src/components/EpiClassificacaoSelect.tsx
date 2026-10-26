@@ -26,7 +26,7 @@ export default function EpiClassificacaoSelect({ id, label, value, options, onCh
       </PopoverTrigger>
       <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
         <Command shouldFilter={false}>
-          <CommandInput placeholder={`Buscar ou cadastrar ${label.toLowerCase()}...`} value={search} onValueChange={setSearch} />
+          <CommandInput placeholder={canCreate ? `Buscar ou cadastrar ${label.toLowerCase()}...` : `Buscar ${label.toLowerCase()}...`} value={search} onValueChange={setSearch} />
           <CommandList>
             <CommandEmpty>Nenhuma opção encontrada.</CommandEmpty>
             <CommandGroup>

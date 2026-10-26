@@ -9,3 +9,17 @@ export function opcoesClassificacaoEpi(values: string[]) {
   }
   return [...unique.values()].sort((a, b) => a.localeCompare(b, "pt-BR"));
 }
+
+/** Mantém apenas os registros cujo Grupo/SubGrupo coincidem com o filtro escolhido.
+ *  Filtro vazio significa "todos". Acentos, caixa e espaços não importam. */
+export function filtrarEpisPorClassificacao<T extends { grupo: string; subgrupo: string }>(
+  epis: T[],
+  filtro: { grupo?: string; subgrupo?: string },
+) {
+  const grupo = normalizarClassificacaoEpi(filtro.grupo ?? "");
+  const subgrupo = normalizarClassificacaoEpi(filtro.subgrupo ?? "");
+  return epis.filter(epi =>
+    (!grupo || normalizarClassificacaoEpi(epi.grupo) === grupo) &&
+    (!subgrupo || normalizarClassificacaoEpi(epi.subgrupo) === subgrupo)
+  );
+}

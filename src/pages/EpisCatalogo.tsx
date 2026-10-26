@@ -11,7 +11,7 @@ import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { useEpisCatalogo, EpiCatalogo } from "@/contexts/EpisCatalogoContext";
 import { usePermissao } from "@/hooks/usePermissao";
 import EpiClassificacaoSelect from "@/components/EpiClassificacaoSelect";
-import { normalizarClassificacaoEpi, opcoesClassificacaoEpi } from "@/lib/epiClassificacao";
+import { filtrarEpisPorClassificacao, normalizarClassificacaoEpi, opcoesClassificacaoEpi } from "@/lib/epiClassificacao";
 
 const emptyForm = { codigo: "", descricao: "", grupo: "", subgrupo: "", unidade: "", ca: "", validadeMeses: "", observacao: "" };
 
@@ -26,6 +26,8 @@ export default function EpisCatalogoPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [filtroGrupo, setFiltroGrupo] = useState("");
+  const [filtroSubgrupo, setFiltroSubgrupo] = useState("");
   const { deleteId, requestDelete, cancelDelete } = useDoubleConfirmDelete();
   const [novosGrupos, setNovosGrupos] = useState<string[]>([]);
   const [novosSubgrupos, setNovosSubgrupos] = useState<{ grupo: string; nome: string }[]>([]);
@@ -35,6 +37,10 @@ export default function EpisCatalogoPage() {
     ...novosSubgrupos.filter(item => !form.grupo || normalizarClassificacaoEpi(item.grupo) === normalizarClassificacaoEpi(form.grupo)).map(item => item.nome),
     form.subgrupo,
   ]), [epis, novosSubgrupos, form.grupo, form.subgrupo]);
+  const gruposFiltro = useMemo(() => opcoesClassificacaoEpi(epis.map(epi => epi.grupo)), [epis]);
+  const subgruposFiltro = useMemo(() => opcoesClassificacaoEpi(
+    epis.filter(epi => !filtroGrupo || normalizarClassificacaoEpi(epi.grupo) === normalizarClassificacaoEpi(filtroGrupo)).map(epi => epi.subgrupo),
+  ), [epis, filtroGrupo]);
 
   const update = (k: string, v: string) => setForm((p) => ({ ...p, [k]: v }));
   const reset = () => { setForm(emptyForm); setEditingId(null); };
@@ -79,8 +85,9 @@ export default function EpisCatalogoPage() {
 
   const filtered = useMemo(() => {
     const s = search.toLowerCase().trim();
-    if (!s) return epis;
-    return epis.filter((e) =>
+    const porClassificacao = filtrarEpisPorClassificacao(epis, { grupo: filtroGrupo, subgrupo: filtroSubgrupo });
+    if (!s) return porClassificacao;
+    return porClassificacao.filter((e) =>
       e.descricao.toLowerCase().includes(s) ||
       e.codigo.toLowerCase().includes(s) ||
       e.grupo.toLowerCase().includes(s) ||
@@ -88,7 +95,7 @@ export default function EpisCatalogoPage() {
       e.unidade.toLowerCase().includes(s) ||
       e.ca.toLowerCase().includes(s)
     );
-  }, [epis, search]);
+  }, [epis, search, filtroGrupo, filtroSubgrupo]);
 
   const { paginated } = paginate(filtered, page, pageSize);
 
@@ -164,8 +171,28 @@ export default function EpisCatalogoPage() {
             </div>
           </div>
 
+          <div className="flex flex-col md:flex-row md:items-end gap-3 mb-4">
+            <div className="w-full md:w-72">
+              <label htmlFor="epi-filtro-grupo" className="field-label">Filtro Grupo</label>
+              <EpiClassificacaoSelect id="epi-filtro-grupo" label="Grupo" value={filtroGrupo} options={gruposFiltro} canCreate={false}
+                onChange={grupo => { setFiltroGrupo(grupo); setFiltroSubgrupo(""); setPage(1); }} onCreate={() => {}} />
+            </div>
+            <div className="w-full md:w-72">
+              <label htmlFor="epi-filtro-subgrupo" className="field-label">Filtro SubGrupo</label>
+              <EpiClassificacaoSelect id="epi-filtro-subgrupo" label="SubGrupo" value={filtroSubgrupo} options={subgruposFiltro} canCreate={false}
+                onChange={subgrupo => { setFiltroSubgrupo(subgrupo); setPage(1); }} onCreate={() => {}} />
+            </div>
+            {(filtroGrupo || filtroSubgrupo) && (
+              <Button type="button" variant="outline" className="gap-2 h-9 shrink-0" onClick={() => { setFiltroGrupo(""); setFiltroSubgrupo(""); setPage(1); }}>
+                <X className="h-4 w-4" />Limpar filtros
+              </Button>
+            )}
+          </div>
+
           {paginated.length === 0 ? (
-            <p className="text-center text-sm text-muted-foreground py-10">Nenhum EPI cadastrado.</p>
+            <p className="text-center text-sm text-muted-foreground py-10">
+              {filtroGrupo || filtroSubgrupo ? "Nenhum EPI encontrado para os filtros selecionados." : "Nenhum EPI cadastrado."}
+            </p>
           ) : (
             <div className="rounded-lg border border-border overflow-hidden">
               <Table>

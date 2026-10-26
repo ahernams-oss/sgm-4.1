@@ -10,6 +10,8 @@ import { DoubleConfirmDelete, useDoubleConfirmDelete } from "@/components/Double
 import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { useEpisCatalogo, EpiCatalogo } from "@/contexts/EpisCatalogoContext";
 import { usePermissao } from "@/hooks/usePermissao";
+import EpiClassificacaoSelect from "@/components/EpiClassificacaoSelect";
+import { normalizarClassificacaoEpi, opcoesClassificacaoEpi } from "@/lib/epiClassificacao";
 
 const emptyForm = { codigo: "", descricao: "", grupo: "", subgrupo: "", unidade: "", ca: "", validadeMeses: "", observacao: "" };
 
@@ -25,6 +27,14 @@ export default function EpisCatalogoPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { deleteId, requestDelete, cancelDelete } = useDoubleConfirmDelete();
+  const [novosGrupos, setNovosGrupos] = useState<string[]>([]);
+  const [novosSubgrupos, setNovosSubgrupos] = useState<{ grupo: string; nome: string }[]>([]);
+  const grupos = useMemo(() => opcoesClassificacaoEpi([...epis.map(epi => epi.grupo), ...novosGrupos, form.grupo]), [epis, novosGrupos, form.grupo]);
+  const subgrupos = useMemo(() => opcoesClassificacaoEpi([
+    ...epis.filter(epi => !form.grupo || normalizarClassificacaoEpi(epi.grupo) === normalizarClassificacaoEpi(form.grupo)).map(epi => epi.subgrupo),
+    ...novosSubgrupos.filter(item => !form.grupo || normalizarClassificacaoEpi(item.grupo) === normalizarClassificacaoEpi(form.grupo)).map(item => item.nome),
+    form.subgrupo,
+  ]), [epis, novosSubgrupos, form.grupo, form.subgrupo]);
 
   const update = (k: string, v: string) => setForm((p) => ({ ...p, [k]: v }));
   const reset = () => { setForm(emptyForm); setEditingId(null); };
@@ -117,11 +127,15 @@ export default function EpisCatalogoPage() {
             </div>
             <div className="md:col-span-2">
               <label htmlFor="epi-grupo" className="field-label">Grupo</label>
-              <Input id="epi-grupo" value={form.grupo} onChange={(e) => update("grupo", e.target.value)} />
+              <EpiClassificacaoSelect id="epi-grupo" label="Grupo" value={form.grupo} options={grupos} canCreate={editingId ? podeEditar : podeCriar}
+                onChange={grupo => setForm(current => ({ ...current, grupo, subgrupo: grupo === current.grupo ? current.subgrupo : "" }))}
+                onCreate={grupo => setNovosGrupos(current => [...current, grupo])} />
             </div>
             <div className="md:col-span-2">
               <label htmlFor="epi-subgrupo" className="field-label">SubGrupo</label>
-              <Input id="epi-subgrupo" value={form.subgrupo} onChange={(e) => update("subgrupo", e.target.value)} />
+              <EpiClassificacaoSelect id="epi-subgrupo" label="SubGrupo" value={form.subgrupo} options={subgrupos} canCreate={editingId ? podeEditar : podeCriar}
+                onChange={subgrupo => update("subgrupo", subgrupo)}
+                onCreate={nome => setNovosSubgrupos(current => [...current, { grupo: form.grupo, nome }])} />
             </div>
             <div className="md:col-span-2">
               <label htmlFor="epi-unidade" className="field-label">Unidade</label>

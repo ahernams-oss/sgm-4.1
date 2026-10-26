@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { HardHat, Plus, Search, Trash2, Pencil, Check, X, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
+import { HardHat, Plus, Search, Trash2, Pencil, Check, X, ArrowUp, ArrowDown, ArrowUpDown, FileText, FileSpreadsheet } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,7 @@ import { usePermissao } from "@/hooks/usePermissao";
 import EpiClassificacaoSelect from "@/components/EpiClassificacaoSelect";
 import { filtrarEpisPorClassificacao, normalizarClassificacaoEpi, opcoesClassificacaoEpi } from "@/lib/epiClassificacao";
 import { ordenarEpis, ColunaEpi } from "@/lib/ordenarEpis";
+import { gerarPdfEpis, gerarExcelEpis } from "@/lib/gerarRelatorioEpis";
 
 const emptyForm = { codigo: "", descricao: "", grupo: "", subgrupo: "", unidade: "", ca: "", validadeMeses: "", observacao: "" };
 

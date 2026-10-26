@@ -7,6 +7,9 @@ export interface EpiCatalogo {
   id: string;
   codigo: string;
   descricao: string;
+  grupo: string;
+  subgrupo: string;
+  unidade: string;
   ca: string;
   validadeMeses: number | null;
   observacao: string;
@@ -25,6 +28,9 @@ const rowTo = (r: any): EpiCatalogo => ({
   id: r.id,
   codigo: r.codigo ?? "",
   descricao: r.descricao ?? "",
+  grupo: r.grupo ?? "",
+  subgrupo: r.subgrupo ?? "",
+  unidade: r.unidade ?? "",
   ca: r.ca ?? "",
   validadeMeses: r.validade_meses ?? null,
   observacao: r.observacao ?? "",
@@ -33,6 +39,9 @@ const rowTo = (r: any): EpiCatalogo => ({
 const toRow = (e: Omit<EpiCatalogo, "id">) => ({
   codigo: e.codigo || null,
   descricao: e.descricao,
+  grupo: e.grupo || null,
+  subgrupo: e.subgrupo || null,
+  unidade: e.unidade || null,
   ca: e.ca || null,
   validade_meses: e.validadeMeses,
   observacao: e.observacao || null,

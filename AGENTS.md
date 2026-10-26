@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 - Blank service-order previews reuse renderOS in blank mode with an in-memory order and revocable PDF blob URLs; they never persist records or consume order numbers.
+- EPI catalog classification and unit fields are mapped through EpisCatalogoContext alongside the existing fields, preserving legacy records with empty-string fallbacks.
 - Client billing payment submissions use an authenticated server function that verifies the current SGM user's password before persisting the credit date; ordinary unpaid edits retain the existing save path.
 - NFS-e tax-code selectors share CodigoTributacaoSelect and its normalized matching helper; filtering changes presentation only and preserves the original tax codes and descriptions.
 - NFS-e recipient selection uses TomadorSelect with normalized name/document matching; filtering is presentation-only and selection retains the original client ID.

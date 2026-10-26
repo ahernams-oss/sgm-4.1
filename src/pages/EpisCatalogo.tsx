@@ -11,7 +11,7 @@ import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { useEpisCatalogo, EpiCatalogo } from "@/contexts/EpisCatalogoContext";
 import { usePermissao } from "@/hooks/usePermissao";
 import EpiClassificacaoSelect from "@/components/EpiClassificacaoSelect";
-import { normalizarClassificacaoEpi, opcoesClassificacaoEpi } from "@/lib/epiClassificacao";
+import { filtrarEpisPorClassificacao, normalizarClassificacaoEpi, opcoesClassificacaoEpi } from "@/lib/epiClassificacao";
 
 const emptyForm = { codigo: "", descricao: "", grupo: "", subgrupo: "", unidade: "", ca: "", validadeMeses: "", observacao: "" };
 

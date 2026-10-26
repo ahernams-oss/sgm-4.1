@@ -11,7 +11,7 @@ import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { useEpisCatalogo, EpiCatalogo } from "@/contexts/EpisCatalogoContext";
 import { usePermissao } from "@/hooks/usePermissao";
 
-const emptyForm = { codigo: "", descricao: "", ca: "", validadeMeses: "", observacao: "" };
+const emptyForm = { codigo: "", descricao: "", grupo: "", subgrupo: "", unidade: "", ca: "", validadeMeses: "", observacao: "" };
 
 export default function EpisCatalogoPage() {
   const { epis, addEpi, updateEpi, deleteEpi } = useEpisCatalogo();
@@ -36,6 +36,9 @@ export default function EpisCatalogoPage() {
     const payload = {
       codigo: form.codigo.trim(),
       descricao: form.descricao.trim(),
+      grupo: form.grupo.trim(),
+      subgrupo: form.subgrupo.trim(),
+      unidade: form.unidade.trim(),
       ca: form.ca.trim(),
       validadeMeses: form.validadeMeses ? Number(form.validadeMeses) : null,
       observacao: form.observacao.trim(),
@@ -55,6 +58,9 @@ export default function EpisCatalogoPage() {
     setForm({
       codigo: epi.codigo,
       descricao: epi.descricao,
+      grupo: epi.grupo,
+      subgrupo: epi.subgrupo,
+      unidade: epi.unidade,
       ca: epi.ca,
       validadeMeses: epi.validadeMeses ? String(epi.validadeMeses) : "",
       observacao: epi.observacao,
@@ -67,6 +73,9 @@ export default function EpisCatalogoPage() {
     return epis.filter((e) =>
       e.descricao.toLowerCase().includes(s) ||
       e.codigo.toLowerCase().includes(s) ||
+      e.grupo.toLowerCase().includes(s) ||
+      e.subgrupo.toLowerCase().includes(s) ||
+      e.unidade.toLowerCase().includes(s) ||
       e.ca.toLowerCase().includes(s)
     );
   }, [epis, search]);
@@ -106,6 +115,18 @@ export default function EpisCatalogoPage() {
               <label className="field-label">Validade (meses)</label>
               <Input type="number" min={0} value={form.validadeMeses} onChange={(e) => update("validadeMeses", e.target.value.replace(",", "."))} />
             </div>
+            <div className="md:col-span-2">
+              <label htmlFor="epi-grupo" className="field-label">Grupo</label>
+              <Input id="epi-grupo" value={form.grupo} onChange={(e) => update("grupo", e.target.value)} />
+            </div>
+            <div className="md:col-span-2">
+              <label htmlFor="epi-subgrupo" className="field-label">SubGrupo</label>
+              <Input id="epi-subgrupo" value={form.subgrupo} onChange={(e) => update("subgrupo", e.target.value)} />
+            </div>
+            <div className="md:col-span-2">
+              <label htmlFor="epi-unidade" className="field-label">Unidade</label>
+              <Input id="epi-unidade" value={form.unidade} onChange={(e) => update("unidade", e.target.value)} placeholder="Ex.: UN, PAR" />
+            </div>
             <div className="md:col-span-6">
               <label className="field-label">Observação</label>
               <Textarea rows={2} value={form.observacao} onChange={(e) => update("observacao", e.target.value)} />
@@ -138,6 +159,9 @@ export default function EpisCatalogoPage() {
                   <TableRow>
                     <TableHead className="w-24">Código</TableHead>
                     <TableHead>Descrição</TableHead>
+                    <TableHead>Grupo</TableHead>
+                    <TableHead>SubGrupo</TableHead>
+                    <TableHead>Unidade</TableHead>
                     <TableHead className="w-24 text-center">CA</TableHead>
                     <TableHead className="w-28 text-center">Validade</TableHead>
                     <TableHead>Observação</TableHead>
@@ -146,9 +170,12 @@ export default function EpisCatalogoPage() {
                 </TableHeader>
                 <TableBody>
                   {paginated.map((epi, idx) => (
-                    <TableRow key={epi.id} className={idx % 2 === 1 ? "bg-gray-200/60" : "bg-white"}>
+                    <TableRow key={epi.id} className={idx % 2 === 1 ? "bg-muted/60" : "bg-background"}>
                       <TableCell className="font-mono text-xs">{epi.codigo || "—"}</TableCell>
                       <TableCell className="font-medium">{epi.descricao}</TableCell>
+                      <TableCell>{epi.grupo || "—"}</TableCell>
+                      <TableCell>{epi.subgrupo || "—"}</TableCell>
+                      <TableCell>{epi.unidade || "—"}</TableCell>
                       <TableCell className="text-center">
                         {epi.ca ? <Badge variant="outline">{epi.ca}</Badge> : "—"}
                       </TableCell>

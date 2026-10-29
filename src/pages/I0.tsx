@@ -18,6 +18,10 @@ import {
 import { Plus, Pencil, Trash2, Search, Upload, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { usePermissao } from "@/hooks/usePermissao";
+import { useIsFetching } from "@tanstack/react-query";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import I0Dashboard from "@/components/I0Dashboard";
+import { LayoutDashboard, List } from "lucide-react";
 
 import type * as XLSXTypes from "xlsx";
 const getXLSX = async () => await import("xlsx");
@@ -48,6 +52,9 @@ export default function I0Page() {
   const [search, setSearch] = useState("");
   const [filterMes, setFilterMes] = useState<string>("todos");
   const [filterAno, setFilterAno] = useState<string>("todos");
+  const [aba, setAba] = useState("dashboard");
+  const carregandoI0 = useIsFetching({ queryKey: ["i0_items"] });
+  const carregandoSco = useIsFetching({ queryKey: ["scos"] });
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -181,6 +188,17 @@ export default function I0Page() {
         </div>
       </div>
 
+      <Tabs value={aba} onValueChange={setAba}>
+        <TabsList className="mb-4">
+          <TabsTrigger value="dashboard"><LayoutDashboard className="mr-2 h-4 w-4" />Dashboard</TabsTrigger>
+          <TabsTrigger value="registros"><List className="mr-2 h-4 w-4" />Registros</TabsTrigger>
+        </TabsList>
+        <TabsContent value="dashboard">
+          <I0Dashboard items={items} scos={scos} loading={carregandoI0 > 0 || carregandoSco > 0} onConsultar={(mes, ano) => {
+            setFilterMes(String(mes)); setFilterAno(String(ano)); setSearch(""); setPage(1); setAba("registros");
+          }} />
+        </TabsContent>
+        <TabsContent value="registros" className="space-y-6">
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -247,6 +265,8 @@ export default function I0Page() {
       </div>
 
       <PaginationControls currentPage={page} totalItems={filtered.length} onPageChange={setPage} pageSize={pageSize} onPageSizeChange={(s) => { setPageSize(s); setPage(1); }} />
+        </TabsContent>
+      </Tabs>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>

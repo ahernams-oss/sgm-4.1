@@ -57,6 +57,7 @@ export default function TransferenciaEstoqueDialog({ open, onOpenChange, cotacao
 
   const solicitar = async () => {
     if (!cotacao || !requisicao) return;
+    if (!destino.trim()) { toast({ title: "Verifique a transferência", description: "A requisição não tem local de entrega informado — informe-o na requisição antes de transferir.", variant: "destructive" }); return; }
     const itens: ItemTransferencia[] = itensRc.flatMap(i => {
       const l = linhas[i.id]; const q = Number(String(l?.qtd ?? "").replace(",", "."));
       if (!l || !q) return [];

@@ -670,12 +670,50 @@ const Cargos = () => {
                             NRs Necessárias ({(cargo.nrs || []).length})
                           </h4>
                           <div className="flex gap-2 mb-3">
-                            <Input
-                              placeholder="NR (ex: NR-10, NR-35)"
-                              value={novoNrNumero[cargo.id] || ""}
-                              onChange={(e) => setNovoNrNumero((prev) => ({ ...prev, [cargo.id]: e.target.value }))}
-                              className="w-32 h-8 text-sm"
-                            />
+                            <Popover
+                              open={nrSelectOpen[cargo.id] || false}
+                              onOpenChange={(open) => setNrSelectOpen((prev) => ({ ...prev, [cargo.id]: open }))}
+                            >
+                              <PopoverTrigger asChild>
+                                <Button
+                                  type="button" variant="outline" role="combobox"
+                                  className="w-56 h-8 text-sm justify-between font-normal"
+                                  title="Selecionar NR do cadastro de NRs"
+                                >
+                                  <span className="truncate">
+                                    {novoNrNumero[cargo.id] || "Selecione a NR..."}
+                                  </span>
+                                  <ChevronsUpDown className="h-3 w-3 shrink-0 opacity-50" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-80 p-0" align="start">
+                                <Command>
+                                  <CommandInput placeholder="Buscar NR por código ou descrição..." />
+                                  <CommandList>
+                                    <CommandEmpty>Nenhuma NR encontrada no cadastro.</CommandEmpty>
+                                    <CommandGroup>
+                                      {catalogoNrsOrdenado.map((nr) => (
+                                        <CommandItem
+                                          key={nr.id}
+                                          value={`${nr.codigo} ${nr.descricao}`}
+                                          onSelect={() => {
+                                            setNovoNrNumero((prev) => ({ ...prev, [cargo.id]: nr.codigo }));
+                                            setNovoNrDescricao((prev) => ({ ...prev, [cargo.id]: nr.descricao || "" }));
+                                            setNrSelectOpen((prev) => ({ ...prev, [cargo.id]: false }));
+                                          }}
+                                        >
+                                          <Check
+                                            className={`h-3.5 w-3.5 mr-2 shrink-0 ${novoNrNumero[cargo.id] === nr.codigo ? "opacity-100" : "opacity-0"}`}
+                                          />
+                                          <span className="font-medium shrink-0 mr-2">{nr.codigo}</span>
+                                          <span className="text-xs text-muted-foreground truncate">{nr.descricao}</span>
+                                        </CommandItem>
+                                      ))}
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
                             <Input
                               placeholder="Descrição / Características"
                               value={novoNrDescricao[cargo.id] || ""}

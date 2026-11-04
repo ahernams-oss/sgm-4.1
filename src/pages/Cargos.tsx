@@ -69,6 +69,7 @@ const Cargos = () => {
   // NRs state
   const [novoNrNumero, setNovoNrNumero] = useState<Record<string, string>>({});
   const [novoNrDescricao, setNovoNrDescricao] = useState<Record<string, string>>({});
+  const [nrSelectOpen, setNrSelectOpen] = useState<Record<string, boolean>>({});
   const [editingNrId, setEditingNrId] = useState<string | null>(null);
   const [editingNrNumero, setEditingNrNumero] = useState("");
   const [editingNrDescricao, setEditingNrDescricao] = useState("");

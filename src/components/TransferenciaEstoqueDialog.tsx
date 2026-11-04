@@ -45,7 +45,6 @@ export default function TransferenciaEstoqueDialog({ open, onOpenChange, cotacao
   });
 
   const saldos = useMemo(() => getSaldos().filter(s => s.quantidade > 0), [getSaldos]);
-  const locaisConhecidos = useMemo(() => Array.from(new Set(saldos.map(s => s.local).filter(Boolean))).sort(), [saldos]);
   // O local de destino é sempre o local requisitante do pedido (Local de Entrega da RC) e não pode ser alterado.
   const destino = requisicao?.localEntrega ?? "";
   const [linhas, setLinhas] = useState<Record<string, { origem: string; qtd: string }>>({});

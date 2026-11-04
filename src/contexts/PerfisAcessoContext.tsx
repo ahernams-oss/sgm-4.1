@@ -364,7 +364,7 @@ const MODULOS_CADASTRADOS: GrupoPermissao[] = [
       },
       {
         key: "sco",
-        label: "SCO / Orçamentos",
+        label: "SCO / I0 / Orçamentos SCO",
         acoes: [
           { key: "sco.criar", label: "Cadastrar SCO" },
           { key: "sco.editar", label: "Editar SCO" },

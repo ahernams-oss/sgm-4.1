@@ -49,6 +49,7 @@ import EstoqueItensCotacao from "@/components/EstoqueItensCotacao";
 import { useEstoque } from "@/contexts/EstoqueContext";
 import TransferenciaEstoqueDialog from "@/components/TransferenciaEstoqueDialog";
 import { ArrowRightLeft } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 interface GrupoEmissao {
   fornecedorId: string;

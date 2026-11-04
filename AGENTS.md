@@ -35,3 +35,4 @@
 - Outbound email/WhatsApp server functions only send to recipients registered in the SGM (`_shared/destinatarios.ts`); prevents using the app to message arbitrary addresses.
 - Login-free portals (supplier pregão room, legacy candidate link) trust only server-signed tokens (`_shared/token-assinado.ts`), never IDs sent by the browser.
 - Cargos de acesso total são protegidos no banco (sgm_cargo_acesso_total + triggers em cargos/usuarios/funcionarios): só o Diretor Geral cria, renomeia ou atribui; o front apenas espelha a lista em src/lib/permissoes.ts, então mude os dois juntos.
+- Purchase-quotation stock transfers are stored as approval requests in estoque_transferencias; stock moves only via transferirEntreLocais after a permitted user approves, and a DB trigger enforces the cotacoes.aprovar_transferencia permission and one-time decision.

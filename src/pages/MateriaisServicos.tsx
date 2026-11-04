@@ -54,12 +54,18 @@ export default function MateriaisServicosPage() {
   const [search, setSearch] = useState("");
   const [codigoItem, setCodigoItem] = useState<MaterialServico | null>(null);
   const [leitorOpen, setLeitorOpen] = useState(false);
+  // Itens com o código completo (categoria + código) para etiquetas e leitura por leitor.
+  const materiaisCodigos = useMemo(
+    () => materiais.map(m => ({ ...m, codigoCompleto: codigoCompletoProduto(m.codigo, getCodigoCompleto(m.categoriaId)) })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [materiais, classes, subGrupos, grupos]
+  );
   const aplicarLeitura = (texto: string) => {
-    const achado = encontrarPorCodigo(materiais, texto);
+    const achado = encontrarPorCodigo(materiaisCodigos, texto);
     setSearch(achado ? achado.codigo : lerCodigoProduto(texto));
     setPage(1);
     toast(achado
-      ? { title: `Produto encontrado: ${achado.codigo} - ${achado.descricao}` }
+      ? { title: `Produto encontrado: ${achado.codigoCompleto ?? achado.codigo} - ${achado.descricao}` }
       : { title: `Nenhum produto com o código ${lerCodigoProduto(texto)}`, variant: "destructive" });
   };
   const [filterTipo, setFilterTipo] = useState<string>("Todos");
@@ -81,14 +87,14 @@ export default function MateriaisServicosPage() {
   );
 
   const filtered = useMemo(() => {
-    let list = materiais;
+    let list = materiaisCodigos;
     if (filterTipo !== "Todos") list = list.filter(m => m.tipo === filterTipo);
     if (search) {
       const s = search.toLowerCase();
       list = list.filter(m => m.codigo.toLowerCase().includes(s) || m.descricao.toLowerCase().includes(s) || (m.nomePratico || "").toLowerCase().includes(s));
     }
     return list;
-  }, [materiais, search, filterTipo]);
+  }, [materiaisCodigos, search, filterTipo]);
 
   // Reset page when filters change
   const resetPage = () => setPage(1);

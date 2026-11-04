@@ -25,13 +25,31 @@ export function cargoEhDiretorGeral(nomeCargo: string | null | undefined): boole
   return normalizarCargo(nomeCargo) === CARGO_DIRETOR_GERAL;
 }
 
+export function cargoRestritoAdministracao(nomeCargo: string | null | undefined): boolean {
+  return [
+    "coordenador técnico lasant", "coordenador tecnico lasant",
+    "coordenador administrativo lasant", "gerente executivo lasant", "gerente executivo",
+  ].includes(normalizarCargo(nomeCargo));
+}
+
+export function moduloExigePerfil(chave: string): boolean {
+  const modulo = chave.split(".")[0];
+  return modulo === "monitor_tv" || modulo.startsWith("gerencial_");
+}
+
+function administracaoBloqueada(nomeCargo: string | null | undefined, chave: string): boolean {
+  return cargoRestritoAdministracao(nomeCargo) && ["usuarios", "perfis_acesso"].includes(chave.split(".")[0]);
+}
+
 /** Ação exata do perfil (ex.: "usuarios.editar"). Acesso total libera tudo. */
 export function temPermissao(
   acessoTotal: boolean,
   permissoes: Permissoes | null | undefined,
   chave: string,
+  nomeCargo?: string | null,
 ): boolean {
-  if (acessoTotal) return true;
+  if (administracaoBloqueada(nomeCargo, chave)) return false;
+  if (acessoTotal && !moduloExigePerfil(chave)) return true;
   return !!permissoes?.[chave];
 }
 
@@ -43,8 +61,10 @@ export function temPermissaoNoModulo(
   acessoTotal: boolean,
   permissoes: Permissoes | null | undefined,
   prefixo: string,
+  nomeCargo?: string | null,
 ): boolean {
-  if (acessoTotal) return true;
+  if (administracaoBloqueada(nomeCargo, prefixo)) return false;
+  if (acessoTotal && !moduloExigePerfil(prefixo)) return true;
   const perms = permissoes || {};
   if (perms[prefixo]) return true;
   const dot = `${prefixo}.`;

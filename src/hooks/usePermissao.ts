@@ -16,7 +16,7 @@ export function usePermissao() {
 
   const tem = (key: string): boolean => {
     if (!usuarioLogado) return false;
-    return temPermissao(acessoTotal, perfil?.permissoes, key);
+    return temPermissao(acessoTotal, perfil?.permissoes, key, cargo?.nome);
   };
 
   /**
@@ -26,7 +26,7 @@ export function usePermissao() {
    */
   const temModulo = (prefix: string): boolean => {
     if (!usuarioLogado) return false;
-    return temPermissaoNoModulo(acessoTotal, perfil?.permissoes, prefix);
+    return temPermissaoNoModulo(acessoTotal, perfil?.permissoes, prefix, cargo?.nome);
   };
 
   return { tem, temModulo, acessoTotal, isDiretor, perfil, usuarioLogado };

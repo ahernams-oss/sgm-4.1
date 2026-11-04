@@ -2,7 +2,10 @@ import { useState, useMemo, useRef } from "react";
 import { DoubleConfirmDelete, useDoubleConfirmDelete } from "@/components/DoubleConfirmDelete";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { toast } from "sonner";
-import { Briefcase, Plus, Trash2, Search, ChevronDown, ChevronUp, Pencil, Check, X, Upload, FileText, ExternalLink } from "lucide-react";
+import { Briefcase, Plus, Trash2, Search, ChevronDown, ChevronUp, ChevronsUpDown, Pencil, Check, X, Upload, FileText, ExternalLink } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { useNrsCatalogo } from "@/contexts/NrsCatalogoContext";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -32,6 +35,11 @@ const Cargos = () => {
   const { funcionarios } = useFuncionarios();
   const funcionariosAtivos = useMemo(() => [...funcionarios].filter((f: any) => f.status !== "Inativo").sort((a: any, b: any) => (a.nome || "").localeCompare(b.nome || "")), [funcionarios]);
   const { epis: catalogoEpis } = useEpisCatalogo();
+  const { nrs: catalogoNrs } = useNrsCatalogo();
+  const catalogoNrsOrdenado = useMemo(
+    () => [...catalogoNrs].sort((a, b) => (a.codigo || "").localeCompare(b.codigo || "", "pt-BR", { numeric: true })),
+    [catalogoNrs]
+  );
   const { tem } = usePermissao();
   const podeCriar = tem("cargos.criar");
   const podeEditar = tem("cargos.editar");
@@ -61,6 +69,7 @@ const Cargos = () => {
   // NRs state
   const [novoNrNumero, setNovoNrNumero] = useState<Record<string, string>>({});
   const [novoNrDescricao, setNovoNrDescricao] = useState<Record<string, string>>({});
+  const [nrSelectOpen, setNrSelectOpen] = useState<Record<string, boolean>>({});
   const [editingNrId, setEditingNrId] = useState<string | null>(null);
   const [editingNrNumero, setEditingNrNumero] = useState("");
   const [editingNrDescricao, setEditingNrDescricao] = useState("");
@@ -661,12 +670,50 @@ const Cargos = () => {
                             NRs Necessárias ({(cargo.nrs || []).length})
                           </h4>
                           <div className="flex gap-2 mb-3">
-                            <Input
-                              placeholder="NR (ex: NR-10, NR-35)"
-                              value={novoNrNumero[cargo.id] || ""}
-                              onChange={(e) => setNovoNrNumero((prev) => ({ ...prev, [cargo.id]: e.target.value }))}
-                              className="w-32 h-8 text-sm"
-                            />
+                            <Popover
+                              open={nrSelectOpen[cargo.id] || false}
+                              onOpenChange={(open) => setNrSelectOpen((prev) => ({ ...prev, [cargo.id]: open }))}
+                            >
+                              <PopoverTrigger asChild>
+                                <Button
+                                  type="button" variant="outline" role="combobox"
+                                  className="w-56 h-8 text-sm justify-between font-normal"
+                                  title="Selecionar NR do cadastro de NRs"
+                                >
+                                  <span className="truncate">
+                                    {novoNrNumero[cargo.id] || "Selecione a NR..."}
+                                  </span>
+                                  <ChevronsUpDown className="h-3 w-3 shrink-0 opacity-50" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-80 p-0" align="start">
+                                <Command>
+                                  <CommandInput placeholder="Buscar NR por código ou descrição..." />
+                                  <CommandList>
+                                    <CommandEmpty>Nenhuma NR encontrada no cadastro.</CommandEmpty>
+                                    <CommandGroup>
+                                      {catalogoNrsOrdenado.map((nr) => (
+                                        <CommandItem
+                                          key={nr.id}
+                                          value={`${nr.codigo} ${nr.descricao}`}
+                                          onSelect={() => {
+                                            setNovoNrNumero((prev) => ({ ...prev, [cargo.id]: nr.codigo }));
+                                            setNovoNrDescricao((prev) => ({ ...prev, [cargo.id]: nr.descricao || "" }));
+                                            setNrSelectOpen((prev) => ({ ...prev, [cargo.id]: false }));
+                                          }}
+                                        >
+                                          <Check
+                                            className={`h-3.5 w-3.5 mr-2 shrink-0 ${novoNrNumero[cargo.id] === nr.codigo ? "opacity-100" : "opacity-0"}`}
+                                          />
+                                          <span className="font-medium shrink-0 mr-2">{nr.codigo}</span>
+                                          <span className="text-xs text-muted-foreground truncate">{nr.descricao}</span>
+                                        </CommandItem>
+                                      ))}
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
                             <Input
                               placeholder="Descrição / Características"
                               value={novoNrDescricao[cargo.id] || ""}

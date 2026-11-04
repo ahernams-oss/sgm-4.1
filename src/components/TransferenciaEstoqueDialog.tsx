@@ -45,8 +45,8 @@ export default function TransferenciaEstoqueDialog({ open, onOpenChange, cotacao
   });
 
   const saldos = useMemo(() => getSaldos().filter(s => s.quantidade > 0), [getSaldos]);
-  // O local de destino é sempre o local requisitante do pedido (Local de Entrega da RC) e não pode ser alterado.
-  const destino = requisicao?.localEntrega ?? "";
+  // O local de destino é sempre o local requisitante do pedido (Local de Entrega da RC; na falta, o centro de custo) e não pode ser alterado.
+  const destino = requisicao?.localEntrega?.trim() || requisicao?.centroCustoNome?.trim() || "";
   const [linhas, setLinhas] = useState<Record<string, { origem: string; qtd: string }>>({});
   const [salvando, setSalvando] = useState(false);
 
@@ -56,7 +56,7 @@ export default function TransferenciaEstoqueDialog({ open, onOpenChange, cotacao
 
   const solicitar = async () => {
     if (!cotacao || !requisicao) return;
-    if (!destino.trim()) { toast({ title: "Verifique a transferência", description: "A requisição não tem local de entrega informado — informe-o na requisição antes de transferir.", variant: "destructive" }); return; }
+    if (!destino.trim()) { toast({ title: "Verifique a transferência", description: "A requisição não tem local requisitante informado (Local de Entrega ou centro de custo).", variant: "destructive" }); return; }
     const itens: ItemTransferencia[] = itensRc.flatMap(i => {
       const l = linhas[i.id]; const q = Number(String(l?.qtd ?? "").replace(",", "."));
       if (!l || !q) return [];

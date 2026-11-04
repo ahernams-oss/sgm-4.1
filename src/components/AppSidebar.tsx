@@ -376,7 +376,7 @@ export function AppSidebar() {
 
       <SidebarFooter className="border-t border-sidebar-border">
         <SidebarMenu>
-          {(acessoTotal || temModulo("usuarios")) && (
+          {temModulo("usuarios") && (
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
                 <NavLink
@@ -391,7 +391,7 @@ export function AppSidebar() {
               </SidebarMenuButton>
             </SidebarMenuItem>
           )}
-          {(acessoTotal || temModulo("perfis_acesso")) && (
+          {temModulo("perfis_acesso") && (
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
                 <NavLink

@@ -16,6 +16,7 @@ export type UsuarioSgm = {
   nome: string;
   email: string;
   acessoTotal: boolean;
+  cargoNome?: string;
   permissoes: Permissoes;
 };
 
@@ -77,6 +78,7 @@ async function completar(linha: LinhaUsuario): Promise<UsuarioSgm> {
     nome: linha.nome ?? "",
     email: linha.email ?? "",
     acessoTotal: cargo?.data ? cargoTemAcessoTotal(cargo.data.nome) : false,
+    cargoNome: cargo?.data?.nome ?? "",
     permissoes: p && typeof p === "object" && !Array.isArray(p) ? (p as Permissoes) : {},
   };
 }
@@ -161,13 +163,13 @@ export async function quemChamou(req: Request): Promise<Chamador | null> {
 /** Tem a ação (qualquer uma das chaves). O servidor pode tudo. */
 export function pode(c: ChamadorSgm, ...chaves: string[]): boolean {
   if (c.tipo === "servico") return true;
-  return chaves.some((k) => temPermissao(c.usuario.acessoTotal, c.usuario.permissoes, k));
+  return chaves.some((k) => temPermissao(c.usuario.acessoTotal, c.usuario.permissoes, k, c.usuario.cargoNome));
 }
 
 /** Tem alguma permissão do módulo (qualquer um dos prefixos), como a rota do front. */
 export function podeModulo(c: ChamadorSgm, ...modulos: string[]): boolean {
   if (c.tipo === "servico") return true;
-  return modulos.some((m) => temPermissaoNoModulo(c.usuario.acessoTotal, c.usuario.permissoes, m));
+  return modulos.some((m) => temPermissaoNoModulo(c.usuario.acessoTotal, c.usuario.permissoes, m, c.usuario.cargoNome));
 }
 
 export function temAcessoTotal(c: ChamadorSgm): boolean {

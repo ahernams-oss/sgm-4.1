@@ -1,5 +1,7 @@
 # Tarefas
 
+- [ ] Bloquear Usuários e Perfis de Acesso para Coordenadores Técnico/Administrativo Lasant e Gerente Executivo; exigir permissões explícitas de perfil para os itens Gerencial, sem liberação automática por cargo; validar regras no navegador e servidor.
+
 - [x] Adicionar dashboard no cadastro I0 com totais por tabela, mês e ano, usando todos os registros carregados e preservando o cadastro na aba Registros. Quatro testes passaram; filtros, totais e consulta por período conferidos visualmente com dados de teste; build OK. Não testei com login.
 
 - [x] Adicionar Baixar PDF na grade e nos detalhes para notas emitidas/canceladas; representação local identificada como distinta do DANFSe oficial, número fiscal extraído do XML sem confundir com DPS. Doze testes passaram e build OK. PDF normal e duas páginas de descrição longa conferidos visualmente, sem cortes ou sobreposição. Não testei com login e nenhuma nota emitida.

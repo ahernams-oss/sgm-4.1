@@ -14,8 +14,8 @@ interface RotaProtegidaProps {
 
 /**
  * Protege uma rota verificando a permissão do módulo no perfil de acesso do usuário.
- * Cargos com acesso total (Diretor, Gerente Executivo, Coordenador) sempre passam,
- * exceto o módulo de Auditoria que é restrito apenas a Diretores.
+ * A regra compartilhada aplica as restrições administrativas por cargo e exige
+ * autorização explícita do perfil nos módulos Gerencial, inclusive para acesso total.
  * Quando o acesso é negado, redireciona para a primeira página permitida do usuário.
  */
 export function RotaProtegida({ perm, requireAcessoTotal, children }: RotaProtegidaProps) {
@@ -31,7 +31,7 @@ export function RotaProtegida({ perm, requireAcessoTotal, children }: RotaProteg
     return <>{children}</>;
   } else if (perm === "auditoria") {
     if (isDiretor || temModulo(perm)) return <>{children}</>;
-  } else if (acessoTotal || temModulo(perm)) {
+  } else if (temModulo(perm)) {
     return <>{children}</>;
   }
 

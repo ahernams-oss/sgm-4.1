@@ -124,7 +124,6 @@ export default function TransferenciaEstoqueDialog({ open, onOpenChange, cotacao
           <div>
             <Label>Local de destino (local requisitante do pedido)</Label>
             <Input value={destino} readOnly placeholder="Definido pelo Local de Entrega da requisição" className="bg-muted cursor-not-allowed" />
-            <datalist id="locais-estoque">{locaisConhecidos.map(l => <option key={l} value={l} />)}</datalist>
           </div>
           <div className="rounded-md border divide-y">
             {itensRc.length === 0 && <p className="p-3 text-sm text-muted-foreground">Nenhum item desta requisição está ligado a um material cadastrado.</p>}

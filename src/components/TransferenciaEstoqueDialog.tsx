@@ -74,7 +74,7 @@ export default function TransferenciaEstoqueDialog({ open, onOpenChange, cotacao
     if (error) { toast({ title: "Erro ao solicitar", description: error.message, variant: "destructive" }); return; }
     toast({ title: "Transferência enviada para aprovação" });
     setLinhas({});
-    qc.invalidateQueries({ queryKey: qk });
+    qc.invalidateQueries({ queryKey: ["estoque_transferencias"] });
   };
 
   const decidir = async (t: Transferencia, aprovar: boolean) => {

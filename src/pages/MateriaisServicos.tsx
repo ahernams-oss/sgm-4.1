@@ -24,7 +24,10 @@ import { Badge } from "@/components/ui/badge";
 import { cn as cn2 } from "@/lib/utils";
 import VinculosScoDialog from "@/components/VinculosScoDialog";
 import { useMaterialScoVinculos } from "@/contexts/MaterialScoVinculosContext";
-import { Link2 } from "lucide-react";
+import { Link2, QrCode, ScanLine } from "lucide-react";
+import CodigoProdutoDialog from "@/components/CodigoProdutoDialog";
+import LeitorCodigoDialog from "@/components/LeitorCodigoDialog";
+import { encontrarPorCodigo, lerCodigoProduto } from "@/lib/codigoProduto";
 
 import type * as XLSXTypes from "xlsx";
 const getXLSX = async () => await import("xlsx");
@@ -48,6 +51,16 @@ export default function MateriaisServicosPage() {
   const [form, setForm] = useState({ descricao: "", nomePratico: "", tipo: "Material" as "Material" | "Serviço", unidadeMedida: "UN", categoriaId: "", estoqueMinimo: 0, fotos: [] as string[] });
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [search, setSearch] = useState("");
+  const [codigoItem, setCodigoItem] = useState<MaterialServico | null>(null);
+  const [leitorOpen, setLeitorOpen] = useState(false);
+  const aplicarLeitura = (texto: string) => {
+    const achado = encontrarPorCodigo(materiais, texto);
+    setSearch(achado ? achado.codigo : lerCodigoProduto(texto));
+    setPage(1);
+    toast(achado
+      ? { title: `Produto encontrado: ${achado.codigo} - ${achado.descricao}` }
+      : { title: `Nenhum produto com o código ${lerCodigoProduto(texto)}`, variant: "destructive" });
+  };
   const [filterTipo, setFilterTipo] = useState<string>("Todos");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -196,8 +209,10 @@ export default function MateriaisServicosPage() {
       <div className="flex gap-4">
         <div className="relative max-w-sm flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Buscar..." value={search} onChange={e => { setSearch(e.target.value); resetPage(); }} className="pl-9" />
+          <Input placeholder="Buscar ou ler código..." value={search} onChange={e => { setSearch(e.target.value); resetPage(); }}
+            onKeyDown={e => { if (e.key === "Enter" && search.trim()) { e.preventDefault(); aplicarLeitura(search); } }} className="pl-9" />
         </div>
+        <Button variant="outline" onClick={() => setLeitorOpen(true)}><ScanLine className="h-4 w-4 mr-2" />Ler código</Button>
         <Select value={filterTipo} onValueChange={v => { setFilterTipo(v); resetPage(); }}>
           <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -240,6 +255,7 @@ export default function MateriaisServicosPage() {
                     <Button variant="ghost" size="icon" title="Vínculos SCO" onClick={() => setVinculosMaterial(m)}>
                       <Link2 className={cn2(getVinculos(m.id).length > 0 ? "text-primary" : "text-muted-foreground", "h-4 w-4")} />
                     </Button>
+                    <Button variant="ghost" size="icon" title="Código de barras / QR Code" onClick={() => setCodigoItem(m)}><QrCode className="h-4 w-4" /></Button>
                     {podeEditar && <Button variant="ghost" size="icon" onClick={() => openEdit(m)}><Pencil className="h-4 w-4" /></Button>}
                     {podeExcluir && <Button variant="ghost" size="icon" onClick={() => requestDelete(m.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>}
                   </div>
@@ -327,6 +343,8 @@ export default function MateriaisServicosPage() {
         getNome={(m) => m.descricao}
       />
 
+      <CodigoProdutoDialog item={codigoItem} onOpenChange={(v) => { if (!v) setCodigoItem(null); }} />
+      <LeitorCodigoDialog open={leitorOpen} onOpenChange={setLeitorOpen} onLido={aplicarLeitura} />
       <VinculosScoDialog material={vinculosMaterial} open={!!vinculosMaterial} onOpenChange={(v) => { if (!v) setVinculosMaterial(null); }} readOnly={!podeEditar} />
     </div>
   );

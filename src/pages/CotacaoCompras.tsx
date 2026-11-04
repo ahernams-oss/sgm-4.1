@@ -45,6 +45,7 @@ import ConfirmacaoValoresDialog, { AjusteConfirmacao, AlternativaFornecedor, Ite
 import { LIMITE_ALCADA_PERCENTUAL, calcularDiasAtraso, calcularImpactoAtraso } from "@/lib/alcadaReajuste";
 import { useConfirmacoesValores } from "@/hooks/useConfirmacoesValores";
 import FornecedorCombobox from "@/components/FornecedorCombobox";
+import EstoqueItensCotacao from "@/components/EstoqueItensCotacao";
 
 interface GrupoEmissao {
   fornecedorId: string;
@@ -1780,7 +1781,7 @@ export default function CotacaoComprasPage() {
 
       {/* Dialog Nova Cotação */}
       <Dialog open={novaDialogOpen} onOpenChange={setNovaDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Nova Cotação</DialogTitle>
           <DialogDescription>Selecione a requisição de compras para iniciar a cotação.</DialogDescription>
@@ -1823,6 +1824,7 @@ export default function CotacaoComprasPage() {
                 <p className="text-sm text-muted-foreground mt-1">Nenhuma requisição encontrada com os filtros aplicados.</p>
               )}
             </div>
+            {selectedReqId && <EstoqueItensCotacao itens={requisicoes.find(r => r.id === selectedReqId)?.itens ?? []} />}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setNovaDialogOpen(false); setReqSearch(""); setReqFilterUrgencia("Todas"); }}>Cancelar</Button>

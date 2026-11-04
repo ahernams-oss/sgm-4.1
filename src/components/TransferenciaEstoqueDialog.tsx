@@ -122,8 +122,8 @@ export default function TransferenciaEstoqueDialog({ open, onOpenChange, cotacao
 
         <div className="space-y-3">
           <div>
-            <Label>Local de destino</Label>
-            <Input list="locais-estoque" value={destino} onChange={e => setDestino(e.target.value)} placeholder="Ex.: Almoxarifado da obra" />
+            <Label>Local de destino (local requisitante do pedido)</Label>
+            <Input value={destino} readOnly placeholder="Definido pelo Local de Entrega da requisição" className="bg-muted cursor-not-allowed" />
             <datalist id="locais-estoque">{locaisConhecidos.map(l => <option key={l} value={l} />)}</datalist>
           </div>
           <div className="rounded-md border divide-y">

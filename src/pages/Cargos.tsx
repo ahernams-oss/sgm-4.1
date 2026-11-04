@@ -35,6 +35,11 @@ const Cargos = () => {
   const { funcionarios } = useFuncionarios();
   const funcionariosAtivos = useMemo(() => [...funcionarios].filter((f: any) => f.status !== "Inativo").sort((a: any, b: any) => (a.nome || "").localeCompare(b.nome || "")), [funcionarios]);
   const { epis: catalogoEpis } = useEpisCatalogo();
+  const { nrs: catalogoNrs } = useNrsCatalogo();
+  const catalogoNrsOrdenado = useMemo(
+    () => [...catalogoNrs].sort((a, b) => (a.codigo || "").localeCompare(b.codigo || "", "pt-BR", { numeric: true })),
+    [catalogoNrs]
+  );
   const { tem } = usePermissao();
   const podeCriar = tem("cargos.criar");
   const podeEditar = tem("cargos.editar");

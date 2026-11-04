@@ -28,7 +28,7 @@ import { useMaterialScoVinculos } from "@/contexts/MaterialScoVinculosContext";
 import { Link2, QrCode, ScanLine } from "lucide-react";
 import CodigoProdutoDialog from "@/components/CodigoProdutoDialog";
 import LeitorCodigoDialog from "@/components/LeitorCodigoDialog";
-import { encontrarPorCodigo, lerCodigoProduto } from "@/lib/codigoProduto";
+import { codigoCompletoProduto, encontrarPorCodigo, lerCodigoProduto } from "@/lib/codigoProduto";
 
 import type * as XLSXTypes from "xlsx";
 const getXLSX = async () => await import("xlsx");
@@ -37,7 +37,7 @@ const UNIDADES = ["UN", "M", "M²", "M³", "KG", "L", "CX", "PCT", "SC", "GL", "
 
 export default function MateriaisServicosPage() {
   const { materiais, addMaterial, updateMaterial, deleteMaterial } = useMateriaisServicos();
-  const { classes, getDescricaoCompleta } = useCategoriasCompras();
+  const { classes, getDescricaoCompleta, grupos, subGrupos, getCodigoCompleto } = useCategoriasCompras();
   const { getVinculos } = useMaterialScoVinculos();
   const [vinculosMaterial, setVinculosMaterial] = useState<MaterialServico | null>(null);
   const { tem } = usePermissao();

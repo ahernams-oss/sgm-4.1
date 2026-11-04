@@ -85,6 +85,21 @@ const statusColors: Record<string, string> = {
 export default function CotacaoComprasPage() {
   const { cotacoes, addCotacao, addProposta, updateProposta, removeProposta, submeterAprovacao, aprovarCotacao, finalizarCotacao, concluirRevisaoConfirmacao, cancelarCotacao } = useCotacaoCompras();
   const { requisicoes, updateStatus } = useRequisicaoCompras();
+
+  // Transferências de estoque pendentes por cotação (apontamento visual na grade).
+  const { data: transferenciasPendentes = [] } = useQuery({
+    queryKey: ["estoque_transferencias", "pendentes"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("estoque_transferencias").select("cotacao_id").eq("status", "Pendente");
+      if (error) throw error;
+      return (data ?? []) as { cotacao_id: string }[];
+    },
+  });
+  const transfPendentesPorCotacao = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const t of transferenciasPendentes) m.set(t.cotacao_id, (m.get(t.cotacao_id) ?? 0) + 1);
+    return m;
+  }, [transferenciasPendentes]);
   const { addPedido, pedidos } = usePedidoCompra();
   const { clientes } = useClientes();
   const { usuarioLogado } = useAuth();

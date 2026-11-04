@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.validar_decisao_transferencia() FROM PUBLIC, anon, authenticated;

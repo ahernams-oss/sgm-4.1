@@ -47,6 +47,8 @@ import { useConfirmacoesValores } from "@/hooks/useConfirmacoesValores";
 import FornecedorCombobox from "@/components/FornecedorCombobox";
 import EstoqueItensCotacao from "@/components/EstoqueItensCotacao";
 import { useEstoque } from "@/contexts/EstoqueContext";
+import TransferenciaEstoqueDialog from "@/components/TransferenciaEstoqueDialog";
+import { ArrowRightLeft } from "lucide-react";
 
 interface GrupoEmissao {
   fornecedorId: string;
@@ -94,6 +96,7 @@ export default function CotacaoComprasPage() {
   const podeCriarCot = tem("cotacoes.criar");
   const podeFinalizarCot = tem("cotacoes.status.finalizada");
   const podeAlterarQtd = tem("cotacoes.alterar_quantidade");
+  const [transfCotacao, setTransfCotacao] = useState<CotacaoCompras | null>(null);
 
   const assinarPedidoAutomatico = useCallback(async (pedido: PedidoCompra) => {
     if (!usuarioLogado) return;
@@ -1722,6 +1725,9 @@ export default function CotacaoComprasPage() {
                         <Eye className="mr-2 h-4 w-4" />Detalhes
                       </DropdownMenuItem>
 
+                      <DropdownMenuItem onClick={() => setTransfCotacao(c)}>
+                        <ArrowRightLeft className="mr-2 h-4 w-4" />Transferir do estoque
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => openMapa(c)} disabled={c.propostas.length === 0}>
                         <BarChart3 className="mr-2 h-4 w-4" />Mapa Comparativo
                       </DropdownMenuItem>
@@ -2762,6 +2768,12 @@ export default function CotacaoComprasPage() {
         itens={itensConfirmacao}
         onConfirm={handleConfirmarValores}
         responsavel={usuarioLogado?.nome || ""}
+      />
+      <TransferenciaEstoqueDialog
+        open={!!transfCotacao}
+        onOpenChange={v => { if (!v) setTransfCotacao(null); }}
+        cotacao={transfCotacao}
+        requisicao={transfCotacao ? requisicoes.find(r => r.id === transfCotacao.requisicaoId) ?? null : null}
       />
     </div>
   );

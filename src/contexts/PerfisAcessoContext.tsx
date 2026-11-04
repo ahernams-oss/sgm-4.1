@@ -227,6 +227,7 @@ const MODULOS_CADASTRADOS: GrupoPermissao[] = [
           { key: "cotacoes.alterar_condicao_pagamento", label: "Pode Alterar a Condição de Pagamento na Confirmação de Valores" },
           { key: "cotacoes.finalizar", label: "Pode Finalizar Cotação" },
           { key: "cotacoes.enviar_convite", label: "Pode Enviar Convite a Fornecedor" },
+          { key: "cotacoes.aprovar_transferencia", label: "Pode Aprovar Transferência de Estoque" },
         ],
         statusTransicoes: [
           { key: "cotacoes.status.em_andamento", label: "Pode Manter Cotação Em Andamento" },

@@ -105,7 +105,7 @@ export default function TransferenciaEstoqueDialog({ open, onOpenChange, cotacao
       toast({ title: "Não foi possível concluir", description: e?.message ?? String(e), variant: "destructive" });
     } finally {
       setSalvando(false);
-      qc.invalidateQueries({ queryKey: qk });
+      qc.invalidateQueries({ queryKey: ["estoque_transferencias"] });
     }
   };
 

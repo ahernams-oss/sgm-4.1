@@ -49,6 +49,7 @@ import EstoqueItensCotacao from "@/components/EstoqueItensCotacao";
 import { useEstoque } from "@/contexts/EstoqueContext";
 import TransferenciaEstoqueDialog from "@/components/TransferenciaEstoqueDialog";
 import { ArrowRightLeft } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 interface GrupoEmissao {
   fornecedorId: string;
@@ -84,6 +85,21 @@ const statusColors: Record<string, string> = {
 export default function CotacaoComprasPage() {
   const { cotacoes, addCotacao, addProposta, updateProposta, removeProposta, submeterAprovacao, aprovarCotacao, finalizarCotacao, concluirRevisaoConfirmacao, cancelarCotacao } = useCotacaoCompras();
   const { requisicoes, updateStatus } = useRequisicaoCompras();
+
+  // Transferências de estoque pendentes por cotação (apontamento visual na grade).
+  const { data: transferenciasPendentes = [] } = useQuery({
+    queryKey: ["estoque_transferencias", "pendentes"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("estoque_transferencias").select("cotacao_id").eq("status", "Pendente");
+      if (error) throw error;
+      return (data ?? []) as { cotacao_id: string }[];
+    },
+  });
+  const transfPendentesPorCotacao = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const t of transferenciasPendentes) m.set(t.cotacao_id, (m.get(t.cotacao_id) ?? 0) + 1);
+    return m;
+  }, [transferenciasPendentes]);
   const { addPedido, pedidos } = usePedidoCompra();
   const { clientes } = useClientes();
   const { usuarioLogado } = useAuth();
@@ -1699,7 +1715,18 @@ export default function CotacaoComprasPage() {
                 data: format(new Date(c.dataCriacao), "dd/MM/yyyy"),
                 comprador: c.comprador,
                 propostas: <Badge variant="secondary">{c.propostas.length}</Badge>,
-                status: <Badge className={statusColors[c.status] || ""}>{c.status}</Badge>,
+                status: (
+                  <div className="inline-flex items-center gap-1">
+                    <Badge className={statusColors[c.status] || ""}>{c.status}</Badge>
+                    {(transfPendentesPorCotacao.get(c.id) ?? 0) > 0 && (
+                      <button type="button" onClick={() => setTransfCotacao(c)} title="Transferência de estoque aguardando aprovação — clique para abrir" className="cursor-pointer">
+                        <Badge className="bg-amber-500 text-white hover:bg-amber-600 gap-1">
+                          <ArrowRightLeft className="h-3 w-3" /> Transferência pendente
+                        </Badge>
+                      </button>
+                    )}
+                  </div>
+                ),
               };
               return (
               <TableRow key={c.id} className={selectedIds.includes(c.id) ? "bg-primary/5" : (idx % 2 === 1 ? "bg-gray-200/60 hover:bg-gray-200/80" : "bg-white hover:bg-gray-100/60")}>

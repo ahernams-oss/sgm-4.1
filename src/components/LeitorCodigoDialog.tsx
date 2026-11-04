@@ -37,7 +37,16 @@ export default function LeitorCodigoDialog({ open, onOpenChange, onLido }: Props
     return () => {
       clearTimeout(t);
       ativo.current = false;
-      if (scanner) scanner.stop().then(() => scanner?.clear()).catch(() => {});
+      const s = scanner as (typeof scanner & { isScanning?: boolean }) | null;
+      if (s) {
+        try {
+          if (s.isScanning) {
+            Promise.resolve(s.stop()).then(() => { try { s.clear(); } catch { /* ignore */ } }).catch(() => {});
+          } else {
+            try { s.clear(); } catch { /* ignore */ }
+          }
+        } catch { /* scanner não estava rodando */ }
+      }
     };
   }, [open]);
 

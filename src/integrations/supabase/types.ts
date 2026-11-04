@@ -2581,6 +2581,57 @@ export type Database = {
         }
         Relationships: []
       }
+      estoque_transferencias: {
+        Row: {
+          aprovador: string | null
+          cotacao_id: string | null
+          cotacao_numero: number | null
+          created_at: string
+          data_decisao: string | null
+          id: string
+          itens: Json
+          local_destino: string
+          motivo_decisao: string | null
+          observacao: string | null
+          requisicao_id: string | null
+          requisicao_numero: number | null
+          solicitante: string | null
+          status: string
+        }
+        Insert: {
+          aprovador?: string | null
+          cotacao_id?: string | null
+          cotacao_numero?: number | null
+          created_at?: string
+          data_decisao?: string | null
+          id?: string
+          itens?: Json
+          local_destino: string
+          motivo_decisao?: string | null
+          observacao?: string | null
+          requisicao_id?: string | null
+          requisicao_numero?: number | null
+          solicitante?: string | null
+          status?: string
+        }
+        Update: {
+          aprovador?: string | null
+          cotacao_id?: string | null
+          cotacao_numero?: number | null
+          created_at?: string
+          data_decisao?: string | null
+          id?: string
+          itens?: Json
+          local_destino?: string
+          motivo_decisao?: string | null
+          observacao?: string | null
+          requisicao_id?: string | null
+          requisicao_numero?: number | null
+          solicitante?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       eventogramas: {
         Row: {
           cliente_id: string | null

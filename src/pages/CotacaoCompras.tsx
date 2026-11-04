@@ -1971,6 +1971,7 @@ export default function CotacaoComprasPage() {
                     <TableRow>
                       <TableHead>Descrição</TableHead>
                       <TableHead className="w-20">Qtd</TableHead>
+                      <TableHead className="w-32">Estoque</TableHead>
                       <TableHead className="w-16">Un</TableHead>
                       <TableHead className="w-32">Preço Unit. *</TableHead>
                       <TableHead className="w-32">Total</TableHead>
@@ -1987,6 +1988,24 @@ export default function CotacaoComprasPage() {
                               setPropItens(prev => prev.map((it, i) => i === idx ? { ...it, quantidade: val } : it));
                             }} className="h-8 w-24" />
                           ) : item.quantidade}
+                        </TableCell>
+                        <TableCell>
+                          {(() => {
+                            const e = estoquePorItemProposta.get(item.itemId);
+                            if (!e) return <span className="text-xs text-muted-foreground">—</span>;
+                            return (
+                              <div className="space-y-0.5">
+                                <Badge variant={e.suficiente ? "default" : "secondary"} className="text-[11px]">
+                                  {e.total > 0 ? `Em estoque: ${e.total} ${item.unidadeMedida}` : "Sem estoque"}
+                                </Badge>
+                                {e.locais.length > 0 && (
+                                  <p className="text-[11px] text-muted-foreground" title={e.locais.join(" • ")}>
+                                    {e.locais.join(" • ")}
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </TableCell>
                         <TableCell>{item.unidadeMedida}</TableCell>
                         <TableCell>

@@ -1715,7 +1715,18 @@ export default function CotacaoComprasPage() {
                 data: format(new Date(c.dataCriacao), "dd/MM/yyyy"),
                 comprador: c.comprador,
                 propostas: <Badge variant="secondary">{c.propostas.length}</Badge>,
-                status: <Badge className={statusColors[c.status] || ""}>{c.status}</Badge>,
+                status: (
+                  <div className="inline-flex items-center gap-1">
+                    <Badge className={statusColors[c.status] || ""}>{c.status}</Badge>
+                    {(transfPendentesPorCotacao.get(c.id) ?? 0) > 0 && (
+                      <button type="button" onClick={() => setTransfCotacao(c)} title="Transferência de estoque aguardando aprovação — clique para abrir" className="cursor-pointer">
+                        <Badge className="bg-amber-500 text-white hover:bg-amber-600 gap-1">
+                          <ArrowRightLeft className="h-3 w-3" /> Transferência pendente
+                        </Badge>
+                      </button>
+                    )}
+                  </div>
+                ),
               };
               return (
               <TableRow key={c.id} className={selectedIds.includes(c.id) ? "bg-primary/5" : (idx % 2 === 1 ? "bg-gray-200/60 hover:bg-gray-200/80" : "bg-white hover:bg-gray-100/60")}>

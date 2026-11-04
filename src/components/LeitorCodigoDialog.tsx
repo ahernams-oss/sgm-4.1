@@ -11,6 +11,8 @@ interface Props {
 export default function LeitorCodigoDialog({ open, onOpenChange, onLido }: Props) {
   const [erro, setErro] = useState("");
   const ativo = useRef(false);
+  const cb = useRef({ onLido, onOpenChange });
+  cb.current = { onLido, onOpenChange };
 
   useEffect(() => {
     if (!open) return;
@@ -25,8 +27,8 @@ export default function LeitorCodigoDialog({ open, onOpenChange, onLido }: Props
         await s.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 260, height: 160 } }, (texto) => {
           if (!ativo.current) return;
           ativo.current = false;
-          onLido(texto);
-          onOpenChange(false);
+          cb.current.onLido(texto);
+          cb.current.onOpenChange(false);
         }, () => {});
       } catch {
         setErro("Não foi possível acessar a câmera. Verifique a permissão do navegador.");
@@ -37,7 +39,7 @@ export default function LeitorCodigoDialog({ open, onOpenChange, onLido }: Props
       ativo.current = false;
       if (scanner) scanner.stop().then(() => scanner?.clear()).catch(() => {});
     };
-  }, [open, onLido, onOpenChange]);
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

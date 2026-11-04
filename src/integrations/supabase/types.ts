@@ -9572,7 +9572,12 @@ export type Database = {
       }
       req_header: { Args: { _name: string }; Returns: string }
       sgm_cargo_acesso_total: { Args: { _nome: string }; Returns: boolean }
+      sgm_cargo_bloqueia_administracao: {
+        Args: { _chave: string; _nome: string }
+        Returns: boolean
+      }
       sgm_cargo_id_protegido: { Args: { _id: string }; Returns: boolean }
+      sgm_modulo_exige_perfil: { Args: { _chave: string }; Returns: boolean }
       sgm_normaliza_cargo: { Args: { _nome: string }; Returns: string }
       sgm_tem_permissao: { Args: { _chave: string }; Returns: boolean }
       strip_anexo_base64: { Args: { _a: Json }; Returns: Json }

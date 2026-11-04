@@ -46,6 +46,7 @@ import { LIMITE_ALCADA_PERCENTUAL, calcularDiasAtraso, calcularImpactoAtraso } f
 import { useConfirmacoesValores } from "@/hooks/useConfirmacoesValores";
 import FornecedorCombobox from "@/components/FornecedorCombobox";
 import EstoqueItensCotacao from "@/components/EstoqueItensCotacao";
+import { useEstoque } from "@/contexts/EstoqueContext";
 
 interface GrupoEmissao {
   fornecedorId: string;
@@ -281,6 +282,26 @@ export default function CotacaoComprasPage() {
   const [propItens, setPropItens] = useState<ItemCotacaoFornecedor[]>([]);
   const [iaLoading, setIaLoading] = useState(false);
   const [iaResumo, setIaResumo] = useState<{ arquivo: string; lidos: number; total: number; fornecedorNome?: string | null } | null>(null);
+  const { getSaldos } = useEstoque();
+  const cotPropostaAtual = cotacoes.find(c => c.id === propostaCotacaoId);
+  const estoquePorItemProposta = useMemo(() => {
+    const req = requisicoes.find(r => r.id === cotPropostaAtual?.requisicaoId);
+    const mapa = new Map<string, { total: number; suficiente: boolean; locais: string[] }>();
+    if (!req) return mapa;
+    const saldos = getSaldos().filter(s => s.quantidade > 0);
+    for (const item of propItens) {
+      const materialId = req.itens.find(i => i.id === item.itemId)?.materialId;
+      if (!materialId) continue;
+      const locais = saldos.filter(s => s.materialId === materialId);
+      const total = locais.reduce((t, s) => t + s.quantidade, 0);
+      mapa.set(item.itemId, {
+        total,
+        suficiente: total >= item.quantidade,
+        locais: locais.map(l => `${l.local || "Sem local"}: ${l.quantidade}`),
+      });
+    }
+    return mapa;
+  }, [propItens, cotPropostaAtual, requisicoes, getSaldos]);
 
   const lerPropostaPdf = async (file: File) => {
     if (propItens.length === 0) { toast({ title: "Nenhum item na cotação", variant: "destructive" }); return; }

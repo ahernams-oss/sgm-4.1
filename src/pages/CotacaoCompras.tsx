@@ -2769,6 +2769,12 @@ export default function CotacaoComprasPage() {
         onConfirm={handleConfirmarValores}
         responsavel={usuarioLogado?.nome || ""}
       />
+      <TransferenciaEstoqueDialog
+        open={!!transfCotacao}
+        onOpenChange={v => { if (!v) setTransfCotacao(null); }}
+        cotacao={transfCotacao}
+        requisicao={transfCotacao ? requisicoes.find(r => r.id === transfCotacao.requisicaoId) ?? null : null}
+      />
     </div>
   );
 }

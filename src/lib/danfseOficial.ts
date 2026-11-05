@@ -21,8 +21,20 @@ export function extrairDanfseOficial(body: any, nota: {
   if (correspondentes.length !== 1) throw new Error("Não foi possível identificar o DANFSe desta nota com segurança.");
   const documento = correspondentes[0];
   const cnpj = (v: unknown) => String(v ?? "").replace(/\D/g, "");
+  // The national provider can omit CpfCnpjPrestador in the JSON while
+  // returning it in the authorized XML. Use that same response's XML,
+  // never the local form or the recipient's CNPJ, as the fallback.
+  let xml = "";
+  if (!cnpj(documento.CpfCnpjPrestador) && documento.Base64Xml) {
+    try { xml = new TextDecoder().decode(Uint8Array.from(atob(documento.Base64Xml), c => c.charCodeAt(0))); }
+    catch { /* Missing trustworthy issuer is rejected below. */ }
+  }
+  const tag = (nome: string, conteudo: string) => conteudo.match(new RegExp(`<(?:[\\w.-]+:)?${nome}\\b[^>]*>\\s*([^<]*)\\s*</`, "i"))?.[1]?.trim();
+  const emitente = xml.match(/<(?:[\w.-]+:)?emit\b[^>]*>([\s\S]*?)<\/(?:[\w.-]+:)?emit>/i)?.[1] || "";
+  const cnpjPrestador = cnpj(documento.CpfCnpjPrestador) || cnpj(tag("CNPJ", emitente));
+  const xmlConsistente = !xml || (tag("nNFSe", xml) === String(documento.NumeroNFSe) && Number(tag("nDPS", xml)) === nota.numero_dps && Number(tag("tpAmb", xml)) === nota.ambiente);
   if (Number(documento.NumeroRPS) !== nota.numero_dps || !cnpj(nota.prestador?.cnpj) ||
-    cnpj(documento.CpfCnpjPrestador) !== cnpj(nota.prestador?.cnpj) ||
+    cnpjPrestador !== cnpj(nota.prestador?.cnpj) || !xmlConsistente ||
     documento.Erro || Number(documento.Status) !== 1 || !documento.NumeroNFSe) {
     throw new Error("O documento retornado não corresponde à nota autorizada.");
   }

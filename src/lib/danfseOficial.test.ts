@@ -21,6 +21,16 @@ describe("DANFSe oficial", () => {
   it("recusa documento de outro prestador", () => {
     expect(() => extrairDanfseOficial(autorizado, { ...nota, prestador: { cnpj: "00000000000000" } })).toThrow("corresponde");
   });
+  it("valida o prestador no XML autorizado quando a Brasil NFe omite o CNPJ no JSON", () => {
+    const Base64Xml = btoa('<NFSe><infNFSe><nNFSe>592</nNFSe><emit><CNPJ>16432951000170</CNPJ></emit><DPS><infDPS><tpAmb>1</tpAmb><nDPS>541</nDPS></infDPS></DPS></infNFSe></NFSe>');
+    const body = { ...autorizado, Notas: [{ ...autorizado.Notas[0], NumeroRPS: 541, NumeroNFSe: "592", CpfCnpjPrestador: null, Base64Xml }] };
+    expect(extrairDanfseOficial(body, { ...nota, numero_dps: 541 }).numero).toBe("592");
+    expect(() => extrairDanfseOficial({ ...body, Notas: [{ ...body.Notas[0], NumeroNFSe: "593" }] }, { ...nota, numero_dps: 541 })).toThrow("corresponde");
+  });
+  it("não usa CNPJ do tomador nem aceita prestador ausente no JSON e XML", () => {
+    const body = { ...autorizado, Notas: [{ ...autorizado.Notas[0], CpfCnpjPrestador: null, Base64Xml: btoa('<NFSe><toma><CNPJ>16432951000170</CNPJ></toma></NFSe>') }] };
+    expect(() => extrairDanfseOficial(body, nota)).toThrow("corresponde");
+  });
   it("não substitui PDF oficial ausente por representação local", () => {
     expect(() => extrairDanfseOficial({ ...autorizado, Notas: [{ ...autorizado.Notas[0], Base64Doc: null }] }, nota)).toThrow("disponibilizou");
   });

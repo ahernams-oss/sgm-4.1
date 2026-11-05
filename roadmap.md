@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Corrigir recusa do DANFSe quando Brasil NFe retorna CpfCnpjPrestador nulo no JSON: validar emit/CNPJ no XML autorizado do mesmo retorno, com número fiscal, DPS e ambiente. Nove testes passaram; retorno real da nota 592 validado e PDF oficial conferido visualmente sem cortes ou alterações. Build OK; não testei com login e nenhuma nota reenviada.
+
 - [x] Ligar o download de NFS-e ao DANFSe oficial da Brasil NFe, conforme o modelo enviado, sem emitir ou reenviar notas. Vinte testes passaram, tipos sem erros e build OK; download auxiliar preservou integralmente o PDF do anexo, página única conferida visualmente sem alterações. Não testei com login nem consultei o PDF real de uma nota no provedor; notas antigas sem código de lote recuperável podem exigir identificação pelo provedor.
 
 - [x] Corrigir envio de controles documentados de PIS/COFINS, CSLL e IRRF, com destaque de apuração própria e retenções explícitas, mantendo ISS e INSS. Rejeitar CST/alíquotas/base incompatíveis antes de consumir número. 17 testes passaram e build OK; não testei com login nem emiti/reenviei notas.

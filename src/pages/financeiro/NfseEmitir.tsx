@@ -254,13 +254,10 @@ export default function NfseEmitir() {
                 <SelectItem value="cancelada">Cancelada</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={filtroCliente || "todos"} onValueChange={(v) => { setFiltroCliente(v === "todos" ? "" : v); setPage(1); }}>
-              <SelectTrigger className="w-64"><SelectValue placeholder="Cliente" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todos">Todos os clientes</SelectItem>
-                {clientes.map((c) => <SelectItem key={c.id} value={c.id}>{c.nome || c.nomeFantasia}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <div className="w-full sm:w-80">
+              <TomadorSelect value={filtroCliente} options={clientes} todosLabel="Todos os clientes" label="Filtrar por cliente"
+                onValueChange={id => { setFiltroCliente(id); setPage(1); }} />
+            </div>
           </div>
         </CardHeader>
         <CardContent>

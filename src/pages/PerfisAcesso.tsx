@@ -292,7 +292,7 @@ const PerfisAcesso = () => {
                 </div>
               )}
               {filteredModulos.map(grupo => {
-                const grupoKeys = grupo.modulos.flatMap(getModuleAllKeys);
+                const grupoKeys = [...new Set(grupo.modulos.flatMap(getModuleAllKeys))];
                 const allGrupoChecked = grupoKeys.every(k => form.permissoes[k]);
                 const someGrupoChecked = grupoKeys.some(k => form.permissoes[k]);
 
@@ -347,7 +347,11 @@ const PerfisAcesso = () => {
                                     togglePermissao(mod.key);
                                   } else {
                                     // When disabling, disable module and all sub-permissions
-                                    toggleModuleAll(mod);
+                                    setForm(prev => {
+                                      const permissoes = { ...prev.permissoes };
+                                      getModuleAllKeys(mod).forEach(key => { permissoes[key] = false; });
+                                      return { ...prev, permissoes };
+                                    });
                                   }
                                 }}
                               />

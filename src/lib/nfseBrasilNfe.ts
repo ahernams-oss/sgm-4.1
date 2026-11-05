@@ -1,6 +1,7 @@
 // Contract: https://brasilnfe.com.br/api/nfs-e
 import { codigoMunicipioNfse } from "./municipioNfse";
 import { normalizarDataRetornoNfse } from "./dataNfse";
+import { configurarTributosBrasilNfe } from "./tributosBrasilNfe";
 export const BRASILNFE_FISCAL_URL = "https://api.brasilnfe.com.br/services/fiscal";
 const digits = (value: string = "") => value.replace(/\D/g, "");
 
@@ -19,6 +20,7 @@ export function montarPayloadBrasilNfe(numero: number, modelo: any, referencia: 
   const s = modelo.servico;
   const t = modelo.tributos;
   const federal = t.federal || {};
+  const configuracaoImposto = configurarTributosBrasilNfe(t, Number(s.valorServico));
   const municipioPrestacao = codigoMunicipioNfse(modelo.prestador.codigoMunicipio);
   if (!municipioPrestacao) throw new Error("Selecione um município de prestação com código IBGE válido.");
   const endereco = (e: any) => {
@@ -61,12 +63,15 @@ export function montarPayloadBrasilNfe(numero: number, modelo: any, referencia: 
         NaturezaOperacao: 1, IssRetido: t.issRetido, ExigibilidadeISS: 1,
         CodMunicipioIncidencia: municipioPrestacao,
         CodMunicipioPrestacao: municipioPrestacao,
+        ConfiguracaoImposto: configuracaoImposto,
         Valores: {
           ValorServico: Number(s.valorServico), Aliquota: Number(t.aliquotaIss),
           ValorDeducoes: Number(s.deducoes || 0),
           DescontoCondicionado: Number(s.descontoCondicionado || 0),
           DescontoIncondicionado: Number(s.descontoIncondicionado || 0),
           ValorInss: Number(t.inss ?? federal.contribPrevidRetida ?? 0),
+          ...(Number(federal.irrf) > 0 && Number(s.valorServico) > 0
+            ? { AliquotaIr: Number(federal.irrf) / Number(s.valorServico) * 100 } : {}),
         },
       },
     }],

@@ -1,7 +1,25 @@
 import { describe, expect, test } from "vitest";
-import { organizarPermissoesPorMenu } from "./gruposPermissoes";
+import { expandirSubmenusFaturamento, organizarPermissoesPorMenu } from "./gruposPermissoes";
 
 describe("organização dos perfis por menu", () => {
+  test("os quatro submenus de Faturamento reutilizam as permissões existentes sem alterar o catálogo", () => {
+    const clientes = { key: "clientes", label: "Clientes" };
+    const notas = { key: "financeiro.nfes_recebidas", label: "NFes Recebidas" };
+    const faturamentos = { key: "faturamentos", label: "Faturamentos", acoes: ["criar", "editar", "excluir", "visualizar", "transferir_saldo"].map(a => ({ key: `faturamentos.${a}`, label: a })) };
+    const catalogo = organizarPermissoesPorMenu([{ grupo: "Origem", modulos: [clientes, notas, faturamentos] }]);
+    const antes = structuredClone(catalogo);
+    const resultado = expandirSubmenusFaturamento(catalogo);
+    const submenus = resultado.find(g => g.grupo === "Faturamento")?.modulos;
+    expect(submenus?.map(m => m.key)).toEqual(["clientes", "faturamentos", "faturamentos", "financeiro.nfes_recebidas"]);
+    expect(submenus?.map(m => m.acoes?.map(a => a.key) ?? [])).toEqual([
+      ["faturamentos.criar", "faturamentos.editar", "faturamentos.excluir"],
+      ["faturamentos.visualizar"], ["faturamentos.transferir_saldo"], [],
+    ]);
+    expect(catalogo).toEqual(antes);
+    expect(resultado.find(g => g.grupo === "Cadastros")?.modulos[0]).toBe(clientes);
+    expect(resultado.find(g => g.grupo === "Financeiro")?.modulos[0]).toBe(notas);
+  });
+
   test("modelos de OS pertencem ao menu Cadastros preservando a chave de acesso", () => {
     const modulo = { key: "os_modelos", label: "Modelo de OS" };
     const grupos = organizarPermissoesPorMenu([{ grupo: "Engenharia", modulos: [modulo] }]);

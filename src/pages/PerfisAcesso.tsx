@@ -19,6 +19,9 @@ import {
 } from "@/contexts/PerfisAcessoContext";
 import { toast } from "sonner";
 import { usePermissao } from "@/hooks/usePermissao";
+import { expandirSubmenusFaturamento } from "@/lib/gruposPermissoes";
+
+const MODULOS_PERFIL = expandirSubmenusFaturamento(MODULOS_SISTEMA);
 
 const emptyForm = { nome: "", descricao: "", permissoes: {} as Permissoes };
 
@@ -70,7 +73,7 @@ const PerfisAcesso = () => {
   };
 
   const toggleGrupo = (grupo: typeof MODULOS_SISTEMA[0]) => {
-    const keys = grupo.modulos.flatMap(getModuleAllKeys);
+    const keys = [...new Set(grupo.modulos.flatMap(getModuleAllKeys))];
     const allChecked = keys.every(k => form.permissoes[k]);
     setForm(prev => {
       const updated = { ...prev.permissoes };
@@ -90,7 +93,7 @@ const PerfisAcesso = () => {
 
   const expandAll = () => {
     const all: Record<string, boolean> = {};
-    MODULOS_SISTEMA.forEach(g => g.modulos.forEach(m => { all[m.key] = true; }));
+    MODULOS_PERFIL.forEach(g => g.modulos.forEach(m => { all[`${g.grupo}:${m.label}`] = true; }));
     setExpandedModules(all);
     setCollapsedGroups({});
   };
@@ -107,8 +110,8 @@ const PerfisAcesso = () => {
     !permSearch.trim() || text.toLowerCase().includes(permSearch.toLowerCase());
 
   const filteredModulos = useMemo(() => {
-    if (!permSearch.trim()) return MODULOS_SISTEMA;
-    return MODULOS_SISTEMA
+    if (!permSearch.trim()) return MODULOS_PERFIL;
+    return MODULOS_PERFIL
       .map(g => ({
         ...g,
         modulos: g.modulos.filter(m => {
@@ -330,10 +333,11 @@ const PerfisAcesso = () => {
                         const modKeys = getModuleAllKeys(mod);
                         const allModChecked = modKeys.every(k => form.permissoes[k]);
                         const hasDetails = (mod.acoes?.length ?? 0) > 0 || (mod.statusTransicoes?.length ?? 0) > 0 || (mod.flags?.length ?? 0) > 0;
-                        const isExpanded = !!expandedModules[mod.key];
+                        const displayKey = `${grupo.grupo}:${mod.label}`;
+                        const isExpanded = !!expandedModules[displayKey];
 
                         return (
-                          <div key={mod.key} className="bg-card">
+                          <div key={displayKey} className="bg-card">
                             <div className="flex items-center gap-3 px-4 py-2.5">
                               <Checkbox
                                 checked={!!form.permissoes[mod.key]}
@@ -350,7 +354,7 @@ const PerfisAcesso = () => {
                               <button
                                 type="button"
                                 className="flex items-center gap-1.5 flex-1 text-left"
-                                onClick={() => hasDetails && toggleModule(mod.key)}
+                                onClick={() => hasDetails && toggleModule(displayKey)}
                               >
                                 <span className="text-sm font-medium text-foreground">{mod.label}</span>
                                 {hasDetails && (
@@ -370,7 +374,7 @@ const PerfisAcesso = () => {
                                   </button>
                                   <button
                                     type="button"
-                                    onClick={() => toggleModule(mod.key)}
+                                    onClick={() => toggleModule(displayKey)}
                                     className="text-muted-foreground hover:text-foreground transition-colors"
                                   >
                                     {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}

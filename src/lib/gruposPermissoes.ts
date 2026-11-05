@@ -46,3 +46,21 @@ export function organizarPermissoesPorMenu(cadastrados: GrupoPermissao[]): Grupo
   }
   return resultado;
 }
+
+// Submenus que compartilham permissões são apenas projeções para a tela de perfis.
+// O catálogo de autorização e as permissões já salvas permanecem intactos.
+export function expandirSubmenusFaturamento(grupos: GrupoPermissao[]): GrupoPermissao[] {
+  const modulos = new Map(grupos.flatMap(g => g.modulos.map(m => [m.key, m] as const)));
+  const faturamentos = modulos.get("faturamentos");
+  if (!faturamentos) return grupos;
+  const clientes = modulos.get("clientes");
+  const notas = modulos.get("financeiro.nfes_recebidas");
+  const acoes = faturamentos.acoes ?? [];
+  const submenus: GrupoPermissao["modulos"] = [
+    ...(clientes ? [{ key: clientes.key, label: "Faturamento (por Contrato)", acoes: acoes.filter(a => ["faturamentos.criar", "faturamentos.editar", "faturamentos.excluir"].includes(a.key)) }] : []),
+    { key: faturamentos.key, label: "Acompanhamento de Faturamentos", acoes: acoes.filter(a => a.key === "faturamentos.visualizar") },
+    { key: faturamentos.key, label: "Transferência de Saldos (Contratos)", acoes: acoes.filter(a => a.key === "faturamentos.transferir_saldo") },
+    ...(notas ? [{ key: notas.key, label: "NFS-e Emitidas" }] : []),
+  ];
+  return grupos.map(g => g.grupo === "Faturamento" ? { ...g, modulos: [...submenus, ...g.modulos.filter(m => m.key !== "faturamentos")] } : g);
+}

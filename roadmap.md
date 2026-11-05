@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Exibir os quatro submenus de Faturamento em Perfis de Acesso usando as chaves existentes, preservando as restrições de acesso; quatro testes passaram. Não testei com login.
+
 - [x] Bloquear Usuários e Perfis de Acesso para Coordenadores Técnico/Administrativo Lasant e Gerente Executivo; exigir permissões explícitas de perfil para os itens Gerencial, sem liberação automática por cargo; regras compartilhadas no navegador/servidor e migração dos validadores SQL aplicadas. Quatorze testes passaram; regras SQL conferidas para os cargos e módulos; build OK. Não testei com login.
 
 - [x] Adicionar dashboard no cadastro I0 com totais por tabela, mês e ano, usando todos os registros carregados e preservando o cadastro na aba Registros. Quatro testes passaram; filtros, totais e consulta por período conferidos visualmente com dados de teste; build OK. Não testei com login.

@@ -45,6 +45,14 @@ Deno.serve(async (req) => {
     if (modelo.ambiente === 2) ambienteStr = "homologacao";
     const ambienteNum = ambienteStr === "producao" ? 1 : 2;
 
+    // Use the company's saved series for the chosen environment. Numbering
+    // remains exclusively in the database trigger, under its advisory lock.
+    const { data: configuracao, error: configErr } = await admin.from("nfse_config")
+      .select("serie_padrao").eq("empresa_id", modelo.empresaId).eq("ambiente", ambienteNum)
+      .order("updated_at", { ascending: false }).limit(1).maybeSingle();
+    if (configErr) throw new Error("Não foi possível consultar a configuração fiscal.");
+    modelo.serie = configuracao?.serie_padrao || modelo.serie || "00001";
+
     const token = Deno.env.get("BRASILNFE_TOKEN");
     if (!token) throw new Error("Conexão Brasil NFe não configurada");
     // Resolve recipient/construction addresses before persisting or consuming a DPS number.
@@ -82,6 +90,9 @@ Deno.serve(async (req) => {
 
     const ref = `nfse-${inserted.id}`;
     const payload = montarPayloadBrasilNfe(inserted.numero_dps, modelo, ref, ambienteNum);
+    // Freeze the day's value at submission; do not derive it from UTC or
+    // replace an authorized provider timestamp later.
+    const diaEmissao = payload.nFSInfo[0]?.DataEmissao || dataFiscalBrasilNfe();
     let retorno: any;
     try {
       const response = await fetch(`${BRASILNFE_FISCAL_URL}/EnviarNotaFiscalServico`, {
@@ -126,7 +137,7 @@ Deno.serve(async (req) => {
       status: resultado.status, xml_nfse: xmlNfse,
       chave_acesso: resultado.chave,
       protocolo: resultado.protocolo || (codLote ? String(codLote) : null),
-      data_emissao: resultado.dataEmissao || (resultado.status === "emitida" ? new Date().toISOString() : null),
+      data_emissao: resultado.dataEmissao || (resultado.status === "emitida" ? `${diaEmissao}T00:00:00-03:00` : null),
       mensagem_retorno: resultado.mensagem,
       ...(resultado.valorIss != null ? { valor_iss: resultado.valorIss } : {}),
       ...(resultado.valorLiquido != null ? { valor_liquido: resultado.valorLiquido } : {}),

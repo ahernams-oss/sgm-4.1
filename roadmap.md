@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Recuperar o ISS cadastrado no contrato na emissão de NFS-e; contrato único selecionado automaticamente, demais disponíveis na lista do tomador; decimais e zero preservados, padrão restaurado quando não há ISS. Quatro testes passaram; build OK. Não testei com login e nenhuma nota emitida.
+
 - [x] Exibir os quatro submenus de Faturamento em Perfis de Acesso usando as chaves existentes, preservando as restrições de acesso; quatro testes passaram. Não testei com login.
 
 - [x] Bloquear Usuários e Perfis de Acesso para Coordenadores Técnico/Administrativo Lasant e Gerente Executivo; exigir permissões explícitas de perfil para os itens Gerencial, sem liberação automática por cargo; regras compartilhadas no navegador/servidor e migração dos validadores SQL aplicadas. Quatorze testes passaram; regras SQL conferidas para os cargos e módulos; build OK. Não testei com login.

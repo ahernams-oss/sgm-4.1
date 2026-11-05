@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 import CodigoTributacaoSelect from "@/components/financeiro/CodigoTributacaoSelect";
 import TomadorSelect from "@/components/financeiro/TomadorSelect";
 import { baixarPdfNfse, podeGerarPdfNfse } from "@/lib/gerarPdfNfse";
+import { aliquotaIssContratoNfse, contratoInicialNfse } from "@/lib/issContratoNfse";
 
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
@@ -378,6 +379,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
 
   const [submitting, setSubmitting] = useState(false);
   const [clienteId, setClienteId] = useState<string>("");
+  const [contratoId, setContratoId] = useState("");
   const [descricao, setDescricao] = useState("");
   const [codigoTrib, setCodigoTrib] = useState<string>(config?.codigo_servico_padrao || "");
   const [codigoTribNacional, setCodigoTribNacional] = useState<string>("");
@@ -398,7 +400,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
   const [obraEndPais, setObraEndPais] = useState<string>("");
   const [obraEndExterior, setObraEndExterior] = useState<string>("");
   const [obraInscMobiliaria, setObraInscMobiliaria] = useState<string>("");
-  const [aliquotaIss, setAliquotaIss] = useState<string>(String(config?.aliquota_iss_padrao || "5"));
+  const [aliquotaIss, setAliquotaIss] = useState<string>(aliquotaIssContratoNfse(undefined, config?.aliquota_iss_padrao));
   const [issRetido, setIssRetido] = useState<boolean>(!!config?.iss_retido_padrao);
 
   // Tributação Federal
@@ -433,6 +435,11 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
   }, [ufPrest]);
 
   const cliente = clientes.find((c) => c.id === clienteId);
+  const contrato = cliente?.contratos.find(c => c.id === contratoId);
+
+  useEffect(() => {
+    setAliquotaIss(aliquotaIssContratoNfse(contrato?.iss, config?.aliquota_iss_padrao));
+  }, [clienteId, contratoId, contrato?.iss, config?.aliquota_iss_padrao]);
 
   const parseNum = (s: string) => Number(String(s).replace(/\./g, "").replace(",", ".")) || 0;
   const fmt2 = (n: number) => (Number(n) || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -587,7 +594,23 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
 
           <TabsContent value="tomador" className="space-y-3 pt-3">
             <Label>Cliente / Tomador</Label>
-            <TomadorSelect value={clienteId} onValueChange={setClienteId} options={clientes} />
+            <TomadorSelect value={clienteId} onValueChange={id => {
+              setClienteId(id);
+              setContratoId(contratoInicialNfse(clientes.find(c => c.id === id)?.contratos ?? []));
+            }} options={clientes} />
+            {!!cliente?.contratos.length && (
+              <div>
+                <Label>Contrato</Label>
+                <Select value={contratoId} onValueChange={setContratoId}>
+                  <SelectTrigger><SelectValue placeholder="Selecione o contrato..." /></SelectTrigger>
+                  <SelectContent>
+                    {cliente.contratos.map(c => (
+                      <SelectItem key={c.id} value={c.id}>{c.numero}{c.descricao ? ` — ${c.descricao}` : ""}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             {cliente && (
               <div className="text-sm bg-muted p-3 rounded">
                 <p><strong>{cliente.nome}</strong></p>

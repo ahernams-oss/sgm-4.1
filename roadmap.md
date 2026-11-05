@@ -1,6 +1,7 @@
 # Tarefas
 
-- [ ] Corrigir o envio dos impostos federais preenchidos na NFS-e e conferir suporte às alíquotas e totais da Brasil NFe, sem reenviar notas autorizadas.
+- [x] Corrigir envio de controles documentados de PIS/COFINS, CSLL e IRRF, com destaque de apuração própria e retenções explícitas, mantendo ISS e INSS. Rejeitar CST/alíquotas/base incompatíveis antes de consumir número. 17 testes passaram e build OK; não testei com login nem emiti/reenviei notas.
+- [ ] Enviar percentuais aproximados federal/estadual/municipal exatamente como preenchidos: bloqueado por ausência de campos correspondentes no contrato público Brasil NFe; requer suporte documentado do provedor, sem inventar parâmetros ou modificar XML autorizado. Confirmação dos controles federais no XML de nova emissão permanece não verificada.
 
 - [x] Resolver série após E0010: usuário autorizou série 30000 para Produção, dentro da faixa de aplicativo próprio. Configuração alterada, início 539 preservado; nenhuma nota reenviada. Não testei com login nem emissão real.
 

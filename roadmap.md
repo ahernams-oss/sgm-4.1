@@ -1,6 +1,6 @@
 # Tarefas
 
-- [ ] Ligar o download de NFS-e ao DANFSe oficial da Brasil NFe, conforme o modelo enviado, sem emitir ou reenviar notas.
+- [x] Ligar o download de NFS-e ao DANFSe oficial da Brasil NFe, conforme o modelo enviado, sem emitir ou reenviar notas. Vinte testes passaram, tipos sem erros e build OK; download auxiliar preservou integralmente o PDF do anexo, página única conferida visualmente sem alterações. Não testei com login nem consultei o PDF real de uma nota no provedor; notas antigas sem código de lote recuperável podem exigir identificação pelo provedor.
 
 - [x] Corrigir envio de controles documentados de PIS/COFINS, CSLL e IRRF, com destaque de apuração própria e retenções explícitas, mantendo ISS e INSS. Rejeitar CST/alíquotas/base incompatíveis antes de consumir número. 17 testes passaram e build OK; não testei com login nem emiti/reenviei notas.
 - [ ] Enviar percentuais aproximados federal/estadual/municipal exatamente como preenchidos: bloqueado por ausência de campos correspondentes no contrato público Brasil NFe; requer suporte documentado do provedor, sem inventar parâmetros ou modificar XML autorizado. Confirmação dos controles federais no XML de nova emissão permanece não verificada.

@@ -1,5 +1,7 @@
 # Tarefas
 
+- [ ] Mostrar o valor calculado da CSLL mesmo sem retenção no formulário, preservando a retenção exclusiva pela seleção explícita; validar testes e tipos, sem emitir notas.
+
 - [ ] Incluir Exclusões e Reduções da Base de Cálculo no DANFSe oficial: bloqueado pela ausência de campo documentado de exclusões IBS/CBS na Brasil NFe. ValorDeducoes é do bloco de serviços/ISS e não pode ser reutilizado como exclusão IBS/CBS sem confirmação fiscal do provedor. Imagem recebida mostra R$ 4.986,59, mas não estabelece a origem do cálculo; nenhum PDF/XML autorizado foi modificado.
 
 - [x] Corrigir retenção para que a opção PIS/COFINS não inclua CSLL: cálculo automático, campo e envio seguem seleção explícita; servidor ignora valores residuais para CSLL não selecionado. Dezenove testes passaram, tipos sem erros e build OK. Não testei com login nem emiti notas; nota 592 autorizada não alterada.

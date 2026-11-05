@@ -9,7 +9,8 @@ test("envia destaque de alíquotas e retenções preenchidas mesmo no serviço d
   expect(config?.RegimePisCofins).toBe(1);
   expect(config?.ForcarIncidenciaPis).toBe(true);
   expect(config?.ForcarIncidenciaCofins).toBe(true);
-  expect(config?.ForcarIncidenciaCsll).toBe(true);
+  expect(config?.IncideCsll).toBe(false);
+  expect(config?.ForcarIncidenciaCsll).toBe(false);
   expect(config?.ForcarIncidenciaIr).toBe(true);
 });
 test("destaque sem retenção não pede desconto de PIS/COFINS no líquido", () => {
@@ -21,4 +22,21 @@ test("destaque sem retenção não pede desconto de PIS/COFINS no líquido", () 
 test("não envia silenciosamente alíquota ou CST sem suporte documentado", () => {
   expect(() => configurarTributosBrasilNfe({ federal: { ...federal, aliquotaPis: 2 } }, 10)).toThrow();
   expect(() => configurarTributosBrasilNfe({ federal: { ...federal, pisCofinsSituacao: "7" } }, 10)).toThrow();
+});
+test("opção 5 retém somente PIS/COFINS mesmo com valor residual de CSLL", () => {
+  const config = configurarTributosBrasilNfe({ federal: { ...federal, basePisCofins: 100, contribSociaisRetidas: 4.65 } }, 100);
+  expect(config?.IncidePis).toBe(true);
+  expect(config?.IncideCofins).toBe(true);
+  expect(config?.IncideCsll).toBe(false);
+  expect(config?.ForcarIncidenciaCsll).toBe(false);
+});
+test.each(["3", "4"])("opção %s inclui CSLL explicitamente", descContribRetidas => {
+  const config = configurarTributosBrasilNfe({ federal: { ...federal, descContribRetidas } }, 10);
+  expect(config?.IncideCsll).toBe(true);
+  expect(config?.ForcarIncidenciaCsll).toBe(true);
+});
+test.each(["0", "1", "2"])("opção %s não inclui CSLL por valor automático", descContribRetidas => {
+  const config = configurarTributosBrasilNfe({ federal: { ...federal, descContribRetidas } }, 10);
+  expect(config?.IncideCsll).toBe(false);
+  expect(config?.ForcarIncidenciaCsll).toBe(false);
 });

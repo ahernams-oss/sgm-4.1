@@ -3,16 +3,16 @@ import { BRASILNFE_FISCAL_URL, dataFiscalBrasilNfe, montarPayloadBrasilNfe, inte
 
 describe("emissão Brasil NFe", () => {
   afterEach(() => vi.useRealTimers());
-  it("produção envia número 539, série 70000 e a data do dia brasileiro", () => {
+  it("produção envia número 539, série 30000 e a data do dia brasileiro", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-11-05T00:45:00Z"));
     const payload = montarPayloadBrasilNfe(539, {
-      serie: "70000", servico: {}, tributos: {},
+      serie: "30000", servico: {}, tributos: {},
       prestador: { codigoMunicipio: "3304557" }, tomador: { endereco: { codigoMunicipio: "3303302" } },
     }, "producao-539", 1);
     expect(payload.TipoAmbiente).toBe(1);
     expect(payload.nFSInfo[0]?.NumeroRps).toBe(539);
-    expect(payload.nFSInfo[0]?.SerieRps).toBe("70000");
+    expect(payload.nFSInfo[0]?.SerieRps).toBe("30000");
     expect(payload.nFSInfo[0]?.DataEmissao).toBe("2026-11-04");
   });
   it.each([

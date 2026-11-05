@@ -1,5 +1,8 @@
 # Tarefas
 
+- [x] Corrigir envio de controles documentados de PIS/COFINS, CSLL e IRRF, com destaque de apuração própria e retenções explícitas, mantendo ISS e INSS. Rejeitar CST/alíquotas/base incompatíveis antes de consumir número. 17 testes passaram e build OK; não testei com login nem emiti/reenviei notas.
+- [ ] Enviar percentuais aproximados federal/estadual/municipal exatamente como preenchidos: bloqueado por ausência de campos correspondentes no contrato público Brasil NFe; requer suporte documentado do provedor, sem inventar parâmetros ou modificar XML autorizado. Confirmação dos controles federais no XML de nova emissão permanece não verificada.
+
 - [x] Resolver série após E0010: usuário autorizou série 30000 para Produção, dentro da faixa de aplicativo próprio. Configuração alterada, início 539 preservado; nenhuma nota reenviada. Não testei com login nem emissão real.
 
 - [x] Configurar Produção com série 70000 e início 539 sem reutilizar números; próximo número 539 confirmado no banco, gatilho respeita configuração e números existentes. Corrigidas exibição na tela/PDF e gravação de retornos sem horário; 20 testes passaram e build OK. Não testei com login nem emiti notas.

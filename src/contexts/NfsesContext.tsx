@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, updateRow, deleteRow } from "@/lib/supabaseHelper";
 import { supabase } from "@/integrations/supabase/client";
 import { useProviderGate, useActivateProvider } from "@/lib/providerGate";
+import { validarAmbienteNfse } from "@/lib/ambienteNfse";
 
 export type NfseStatus = "rascunho" | "processando" | "emitida" | "rejeitada" | "cancelada";
 
@@ -99,7 +100,7 @@ export function NfsesProvider({ children }: { children: ReactNode }) {
     gcTime: 30 * 60 * 1000,
   });
 
-  const { data: config = null } = useQuery({
+  const { data: config = null, isLoading: loadingConfig } = useQuery({
     enabled: __active,
     queryKey: QK_CFG,
     queryFn: async () => {
@@ -110,7 +111,7 @@ export function NfsesProvider({ children }: { children: ReactNode }) {
     gcTime: 30 * 60 * 1000,
   });
 
-  const loading = loadingNfses;
+  const loading = loadingNfses || loadingConfig;
 
   const reload = async () => {
     qc.invalidateQueries({ queryKey: QK_NFS });
@@ -118,12 +119,15 @@ export function NfsesProvider({ children }: { children: ReactNode }) {
   };
 
   const saveConfig = async (c: Partial<NfseConfig> & { empresa_id: string }) => {
+    if (c.ambiente !== undefined) validarAmbienteNfse(c.ambiente);
     if (config?.id) {
-      await updateRow("nfse_config", config.id, c as any);
+      const salvo = await updateRow("nfse_config", config.id, c as any);
+      if (!salvo) throw new Error("Não foi possível salvar o ambiente de emissão.");
     } else {
-      await (supabase as any).from("nfse_config").insert(c);
+      const { error } = await (supabase as any).from("nfse_config").insert(c);
+      if (error) throw new Error("Não foi possível salvar o ambiente de emissão.");
     }
-    qc.invalidateQueries({ queryKey: QK_CFG });
+    await qc.invalidateQueries({ queryKey: QK_CFG });
   };
 
   const emitir = async (modelo: ModeloEmissaoNfse) => {

@@ -24,6 +24,8 @@ import CodigoTributacaoSelect from "@/components/financeiro/CodigoTributacaoSele
 import TomadorSelect from "@/components/financeiro/TomadorSelect";
 import { baixarPdfNfse, podeGerarPdfNfse } from "@/lib/gerarPdfNfse";
 import { aliquotaIssContratoNfse, contratoInicialNfse } from "@/lib/issContratoNfse";
+import { ambienteNfse, type AmbienteNfse } from "@/lib/ambienteNfse";
+import { usePermissao } from "@/hooks/usePermissao";
 
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
@@ -99,9 +101,30 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function NfseEmitir() {
-  const { nfses, config, loading, emitir, cancelar, remover } = useNfses();
+  const { nfses, config, loading, saveConfig, emitir, cancelar, remover } = useNfses();
   const { empresa } = useEmpresa();
   const { clientes } = useClientes();
+  const { temModulo } = usePermissao();
+  // Espelha a autorização já usada pelo endpoint de emissão.
+  const podeEmitir = temModulo("financeiro.nfes_recebidas") || temModulo("faturamentos");
+  const [salvandoAmbiente, setSalvandoAmbiente] = useState(false);
+  const [confirmarProducao, setConfirmarProducao] = useState(false);
+  const ambiente = ambienteNfse(config?.ambiente);
+
+  const salvarAmbiente = async (novoAmbiente: AmbienteNfse) => {
+    if (!podeEmitir || salvandoAmbiente || loading) return;
+    if (!empresa?.id) return toast.error("Cadastre os dados da empresa primeiro.");
+    setSalvandoAmbiente(true);
+    try {
+      await saveConfig({ empresa_id: empresa.id, ambiente: novoAmbiente });
+      setConfirmarProducao(false);
+      toast.success(`Ambiente alterado para ${novoAmbiente === 1 ? "Produção" : "Homologação"}.`);
+    } catch (erro) {
+      toast.error(erro instanceof Error ? erro.message : "Não foi possível alterar o ambiente.");
+    } finally {
+      setSalvandoAmbiente(false);
+    }
+  };
 
   const [filtroStatus, setFiltroStatus] = useState<string>("todos");
   const [filtroCliente, setFiltroCliente] = useState<string>("");
@@ -161,10 +184,42 @@ export default function NfseEmitir() {
     <div className="space-y-4 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-xl sm:text-2xl font-serif font-bold">NFS-e Nacional</h1>
-        <Button onClick={() => setOpenEmit(true)} className="gap-2">
-          <Plus className="w-4 h-4" /> Emitir NFS-e
-        </Button>
+        <div className="flex flex-wrap items-end gap-3">
+          {podeEmitir ? <>
+            <div className="space-y-1">
+              <Label htmlFor="ambiente-nfse">Ambiente de emissão</Label>
+              <Select value={String(ambiente)} disabled={loading || salvandoAmbiente || !empresa?.id}
+                onValueChange={(valor) => {
+                  if (Number(valor) === ambiente) return;
+                  if (valor === "1") setConfirmarProducao(true);
+                  else void salvarAmbiente(2);
+                }}>
+                <SelectTrigger id="ambiente-nfse" className="w-48"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2">Homologação</SelectItem>
+                  <SelectItem value="1">Produção</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button onClick={() => setOpenEmit(true)} disabled={loading || salvandoAmbiente || confirmarProducao} className="gap-2">
+              {salvandoAmbiente ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Emitir NFS-e
+            </Button>
+          </> : <Badge variant="outline">Ambiente: {ambiente === 1 ? "Produção" : "Homologação"}</Badge>}
+        </div>
       </div>
+
+      <Dialog open={confirmarProducao} onOpenChange={(aberto) => { if (!salvandoAmbiente) setConfirmarProducao(aberto); }}>
+        <DialogContent aria-describedby="aviso-producao-nfse">
+          <DialogHeader><DialogTitle>Ativar ambiente de Produção?</DialogTitle></DialogHeader>
+          <p id="aviso-producao-nfse" className="text-sm">As próximas NFS-e emitidas terão validade fiscal. Esta alteração não emite nenhuma nota e não modifica as notas anteriores.</p>
+          <DialogFooter>
+            <Button variant="outline" disabled={salvandoAmbiente} onClick={() => setConfirmarProducao(false)}>Cancelar</Button>
+            <Button disabled={salvandoAmbiente} onClick={() => void salvarAmbiente(1)}>
+              {salvandoAmbiente && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Ativar Produção
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
         <KpiCard label="Emitidas no mês" value={String(kpis.emitidas)} icon={<Receipt className="w-5 h-5" />} />
@@ -499,7 +554,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
 
     const modelo: ModeloEmissaoNfse = {
       empresaId: empresa.id,
-      ambiente: (config?.ambiente as 1 | 2) || 2,
+      ambiente: ambienteNfse(config?.ambiente),
       serie: config?.serie_padrao || "00001",
       clienteId,
       prestador: {

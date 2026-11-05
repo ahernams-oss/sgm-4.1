@@ -27,6 +27,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { obterDanfseOficial } from "@/lib/danfseOficial.functions";
 import { baixarDanfseBlob, decodificarPdfDanfse } from "@/lib/danfseOficial";
 import { aliquotaIssContratoNfse, contratoInicialNfse } from "@/lib/issContratoNfse";
+import { textoContratoNfse } from "@/lib/textoContratoNfse";
 import { ambienteNfse, type AmbienteNfse } from "@/lib/ambienteNfse";
 import { usePermissao } from "@/hooks/usePermissao";
 import { formatarDataEmissaoNfse } from "@/lib/dataNfse";
@@ -675,13 +676,19 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
           <TabsContent value="tomador" className="space-y-3 pt-3">
             <Label>Cliente / Tomador</Label>
             <TomadorSelect value={clienteId} onValueChange={id => {
+              const contratosTomador = clientes.find(c => c.id === id)?.contratos ?? [];
+              const novoContratoId = contratoInicialNfse(contratosTomador);
               setClienteId(id);
-              setContratoId(contratoInicialNfse(clientes.find(c => c.id === id)?.contratos ?? []));
+              setContratoId(novoContratoId);
+              setDescricao(textoContratoNfse(contratosTomador, novoContratoId));
             }} options={clientes} />
             {!!cliente?.contratos.length && (
               <div>
                 <Label>Contrato</Label>
-                <Select value={contratoId} onValueChange={setContratoId}>
+                <Select value={contratoId} onValueChange={id => {
+                  setContratoId(id);
+                  setDescricao(textoContratoNfse(cliente.contratos, id));
+                }}>
                   <SelectTrigger><SelectValue placeholder="Selecione o contrato..." /></SelectTrigger>
                   <SelectContent>
                     {cliente.contratos.map(c => (

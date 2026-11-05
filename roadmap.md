@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Preencher Descrição do Serviço pelo Texto para NF do contrato do tomador selecionado, mantendo edição manual e limpando o texto anterior ao trocar para um contrato sem texto.
+
 - [x] Mostrar o valor calculado da CSLL mesmo sem retenção no formulário, preservando a retenção exclusiva pela seleção explícita; 11 testes passaram e build OK. Não testei com login nem emiti notas; PDF oficial não alterado.
 
 - [ ] Incluir Exclusões e Reduções da Base de Cálculo no DANFSe oficial: bloqueado pela ausência de campo documentado de exclusões IBS/CBS na Brasil NFe. ValorDeducoes é do bloco de serviços/ISS e não pode ser reutilizado como exclusão IBS/CBS sem confirmação fiscal do provedor. Imagem recebida mostra R$ 4.986,59, mas não estabelece a origem do cálculo; nenhum PDF/XML autorizado foi modificado.

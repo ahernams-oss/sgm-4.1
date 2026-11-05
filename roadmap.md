@@ -1,5 +1,7 @@
 # Tarefas
 
+- [ ] Corrigir o envio dos impostos federais preenchidos na NFS-e e conferir suporte às alíquotas e totais da Brasil NFe, sem reenviar notas autorizadas.
+
 - [x] Resolver série após E0010: usuário autorizou série 30000 para Produção, dentro da faixa de aplicativo próprio. Configuração alterada, início 539 preservado; nenhuma nota reenviada. Não testei com login nem emissão real.
 
 - [x] Configurar Produção com série 70000 e início 539 sem reutilizar números; próximo número 539 confirmado no banco, gatilho respeita configuração e números existentes. Corrigidas exibição na tela/PDF e gravação de retornos sem horário; 20 testes passaram e build OK. Não testei com login nem emiti notas.

@@ -22,7 +22,10 @@ import { Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import CodigoTributacaoSelect from "@/components/financeiro/CodigoTributacaoSelect";
 import TomadorSelect from "@/components/financeiro/TomadorSelect";
-import { baixarPdfNfse, podeGerarPdfNfse } from "@/lib/gerarPdfNfse";
+import { podeGerarPdfNfse } from "@/lib/gerarPdfNfse";
+import { useServerFn } from "@tanstack/react-start";
+import { obterDanfseOficial } from "@/lib/danfseOficial.functions";
+import { baixarDanfseBlob, decodificarPdfDanfse } from "@/lib/danfseOficial";
 import { aliquotaIssContratoNfse, contratoInicialNfse } from "@/lib/issContratoNfse";
 import { ambienteNfse, type AmbienteNfse } from "@/lib/ambienteNfse";
 import { usePermissao } from "@/hooks/usePermissao";
@@ -134,11 +137,20 @@ export default function NfseEmitir() {
   const [cancelTarget, setCancelTarget] = useState<NfseEmitida | null>(null);
   const [motivoCancel, setMotivoCancel] = useState("");
   const [pdfId, setPdfId] = useState<string | null>(null);
+  const consultarDanfse = useServerFn(obterDanfseOficial);
+  const [pdfPronto, setPdfPronto] = useState<{ blob: Blob; nome: string } | null>(null);
 
   const gerarPdf = async (nota: NfseEmitida) => {
     setPdfId(nota.id);
     try {
-      await baixarPdfNfse(nota);
+      const documento = await consultarDanfse({ data: { id: nota.id } });
+      const bytes = decodificarPdfDanfse(documento.base64);
+      const blob = new Blob([new Uint8Array(bytes)], { type: "application/pdf" });
+      if (window.matchMedia("(pointer: coarse)").matches) {
+        setPdfPronto({ blob, nome: documento.nome });
+      } else {
+        baixarDanfseBlob(blob, documento.nome);
+      }
     } catch (erro) {
       toast.error(erro instanceof Error ? erro.message : "Não foi possível gerar o PDF da NFS-e.");
     } finally {
@@ -292,7 +304,7 @@ export default function NfseEmitir() {
                     <div className="flex justify-end gap-1">
                       <Button size="icon" variant="ghost" onClick={() => setViewNfse(n)} title="Ver detalhes"><Eye className="w-4 h-4" /></Button>
                       {podeGerarPdfNfse(n) && (
-                        <Button size="icon" variant="ghost" title="Baixar PDF da NFS-e" aria-label="Baixar PDF da NFS-e"
+                        <Button size="icon" variant="ghost" title="Baixar DANFSe oficial" aria-label="Baixar DANFSe oficial"
                           disabled={pdfId !== null} onClick={() => gerarPdf(n)}>
                           {pdfId === n.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
                         </Button>
@@ -371,7 +383,7 @@ export default function NfseEmitir() {
                 <DialogFooter>
                   <Button variant="outline" disabled={pdfId !== null} onClick={() => gerarPdf(viewNfse)}>
                     {pdfId === viewNfse.id ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <FileText className="w-4 h-4 mr-2" />}
-                    Baixar PDF
+                    Baixar DANFSe oficial
                   </Button>
                 </DialogFooter>
               )}
@@ -381,6 +393,18 @@ export default function NfseEmitir() {
       </Dialog>
 
       {/* Cancelar */}
+      <Dialog open={!!pdfPronto} onOpenChange={o => { if (!o) setPdfPronto(null); }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>DANFSe oficial</DialogTitle></DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => {
+              if (!pdfPronto) return;
+              baixarDanfseBlob(pdfPronto.blob, pdfPronto.nome);
+              setPdfPronto(null);
+            }}><Download className="h-4 w-4 mr-2" />Baixar PDF</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog open={!!cancelTarget} onOpenChange={(o) => !o && setCancelTarget(null)}>
         <DialogContent>
           <DialogHeader><DialogTitle>Cancelar NFS-e {cancelTarget?.numero_dps}</DialogTitle></DialogHeader>

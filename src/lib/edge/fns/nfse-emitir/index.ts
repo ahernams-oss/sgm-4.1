@@ -120,6 +120,12 @@ Deno.serve(async (req) => {
 
     let resultado = interpretarRetornoBrasilNfe(retorno, ref);
     const codLote = retorno?.CodLote;
+    // Keep the provider lot separately from the municipal protocol for later
+    // official-document queries. Never resend an invoice to obtain its PDF.
+    const servicoConsulta = { ...modelo.servico, brasilNfe: { codLote: codLote ? String(codLote) : null } };
+    if (codLote) {
+      await admin.from("nfses_emitidas").update({ servico: servicoConsulta, protocolo: String(codLote) }).eq("id", inserted.id);
+    }
     for (let i = 0; i < 6 && resultado.status === "processando" && codLote; i++) {
       await new Promise(resolve => setTimeout(resolve, 1500));
       try {
@@ -134,6 +140,7 @@ Deno.serve(async (req) => {
       } catch { /* Invalid optional XML does not undo authorization. */ }
     }
     const { error: updateError } = await admin.from("nfses_emitidas").update({
+      servico: servicoConsulta,
       status: resultado.status, xml_nfse: xmlNfse,
       chave_acesso: resultado.chave,
       protocolo: resultado.protocolo || (codLote ? String(codLote) : null),

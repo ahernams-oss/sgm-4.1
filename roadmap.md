@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Adicionar seletor Homologação / Produção na NFS-e, com autorização existente de emissão, confirmação para Produção e persistência da configuração; 17 testes passaram e build OK. Página sem sessão redireciona ao login sem erros. Não testei com login, não verifiquei a gravação autenticada e nenhuma nota foi emitida.
+
 - [x] Recuperar o ISS cadastrado no contrato na emissão de NFS-e; contrato único selecionado automaticamente, demais disponíveis na lista do tomador; decimais e zero preservados, padrão restaurado quando não há ISS. Quatro testes passaram; build OK. Não testei com login e nenhuma nota emitida.
 
 - [x] Exibir os quatro submenus de Faturamento em Perfis de Acesso usando as chaves existentes, preservando as restrições de acesso; quatro testes passaram. Não testei com login.

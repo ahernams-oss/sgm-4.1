@@ -31,6 +31,7 @@ import { ambienteNfse, type AmbienteNfse } from "@/lib/ambienteNfse";
 import { usePermissao } from "@/hooks/usePermissao";
 import { formatarDataEmissaoNfse } from "@/lib/dataNfse";
 import { retencaoIncluiCsll } from "@/lib/tributosBrasilNfe";
+import { calcularValorCsllNfse } from "@/lib/valorCsllNfse";
 
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
@@ -486,7 +487,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
   const [cofinsDebito, setCofinsDebito] = useState<string>("0,00");
   const [descContribRetidas, setDescContribRetidas] = useState<string>("0");
   const [irrf, setIrrf] = useState<string>("0,00");
-  const [contribSociaisRetidas, setContribSociaisRetidas] = useState<string>("0,00");
+  const [valorCsll, setValorCsll] = useState<string>("0,00");
   const [contribPrevidRetida, setContribPrevidRetida] = useState<string>("0,00");
   const [baseInss, setBaseInss] = useState<string>("0,00");
 
@@ -537,9 +538,10 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
   useEffect(() => {
     const v = parseNum(valorServico);
     if (v <= 0) { setTotalFederal("0,00"); return; }
-    const total = parseNum(pisDebito) + parseNum(cofinsDebito) + parseNum(irrf) + parseNum(contribSociaisRetidas) + parseNum(contribPrevidRetida);
+    const csllRetida = retencaoIncluiCsll(descContribRetidas) ? parseNum(valorCsll) : 0;
+    const total = parseNum(pisDebito) + parseNum(cofinsDebito) + parseNum(irrf) + csllRetida + parseNum(contribPrevidRetida);
     setTotalFederal(fmt2(total / v * 100));
-  }, [pisDebito, cofinsDebito, irrf, contribSociaisRetidas, contribPrevidRetida, valorServico]);
+  }, [pisDebito, cofinsDebito, irrf, valorCsll, descContribRetidas, contribPrevidRetida, valorServico]);
 
   // Auto: Total Municipal % = alíquota ISS
   useEffect(() => { setTotalMunicipal(fmt2(parseNum(aliquotaIss))); }, [aliquotaIss]);
@@ -550,10 +552,10 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
     setIrrf(fmt2(base * 0.015));
   }, [basePisCofins]);
 
-  // Only the explicit selections including CSLL can produce a CSLL value.
+  // Display CSLL regardless of withholding; submission still follows the selection.
   useEffect(() => {
-    setContribSociaisRetidas(fmt2(retencaoIncluiCsll(descContribRetidas) ? parseNum(basePisCofins) * 0.01 : 0));
-  }, [basePisCofins, descContribRetidas]);
+    setValorCsll(fmt2(calcularValorCsllNfse(parseNum(basePisCofins))));
+  }, [basePisCofins]);
 
   // Base de cálculo INSS = Valor do serviço − Deduções
   useEffect(() => {
@@ -634,7 +636,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
           cofinsDebito: parseNum(cofinsDebito),
           descContribRetidas,
           irrf: parseNum(irrf),
-          contribSociaisRetidas: retencaoIncluiCsll(descContribRetidas) ? parseNum(contribSociaisRetidas) : 0,
+          contribSociaisRetidas: retencaoIncluiCsll(descContribRetidas) ? parseNum(valorCsll) : 0,
           contribPrevidRetida: parseNum(contribPrevidRetida),
         },
         totais: {
@@ -950,8 +952,8 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
                   <Input value={irrf} onChange={(e) => setIrrf(e.target.value)} />
                 </div>
                 <div className="flex flex-col">
-                  <Label className="min-h-[2.5rem] leading-tight">CSLL - Retida (R$)</Label>
-                  <Input value={contribSociaisRetidas} disabled={!retencaoIncluiCsll(descContribRetidas)} onChange={(e) => setContribSociaisRetidas(e.target.value)} />
+                  <Label htmlFor="valor-csll-nfse" className="min-h-[2.5rem] leading-tight">CSLL - {retencaoIncluiCsll(descContribRetidas) ? "Retida" : "Não retida"} (R$)</Label>
+                  <Input id="valor-csll-nfse" value={valorCsll} onChange={(e) => setValorCsll(e.target.value)} />
                 </div>
                 <div className="flex flex-col">
                   <Label className="min-h-[2.5rem] leading-tight">Contribuição Previdenciária - Retida (R$)</Label>

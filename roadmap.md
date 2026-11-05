@@ -1,6 +1,6 @@
 # Tarefas
 
-- [ ] Manter série 70000 após E0010, conforme escolha do usuário. Regra oficial RN DPS_NFS-e E0010 (Anexo I v1.01 20260209) reserva 70000–79999 ao Emissor Web e 00001–49999 a aplicativo próprio. Bloqueio: uso dessa série via integração Brasil NFe não compatível com a faixa oficial; precisa definir emissão no Emissor Web ou autorizar série de aplicativo próprio. Nenhuma nota reenviada e nenhum número alterado.
+- [x] Resolver série após E0010: usuário autorizou série 30000 para Produção, dentro da faixa de aplicativo próprio. Configuração alterada, início 539 preservado; nenhuma nota reenviada. Não testei com login nem emissão real.
 
 - [x] Configurar Produção com série 70000 e início 539 sem reutilizar números; próximo número 539 confirmado no banco, gatilho respeita configuração e números existentes. Corrigidas exibição na tela/PDF e gravação de retornos sem horário; 20 testes passaram e build OK. Não testei com login nem emiti notas.
 

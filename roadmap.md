@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Corrigir retenção para que a opção PIS/COFINS não inclua CSLL: cálculo automático, campo e envio seguem seleção explícita; servidor ignora valores residuais para CSLL não selecionado. Dezenove testes passaram, tipos sem erros e build OK. Não testei com login nem emiti notas; nota 592 autorizada não alterada.
+
 - [x] Corrigir recusa do DANFSe quando Brasil NFe retorna CpfCnpjPrestador nulo no JSON: validar emit/CNPJ no XML autorizado do mesmo retorno, com número fiscal, DPS e ambiente. Nove testes passaram; retorno real da nota 592 validado e PDF oficial conferido visualmente sem cortes ou alterações. Build OK; não testei com login e nenhuma nota reenviada.
 
 - [x] Ligar o download de NFS-e ao DANFSe oficial da Brasil NFe, conforme o modelo enviado, sem emitir ou reenviar notas. Vinte testes passaram, tipos sem erros e build OK; download auxiliar preservou integralmente o PDF do anexo, página única conferida visualmente sem alterações. Não testei com login nem consultei o PDF real de uma nota no provedor; notas antigas sem código de lote recuperável podem exigir identificação pelo provedor.

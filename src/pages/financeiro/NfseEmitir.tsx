@@ -30,6 +30,7 @@ import { aliquotaIssContratoNfse, contratoInicialNfse } from "@/lib/issContratoN
 import { ambienteNfse, type AmbienteNfse } from "@/lib/ambienteNfse";
 import { usePermissao } from "@/hooks/usePermissao";
 import { formatarDataEmissaoNfse } from "@/lib/dataNfse";
+import { retencaoIncluiCsll } from "@/lib/tributosBrasilNfe";
 
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
@@ -543,12 +544,16 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
   // Auto: Total Municipal % = alíquota ISS
   useEffect(() => { setTotalMunicipal(fmt2(parseNum(aliquotaIss))); }, [aliquotaIss]);
 
-  // Auto: IRRF = base × 1,5% e Contribuições Sociais Retidas = base × 1%
+  // IRRF is independent of the social-contribution selection.
   useEffect(() => {
     const base = parseNum(basePisCofins);
     setIrrf(fmt2(base * 0.015));
-    setContribSociaisRetidas(fmt2(base * 0.01));
   }, [basePisCofins]);
+
+  // Only the explicit selections including CSLL can produce a CSLL value.
+  useEffect(() => {
+    setContribSociaisRetidas(fmt2(retencaoIncluiCsll(descContribRetidas) ? parseNum(basePisCofins) * 0.01 : 0));
+  }, [basePisCofins, descContribRetidas]);
 
   // Base de cálculo INSS = Valor do serviço − Deduções
   useEffect(() => {
@@ -629,7 +634,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
           cofinsDebito: parseNum(cofinsDebito),
           descContribRetidas,
           irrf: parseNum(irrf),
-          contribSociaisRetidas: parseNum(contribSociaisRetidas),
+          contribSociaisRetidas: retencaoIncluiCsll(descContribRetidas) ? parseNum(contribSociaisRetidas) : 0,
           contribPrevidRetida: parseNum(contribPrevidRetida),
         },
         totais: {
@@ -945,8 +950,8 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
                   <Input value={irrf} onChange={(e) => setIrrf(e.target.value)} />
                 </div>
                 <div className="flex flex-col">
-                  <Label className="min-h-[2.5rem] leading-tight">Contribuições Sociais - Retidas (R$)</Label>
-                  <Input value={contribSociaisRetidas} onChange={(e) => setContribSociaisRetidas(e.target.value)} />
+                  <Label className="min-h-[2.5rem] leading-tight">CSLL - Retida (R$)</Label>
+                  <Input value={contribSociaisRetidas} disabled={!retencaoIncluiCsll(descContribRetidas)} onChange={(e) => setContribSociaisRetidas(e.target.value)} />
                 </div>
                 <div className="flex flex-col">
                   <Label className="min-h-[2.5rem] leading-tight">Contribuição Previdenciária - Retida (R$)</Label>

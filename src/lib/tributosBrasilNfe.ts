@@ -1,6 +1,10 @@
 // Contract: https://brasilnfe.com.br/api/nfs-e — ConfiguracaoImposto.
 // The provider computes PIS/COFINS/CSLL; it does not expose arbitrary
 // CST, bases or rates. Reject incompatible inputs before consuming a DPS.
+export function retencaoIncluiCsll(retencao: string) {
+  return retencao === "3" || retencao === "4";
+}
+
 export function configurarTributosBrasilNfe(tributos: any, valorServico: number) {
   const f = tributos.federal;
   if (!f) return undefined;
@@ -18,12 +22,12 @@ export function configurarTributosBrasilNfe(tributos: any, valorServico: number)
   const retencao = String(f.descContribRetidas ?? "0");
   const reterPis = ["1", "3", "5"].includes(retencao);
   const reterCofins = ["2", "3", "5"].includes(retencao);
+  const csll = retencaoIncluiCsll(retencao);
   // Withholding switches use fixed 0.65/3/1% in the provider contract.
   if ((!cumulativo && (reterPis || reterCofins)) ||
-      (Number(f.contribSociaisRetidas) > 0 && !perto(Number(f.contribSociaisRetidas), Math.round(valorServico * 0.01 * 100) / 100))) {
+      (csll && !perto(Number(f.contribSociaisRetidas ?? 0), Math.round(valorServico * 0.01 * 100) / 100))) {
     throw new Error("As retenções informadas não correspondem às alíquotas de cálculo documentadas pela Brasil NFe.");
   }
-  const csll = Number(f.contribSociaisRetidas ?? 0) > 0;
   const ir = Number(f.irrf ?? 0) > 0;
   return {
     IncidePis: reterPis, IncideCofins: reterCofins, IncideCsll: csll, IncideIr: ir,

@@ -16,6 +16,7 @@
 - EPI catalog column headers are sortable buttons driven by ordenarEpis (accent/case-insensitive text, numeric validade, blank values always last); sorting is presentation-only, resets to the first page and never changes stored records.
 - I0 dashboard aggregates all loaded I0 rows by catalog table type, month and year through resumirI0; unmatched or ambiguous codes remain unidentified so totals are preserved without inventing table associations.
 - Client billing payment submissions use an authenticated server function that verifies the current SGM user's password before persisting the credit date; ordinary unpaid edits retain the existing save path.
+- Contract invoice text is an optional string stored in the existing clientes.contratos JSON save path, with an empty fallback for legacy contracts; editing it does not change or submit invoices.
 - NFS-e tax-code selectors share CodigoTributacaoSelect and its normalized matching helper; filtering changes presentation only and preserves the original tax codes and descriptions.
 - NFS-e recipient selection uses TomadorSelect with normalized name/document matching; filtering is presentation-only and selection retains the original client ID.
 - NFS-e grid client filters reuse TomadorSelect with an optional all-clients choice; keep invoice filtering by original client ID and reset pagination on selection or clearing.

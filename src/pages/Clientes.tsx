@@ -8,6 +8,7 @@ import RelatorioClienteFornecedorDialog from "@/components/RelatorioClienteForne
 import { Checkbox } from "@/components/ui/checkbox";
 import { enviarWhatsApp } from "@/lib/whatsapp";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useClientes, type Cliente, type Contrato, type ContratoAnexo } from "@/contexts/ClientesContext";
 import ContratoAnexos from "@/components/ContratoAnexos";
@@ -159,7 +160,7 @@ const Clientes = () => {
   const [locaisClienteId, setLocaisClienteId] = useState<string | null>(null);
    const [locaisEntregaClienteId, setLocaisEntregaClienteId] = useState<string | null>(null);
    const [contratosClienteId, setContratosClienteId] = useState<string | null>(null);
-  const emptyContrato = { numero: "", numeroProcesso: "", descricao: "", dataInicio: "", dataFim: "", bdi: "", descontoLicitacao: "", valorBase: "", valorBase2: "", valorBase3: "", maoDeObraMensal: "", maoDeObraAnual: "", maoDeObraContratual: "", mesSco: "", anoSco: "", valorContrato: "", inss: "", pis: "", cofins: "", csll: "", irrf: "", iss: "", cbs: "", ibs: "", cbsMunicipal: "", ibsMunicipal: "", meta1: "", meta2: "", meta3: "", anexos: [] as ContratoAnexo[] };
+  const emptyContrato = { numero: "", numeroProcesso: "", descricao: "", dataInicio: "", dataFim: "", bdi: "", descontoLicitacao: "", valorBase: "", valorBase2: "", valorBase3: "", maoDeObraMensal: "", maoDeObraAnual: "", maoDeObraContratual: "", mesSco: "", anoSco: "", valorContrato: "", inss: "", pis: "", cofins: "", csll: "", irrf: "", iss: "", cbs: "", ibs: "", cbsMunicipal: "", ibsMunicipal: "", textoNotaFiscal: "", meta1: "", meta2: "", meta3: "", anexos: [] as ContratoAnexo[] };
   const [contratoForm, setContratoForm] = useState(emptyContrato);
   const [contratoErrors, setContratoErrors] = useState<{ cbs?: string; ibs?: string; cbsMunicipal?: string; ibsMunicipal?: string; descontoLicitacao?: string; bdi?: string }>({});
   const [editingContratoId, setEditingContratoId] = useState<string | null>(null);
@@ -574,7 +575,7 @@ const Clientes = () => {
           const handleEditContrato = (ct: Contrato) => {
             setEditingContratoId(ct.id);
             const { id, ...rest } = ct;
-            setContratoForm({ ...emptyContrato, ...rest, numeroProcesso: rest.numeroProcesso || "" });
+            setContratoForm({ ...emptyContrato, ...rest, numeroProcesso: rest.numeroProcesso || "", textoNotaFiscal: rest.textoNotaFiscal ?? "" });
             setContratoErrors({});
           };
 
@@ -649,6 +650,19 @@ const Clientes = () => {
                     {contratoErrors.ibsMunicipal && <p className="text-xs text-destructive mt-1">{contratoErrors.ibsMunicipal}</p>}
                   </div>
                 </div>
+              </div>
+
+              <div className="rounded-lg border border-border bg-card/50 p-4 mb-4">
+                <h3 className="text-sm font-semibold text-foreground mb-3">Texto para NF</h3>
+                <label htmlFor="contrato-texto-nota-fiscal" className="text-sm font-medium text-foreground mb-1 block">Texto da Nota Fiscal</label>
+                <Textarea
+                  id="contrato-texto-nota-fiscal"
+                  placeholder="Texto da Nota Fiscal"
+                  value={contratoForm.textoNotaFiscal}
+                  onChange={e => setContratoForm(p => ({ ...p, textoNotaFiscal: e.target.value }))}
+                  rows={4}
+                  className="resize-y"
+                />
               </div>
 
               {/* Bloco 4 — SCO e Metas */}

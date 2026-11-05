@@ -26,6 +26,7 @@ import { baixarPdfNfse, podeGerarPdfNfse } from "@/lib/gerarPdfNfse";
 import { aliquotaIssContratoNfse, contratoInicialNfse } from "@/lib/issContratoNfse";
 import { ambienteNfse, type AmbienteNfse } from "@/lib/ambienteNfse";
 import { usePermissao } from "@/hooks/usePermissao";
+import { formatarDataEmissaoNfse } from "@/lib/dataNfse";
 
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
@@ -86,11 +87,7 @@ const CODIGOS_TRIB_MUNICIPAL: { codigo: string; descricao: string }[] = [
 
 
 const formatBRL = (v: number) => (Number(v) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-const formatDate = (s: string | null) => {
-  if (!s) return "—";
-  const d = new Date(s);
-  return isNaN(d.getTime()) ? "—" : d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
-};
+const formatDate = formatarDataEmissaoNfse;
 
 const STATUS_COLORS: Record<string, string> = {
   rascunho: "bg-muted text-muted-foreground",

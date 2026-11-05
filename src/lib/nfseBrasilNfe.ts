@@ -1,5 +1,6 @@
 // Contract: https://brasilnfe.com.br/api/nfs-e
 import { codigoMunicipioNfse } from "./municipioNfse";
+import { normalizarDataRetornoNfse } from "./dataNfse";
 export const BRASILNFE_FISCAL_URL = "https://api.brasilnfe.com.br/services/fiscal";
 const digits = (value: string = "") => value.replace(/\D/g, "");
 
@@ -84,7 +85,7 @@ export function interpretarRetornoBrasilNfe(body: any, referencia: string) {
     status, mensagem: erro || (emitida ? "NFS-e autorizada pela Brasil NFe" : status === "cancelada" ? "NFS-e cancelada" : "NFS-e em processamento na Brasil NFe"),
     chave: nota?.Chave || nota?.CodVerificacao || null,
     protocolo: body?.Protocolo || body?.CodLote || null,
-    dataEmissao: emitida ? nota?.DtEmissao || null : null,
+    dataEmissao: emitida ? normalizarDataRetornoNfse(nota?.DtEmissao) : null,
     xmlBase64: emitida ? nota?.Base64Xml || null : null,
     valorIss: nota?.Valores?.ValorISS, valorLiquido: nota?.Valores?.ValorLiquido,
   };

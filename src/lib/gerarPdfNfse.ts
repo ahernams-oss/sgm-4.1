@@ -1,4 +1,5 @@
 import type { NfseEmitida } from "@/contexts/NfsesContext";
+import { formatarDataEmissaoNfse } from "./dataNfse";
 
 export function podeGerarPdfNfse(nota: Pick<NfseEmitida, "status">) {
   return nota.status === "emitida" || nota.status === "cancelada";
@@ -36,7 +37,7 @@ export async function criarPdfNfse(nota: NfseEmitida) {
   linhas.push(["Situação", nota.status === "cancelada" ? "CANCELADA" : "Emitida"]);
   linhas.push(["Número da NFS-e", numero || "Não disponível no XML armazenado"]);
   linhas.push(["DPS / Série", `${nota.numero_dps} / ${nota.serie}`]);
-  linhas.push(["Emissão / Competência", `${data(nota.data_emissao)} / ${data(nota.data_competencia)}`]);
+  linhas.push(["Emissão / Competência", `${formatarDataEmissaoNfse(nota.data_emissao)} / ${data(nota.data_competencia)}`]);
   linhas.push(["Chave / Código de verificação", texto(nota.chave_acesso)]);
   linhas.push(["Protocolo", texto(nota.protocolo)]);
   linhas.push(["PRESTADOR", texto(nota.prestador?.razaoSocial)]);

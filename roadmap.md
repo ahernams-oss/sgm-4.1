@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Configurar Produção com série 70000 e início 539 sem reutilizar números; próximo número 539 confirmado no banco, gatilho respeita configuração e números existentes. Corrigidas exibição na tela/PDF e gravação de retornos sem horário; 20 testes passaram e build OK. Não testei com login nem emiti notas.
+
 - [x] Adicionar seletor Homologação / Produção na NFS-e, com autorização existente de emissão, confirmação para Produção e persistência da configuração; 17 testes passaram e build OK. Página sem sessão redireciona ao login sem erros. Não testei com login, não verifiquei a gravação autenticada e nenhuma nota foi emitida.
 
 - [x] Recuperar o ISS cadastrado no contrato na emissão de NFS-e; contrato único selecionado automaticamente, demais disponíveis na lista do tomador; decimais e zero preservados, padrão restaurado quando não há ISS. Quatro testes passaram; build OK. Não testei com login e nenhuma nota emitida.

@@ -1,6 +1,6 @@
 # Tarefas
 
-- [ ] Configurar Produção com série 70000 e início 539 sem reutilizar números; corrigir data fiscal exibida na tela/PDF e armazenamento de retornos sem horário; verificar sem login nem emissão real.
+- [x] Configurar Produção com série 70000 e início 539 sem reutilizar números; próximo número 539 confirmado no banco, gatilho respeita configuração e números existentes. Corrigidas exibição na tela/PDF e gravação de retornos sem horário; 20 testes passaram e build OK. Não testei com login nem emiti notas.
 
 - [x] Adicionar seletor Homologação / Produção na NFS-e, com autorização existente de emissão, confirmação para Produção e persistência da configuração; 17 testes passaram e build OK. Página sem sessão redireciona ao login sem erros. Não testei com login, não verifiquei a gravação autenticada e nenhuma nota foi emitida.
 

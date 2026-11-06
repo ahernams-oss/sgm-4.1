@@ -175,7 +175,7 @@ const Login = () => {
 
         {/* Texto sobreposto */}
         <div className="absolute inset-0 flex flex-col justify-center px-[8%] xl:px-[10%]">
-          <div className="space-y-1 leading-[1.06] text-login-brand-foreground">
+          <div className="ml-[10mm] space-y-1 leading-[1.06] text-login-brand-foreground">
             <div className="text-4xl font-light xl:text-5xl">Gestão</div>
             <div className="pl-[12%] text-2xl font-light xl:text-3xl">de</div>
             <div className="pl-[20%] text-3xl font-light xl:text-4xl">Manutenção</div>

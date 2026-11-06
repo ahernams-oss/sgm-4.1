@@ -1,6 +1,6 @@
 # Tarefas
 
-- [ ] Preparar instalação do SGM na tela inicial com nome e ícone Lasant, sem modo offline, e conferir os metadados e ícones no celular.
+- [x] Preparar instalação do SGM na tela inicial com nome e ícone Lasant, sem modo offline; metadados, três ícones e login em tamanho de celular conferidos no navegador, sem erros e build OK. Não testei com login nem instalação em aparelho físico.
 
 - [x] Preencher Descrição do Serviço pelo Texto para NF do contrato do tomador selecionado, mantendo edição manual e limpando o texto anterior ao trocar para um contrato sem texto.
 

@@ -1,11 +1,12 @@
 {
+  "id": "/",
   "name": "SGM - Sistema de Gestão Lasant",
   "short_name": "SGM Lasant",
   "description": "Sistema de Gestão Lasant - Compras, Engenharia, RH e mais",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#ffffff",
   "theme_color": "#673ab7",
   "lang": "pt-BR",
@@ -23,7 +24,7 @@
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Corrigir recuperação de módulo antigo da NFS-e após atualização: nova versão disponível, recarga única por erro e botão de recuperação manual, sem repetir emissão. Não testei com login.
+
 - [x] Adicionar início/fim do período de execução na emissão, preencher o trecho correspondente na descrição e preservar ajustes manuais e texto do contrato; validação e testes incluídos. Não testei com login nem emiti notas.
 
 - [x] Preparar instalação do SGM na tela inicial com nome e ícone Lasant, sem modo offline; metadados, três ícones e login em tamanho de celular conferidos no navegador, sem erros e build OK. Não testei com login nem instalação em aparelho físico.

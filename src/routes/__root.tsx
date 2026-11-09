@@ -11,6 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { erroModuloDesatualizado, recuperarModulo } from "../lib/recuperarModulo";
+import { Button } from "@/components/ui/button";
 
 function NotFoundComponent() {
   return (
@@ -39,33 +41,38 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    if (erroModuloDesatualizado(error)) {
+      try {
+        recuperarModulo(error, window.sessionStorage, () => window.location.reload());
+      } catch {
+        // Storage may be unavailable; keep the manual recovery button visible.
+      }
+    }
   }, [error]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          Não foi possível carregar esta página
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          {erroModuloDesatualizado(error) ? "Uma atualização está disponível. Recarregue a página para continuar." : "Tente novamente ou volte ao início."}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button
+          <Button
             onClick={() => {
+              if (erroModuloDesatualizado(error)) {
+                window.location.reload();
+                return;
+              }
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
-          </button>
-          <a
-            href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
-          >
-            Go home
-          </a>
+            {erroModuloDesatualizado(error) ? "Recarregar página" : "Tentar novamente"}
+          </Button>
+          <Button variant="outline" asChild><a href="/">Voltar ao início</a></Button>
         </div>
       </div>
     </div>

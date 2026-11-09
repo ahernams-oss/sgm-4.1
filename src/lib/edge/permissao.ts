@@ -236,7 +236,7 @@ export async function exigirAcesso(
     return { ok: false, resposta: negar(403, mensagem) };
   }
   // As funções legadas usam service role: conferir o escopo antes de qualquer efeito.
-  if (c.tipo === "usuario" && req.headers.get("content-type")?.includes("application/json")) {
+  if (c.tipo === "usuario" && !req.bodyUsed && req.headers.get("content-type")?.includes("application/json")) {
     let corpo: Record<string, unknown>;
     try { corpo = await req.clone().json(); }
     catch { return { ok: false, resposta: negar(400, "Dados da solicitação inválidos.") }; }

@@ -108,7 +108,7 @@ export function rodape(doc: jsPDF) {
   }
 }
 
-async function infoEquipamentoBlock(doc: jsPDF, pw: number, equip: Equipamento | null, planoTitulo: string | undefined, startY: number): Promise<number> {
+export async function infoEquipamentoBlock(doc: jsPDF, pw: number, equip: Equipamento | null, planoTitulo: string | undefined, startY: number): Promise<number> {
   const margin = 10;
   let y = startY;
   doc.setFont("helvetica", "bold");

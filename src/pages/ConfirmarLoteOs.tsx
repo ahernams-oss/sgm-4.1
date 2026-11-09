@@ -7,6 +7,7 @@ import { useEstoque } from "@/contexts/EstoqueContext";
 import { updateRow } from "@/lib/supabaseHelper";
 import { supabase } from "@/integrations/supabase/client";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
+import TomadorSelect from "@/components/financeiro/TomadorSelect";
 import { formatNumeroAno } from "@/lib/formatNumero";
 import { usePermissao } from "@/hooks/usePermissao";
 
@@ -16,9 +17,6 @@ import { Label } from "@/components/ui/label";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -110,9 +108,7 @@ export default function ConfirmarLoteOs() {
   const clientesUnicos = useMemo(
     () =>
       (clientes || [])
-        .filter((c: any) => (c.tipo || "Cliente") === "Cliente")
-        .map((c: any) => [c.id, c.nome] as [string, string])
-        .sort((a, b) => a[1].localeCompare(b[1], "pt-BR")),
+        .filter((c) => (c.tipo || "Cliente") === "Cliente"),
     [clientes]
   );
 
@@ -226,17 +222,15 @@ export default function ConfirmarLoteOs() {
             />
           </div>
         </div>
-        <div className="w-[260px]">
+        <div className="w-full sm:w-[320px]">
           <Label className="text-xs">Cliente</Label>
-          <Select value={filterCliente} onValueChange={(v) => { setFilterCliente(v); setPage(1); }}>
-            <SelectTrigger><SelectValue placeholder="Todos" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos os Clientes</SelectItem>
-              {clientesUnicos.map(([id, nome]) => (
-                <SelectItem key={id} value={id}>{nome}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <TomadorSelect
+            value={filterCliente === "all" ? "" : filterCliente}
+            onValueChange={(id) => { setFilterCliente(id || "all"); setPage(1); }}
+            options={clientesUnicos}
+            todosLabel="Todos os Clientes"
+            label="Filtrar por cliente"
+          />
         </div>
         <div className="w-[160px]">
           <Label className="text-xs">Data inicial</Label>

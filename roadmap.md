@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Adicionar Benefícios e Insumos em reais, preencher seu trecho na descrição e calcular Deduções como Valor do serviço − (Material aplicado − Benefícios e Insumos); 12 testes passaram, sem emitir notas. Não testei com login.
+
 - [x] Adicionar valores de mão de obra e material abaixo do período de execução, somar no valor do serviço e preencher somente os trechos correspondentes da descrição, inclusive ao trocar de contrato; não emitir notas.
 
 - [x] Adicionar ao contrato o bloco Local de prestação e codigo do serviço abaixo de Texto para NF, com UF, município e códigos nacional/municipal selecionáveis e salvos pelo cadastro existente. Não testei com login.

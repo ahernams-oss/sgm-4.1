@@ -14,13 +14,20 @@ export function formatarValorExecucaoNfse(valor: string): string {
   return valor.trim() ? formato.format(valorExecucaoNfse(valor)) : "";
 }
 
-export function preencherValoresExecucaoNfse(texto: string, maoObra: string, material: string): string {
+export function deducoesExecucaoNfse(servico: string, material: string, beneficios: string): string {
+  const centavos = Math.round(valorExecucaoNfse(servico) * 100)
+    - (Math.round(valorExecucaoNfse(material) * 100) - Math.round(valorExecucaoNfse(beneficios) * 100));
+  return formato.format(centavos / 100);
+}
+
+export function preencherValoresExecucaoNfse(texto: string, maoObra: string, material: string, beneficios?: string): string {
   const preencher = (atual: string, campo: string, valor: string) => {
     const trecho = new RegExp(`(${campo}\\s*(?:→|->|:|-)?\\s*R\\$\\s*)(?:[\\d.,]+|[-_]+)`, "gi");
     return atual.replace(trecho, (_, prefixo: string) => `${prefixo}${valor.trim() ? formato.format(valorExecucaoNfse(valor)) : "-------------"}`);
   };
-  return preencher(
+  const atualizado = preencher(
     preencher(texto, "VALOR\\s+M[AÃ]O\\s+DE\\s+OBRA", maoObra),
     "MATERIAL\\s+APLICADO(?:\\s+E\\s+SERVI[CÇ]OS\\s+EXTRAS)?", material,
   );
+  return beneficios === undefined ? atualizado : preencher(atualizado, "BENEF[IÍ]CIOS\\s+E\\s+INSUMOS", beneficios);
 }

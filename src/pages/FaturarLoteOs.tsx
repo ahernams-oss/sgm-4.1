@@ -286,13 +286,14 @@ export default function FaturarLoteOs() {
               <TableHead>Local</TableHead>
               <TableHead>Descrição do Serviço</TableHead>
               <TableHead className="w-32">Solicitante</TableHead>
+              <TableHead className="w-40 text-right whitespace-nowrap">Valor da O.S. (R$)</TableHead>
               <TableHead className="w-40 text-center">Situação</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginated.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-12">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-12">
                   <Receipt className="h-10 w-10 mx-auto mb-2 opacity-30" />
                   Nenhuma OS disponível para faturamento
                 </TableCell>
@@ -316,6 +317,9 @@ export default function FaturarLoteOs() {
                     {s.descricaoServicos || "—"}
                   </TableCell>
                   <TableCell className="text-sm">{s.solicitante || "—"}</TableCell>
+                  <TableCell className="text-right whitespace-nowrap font-semibold tabular-nums">
+                    {calcularValorTotalOS(s).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                  </TableCell>
                   <TableCell className="text-center">
                     <Badge variant="outline">{s.situacao}</Badge>
                   </TableCell>
@@ -326,7 +330,7 @@ export default function FaturarLoteOs() {
           {selectedIds.size > 0 && (
             <tfoot>
               <TableRow className="bg-primary/5 hover:bg-primary/5">
-                <TableCell colSpan={7} className="text-right py-3">
+                <TableCell colSpan={8} className="text-right py-3">
                   <span className="text-sm text-muted-foreground mr-2">
                     {selectedIds.size} OS selecionada(s) — Total:
                   </span>
@@ -337,7 +341,7 @@ export default function FaturarLoteOs() {
               </TableRow>
               {vtmInfo && (
                 <TableRow className="bg-emerald-50/60 hover:bg-emerald-50/60 dark:bg-emerald-900/10">
-                  <TableCell colSpan={7} className="text-right py-3">
+                  <TableCell colSpan={8} className="text-right py-3">
                     <span className="text-sm text-muted-foreground mr-2">
                       VTM Mensal ({vtmInfo.clienteNome}):
                     </span>

@@ -28,6 +28,7 @@ import { obterDanfseOficial } from "@/lib/danfseOficial.functions";
 import { baixarDanfseBlob, decodificarPdfDanfse } from "@/lib/danfseOficial";
 import { aliquotaIssContratoNfse, contratoInicialNfse } from "@/lib/issContratoNfse";
 import { textoContratoNfse } from "@/lib/textoContratoNfse";
+import { codigoNbsContrato } from "@/lib/codigoNbsContrato";
 import { preencherPeriodoExecucaoNfse, validarPeriodoExecucaoNfse } from "@/lib/periodoExecucaoNfse";
 import { PeriodoExecucaoNfse } from "@/components/financeiro/PeriodoExecucaoNfse";
 import { ValoresExecucaoNfse } from "@/components/financeiro/ValoresExecucaoNfse";

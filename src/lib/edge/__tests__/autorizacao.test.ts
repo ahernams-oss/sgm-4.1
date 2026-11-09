@@ -119,7 +119,7 @@ function usuario(
     auth_user_id: auth && conta(auth),
     cargo_id: cargo,
     perfil_acesso_id: perfil,
-    clientes_permitidos: ["cliente-1", "forn-1"],
+    clientes_permitidos: ["cliente-1", "f-1"],
     created_at: "2026-01-01T00:00:00Z",
   };
 }

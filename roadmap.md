@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Adicionar início/fim do período de execução na emissão, preencher o trecho correspondente na descrição e preservar ajustes manuais e texto do contrato; validação e testes incluídos. Não testei com login nem emiti notas.
+
 - [x] Preparar instalação do SGM na tela inicial com nome e ícone Lasant, sem modo offline; metadados, três ícones e login em tamanho de celular conferidos no navegador, sem erros e build OK. Não testei com login nem instalação em aparelho físico.
 
 - [x] Preencher Descrição do Serviço pelo Texto para NF do contrato do tomador selecionado, mantendo edição manual e limpando o texto anterior ao trocar para um contrato sem texto.

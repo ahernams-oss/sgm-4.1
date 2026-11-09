@@ -31,7 +31,7 @@ import { textoContratoNfse } from "@/lib/textoContratoNfse";
 import { preencherPeriodoExecucaoNfse, validarPeriodoExecucaoNfse } from "@/lib/periodoExecucaoNfse";
 import { PeriodoExecucaoNfse } from "@/components/financeiro/PeriodoExecucaoNfse";
 import { ValoresExecucaoNfse } from "@/components/financeiro/ValoresExecucaoNfse";
-import { deducoesExecucaoNfse, preencherValoresExecucaoNfse, somarValoresExecucaoNfse } from "@/lib/valoresExecucaoNfse";
+import { deducoesExecucaoNfse, preencherRetencoesNfse, preencherValoresExecucaoNfse, somarValoresExecucaoNfse } from "@/lib/valoresExecucaoNfse";
 import { ambienteNfse, type AmbienteNfse } from "@/lib/ambienteNfse";
 import { usePermissao } from "@/hooks/usePermissao";
 import { formatarDataEmissaoNfse } from "@/lib/dataNfse";
@@ -492,6 +492,10 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
     setValorBeneficios(beneficios);
     setDescricao(atual => preencherValoresExecucaoNfse(atual, maoObra, material, beneficios));
   };
+
+  useEffect(() => {
+    setDescricao(atual => preencherRetencoesNfse(atual, { inss: contribPrevidRetida, pis: pisDebito, cofins: cofinsDebito, csll: valorCsll }));
+  }, [descricao, contribPrevidRetida, pisDebito, cofinsDebito, valorCsll]);
 
   // Auto: base PIS/COFINS = valor do serviço
   useEffect(() => {

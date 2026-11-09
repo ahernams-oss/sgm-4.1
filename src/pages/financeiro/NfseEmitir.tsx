@@ -28,6 +28,8 @@ import { obterDanfseOficial } from "@/lib/danfseOficial.functions";
 import { baixarDanfseBlob, decodificarPdfDanfse } from "@/lib/danfseOficial";
 import { aliquotaIssContratoNfse, contratoInicialNfse } from "@/lib/issContratoNfse";
 import { textoContratoNfse } from "@/lib/textoContratoNfse";
+import { preencherPeriodoExecucaoNfse, validarPeriodoExecucaoNfse } from "@/lib/periodoExecucaoNfse";
+import { PeriodoExecucaoNfse } from "@/components/financeiro/PeriodoExecucaoNfse";
 import { ambienteNfse, type AmbienteNfse } from "@/lib/ambienteNfse";
 import { usePermissao } from "@/hooks/usePermissao";
 import { formatarDataEmissaoNfse } from "@/lib/dataNfse";
@@ -457,6 +459,8 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
   const [clienteId, setClienteId] = useState<string>("");
   const [contratoId, setContratoId] = useState("");
   const [descricao, setDescricao] = useState("");
+  const [inicioExecucao, setInicioExecucao] = useState<Date>();
+  const [fimExecucao, setFimExecucao] = useState<Date>();
   const [codigoTrib, setCodigoTrib] = useState<string>(config?.codigo_servico_padrao || "");
   const [codigoTribNacional, setCodigoTribNacional] = useState<string>("");
   const [codigoNbs, setCodigoNbs] = useState<string>(config?.codigo_nbs || "");
@@ -569,6 +573,8 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
 
 
   const onSubmit = async () => {
+    const erroPeriodo = validarPeriodoExecucaoNfse(inicioExecucao, fimExecucao);
+    if (erroPeriodo) return toast.error(erroPeriodo);
     if (!empresa?.id) return toast.error("Cadastre os dados da empresa primeiro");
     if (!empresa.certificadoA1Url) return toast.error("Cadastre o certificado A1 em Dados da Empresa");
     if (!cliente) return toast.error("Selecione o tomador (cliente)");
@@ -680,14 +686,14 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
               const novoContratoId = contratoInicialNfse(contratosTomador);
               setClienteId(id);
               setContratoId(novoContratoId);
-              setDescricao(textoContratoNfse(contratosTomador, novoContratoId));
+              setDescricao(preencherPeriodoExecucaoNfse(textoContratoNfse(contratosTomador, novoContratoId), inicioExecucao, fimExecucao));
             }} options={clientes} />
             {!!cliente?.contratos.length && (
               <div>
                 <Label>Contrato</Label>
                 <Select value={contratoId} onValueChange={id => {
                   setContratoId(id);
-                  setDescricao(textoContratoNfse(cliente.contratos, id));
+                  setDescricao(preencherPeriodoExecucaoNfse(textoContratoNfse(cliente.contratos, id), inicioExecucao, fimExecucao));
                 }}>
                   <SelectTrigger><SelectValue placeholder="Selecione o contrato..." /></SelectTrigger>
                   <SelectContent>
@@ -708,6 +714,11 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
           </TabsContent>
 
           <TabsContent value="servico" className="space-y-3 pt-3">
+            <PeriodoExecucaoNfse inicio={inicioExecucao} fim={fimExecucao} onChange={(inicio, fim) => {
+              setInicioExecucao(inicio);
+              setFimExecucao(fim);
+              setDescricao(atual => preencherPeriodoExecucaoNfse(atual, inicio, fim));
+            }} />
             <div>
               <Label>Descrição do serviço</Label>
               <Textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} rows={4} />

@@ -85,6 +85,8 @@ export default function NfseEmitir() {
   const [perPage, setPerPage] = useState(10);
 
   const [openEmit, setOpenEmit] = useState(false);
+  // Muda a cada nova emissão para que o formulário renasça vazio, sem dados da emissão anterior.
+  const [chaveEmissao, setChaveEmissao] = useState(0);
   const [viewNfse, setViewNfse] = useState<NfseEmitida | null>(null);
   const [cancelTarget, setCancelTarget] = useState<NfseEmitida | null>(null);
   const [motivoCancel, setMotivoCancel] = useState("");
@@ -162,7 +164,7 @@ export default function NfseEmitir() {
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={() => setOpenEmit(true)} disabled={loading || salvandoAmbiente || confirmarProducao} className="gap-2">
+            <Button onClick={() => { setChaveEmissao(c => c + 1); setOpenEmit(true); }} disabled={loading || salvandoAmbiente || confirmarProducao} className="gap-2">
               {salvandoAmbiente ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} Emitir NFS-e
             </Button>
           </> : <Badge variant="outline">Ambiente: {ambiente === 1 ? "Produção" : "Homologação"}</Badge>}
@@ -286,7 +288,7 @@ export default function NfseEmitir() {
         </CardContent>
       </Card>
 
-      <EmitirDialog open={openEmit} onClose={() => setOpenEmit(false)} />
+      <EmitirDialog key={chaveEmissao} open={openEmit} onClose={() => setOpenEmit(false)} />
 
       {/* Visualização */}
       <Dialog open={!!viewNfse} onOpenChange={(o) => !o && setViewNfse(null)}>

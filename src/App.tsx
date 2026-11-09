@@ -164,6 +164,7 @@ const PmocPage = lazy(() => import("./pages/Pmoc.tsx"));
 const PmocGerenciarOperacaoPage = lazy(() => import("./pages/PmocGerenciarOperacao.tsx"));
 const PmocValoresPage = lazy(() => import("./pages/PmocValores.tsx"));
 const PmocOrdensServicoPage = lazy(() => import("./pages/PmocOrdensServico.tsx"));
+const PmocOperacaoSmartPage = lazy(() => import("./pages/PmocOperacaoSmart"));
 const CategoriasServicosPage = lazy(() => import("./pages/CategoriasServicosPage.tsx"));
 const ServicosPage = lazy(() => import("./pages/ServicosPage.tsx"));
 const OsModelosPage = lazy(() => import("./pages/OsModelos.tsx"));
@@ -348,6 +349,7 @@ function ProtectedAppRoutes() {
         <Route path="/pmoc/gerenciar-operacao" element={<RotaProtegida perm="pmoc"><PmocGerenciarOperacaoPage /></RotaProtegida>} />
         <Route path="/pmoc/valores" element={<RotaProtegida perm="pmoc_valores"><PmocValoresPage /></RotaProtegida>} />
         <Route path="/pmoc/ordens-servico" element={<RotaProtegida perm="pmoc"><PmocOrdensServicoPage /></RotaProtegida>} />
+        <Route path="/pmoc/operacao-smart" element={<RotaProtegida perm="pmoc"><PmocOperacaoSmartPage /></RotaProtegida>} />
         <Route path="/engenharia/plano-manutencao" element={<RotaProtegida perm="plano_manutencao"><PlanoManutencaoPage /></RotaProtegida>} />
         <Route path="/engenharia/base-conhecimento" element={<RotaProtegida perm="base_conhecimento"><BaseConhecimentoPage /></RotaProtegida>} />
         <Route path="/cadastros/categorias-servicos" element={<RotaProtegida perm="categorias_servicos"><CategoriasServicosPage /></RotaProtegida>} />

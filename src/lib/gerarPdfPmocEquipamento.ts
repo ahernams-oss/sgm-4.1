@@ -1,4 +1,5 @@
 import { Equipamento } from "@/contexts/EquipamentosContext";
+import { fotoPmocSmartUrl } from "@/lib/pmocSmartFotos";
 
 import type { jsPDF } from "jspdf";
 const getJsPDF = async () => (await import("jspdf")).jsPDF;
@@ -44,6 +45,7 @@ function fmtDateTime(iso?: string | null): string {
 
 async function loadImage(url: string): Promise<{ data: string; w: number; h: number } | null> {
   try {
+    url = await fotoPmocSmartUrl(url);
     return await new Promise((resolve, reject) => {
       const img = new Image();
       img.crossOrigin = "anonymous";

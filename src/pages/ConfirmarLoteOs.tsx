@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
 import TomadorSelect from "@/components/financeiro/TomadorSelect";
 import { formatNumeroAno } from "@/lib/formatNumero";
-import { calcularValorTotalOS, formatBRLValor } from "@/lib/faturamentoClientes";
+import { calcularValorTotalOS, formatBRLValor, somarOrdensSelecionadas } from "@/lib/faturamentoClientes";
 import { usePermissao } from "@/hooks/usePermissao";
 
 import { Button } from "@/components/ui/button";
@@ -85,6 +85,7 @@ export default function ConfirmarLoteOs() {
   }, [disponiveis, search, filterCliente, filterDataIni, filterDataFim]);
 
   const { paginated } = paginate(filtered, page, pageSize);
+  const selectedTotal = useMemo(() => somarOrdensSelecionadas(ordens, selectedIds), [ordens, selectedIds]);
   const allPageIds = paginated.map((s) => s.id);
   const allPageSelected = allPageIds.length > 0 && allPageIds.every((id) => selectedIds.has(id));
 
@@ -332,6 +333,18 @@ export default function ConfirmarLoteOs() {
               ))
             )}
           </TableBody>
+          <tfoot>
+            <TableRow className="bg-muted/50 hover:bg-muted/50">
+              <TableCell colSpan={8} className="text-right py-3">
+                <span className="text-sm text-muted-foreground mr-2">
+                  {selectedIds.size} O.S. selecionada(s) — Total:
+                </span>
+                <span className="text-base font-bold text-primary tabular-nums">
+                  {formatBRLValor(selectedTotal)}
+                </span>
+              </TableCell>
+            </TableRow>
+          </tfoot>
         </Table>
       </div>
 

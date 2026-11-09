@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useEffect, type ReactNode } from "react";
 import TomadorSelect from "@/components/financeiro/TomadorSelect";
+import BuscaSelect from "@/components/BuscaSelect";
 import GradeRequerFiltro from "@/components/GradeRequerFiltro";
 import { ensureLoadGate, setLoadGate, clearLoadGate } from "@/lib/providerGate";
 import { loadPersistedFilters, usePersistFilters } from "@/lib/persistedFilters";
@@ -1171,26 +1172,17 @@ export default function SolicitacaoServicosPage() {
 
                 <div>
                   <Label className="font-bold">Local</Label>
-                  <Select value={form.local_id} onValueChange={v => setForm(f => ({ ...f, local_id: v, pavimento_id: "", setor_id: "" }))} disabled={!form.cliente_id}>
-                    <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                    <SelectContent>{locais.map((l: any) => <SelectItem key={l.id} value={l.id}>{l.descricao}</SelectItem>)}</SelectContent>
-                  </Select>
+                  <BuscaSelect value={form.local_id} onValueChange={v => setForm(f => ({ ...f, local_id: v, pavimento_id: "", setor_id: "" }))} disabled={!form.cliente_id} options={locais as any} />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label className="font-bold">Pavimento</Label>
-                    <Select value={form.pavimento_id} onValueChange={v => setForm(f => ({ ...f, pavimento_id: v, setor_id: "" }))} disabled={!form.local_id}>
-                      <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                      <SelectContent>{pavimentos.map((p: any) => <SelectItem key={p.id} value={p.id}>{p.descricao}</SelectItem>)}</SelectContent>
-                    </Select>
+                    <BuscaSelect value={form.pavimento_id} onValueChange={v => setForm(f => ({ ...f, pavimento_id: v, setor_id: "" }))} disabled={!form.local_id} options={pavimentos as any} />
                   </div>
                   <div>
                     <Label className="font-bold">Setor</Label>
-                    <Select value={form.setor_id} onValueChange={v => setForm(f => ({ ...f, setor_id: v, equipamento_id: "" }))} disabled={!form.pavimento_id}>
-                      <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
-                      <SelectContent>{setores.map((s: any) => <SelectItem key={s.id} value={s.id}>{s.descricao}</SelectItem>)}</SelectContent>
-                    </Select>
+                    <BuscaSelect value={form.setor_id} onValueChange={v => setForm(f => ({ ...f, setor_id: v, equipamento_id: "" }))} disabled={!form.pavimento_id} options={setores as any} />
                   </div>
                 </div>
 

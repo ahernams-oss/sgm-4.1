@@ -460,12 +460,12 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
 
   const aplicarLocalContrato = (contratos: any[], id: string) => {
     const c: any = contratos.find((x: any) => x.id === id);
-    if (!c) return;
+    if (!c) { setCodigoNbs(""); return; }
     if (c.ufPrestacao) setUfPrest(c.ufPrestacao);
     setMunicipioPrest(c.codigoMunicipioPrestacao ? { id: String(c.codigoMunicipioPrestacao), nome: c.municipioPrestacao || "" } : null);
     if (c.codigoTributacaoNacional) setCodigoTribNacional(c.codigoTributacaoNacional);
     if (c.codigoTributacaoMunicipal) setCodigoTrib(c.codigoTributacaoMunicipal);
-    if (c.codigoNbs) setCodigoNbs(String(c.codigoNbs));
+    setCodigoNbs(c.codigoNbs ? String(c.codigoNbs) : "");
   };
 
   useEffect(() => {

@@ -28,6 +28,7 @@ import { obterDanfseOficial } from "@/lib/danfseOficial.functions";
 import { baixarDanfseBlob, decodificarPdfDanfse } from "@/lib/danfseOficial";
 import { aliquotaIssContratoNfse, contratoInicialNfse } from "@/lib/issContratoNfse";
 import { textoContratoNfse } from "@/lib/textoContratoNfse";
+import { codigoNbsContrato } from "@/lib/codigoNbsContrato";
 import { preencherPeriodoExecucaoNfse, validarPeriodoExecucaoNfse } from "@/lib/periodoExecucaoNfse";
 import { PeriodoExecucaoNfse } from "@/components/financeiro/PeriodoExecucaoNfse";
 import { ValoresExecucaoNfse } from "@/components/financeiro/ValoresExecucaoNfse";
@@ -460,12 +461,12 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
 
   const aplicarLocalContrato = (contratos: any[], id: string) => {
     const c: any = contratos.find((x: any) => x.id === id);
+    setCodigoNbs(codigoNbsContrato(contratos, id));
     if (!c) return;
     if (c.ufPrestacao) setUfPrest(c.ufPrestacao);
     setMunicipioPrest(c.codigoMunicipioPrestacao ? { id: String(c.codigoMunicipioPrestacao), nome: c.municipioPrestacao || "" } : null);
     if (c.codigoTributacaoNacional) setCodigoTribNacional(c.codigoTributacaoNacional);
     if (c.codigoTributacaoMunicipal) setCodigoTrib(c.codigoTributacaoMunicipal);
-    if (c.codigoNbs) setCodigoNbs(String(c.codigoNbs));
   };
 
   useEffect(() => {

@@ -39,7 +39,7 @@ const emptyForm = {
 const Usuarios = () => {
   const { usuarios, addUsuario, updateUsuario, deleteUsuario } = useUsuarios();
   const { cargos } = useCargos();
-  const { clientes } = useClientes();
+  const { clientes } = useClientes({ cadastroAcessos: true });
   const { perfis } = usePerfisAcesso();
   const { resetSenha } = useAuth();
   const { tem } = usePermissao();

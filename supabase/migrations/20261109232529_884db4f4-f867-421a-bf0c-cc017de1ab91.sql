@@ -1,0 +1,12 @@
+create schema if not exists sgm_private;
+revoke all on schema sgm_private from public,anon;
+grant usage on schema sgm_private to authenticated,service_role;
+alter function public.sgm_cliente_permitido(text) set schema sgm_private;
+alter function public.sgm_cliente_cadastro_permitido(text) set schema sgm_private;
+alter function public.sgm_requisicao_compra_permitida(text) set schema sgm_private;
+alter function public.sgm_funcionario_permitido(text) set schema sgm_private;
+alter function public.sgm_equipamento_permitido(text) set schema sgm_private;
+create or replace function sgm_private.sgm_cliente_cadastro_permitido(_cliente_id text) returns boolean language sql stable security definer set search_path=public as $$ select sgm_private.sgm_cliente_permitido(_cliente_id) or public.sgm_tem_permissao('usuarios.criar') or public.sgm_tem_permissao('usuarios.editar') $$;
+create or replace function sgm_private.sgm_requisicao_compra_permitida(_id text) returns boolean language sql stable security definer set search_path=public as $$ select exists(select 1 from public.requisicoes_compras r where r.id::text=_id and sgm_private.sgm_cliente_permitido(r.centro_custo)) $$;
+create or replace function sgm_private.sgm_funcionario_permitido(_id text) returns boolean language sql stable security definer set search_path=public as $$ select exists(select 1 from public.funcionarios f where f.id::text=_id and sgm_private.sgm_cliente_permitido(f.cliente_id)) $$;
+create or replace function sgm_private.sgm_equipamento_permitido(_id text) returns boolean language sql stable security definer set search_path=public as $$ select exists(select 1 from public.equipamentos e where e.id::text=_id and sgm_private.sgm_cliente_permitido(e.cliente_id)) $$;

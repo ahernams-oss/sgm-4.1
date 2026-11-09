@@ -4,6 +4,8 @@ import { fetchAll, insertRow, updateRow } from "@/lib/supabaseHelper";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useProviderGate, useActivateProvider, useLoadGateAllowed } from "@/lib/providerGate";
+import { useAuth } from "@/contexts/AuthContext";
+import { filtrarClientesPermitidos } from "@/lib/acessoClientes";
 
 export interface MaterialOS {
   id: string; codigo: string; descricao: string;
@@ -183,6 +185,7 @@ export function OrdensServicoProvider({ children }: { children: ReactNode }) {
 
 export function useOrdensServico() {
   useActivateProvider("OrdensServico");
+  const { clientesPermitidosIds } = useAuth();
   const ctx = useContext(OrdensServicoContext);
   const warnedRef = useRef(false);
 
@@ -208,5 +211,5 @@ export function useOrdensServico() {
     } as OrdensServicoContextType;
   }
 
-  return ctx;
+  return { ...ctx, ordens: filtrarClientesPermitidos(ctx.ordens, clientesPermitidosIds, (o) => o.clienteId) };
 }

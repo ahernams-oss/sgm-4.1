@@ -2,7 +2,7 @@ import { createDenoSlot } from "@/lib/edge/deno-shim";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
-import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
+import { exigirAcesso, podeModulo, pode, podeCliente } from "@/lib/edge/permissao";
 import { createClient } from "@supabase/supabase-js";
 import { corsHeaders } from "@/lib/edge/cors";
 import { BRASILNFE_FISCAL_URL, dataFiscalBrasilNfe, montarPayloadBrasilNfe, interpretarRetornoBrasilNfe } from "@/lib/nfseBrasilNfe";
@@ -28,6 +28,9 @@ Deno.serve(async (req) => {
 
   try {
     const modelo = await req.json() as Modelo;
+    if (!podeCliente(acesso.chamador, modelo.clienteId)) {
+      return new Response(JSON.stringify({ error: "Você não possui acesso a este cliente." }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
     if (!modelo?.empresaId) throw new Error("empresaId é obrigatório");
 
     const admin = createClient(Deno.env.get("SUPABASE_URL") || "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "");

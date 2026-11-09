@@ -1,6 +1,6 @@
 # Tarefas
 
-- [ ] Corrigir acesso aos clientes selecionados nas listas e no banco, incluindo registros vinculados; validar regras sem login.
+- [x] Restringir listas e registros vinculados aos clientes selecionados com políticas restritivas e filtros de cache; impedir bypass por cargo e nas ações fiscais/exclusão de OS. Testes específicos passaram; não testei com login. A suíte geral ainda apresenta falhas antigas de envio e consulta de senhas vazadas.
 
 - [x] Adicionar Benefícios e Insumos em reais, preencher seu trecho na descrição e corrigir Deduções como Valor do serviço − Material aplicado − Benefícios e Insumos; sem emitir notas. Não testei com login.
 

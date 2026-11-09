@@ -119,6 +119,7 @@ function usuario(
     auth_user_id: auth && conta(auth),
     cargo_id: cargo,
     perfil_acesso_id: perfil,
+    clientes_permitidos: ["cliente-1", "f-1"],
     created_at: "2026-01-01T00:00:00Z",
   };
 }
@@ -204,7 +205,7 @@ const db: Record<string, Linha[]> = {
     },
   ],
   empresa_credenciais: [{ empresa_id: "emp-1", certificado_a1_senha: "senha-do-certificado" }],
-  ordens_servico: [{ id: "os-1" }, { id: "os-2" }],
+  ordens_servico: [{ id: "os-1", cliente_id: "cliente-1" }, { id: "os-2", cliente_id: "cliente-1" }, { id: "os-negada", cliente_id: "cliente-nao-selecionado" }],
   mfa_otps: [],
   clientes_credenciais: [],
   email_send_log: [],
@@ -972,6 +973,10 @@ await caso("migração de contas: service role, modo preview → 200", async () 
 
 // ================================================================ ações em nome de alguém
 console.log("\ndelete-ordem-servico / códigos de confirmação");
+await caso("excluir OS: acesso total não libera cliente não selecionado", async () => {
+  status(await chamar("delete-ordem-servico", { token: T.coord, body: { osId: "os-negada", clienteId: "cliente-1" } }), 403);
+  confere(db.ordens_servico.some((o) => o.id === "os-negada"), "apagou OS de cliente não selecionado");
+});
 await caso("excluir OS: comum mandando o userId da Diretora → 403 e a OS fica", async () => {
   status(
     await chamar("delete-ordem-servico", {

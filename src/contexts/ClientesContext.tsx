@@ -3,6 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
 import { supabase } from "@/integrations/supabase/client";
 import { useProviderGate, useActivateProvider } from "@/lib/providerGate";
+import { useAuth } from "@/contexts/AuthContext";
+import { filtrarClientesPermitidos } from "@/lib/acessoClientes";
 
 
 export interface InformacaoFinanceira { id: string; banco: string; agencia: string; conta: string; chavePix: string; }
@@ -252,9 +254,11 @@ export function ClientesProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useClientes() {
+export function useClientes(opcoes?: { cadastroAcessos?: boolean }) {
   useActivateProvider("Clientes");
+  const { clientesPermitidosIds } = useAuth();
   const ctx = useContext(ClientesContext);
   if (!ctx) throw new Error("useClientes must be used within ClientesProvider");
-  return ctx;
+  // O catálogo integral só serve à administração dos acessos e também é autorizado pelo banco.
+  return { ...ctx, clientes: opcoes?.cadastroAcessos ? ctx.clientes : filtrarClientesPermitidos(ctx.clientes, clientesPermitidosIds, (c) => c.id) };
 }

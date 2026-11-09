@@ -51,3 +51,4 @@
 - Purchase-quotation stock transfers are stored as approval requests in estoque_transferencias; stock moves only via transferirEntreLocais after a permitted user approves, and a DB trigger enforces the cotacoes.aprovar_transferencia permission and one-time decision.
 - Home-screen installation uses the root head and the existing manifest with local brand icons, without app-shell service workers or offline caches; preserve module-specific manifest overrides and the stable app identity/start URL to avoid breaking installed shortcuts.
 - Root error recovery reloads once per unavailable chunk message using sessionStorage; ordinary errors keep router retry and fiscal submissions are never retried by recovery.
+- Client scope uses restrictive RLS and cache-filtering hooks; full catalogue is for access administration only.

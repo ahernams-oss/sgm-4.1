@@ -4,6 +4,7 @@
 // acesso total pelo cargo, o resto pelo perfil de acesso.
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { identificar } from "@/lib/edge/auth";
+import { clienteSelecionado } from "@/lib/acessoClientes";
 import {
   cargoTemAcessoTotal,
   temPermissao,
@@ -18,6 +19,7 @@ export type UsuarioSgm = {
   acessoTotal: boolean;
   cargoNome?: string;
   permissoes: Permissoes;
+  clientesPermitidos?: string[];
 };
 
 export type ChamadorSgm =
@@ -52,9 +54,10 @@ type LinhaUsuario = {
   cargo_id: string | null;
   perfil_acesso_id: string | null;
   ativo?: boolean | null;
+  clientes_permitidos?: unknown;
 };
 
-const COLUNAS = "id, nome, email, auth_user_id, cargo_id, perfil_acesso_id, ativo";
+const COLUNAS = "id, nome, email, auth_user_id, cargo_id, perfil_acesso_id, ativo, clientes_permitidos";
 
 const emailNormal = (s: string | null | undefined) => (s ?? "").trim().toLowerCase();
 
@@ -80,6 +83,7 @@ async function completar(linha: LinhaUsuario): Promise<UsuarioSgm> {
     acessoTotal: cargo?.data ? cargoTemAcessoTotal(cargo.data.nome) : false,
     cargoNome: cargo?.data?.nome ?? "",
     permissoes: p && typeof p === "object" && !Array.isArray(p) ? (p as Permissoes) : {},
+    clientesPermitidos: Array.isArray(linha.clientes_permitidos) ? linha.clientes_permitidos.filter((id): id is string => typeof id === "string") : [],
   };
 }
 
@@ -176,6 +180,10 @@ export function temAcessoTotal(c: ChamadorSgm): boolean {
   return c.tipo === "servico" || c.usuario.acessoTotal;
 }
 
+export function podeCliente(c: ChamadorSgm, clienteId: string | null | undefined): boolean {
+  return c.tipo === "servico" || clienteSelecionado(c.usuario.clientesPermitidos ?? [], clienteId);
+}
+
 /** A chamada é do próprio usuário (ex.: trocar a própria senha, pedir o próprio código). */
 export function ehOProprio(c: ChamadorSgm, usuarioId: string): boolean {
   return c.tipo === "usuario" && !!usuarioId && c.usuario.id === usuarioId;
@@ -226,6 +234,17 @@ export async function exigirAcesso(
       `[edge:permissao] ${funcao}: negado para o usuário ${c.tipo === "usuario" ? c.usuario.id : c.tipo}`,
     );
     return { ok: false, resposta: negar(403, mensagem) };
+  }
+  // As funções legadas usam service role: conferir o escopo antes de qualquer efeito.
+  if (c.tipo === "usuario" && !req.bodyUsed && req.headers.get("content-type")?.includes("application/json")) {
+    let corpo: Record<string, unknown>;
+    try { corpo = await req.clone().json(); }
+    catch { return { ok: false, resposta: negar(400, "Dados da solicitação inválidos.") }; }
+    for (const chave of ["clienteId", "cliente_id", "fornecedorId"]) {
+      if (chave in corpo && !podeCliente(c, typeof corpo[chave] === "string" ? corpo[chave] : null)) {
+        return { ok: false, resposta: negar(403, "Você não possui acesso a este cliente.") };
+      }
+    }
   }
   return { ok: true, chamador: c };
 }

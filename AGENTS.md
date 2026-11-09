@@ -50,5 +50,5 @@
 - Cargos de acesso total são protegidos no banco (sgm_cargo_acesso_total + triggers em cargos/usuarios/funcionarios): só o Diretor Geral cria, renomeia ou atribui; o front apenas espelha a lista em src/lib/permissoes.ts, então mude os dois juntos.
 - Purchase-quotation stock transfers are stored as approval requests in estoque_transferencias; stock moves only via transferirEntreLocais after a permitted user approves, and a DB trigger enforces the cotacoes.aprovar_transferencia permission and one-time decision.
 - Home-screen installation uses the root head and the existing manifest with local brand icons, without app-shell service workers or offline caches; preserve module-specific manifest overrides and the stable app identity/start URL to avoid breaking installed shortcuts.
-- Root error recovery reloads once per unavailable chunk message using sessionStorage; ordinary errors keep router retry and fiscal submissions are never retried by recovery.
+- Root observes preload/rejection chunk errors and reloads once per chunk via sessionStorage to avoid loops; ordinary errors use router retry, never retrying fiscal submissions.
 - Client scope uses restrictive RLS and cache-filtering hooks; full catalogue is for access administration only.

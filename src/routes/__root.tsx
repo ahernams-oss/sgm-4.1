@@ -11,7 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { erroModuloDesatualizado, recuperarModulo } from "../lib/recuperarModulo";
+import { erroModuloDesatualizado, observarFalhasModulo, recuperarModulo } from "../lib/recuperarModulo";
 import { Button } from "@/components/ui/button";
 
 function NotFoundComponent() {
@@ -133,6 +133,14 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => observarFalhasModulo(window, (error) => {
+    try {
+      return recuperarModulo(error, window.sessionStorage, () => window.location.reload());
+    } catch {
+      return false;
+    }
+  }), []);
 
   return (
     <QueryClientProvider client={queryClient}>

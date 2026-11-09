@@ -780,9 +780,9 @@ const Clientes = () => {
                             <DollarSign className="h-3.5 w-3.5" /> Gerenciar Faturamento
                           </Button>
                           {podeEditarContrato && <Button variant="ghost" size="sm" onClick={() => handleEditContrato(ct)} className="text-xs">Editar</Button>}
-                          <Button variant="ghost" size="sm" onClick={() => requestDeleteContrato(ct.id)} className="text-destructive hover:text-destructive">
+{podeExcluirContrato && (<Button variant="ghost" size="sm" onClick={() => requestDeleteContrato(ct.id)} className="text-destructive hover:text-destructive">
                             <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
+                          </Button>)}
                         </div>
                       </div>
                       {empenhoContratoId === ct.id && (

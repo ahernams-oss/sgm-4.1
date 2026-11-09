@@ -64,3 +64,22 @@ export function expandirSubmenusFaturamento(grupos: GrupoPermissao[]): GrupoPerm
   ];
   return grupos.map(g => g.grupo === "Faturamento" ? { ...g, modulos: [...submenus, ...g.modulos.filter(m => m.key !== "faturamentos")] } : g);
 }
+const ACOES_CONTRATOS = ["clientes.gerenciar_contratos", "clientes.contratos_visualizar", "clientes.contratos_criar", "clientes.contratos_editar", "clientes.contratos_excluir"];
+
+// Projeção visual: "Contratos" aparece como submenu de Clientes, reutilizando as chaves de clientes.
+export function expandirSubmenuContratos(grupos: GrupoPermissao[]): GrupoPermissao[] {
+  return grupos.map(g => {
+    const idx = g.modulos.findIndex(m => m.key === "clientes" && m.label === "Clientes");
+    if (idx < 0) return g;
+    const clientes = g.modulos[idx];
+    const acoes = clientes.acoes ?? [];
+    const contratos = acoes.filter(a => ACOES_CONTRATOS.includes(a.key));
+    if (!contratos.length) return g;
+    const modulos = [...g.modulos];
+    modulos.splice(idx, 1,
+      { ...clientes, acoes: acoes.filter(a => !ACOES_CONTRATOS.includes(a.key)) },
+      { key: clientes.key, label: "Clientes › Contratos", acoes: contratos },
+    );
+    return { ...g, modulos };
+  });
+}

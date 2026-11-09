@@ -19,9 +19,9 @@ import {
 } from "@/contexts/PerfisAcessoContext";
 import { toast } from "sonner";
 import { usePermissao } from "@/hooks/usePermissao";
-import { expandirSubmenusFaturamento } from "@/lib/gruposPermissoes";
+import { expandirSubmenusFaturamento, expandirSubmenuContratos } from "@/lib/gruposPermissoes";
 
-const MODULOS_PERFIL = expandirSubmenusFaturamento(MODULOS_SISTEMA);
+const MODULOS_PERFIL = expandirSubmenuContratos(expandirSubmenusFaturamento(MODULOS_SISTEMA));
 
 const emptyForm = { nome: "", descricao: "", permissoes: {} as Permissoes };
 

@@ -206,7 +206,7 @@ export default function PmocGerenciarOperacao() {
         .from("pmoc_ordens_servico").select("id, numero, status, execucao_id").not("execucao_id", "is", null);
       (osRows || []).forEach((o: any) => { if (o.execucao_id) osMap.set(o.execucao_id, { numero: o.numero, status: o.status }); });
       // Gera OS para execuções antigas que ainda não têm OS
-      const semOs = (data || []).filter((e: any) => !osMap.has(e.id));
+      const semOs = (data || []).filter((e: any) => !e.smart && !osMap.has(e.id));
       if (semOs.length > 0) {
         const novos = semOs.map((e: any) => {
           const equip = equipamentos.find((eq) => eq.id === e.equipamento_id);

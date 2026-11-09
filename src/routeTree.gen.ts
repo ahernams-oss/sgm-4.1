@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
+import { Route as PmocOperacaoSmartRouteImport } from './routes/pmoc.operacao-smart'
 import { Route as ApiPublicEdgeNameRouteImport } from './routes/api/public/edge/$name'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
@@ -22,6 +23,11 @@ const IndexRoute = IndexRouteImport.update({
 const SplatRoute = SplatRouteImport.update({
   id: '/$',
   path: '/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PmocOperacaoSmartRoute = PmocOperacaoSmartRouteImport.update({
+  id: '/pmoc/operacao-smart',
+  path: '/pmoc/operacao-smart',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicEdgeNameRoute = ApiPublicEdgeNameRouteImport.update({
@@ -39,12 +45,14 @@ const LovableEmailTransactionalPreviewRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/pmoc/operacao-smart': typeof PmocOperacaoSmartRoute
   '/api/public/edge/$name': typeof ApiPublicEdgeNameRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/pmoc/operacao-smart': typeof PmocOperacaoSmartRoute
   '/api/public/edge/$name': typeof ApiPublicEdgeNameRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -52,6 +60,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/pmoc/operacao-smart': typeof PmocOperacaoSmartRoute
   '/api/public/edge/$name': typeof ApiPublicEdgeNameRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
@@ -60,18 +69,21 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/$'
+    | '/pmoc/operacao-smart'
     | '/api/public/edge/$name'
     | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/$'
+    | '/pmoc/operacao-smart'
     | '/api/public/edge/$name'
     | '/lovable/email/transactional/preview'
   id:
     | '__root__'
     | '/'
     | '/$'
+    | '/pmoc/operacao-smart'
     | '/api/public/edge/$name'
     | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
@@ -79,6 +91,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
+  PmocOperacaoSmartRoute: typeof PmocOperacaoSmartRoute
   ApiPublicEdgeNameRoute: typeof ApiPublicEdgeNameRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
@@ -97,6 +110,13 @@ declare module '@tanstack/react-router' {
       path: '/$'
       fullPath: '/$'
       preLoaderRoute: typeof SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pmoc/operacao-smart': {
+      id: '/pmoc/operacao-smart'
+      path: '/pmoc/operacao-smart'
+      fullPath: '/pmoc/operacao-smart'
+      preLoaderRoute: typeof PmocOperacaoSmartRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/edge/$name': {
@@ -119,6 +139,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
+  PmocOperacaoSmartRoute: PmocOperacaoSmartRoute,
   ApiPublicEdgeNameRoute: ApiPublicEdgeNameRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }

@@ -31,7 +31,7 @@ import { textoContratoNfse } from "@/lib/textoContratoNfse";
 import { preencherPeriodoExecucaoNfse, validarPeriodoExecucaoNfse } from "@/lib/periodoExecucaoNfse";
 import { PeriodoExecucaoNfse } from "@/components/financeiro/PeriodoExecucaoNfse";
 import { ValoresExecucaoNfse } from "@/components/financeiro/ValoresExecucaoNfse";
-import { preencherValoresExecucaoNfse, somarValoresExecucaoNfse } from "@/lib/valoresExecucaoNfse";
+import { deducoesExecucaoNfse, preencherValoresExecucaoNfse, somarValoresExecucaoNfse } from "@/lib/valoresExecucaoNfse";
 import { ambienteNfse, type AmbienteNfse } from "@/lib/ambienteNfse";
 import { usePermissao } from "@/hooks/usePermissao";
 import { formatarDataEmissaoNfse } from "@/lib/dataNfse";
@@ -410,11 +410,12 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
   const [fimExecucao, setFimExecucao] = useState<Date>();
   const [valorMaoObra, setValorMaoObra] = useState("");
   const [valorMaterial, setValorMaterial] = useState("");
+  const [valorBeneficios, setValorBeneficios] = useState("");
   const [codigoTrib, setCodigoTrib] = useState<string>(config?.codigo_servico_padrao || "");
   const [codigoTribNacional, setCodigoTribNacional] = useState<string>("");
   const [codigoNbs, setCodigoNbs] = useState<string>(config?.codigo_nbs || "");
   const [valorServico, setValorServico] = useState<string>("0,00");
-  const [deducoes, setDeducoes] = useState<string>("0,00");
+  const deducoes = deducoesExecucaoNfse(valorServico, valorMaterial, valorBeneficios);
   const [obraId, setObraId] = useState<string>("");
   const [codigoObraTexto, setCodigoObraTexto] = useState<string>("COI");
   const [tipoInfoObra, setTipoInfoObra] = useState<"codigo" | "cib" | "endBR" | "endEX">("codigo");
@@ -482,11 +483,14 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
   const parseNum = (s: string) => Number(String(s).replace(/\./g, "").replace(",", ".")) || 0;
   const fmt2 = (n: number) => (Number(n) || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  const alterarValoresExecucao = (maoObra: string, material: string) => {
+  const alterarValoresExecucao = (maoObra: string, material: string, beneficios: string) => {
+    if (maoObra !== valorMaoObra || material !== valorMaterial) {
+      setValorServico(somarValoresExecucaoNfse(maoObra, material));
+    }
     setValorMaoObra(maoObra);
     setValorMaterial(material);
-    setValorServico(somarValoresExecucaoNfse(maoObra, material));
-    setDescricao(atual => preencherValoresExecucaoNfse(atual, maoObra, material));
+    setValorBeneficios(beneficios);
+    setDescricao(atual => preencherValoresExecucaoNfse(atual, maoObra, material, beneficios));
   };
 
   // Auto: base PIS/COFINS = valor do serviço
@@ -651,7 +655,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
               const novoContratoId = contratoInicialNfse(contratosTomador);
               setClienteId(id);
               setContratoId(novoContratoId);
-              setDescricao(preencherValoresExecucaoNfse(preencherPeriodoExecucaoNfse(textoContratoNfse(contratosTomador, novoContratoId), inicioExecucao, fimExecucao), valorMaoObra, valorMaterial));
+              setDescricao(preencherValoresExecucaoNfse(preencherPeriodoExecucaoNfse(textoContratoNfse(contratosTomador, novoContratoId), inicioExecucao, fimExecucao), valorMaoObra, valorMaterial, valorBeneficios));
               aplicarLocalContrato(contratosTomador, novoContratoId);
             }} options={clientes} />
             {!!cliente?.contratos.length && (
@@ -659,7 +663,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
                 <Label>Contrato</Label>
                 <Select value={contratoId} onValueChange={id => {
                   setContratoId(id);
-                  setDescricao(preencherValoresExecucaoNfse(preencherPeriodoExecucaoNfse(textoContratoNfse(cliente.contratos, id), inicioExecucao, fimExecucao), valorMaoObra, valorMaterial));
+                  setDescricao(preencherValoresExecucaoNfse(preencherPeriodoExecucaoNfse(textoContratoNfse(cliente.contratos, id), inicioExecucao, fimExecucao), valorMaoObra, valorMaterial, valorBeneficios));
                   aplicarLocalContrato(cliente.contratos, id);
                 }}>
                   <SelectTrigger><SelectValue placeholder="Selecione o contrato..." /></SelectTrigger>
@@ -686,7 +690,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
               setFimExecucao(fim);
               setDescricao(atual => preencherPeriodoExecucaoNfse(atual, inicio, fim));
             }} />
-            <ValoresExecucaoNfse maoObra={valorMaoObra} material={valorMaterial} onChange={alterarValoresExecucao} />
+            <ValoresExecucaoNfse maoObra={valorMaoObra} material={valorMaterial} beneficios={valorBeneficios} onChange={alterarValoresExecucao} />
             <div>
               <Label>Descrição do serviço</Label>
               <Textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} rows={4} />
@@ -847,8 +851,8 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
                 <Label>Deduções (R$)</Label>
                 <Input
                   value={deducoes}
-                  onChange={(e) => setDeducoes(e.target.value)}
-                  onBlur={(e) => setDeducoes(fmt2(parseNum(e.target.value)))}
+                  readOnly
+                  className="bg-muted"
                 />
               </div>
             </div>

@@ -9577,8 +9577,19 @@ export type Database = {
         Returns: boolean
       }
       sgm_cargo_id_protegido: { Args: { _id: string }; Returns: boolean }
+      sgm_cliente_cadastro_permitido: {
+        Args: { _cliente_id: string }
+        Returns: boolean
+      }
+      sgm_cliente_permitido: { Args: { _cliente_id: string }; Returns: boolean }
+      sgm_equipamento_permitido: { Args: { _id: string }; Returns: boolean }
+      sgm_funcionario_permitido: { Args: { _id: string }; Returns: boolean }
       sgm_modulo_exige_perfil: { Args: { _chave: string }; Returns: boolean }
       sgm_normaliza_cargo: { Args: { _nome: string }; Returns: string }
+      sgm_requisicao_compra_permitida: {
+        Args: { _id: string }
+        Returns: boolean
+      }
       sgm_tem_permissao: { Args: { _chave: string }; Returns: boolean }
       strip_anexo_base64: { Args: { _a: Json }; Returns: Json }
     }

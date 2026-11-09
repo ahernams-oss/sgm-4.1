@@ -69,6 +69,11 @@ export interface Contrato {
   mesSco: string; anoSco: string;
   valorContrato?: string;
   textoNotaFiscal?: string;
+  ufPrestacao?: string;
+  codigoMunicipioPrestacao?: string;
+  municipioPrestacao?: string;
+  codigoTributacaoNacional?: string;
+  codigoTributacaoMunicipal?: string;
   inss?: string; pis?: string; cofins?: string; csll?: string; irrf?: string; iss?: string; cbs?: string; ibs?: string; cbsMunicipal?: string; ibsMunicipal?: string;
   meta1?: string; meta2?: string; meta3?: string;
   anexos?: ContratoAnexo[];

@@ -23,6 +23,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import ImportClientesFornecedores from "@/components/ImportClientesFornecedores";
 import FaturamentoSection from "@/components/FaturamentoSection";
 import EmpenhoSection from "@/components/EmpenhoSection";
+import LocalPrestacaoContratoFields from "@/components/financeiro/LocalPrestacaoContratoFields";
 
 import { usePermissao } from "@/hooks/usePermissao";
 
@@ -161,7 +162,8 @@ const Clientes = () => {
    const [locaisEntregaClienteId, setLocaisEntregaClienteId] = useState<string | null>(null);
    const [contratosClienteId, setContratosClienteId] = useState<string | null>(null);
   const emptyContrato = { numero: "", numeroProcesso: "", descricao: "", dataInicio: "", dataFim: "", bdi: "", descontoLicitacao: "", valorBase: "", valorBase2: "", valorBase3: "", maoDeObraMensal: "", maoDeObraAnual: "", maoDeObraContratual: "", mesSco: "", anoSco: "", valorContrato: "", inss: "", pis: "", cofins: "", csll: "", irrf: "", iss: "", cbs: "", ibs: "", cbsMunicipal: "", ibsMunicipal: "", textoNotaFiscal: "", meta1: "", meta2: "", meta3: "", anexos: [] as ContratoAnexo[] };
-  const [contratoForm, setContratoForm] = useState(emptyContrato);
+  const emptyContratoComPrestacao = { ...emptyContrato, ufPrestacao: "RJ", codigoMunicipioPrestacao: "", municipioPrestacao: "", codigoTributacaoNacional: "", codigoTributacaoMunicipal: "" };
+  const [contratoForm, setContratoForm] = useState(emptyContratoComPrestacao);
   const [contratoErrors, setContratoErrors] = useState<{ cbs?: string; ibs?: string; cbsMunicipal?: string; ibsMunicipal?: string; descontoLicitacao?: string; bdi?: string }>({});
   const [editingContratoId, setEditingContratoId] = useState<string | null>(null);
   const [salvandoContrato, setSalvandoContrato] = useState(false);
@@ -562,7 +564,7 @@ const Clientes = () => {
                 return;
               }
               toast.success(editingContratoId ? "Contrato atualizado!" : "Contrato adicionado!");
-              setContratoForm(emptyContrato);
+              setContratoForm(emptyContratoComPrestacao);
               setContratoErrors({});
               setEditingContratoId(null);
             } catch {
@@ -575,14 +577,14 @@ const Clientes = () => {
           const handleEditContrato = (ct: Contrato) => {
             setEditingContratoId(ct.id);
             const { id, ...rest } = ct;
-            setContratoForm({ ...emptyContrato, ...rest, numeroProcesso: rest.numeroProcesso || "", textoNotaFiscal: rest.textoNotaFiscal ?? "" });
+            setContratoForm({ ...emptyContratoComPrestacao, ...rest, numeroProcesso: rest.numeroProcesso || "", textoNotaFiscal: rest.textoNotaFiscal ?? "", ufPrestacao: rest.ufPrestacao || "RJ", codigoMunicipioPrestacao: rest.codigoMunicipioPrestacao ?? "", municipioPrestacao: rest.municipioPrestacao ?? "", codigoTributacaoNacional: rest.codigoTributacaoNacional ?? "", codigoTributacaoMunicipal: rest.codigoTributacaoMunicipal ?? "" });
             setContratoErrors({});
           };
 
           const handleDeleteContrato = (ctId: string) => {
             updateCliente(contratosClienteId, { contratos: contratos.filter(ct => ct.id !== ctId) });
             toast.success("Contrato removido.");
-            if (editingContratoId === ctId) { setContratoForm(emptyContrato); setEditingContratoId(null); }
+            if (editingContratoId === ctId) { setContratoForm(emptyContratoComPrestacao); setEditingContratoId(null); }
           };
 
           return (
@@ -665,6 +667,8 @@ const Clientes = () => {
                 />
               </div>
 
+              <LocalPrestacaoContratoFields value={contratoForm} onChange={patch => setContratoForm(p => ({ ...p, ...patch }))} />
+
               {/* Bloco 4 — SCO e Metas */}
               <div className="rounded-lg border border-border bg-card/50 p-4 mb-4">
                 <h3 className="text-sm font-semibold text-foreground mb-3">SCO e Metas</h3>
@@ -707,7 +711,7 @@ const Clientes = () => {
                   {salvandoContrato ? "Salvando..." : editingContratoId ? "Salvar Alterações" : "Adicionar Contrato"}
                 </Button>
                 {editingContratoId && (
-                  <Button size="sm" variant="outline" onClick={() => { setContratoForm(emptyContrato); setEditingContratoId(null); }}>
+                  <Button size="sm" variant="outline" onClick={() => { setContratoForm(emptyContratoComPrestacao); setEditingContratoId(null); }}>
                     Cancelar
                   </Button>
                 )}

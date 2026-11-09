@@ -26,6 +26,7 @@ export default function SmartManutencao({ execucao, titulo, local, periodicidade
   const [pendentes, setPendentes] = useState<File[]>([]);
   const camera = useRef<HTMLInputElement>(null), galeria = useRef<HTMLInputElement>(null);
   const fila = useRef<Promise<unknown>>(Promise.resolve());
+  const timerSalvamento = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bloqueioFoto = useRef(false);
   const editavel = registro.smart && registro.status === "Em execução";
   const sujo = texto !== salvo;
@@ -45,8 +46,8 @@ export default function SmartManutencao({ execucao, titulo, local, periodicidade
   };
   useEffect(() => {
     if (!editavel || !sujo) return;
-    const timer = setTimeout(() => { void salvar({ observacoes: texto }).catch(() => undefined); }, 900);
-    return () => clearTimeout(timer);
+    timerSalvamento.current = setTimeout(() => { void salvar({ observacoes: texto }).catch(() => undefined); }, 900);
+    return () => { if (timerSalvamento.current) clearTimeout(timerSalvamento.current); };
   }, [texto, editavel]);
   useEffect(() => {
     let ativa = true;
@@ -81,10 +82,12 @@ export default function SmartManutencao({ execucao, titulo, local, periodicidade
   };
   const fechar = async () => {
     if (ocupado || pendentes.length) { toast.error("Aguarde ou tente salvar novamente antes de fechar."); return; }
+    if (timerSalvamento.current) clearTimeout(timerSalvamento.current);
     try { if (sujo) await salvar({ observacoes: texto }); onClose(); } catch { /* mantém o formulário aberto */ }
   };
   const finalizar = async () => {
     if (!editavel || ocupado || pendentes.length) return;
+    if (timerSalvamento.current) clearTimeout(timerSalvamento.current);
     try {
       if (sujo) await salvar({ observacoes: texto });
       setEstado("salvando");

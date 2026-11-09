@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@/lib/router-compat";
 import { usePmoc } from "@/contexts/PmocContext";
+import SmartFoto from "@/components/pmoc/SmartFoto";
 import { useEquipamentos } from "@/contexts/EquipamentosContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePermissao } from "@/hooks/usePermissao";
@@ -983,12 +984,7 @@ export default function PmocGerenciarOperacao() {
                         ) : (
                           <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
                             {fotos.map((url, i) => (
-                              <a key={i} href={url} target="_blank" rel="noreferrer"
-                                className="aspect-square rounded-md overflow-hidden border bg-muted block"
-                                title={`Abrir foto ${i + 1} em nova aba`}
-                              >
-                                <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
-                              </a>
+                              <SmartFoto key={i} referencia={url} numero={i + 1} />
                             ))}
                           </div>
                         )}

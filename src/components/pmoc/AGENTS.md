@@ -1,0 +1,3 @@
+- SMART maintenance mutations use authenticated server functions calling a user-scoped transactional RPC; progress and PMOC orders stay synchronized without early billing.
+- Store SMART photo references as private bucket/path strings and resolve signed URLs only when displaying or printing; never persist temporary signed URLs.
+- Queue autosave mutations and prevent finalization with unsaved observations or unfinished photo uploads so a failed save never appears successful.

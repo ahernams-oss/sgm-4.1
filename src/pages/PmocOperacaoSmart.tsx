@@ -7,7 +7,7 @@ import { useEquipamentos } from "@/contexts/EquipamentosContext";
 import { useClientes } from "@/contexts/ClientesContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePermissao } from "@/hooks/usePermissao";
-import { fetchAll } from "@/lib/supabaseHelper";
+import { supabase } from "@/integrations/supabase/client";
 import { gravarPmocSmart } from "@/lib/pmocSmart.functions";
 import { SMART_ETAPAS, etapaSmart, podeIniciarSmart, type SmartEtapa, type SmartExecucao } from "@/lib/pmocSmart";
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,16 @@ export default function PmocOperacaoSmart() {
   const [alvo, setAlvo] = useState<{ execucao: SmartExecucao; titulo: string; local: string; periodicidade: string } | null>(null);
   const { data: execucoes = [], refetch, isFetching, error } = useQuery({
     queryKey: ["pmoc_smart_execucoes", [...clientesPermitidosIds].sort().join(",")],
-    queryFn: async () => await fetchAll("pmoc_atividades_execucoes", "created_at") as SmartExecucao[],
+    queryFn: async () => {
+      const linhas: SmartExecucao[] = [];
+      for (let inicio = 0; ; inicio += 1000) {
+        const { data, error } = await supabase.from("pmoc_atividades_execucoes").select("*").order("created_at", { ascending: false }).order("id").range(inicio, inicio + 999);
+        if (error) throw new Error("Não foi possível carregar as manutenções.");
+        const pagina = (data || []) as unknown as SmartExecucao[];
+        linhas.push(...pagina);
+        if (pagina.length < 1000) return linhas;
+      }
+    },
     refetchInterval: alvo ? false : 30_000,
   });
   const cartoes = useMemo(() => atividades.filter((a) => a.ativa).flatMap((atividade) => {
@@ -78,10 +87,10 @@ export default function PmocOperacaoSmart() {
       <Select value={local} onValueChange={setLocal}><SelectTrigger className="h-11" aria-label="Filtrar local"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="todos">Todos os locais</SelectItem>{locais.map((l) => <SelectItem key={l} value={l}>{l}</SelectItem>)}</SelectContent></Select>
       <Select value={periodo} onValueChange={setPeriodo}><SelectTrigger className="h-11" aria-label="Filtrar periodicidade"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="todos">Todas as periodicidades</SelectItem>{periodos.filter(Boolean).map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent></Select>
     </section>
-    <nav className="grid grid-cols-2 gap-2 lg:hidden" aria-label="Etapas da manutenção">{SMART_ETAPAS.map((s) => <Button key={s} variant={etapa === s ? "default" : "outline"} className="min-h-12 h-auto whitespace-normal px-2" onClick={() => setEtapa(s)}>{s}<span className="ml-1">({filtrados.filter((c) => c.estado === s).length})</span></Button>)}</nav>
+    <nav className="grid grid-cols-2 gap-2 md:hidden" aria-label="Etapas da manutenção">{SMART_ETAPAS.map((s) => <Button key={s} variant={etapa === s ? "default" : "outline"} className="min-h-12 h-auto whitespace-normal px-2" onClick={() => setEtapa(s)}>{s}<span className="ml-1">({filtrados.filter((c) => c.estado === s).length})</span></Button>)}</nav>
     {error && <p role="alert" className="text-destructive">Não foi possível carregar as manutenções.</p>}
-    {loading ? <div className="flex items-center gap-2 py-12 text-muted-foreground"><Loader2 className="size-5 animate-spin" />Carregando manutenções…</div> : <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-4">
-      {SMART_ETAPAS.map((s) => <section key={s} className={cn("min-w-0 space-y-3", etapa !== s && "hidden lg:block")}>
+    {loading ? <div className="flex items-center gap-2 py-12 text-muted-foreground"><Loader2 className="size-5 animate-spin" />Carregando manutenções…</div> : <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2 xl:grid-cols-4">
+      {SMART_ETAPAS.map((s) => <section key={s} className={cn("min-w-0 space-y-3", etapa !== s && "hidden md:block")}>
         <div className={cn("flex items-center justify-between border-t-2 pt-3", tomEtapa[s])}><h2 className="text-sm font-semibold">{s}</h2><Badge variant="secondary">{filtrados.filter((c) => c.estado === s).length}</Badge></div>
         {filtrados.filter((c) => c.estado === s).map((c) => <article key={`${c.atividade.id}-${c.equipamento.id}`} className="space-y-4 rounded-lg border border-border bg-card p-4 text-card-foreground">
           <div className="flex items-center justify-between gap-2"><span className="truncate text-xs font-medium text-muted-foreground">{c.equipamento.tag || c.equipamento.codLasant}</span><Badge variant={c.atividade.prioridade === "Urgente" ? "destructive" : "secondary"}>{c.atividade.prioridade}</Badge></div>

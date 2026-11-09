@@ -14,9 +14,8 @@ export function formatarValorExecucaoNfse(valor: string): string {
   return valor.trim() ? formato.format(valorExecucaoNfse(valor)) : "";
 }
 
-export function deducoesExecucaoNfse(servico: string, material: string, beneficios: string): string {
-  const centavos = Math.round(valorExecucaoNfse(servico) * 100)
-    - Math.round(valorExecucaoNfse(material) * 100) - Math.round(valorExecucaoNfse(beneficios) * 100);
+export function deducoesExecucaoNfse(material: string, beneficios: string): string {
+  const centavos = Math.round(valorExecucaoNfse(material) * 100) + Math.round(valorExecucaoNfse(beneficios) * 100);
   return formato.format(centavos / 100);
 }
 

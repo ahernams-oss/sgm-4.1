@@ -2,6 +2,8 @@ import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
 import { useProviderGate, useActivateProvider } from "@/lib/providerGate";
+import { useAuth } from "@/contexts/AuthContext";
+import { filtrarClientesPermitidos } from "@/lib/acessoClientes";
 
 export interface ItemScoOrcamento {
   id: string; codSco: string; descricao: string; unidade: string;
@@ -92,7 +94,8 @@ export function OrcamentosProvider({ children }: { children: ReactNode }) {
 
 export function useOrcamentos() {
   useActivateProvider("Orcamentos");
+  const { clientesPermitidosIds } = useAuth();
   const ctx = useContext(OrcamentosContext);
   if (!ctx) throw new Error("useOrcamentos must be used within OrcamentosProvider");
-  return ctx;
+  return { ...ctx, orcamentos: filtrarClientesPermitidos(ctx.orcamentos, clientesPermitidosIds, (o) => o.clienteId) };
 }

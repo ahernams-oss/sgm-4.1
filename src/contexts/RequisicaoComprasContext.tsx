@@ -2,6 +2,8 @@ import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow } from "@/lib/supabaseHelper";
 import { useProviderGate, useActivateProvider } from "@/lib/providerGate";
+import { useAuth } from "@/contexts/AuthContext";
+import { filtrarClientesPermitidos } from "@/lib/acessoClientes";
 
 export type StatusRequisicaoCompras =
   | "Rascunho" | "Enviada" | "Em Cotação" | "Aguardando Aprovação"
@@ -111,7 +113,8 @@ export function RequisicaoComprasProvider({ children }: { children: ReactNode })
 
 export function useRequisicaoCompras(activate: boolean = true) {
   useActivateProvider("RequisicaoCompras", activate);
+  const { clientesPermitidosIds } = useAuth();
   const ctx = useContext(RequisicaoComprasContext);
   if (!ctx) throw new Error("useRequisicaoCompras must be used within RequisicaoComprasProvider");
-  return ctx;
+  return { ...ctx, requisicoes: filtrarClientesPermitidos(ctx.requisicoes, clientesPermitidosIds, (r) => r.centroCusto) };
 }

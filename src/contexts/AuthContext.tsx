@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useMemo, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useMemo, useRef, ReactNode } from "react";
 import { useUsuarios, Usuario } from "./UsuariosContext";
 import { useCargos } from "./CargosContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -116,6 +116,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!usuarioLogado) return [];
     return usuarioLogado.clientesPermitidos;
   }, [usuarioLogado]);
+
+  const escopoAnterior = useRef<string | null>(null);
+  const escopoAtual = JSON.stringify([usuarioLogado?.id, [...clientesPermitidosIds].sort()]);
+  useEffect(() => {
+    if (escopoAnterior.current === escopoAtual) return;
+    escopoAnterior.current = escopoAtual;
+    // Elimina registros do escopo anterior, inclusive caches de grades desativadas.
+    const filtros = { predicate: (q: { queryKey: readonly unknown[] }) => !["usuarios", "cargos", "perfis_acesso"].includes(String(q.queryKey[0])) };
+    void queryClient.cancelQueries(filtros).then(() => {
+      void queryClient.resetQueries(filtros);
+    });
+  }, [escopoAtual, queryClient]);
 
   const login = async (email: string, senha: string, lembrarMe = false): Promise<boolean> => {
     lastLoginError = "";

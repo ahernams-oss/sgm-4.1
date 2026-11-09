@@ -52,6 +52,7 @@ export function UsuariosProvider({ children }: { children: ReactNode }) {
     queryKey: QK,
     queryFn: async () => (await fetchAll("usuarios", "nome")).map(rowToUsuario),
     staleTime: 5 * 60 * 1000,
+    refetchInterval: 30_000,
     gcTime: 30 * 60 * 1000,
   });
   const invalidate = () => qc.invalidateQueries({ queryKey: QK });

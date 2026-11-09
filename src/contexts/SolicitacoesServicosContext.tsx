@@ -3,6 +3,8 @@ import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
 import { useProviderGate, useActivateProvider, useLoadGateAllowed } from "@/lib/providerGate";
+import { useAuth } from "@/contexts/AuthContext";
+import { filtrarClientesPermitidos } from "@/lib/acessoClientes";
 
 export interface HistoricoEntry {
   situacao: string;
@@ -94,7 +96,8 @@ export function SolicitacoesServicosProvider({ children }: { children: ReactNode
 
 export function useSolicitacoesServicos() {
   useActivateProvider("SolicitacoesServicos");
+  const { clientesPermitidosIds } = useAuth();
   const ctx = useContext(SolicitacoesServicosContext);
   if (!ctx) throw new Error("useSolicitacoesServicos must be used within SolicitacoesServicosProvider");
-  return ctx;
+  return { ...ctx, solicitacoes: filtrarClientesPermitidos(ctx.solicitacoes, clientesPermitidosIds, (s) => s.clienteId) };
 }

@@ -2,6 +2,8 @@ import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
 import { useProviderGate, useActivateProvider } from "@/lib/providerGate";
+import { useAuth } from "@/contexts/AuthContext";
+import { filtrarClientesPermitidos } from "@/lib/acessoClientes";
 
 export interface Equipamento {
   id: string;
@@ -136,7 +138,8 @@ export function EquipamentosProvider({ children }: { children: ReactNode }) {
 
 export function useEquipamentos() {
   useActivateProvider("Equipamentos");
+  const { clientesPermitidosIds } = useAuth();
   const ctx = useContext(EquipamentosContext);
   if (!ctx) throw new Error("useEquipamentos must be used within EquipamentosProvider");
-  return ctx;
+  return { ...ctx, equipamentos: filtrarClientesPermitidos(ctx.equipamentos, clientesPermitidosIds, (e) => e.clienteId) };
 }

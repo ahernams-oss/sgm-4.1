@@ -3,6 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useProviderGate, useActivateProvider } from "@/lib/providerGate";
+import { useAuth } from "@/contexts/AuthContext";
+import { filtrarClientesPermitidos } from "@/lib/acessoClientes";
 
 export type TipoTransporte = "Ônibus" | "Trem" | "Metrô" | "VLT" | "Barca" | "Catamarã";
 export const tiposTransporte: TipoTransporte[] = ["Ônibus", "Trem", "Metrô", "VLT", "Barca", "Catamarã"];
@@ -214,7 +216,8 @@ export function FuncionariosProvider({ children }: { children: ReactNode }) {
 
 export function useFuncionarios() {
   useActivateProvider("Funcionarios");
+  const { clientesPermitidosIds } = useAuth();
   const ctx = useContext(FuncionariosContext);
   if (!ctx) throw new Error("useFuncionarios must be used within FuncionariosProvider");
-  return ctx;
+  return { ...ctx, funcionarios: filtrarClientesPermitidos(ctx.funcionarios, clientesPermitidosIds, (f) => f.clienteId) };
 }

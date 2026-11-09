@@ -6433,6 +6433,7 @@ export type Database = {
           plano_id: string | null
           proxima_execucao: string | null
           registrado_por: string | null
+          smart: boolean
           status: string
           updated_at: string
         }
@@ -6453,6 +6454,7 @@ export type Database = {
           plano_id?: string | null
           proxima_execucao?: string | null
           registrado_por?: string | null
+          smart?: boolean
           status?: string
           updated_at?: string
         }
@@ -6473,6 +6475,7 @@ export type Database = {
           plano_id?: string | null
           proxima_execucao?: string | null
           registrado_por?: string | null
+          smart?: boolean
           status?: string
           updated_at?: string
         }
@@ -9554,6 +9557,18 @@ export type Database = {
           tipo: string
           titulo: string
         }[]
+      }
+      pmoc_smart_gravar: {
+        Args: {
+          _acao: string
+          _atividade?: string
+          _equipamento?: string
+          _execucao?: string
+          _foto?: string
+          _observacoes?: string
+          _proxima?: string
+        }
+        Returns: Json
       }
       processos_seletivos_leves: {
         Args: never

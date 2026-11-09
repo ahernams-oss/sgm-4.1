@@ -30,3 +30,15 @@ export function preencherValoresExecucaoNfse(texto: string, maoObra: string, mat
   );
   return beneficios === undefined ? atualizado : preencher(atualizado, "BENEF[IÍ]CIOS\\s+E\\s+INSUMOS", beneficios);
 }
+export interface RetencoesTextoNfse { inss: string; pis: string; cofins: string; csll: string }
+
+export function preencherRetencoesNfse(texto: string, r: RetencoesTextoNfse): string {
+  const preencher = (atual: string, campo: string, valor: string) => {
+    const trecho = new RegExp(`(${campo}\\s*-?\\s*[\\d.,]+\\s*%\\s*(?:→|->|:|-)?\\s*R\\$\\s*)(?:[\\d.,]+|[-_]+)`, "gi");
+    return atual.replace(trecho, (_, prefixo: string) => `${prefixo}${valor.trim() ? formato.format(valorExecucaoNfse(valor)) : "-----------"}`);
+  };
+  let t = preencher(texto, "RETEN[CÇ][AÃ]O\\s+INSS", r.inss);
+  t = preencher(t, "\\bPIS", r.pis);
+  t = preencher(t, "\\bCOFINS", r.cofins);
+  return preencher(t, "\\bCSLL", r.csll);
+}

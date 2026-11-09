@@ -32,3 +32,11 @@ describe("valores de execução da NFS-e", () => {
     expect(preencherValoresExecucaoNfse("VALOR MÃO DE OBRA -> R$ 100,00 / MATERIAL APLICADO -> R$ 200,00", "", "200,00")).toBe("VALOR MÃO DE OBRA -> R$ ------------- / MATERIAL APLICADO -> R$ 200,00");
   });
 });
+import { preencherRetencoesNfse } from "./valoresExecucaoNfse";
+describe("preencherRetencoesNfse", () => {
+  it("preenche INSS, PIS, COFINS e CSLL", () => {
+    const t = "RETENÇÃO INSS 11% -> R$ ----------- / RETENÇÕES: PIS - 0,65% - R$ ----------- / COFINS - 3,00% - R$ ---------- / CSLL - 1,00% - R$ ---------.";
+    expect(preencherRetencoesNfse(t, { inss: "110,00", pis: "6,50", cofins: "30,00", csll: "10,00" }))
+      .toBe("RETENÇÃO INSS 11% -> R$ 110,00 / RETENÇÕES: PIS - 0,65% - R$ 6,50 / COFINS - 3,00% - R$ 30,00 / CSLL - 1,00% - R$ 10,00.");
+  });
+});

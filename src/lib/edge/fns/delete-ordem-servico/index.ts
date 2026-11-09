@@ -3,7 +3,7 @@ const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
 import { createClient } from "@supabase/supabase-js";
-import { exigirAcesso, pode } from "@/lib/edge/permissao";
+import { exigirAcesso, pode, podeCliente } from "@/lib/edge/permissao";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,10 +18,10 @@ Deno.serve(async (req) => {
 
   try {
     // O usuário é o dono da sessão; o userId do corpo é ignorado (dava para mandar o de outro).
-    const { osId } = await req.json();
     const acesso = await exigirAcesso(req, (c) => pode(c, PERM_KEY),
       "Você não possui permissão para excluir Ordens de Serviço.");
     if (!acesso.ok) return acesso.resposta;
+    const { osId } = await req.json();
 
     if (!osId) {
       return new Response(JSON.stringify({ error: "osId é obrigatório" }), {
@@ -31,9 +31,16 @@ Deno.serve(async (req) => {
     }
 
     const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      Deno.env.get("SUPABASE_URL") || "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
     );
+
+    const { data: ordem, error: leituraErro } = await supabase.from("ordens_servico").select("cliente_id").eq("id", osId).maybeSingle();
+    if (leituraErro || !ordem || !podeCliente(acesso.chamador, ordem.cliente_id)) {
+      return new Response(JSON.stringify({ error: "Ordem indisponível ou cliente sem acesso." }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const { error: delErr } = await supabase.from("ordens_servico").delete().eq("id", osId);
     if (delErr) {

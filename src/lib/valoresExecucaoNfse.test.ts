@@ -2,13 +2,12 @@ import { describe, expect, it } from "vitest";
 import { deducoesExecucaoNfse, preencherValoresExecucaoNfse, somarValoresExecucaoNfse } from "./valoresExecucaoNfse";
 
 describe("valores de execução da NFS-e", () => {
-  it("calcula deduções como serviço menos material menos benefícios, em centavos", () => {
-    expect(deducoesExecucaoNfse("2.000,00", "765,44", "100,00")).toBe("1.134,56");
-    expect(deducoesExecucaoNfse("0,30", "0,20", "0,10")).toBe("0,00");
-    expect(deducoesExecucaoNfse("10.000,00", "4.000,00", "500,00")).toBe("5.500,00");
-    expect(deducoesExecucaoNfse("2.500,00", "765,44", "")).toBe("1.734,56");
-    expect(deducoesExecucaoNfse("", "", "")).toBe("0,00");
-    expect(deducoesExecucaoNfse("100,00", "80,00", "30,00")).toBe("-10,00");
+  it("calcula deduções como material aplicado mais benefícios e insumos, em centavos", () => {
+    expect(deducoesExecucaoNfse("765,44", "100,00")).toBe("865,44");
+    expect(deducoesExecucaoNfse("0,20", "0,10")).toBe("0,30");
+    expect(deducoesExecucaoNfse("4.000,00", "500,00")).toBe("4.500,00");
+    expect(deducoesExecucaoNfse("765,44", "")).toBe("765,44");
+    expect(deducoesExecucaoNfse("", "")).toBe("0,00");
   });
   it("preenche benefícios e insumos sem alterar retenções ou texto manual", () => {
     const texto = "Texto manual / BENEFÍCIOS E INSUMOS -> R$ ----------- / RETENÇÃO INSS 11% -> R$ -----------";

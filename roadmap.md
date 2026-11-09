@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Adicionar valores de mão de obra e material abaixo do período de execução, somar no valor do serviço e preencher somente os trechos correspondentes da descrição, inclusive ao trocar de contrato; não emitir notas.
+
 - [x] Adicionar ao contrato o bloco Local de prestação e codigo do serviço abaixo de Texto para NF, com UF, município e códigos nacional/municipal selecionáveis e salvos pelo cadastro existente. Não testei com login.
 
 - [x] Corrigir recuperação de módulo antigo da NFS-e após atualização: nova versão disponível, recarga única por erro e botão de recuperação manual, sem repetir emissão. Não testei com login.

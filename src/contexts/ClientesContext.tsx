@@ -69,6 +69,7 @@ export interface Contrato {
   mesSco: string; anoSco: string;
   valorContrato?: string;
   textoNotaFiscal?: string;
+  codigoNbs?: string;
   ufPrestacao?: string;
   codigoMunicipioPrestacao?: string;
   municipioPrestacao?: string;

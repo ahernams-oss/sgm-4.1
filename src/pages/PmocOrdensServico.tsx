@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ClipboardList, FileText, RefreshCw } from "lucide-react";
+import { ClipboardList, FileText, RefreshCw, BookOpen } from "lucide-react";
+import { gerarPdfProntuarioEquipamento } from "@/lib/gerarPdfProntuarioEquipamento";
 import { toast } from "sonner";
 import { downloadPdfOsPmocEquipamento, type OsPmocRow } from "@/lib/gerarPdfOsPmoc";
 
@@ -85,6 +86,15 @@ export default function PmocOrdensServico() {
     } catch (e: any) { toast.error("Erro ao gerar relatório", { description: e.message }); }
   };
 
+  const prontuario = async (o: OsPmocRow) => {
+    const equipamento = equipamentos.find((e) => e.id === o.equipamento_id) || null;
+    const id = toast.loading("Gerando prontuário do equipamento...");
+    try {
+      const n = await gerarPdfProntuarioEquipamento(equipamento, o.equipamento_id, o.equipamento_nome);
+      toast.success(`Prontuário gerado com ${n} intervenção(ões)`, { id });
+    } catch (e: any) { toast.error("Erro ao gerar prontuário", { id, description: e.message }); }
+  };
+
   return (
     <div className="p-4 md:p-6 space-y-4">
       <Card>
@@ -157,6 +167,7 @@ export default function PmocOrdensServico() {
                     <TableCell><Badge variant="outline" className={corStatus(o.status)}>{o.status}</Badge></TableCell>
                     <TableCell className="text-right">
                       <Button size="sm" variant="outline" onClick={() => relatorio(o)}><FileText className="h-4 w-4 mr-1" /> PDF</Button>
+                      <Button size="sm" variant="outline" className="ml-1" title="Histórico completo do equipamento, com fotos" onClick={() => prontuario(o)}><BookOpen className="h-4 w-4 mr-1" /> Prontuário</Button>
                     </TableCell>
                   </TableRow>
                   );

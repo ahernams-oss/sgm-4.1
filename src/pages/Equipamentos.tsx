@@ -2,7 +2,9 @@ import { useState, useMemo, useEffect } from "react";
 import { DoubleConfirmDelete, useDoubleConfirmDelete } from "@/components/DoubleConfirmDelete";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { toast } from "sonner";
-import { Monitor, Trash2, Search, Plus, ChevronDown, ChevronUp, Pencil, Upload, Image, FileText, Award, History, AlertTriangle, QrCode, Printer, Download, ShieldAlert } from "lucide-react";
+import { Monitor, Trash2, Search, Plus, ChevronDown, ChevronUp, Pencil, Upload, Image, FileText, Award, History, AlertTriangle, QrCode, Printer, Download, ShieldAlert, BookOpen } from "lucide-react";
+import { gerarPdfProntuarioEquipamento } from "@/lib/gerarPdfProntuarioEquipamento";
+import { toast as toastProntuario } from "sonner";
 import { LaudoCondenacaoDialog } from "@/components/laudo/LaudoCondenacaoDialog";
 import QRCode from "qrcode";
 import { Input } from "@/components/ui/input";
@@ -641,6 +643,13 @@ export default function Equipamentos() {
                     <TableCell onClick={e => e.stopPropagation()}>
                       <div className="flex gap-1">
                         <Button size="icon" variant="ghost" title="QR Code" onClick={() => openQr(eq)}><QrCode className="h-4 w-4 text-primary" /></Button>
+                        <Button size="icon" variant="ghost" title="Prontuário (histórico de O.S. PMOC com fotos)" onClick={async () => {
+                          const id = toastProntuario.loading("Gerando prontuário do equipamento...");
+                          try {
+                            const n = await gerarPdfProntuarioEquipamento(eq, eq.id, `${eq.tag || ""} ${eq.equipamento || ""}`.trim());
+                            toastProntuario.success(`Prontuário gerado com ${n} intervenção(ões)`, { id });
+                          } catch (e: any) { toastProntuario.error("Erro ao gerar prontuário", { id, description: e.message }); }
+                        }}><BookOpen className="h-4 w-4 text-primary" /></Button>
                         {eq.requerCalibracao && <Button size="icon" variant="ghost" title="Histórico de Calibração" onClick={() => openHistorico(eq)}><History className="h-4 w-4 text-primary" /></Button>}
                         <Button size="icon" variant="ghost" title="Laudo de Condenação" onClick={() => setLaudoEquip(eq)}><ShieldAlert className="h-4 w-4 text-destructive" /></Button>
                         {podeEditar && <Button size="icon" variant="ghost" onClick={() => handleEdit(eq)}><Pencil className="h-4 w-4" /></Button>}

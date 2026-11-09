@@ -451,6 +451,15 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
   const [municipios, setMunicipios] = useState<{ id: string; nome: string }[]>([]);
   const [openMun, setOpenMun] = useState(false);
 
+  const aplicarLocalContrato = (contratos: any[], id: string) => {
+    const c: any = contratos.find((x: any) => x.id === id);
+    if (!c) return;
+    if (c.ufPrestacao) setUfPrest(c.ufPrestacao);
+    setMunicipioPrest(c.codigoMunicipioPrestacao ? { id: String(c.codigoMunicipioPrestacao), nome: c.municipioPrestacao || "" } : null);
+    if (c.codigoTributacaoNacional) setCodigoTribNacional(c.codigoTributacaoNacional);
+    if (c.codigoTributacaoMunicipal) setCodigoTrib(c.codigoTributacaoMunicipal);
+  };
+
   useEffect(() => {
     if (!ufPrest) { setMunicipios([]); return; }
     fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${ufPrest}/municipios`)
@@ -632,6 +641,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
               setClienteId(id);
               setContratoId(novoContratoId);
               setDescricao(preencherPeriodoExecucaoNfse(textoContratoNfse(contratosTomador, novoContratoId), inicioExecucao, fimExecucao));
+              aplicarLocalContrato(contratosTomador, novoContratoId);
             }} options={clientes} />
             {!!cliente?.contratos.length && (
               <div>
@@ -639,6 +649,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
                 <Select value={contratoId} onValueChange={id => {
                   setContratoId(id);
                   setDescricao(preencherPeriodoExecucaoNfse(textoContratoNfse(cliente.contratos, id), inicioExecucao, fimExecucao));
+                  aplicarLocalContrato(cliente.contratos, id);
                 }}>
                   <SelectTrigger><SelectValue placeholder="Selecione o contrato..." /></SelectTrigger>
                   <SelectContent>

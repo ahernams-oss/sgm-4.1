@@ -468,7 +468,7 @@ const Clientes = () => {
                       size="sm"
                       onClick={() => {
                         setContratosClienteId(contratosClienteId === cliente.id ? null : cliente.id);
-                        setContratoForm(emptyContrato);
+                        setContratoForm(emptyContratoComPrestacao);
                         setEditingContratoId(null);
                       }}
                       className="text-xs gap-1"
@@ -493,7 +493,7 @@ const Clientes = () => {
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => {
                             setContratosClienteId(contratosClienteId === cliente.id ? null : cliente.id);
-                            setContratoForm(emptyContrato);
+                            setContratoForm(emptyContratoComPrestacao);
                             setEditingContratoId(null);
                           }}>
                             <FileText className="mr-2 h-4 w-4" />

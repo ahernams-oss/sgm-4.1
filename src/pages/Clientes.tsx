@@ -152,6 +152,11 @@ const Clientes = () => {
   const podeCriar = tem("clientes.criar");
   const podeEditar = tem("clientes.editar");
   const podeExcluir = tem("clientes.excluir");
+  const contratosTotal = tem("clientes.gerenciar_contratos");
+  const podeCriarContrato = contratosTotal || tem("clientes.contratos_criar");
+  const podeEditarContrato = contratosTotal || tem("clientes.contratos_editar");
+  const podeExcluirContrato = contratosTotal || tem("clientes.contratos_excluir");
+  const podeVerContratos = contratosTotal || podeCriarContrato || podeEditarContrato || podeExcluirContrato || tem("clientes.contratos_visualizar");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingData, setEditingData] = useState<FormData | undefined>(undefined);
   const [search, setSearch] = useState("");
@@ -463,7 +468,7 @@ const Clientes = () => {
                     <Button variant="ghost" size="sm" onClick={() => handleEnviarWhatsApp(cliente)} className="text-emerald-600 hover:text-emerald-700" title="Enviar WhatsApp">
                       <MessageCircle className="h-3.5 w-3.5" />
                     </Button>
-                    <Button
+{podeVerContratos && (<Button
                       variant="ghost"
                       size="sm"
                       onClick={() => {
@@ -474,7 +479,7 @@ const Clientes = () => {
                       className="text-xs gap-1"
                     >
                       <FileText className="h-3.5 w-3.5" /> Contratos
-                    </Button>
+                    </Button>)}
                     {podeEditar && <Button variant="ghost" size="sm" title={cliente.ativo === false ? "Reativar cliente" : "Inativar cliente"} onClick={async () => { const ok = await updateCliente(cliente.id, { ativo: cliente.ativo === false }); if (ok) toast.success(cliente.ativo === false ? "Cliente reativado." : "Cliente inativado."); }} className={cliente.ativo === false ? "text-xs text-destructive" : "text-xs text-muted-foreground"}>{cliente.ativo === false ? "Inativo" : "Ativo"}</Button>}
                     {podeEditar && <Button variant="ghost" size="sm" onClick={() => handleEdit(cliente)} className="text-xs">Editar</Button>}
                     {podeExcluir && <Button variant="ghost" size="sm" onClick={() => requestDelete(cliente.id)} className="text-destructive hover:text-destructive">
@@ -491,14 +496,14 @@ const Clientes = () => {
                             <MapPin className="mr-2 h-4 w-4" />
                             Locais
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => {
+                          {podeVerContratos && <DropdownMenuItem onClick={() => {
                             setContratosClienteId(contratosClienteId === cliente.id ? null : cliente.id);
                             setContratoForm(emptyContratoComPrestacao);
                             setEditingContratoId(null);
                           }}>
                             <FileText className="mr-2 h-4 w-4" />
                             Contratos
-                          </DropdownMenuItem>
+                          </DropdownMenuItem>}
                            <DropdownMenuItem onClick={() => {
                              setLocaisEntregaClienteId(locaisEntregaClienteId === cliente.id ? null : cliente.id);
                            }}>
@@ -544,6 +549,7 @@ const Clientes = () => {
           const contratos = cliente.contratos || [];
 
           const handleSaveContrato = async () => {
+            if (editingContratoId ? !podeEditarContrato : !podeCriarContrato) { toast.error("Você não possui permissão para esta ação."); return; }
             if (!contratoForm.numero.trim()) { toast.error("Informe o número do contrato."); return; }
             const cbsError = validarPercentual(contratoForm.cbs, "CBS Estadual");
             const ibsError = validarPercentual(contratoForm.ibs, "IBS Estadual");
@@ -582,6 +588,7 @@ const Clientes = () => {
           };
 
           const handleDeleteContrato = (ctId: string) => {
+            if (!podeExcluirContrato) { toast.error("Você não possui permissão para esta ação."); return; }
             updateCliente(contratosClienteId, { contratos: contratos.filter(ct => ct.id !== ctId) });
             toast.success("Contrato removido.");
             if (editingContratoId === ctId) { setContratoForm(emptyContratoComPrestacao); setEditingContratoId(null); }
@@ -713,7 +720,7 @@ const Clientes = () => {
 
 
               <div className="flex gap-2 mb-4">
-                <Button size="sm" onClick={handleSaveContrato} disabled={salvandoContrato}>
+                <Button size="sm" onClick={handleSaveContrato} disabled={salvandoContrato || (editingContratoId ? !podeEditarContrato : !podeCriarContrato)}>
                   <Plus className="h-3.5 w-3.5 mr-1" />
                   {salvandoContrato ? "Salvando..." : editingContratoId ? "Salvar Alterações" : "Adicionar Contrato"}
                 </Button>
@@ -772,10 +779,10 @@ const Clientes = () => {
                           <Button variant="outline" size="sm" type="button" onClick={() => setFaturamentoContratoId(faturamentoContratoId === ct.id ? null : ct.id)} className="text-xs gap-1" title="Gerenciar Faturamento">
                             <DollarSign className="h-3.5 w-3.5" /> Gerenciar Faturamento
                           </Button>
-                          <Button variant="ghost" size="sm" onClick={() => handleEditContrato(ct)} className="text-xs">Editar</Button>
-                          <Button variant="ghost" size="sm" onClick={() => requestDeleteContrato(ct.id)} className="text-destructive hover:text-destructive">
+                          {podeEditarContrato && <Button variant="ghost" size="sm" onClick={() => handleEditContrato(ct)} className="text-xs">Editar</Button>}
+{podeExcluirContrato && (<Button variant="ghost" size="sm" onClick={() => requestDeleteContrato(ct.id)} className="text-destructive hover:text-destructive">
                             <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
+                          </Button>)}
                         </div>
                       </div>
                       {empenhoContratoId === ct.id && (

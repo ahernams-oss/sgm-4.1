@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
 import TomadorSelect from "@/components/financeiro/TomadorSelect";
 import { formatNumeroAno } from "@/lib/formatNumero";
+import { calcularValorTotalOS, formatBRLValor } from "@/lib/faturamentoClientes";
 import { usePermissao } from "@/hooks/usePermissao";
 
 import { Button } from "@/components/ui/button";
@@ -290,13 +291,14 @@ export default function ConfirmarLoteOs() {
               <TableHead>Local</TableHead>
               <TableHead>Descrição do Serviço</TableHead>
               <TableHead className="w-32">Solicitante</TableHead>
+              <TableHead className="w-40 text-right whitespace-nowrap">Valor da O.S. (R$)</TableHead>
               <TableHead className="w-40 text-center">Situação</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {paginated.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-12">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-12">
                   <ShieldCheck className="h-10 w-10 mx-auto mb-2 opacity-30" />
                   Nenhuma OS disponível para confirmação
                 </TableCell>
@@ -320,6 +322,9 @@ export default function ConfirmarLoteOs() {
                     {s.descricaoServicos || "—"}
                   </TableCell>
                   <TableCell className="text-sm">{s.solicitante || "—"}</TableCell>
+                  <TableCell className="text-right whitespace-nowrap font-semibold tabular-nums">
+                    {formatBRLValor(calcularValorTotalOS(s))}
+                  </TableCell>
                   <TableCell className="text-center">
                     <Badge variant="outline">{s.situacao}</Badge>
                   </TableCell>

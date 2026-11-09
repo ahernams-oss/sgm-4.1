@@ -29,6 +29,10 @@ export const calcularValorTotalOS = (os: OrdemServico): number => {
   return totalItens + totalItens * (bdi / 100);
 };
 
+/** Soma apenas as OS marcadas, independentemente da página em exibição. */
+export const somarOrdensSelecionadas = (ordens: OrdemServico[], selectedIds: ReadonlySet<string>): number =>
+  ordens.reduce((total, os) => selectedIds.has(os.id) ? total + calcularValorTotalOS(os) : total, 0);
+
 /** Data usada como referência de faturamento da OS */
 export const dataFaturamentoOS = (os: OrdemServico): string =>
   (os as any).dataFaturamento || (os as any).faturadoEm || (os as any).createdAt || "";

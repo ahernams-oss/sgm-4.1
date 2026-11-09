@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useClientes } from "@/contexts/ClientesContext";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { formatNumeroAno } from "@/lib/formatNumero";
+import { somarOrdensSelecionadas } from "@/lib/faturamentoClientes";
 import { usePermissao } from "@/hooks/usePermissao";
 
 import { Button } from "@/components/ui/button";
@@ -130,10 +131,7 @@ export default function FaturarLoteOs() {
   );
 
   const selectedTotal = useMemo(() => {
-    return Array.from(selectedIds).reduce((sum, id) => {
-      const os = ordens.find((o) => o.id === id);
-      return os ? sum + calcularValorTotalOS(os) : sum;
-    }, 0);
+    return somarOrdensSelecionadas(ordens, selectedIds);
   }, [selectedIds, ordens]);
 
   const vtmInfo = useMemo(() => {
@@ -327,7 +325,6 @@ export default function FaturarLoteOs() {
               ))
             )}
           </TableBody>
-          {selectedIds.size > 0 && (
             <tfoot>
               <TableRow className="bg-primary/5 hover:bg-primary/5">
                 <TableCell colSpan={8} className="text-right py-3">
@@ -339,7 +336,7 @@ export default function FaturarLoteOs() {
                   </span>
                 </TableCell>
               </TableRow>
-              {vtmInfo && (
+              {selectedIds.size > 0 && vtmInfo && (
                 <TableRow className="bg-emerald-50/60 hover:bg-emerald-50/60 dark:bg-emerald-900/10">
                   <TableCell colSpan={8} className="text-right py-3">
                     <span className="text-sm text-muted-foreground mr-2">
@@ -360,7 +357,6 @@ export default function FaturarLoteOs() {
                 </TableRow>
               )}
             </tfoot>
-          )}
         </Table>
       </div>
 

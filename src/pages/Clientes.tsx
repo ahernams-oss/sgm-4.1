@@ -161,7 +161,7 @@ const Clientes = () => {
   const [locaisClienteId, setLocaisClienteId] = useState<string | null>(null);
    const [locaisEntregaClienteId, setLocaisEntregaClienteId] = useState<string | null>(null);
    const [contratosClienteId, setContratosClienteId] = useState<string | null>(null);
-  const emptyContrato = { numero: "", numeroProcesso: "", descricao: "", dataInicio: "", dataFim: "", bdi: "", descontoLicitacao: "", valorBase: "", valorBase2: "", valorBase3: "", maoDeObraMensal: "", maoDeObraAnual: "", maoDeObraContratual: "", mesSco: "", anoSco: "", valorContrato: "", inss: "", pis: "", cofins: "", csll: "", irrf: "", iss: "", cbs: "", ibs: "", cbsMunicipal: "", ibsMunicipal: "", textoNotaFiscal: "", meta1: "", meta2: "", meta3: "", anexos: [] as ContratoAnexo[] };
+  const emptyContrato = { numero: "", numeroProcesso: "", descricao: "", dataInicio: "", dataFim: "", bdi: "", descontoLicitacao: "", valorBase: "", valorBase2: "", valorBase3: "", maoDeObraMensal: "", maoDeObraAnual: "", maoDeObraContratual: "", mesSco: "", anoSco: "", valorContrato: "", inss: "", pis: "", cofins: "", csll: "", irrf: "", iss: "", cbs: "", ibs: "", cbsMunicipal: "", ibsMunicipal: "", textoNotaFiscal: "", codigoNbs: "", meta1: "", meta2: "", meta3: "", anexos: [] as ContratoAnexo[] };
   const emptyContratoComPrestacao = { ...emptyContrato, ufPrestacao: "RJ", codigoMunicipioPrestacao: "", municipioPrestacao: "", codigoTributacaoNacional: "", codigoTributacaoMunicipal: "" };
   const [contratoForm, setContratoForm] = useState(emptyContratoComPrestacao);
   const [contratoErrors, setContratoErrors] = useState<{ cbs?: string; ibs?: string; cbsMunicipal?: string; ibsMunicipal?: string; descontoLicitacao?: string; bdi?: string }>({});
@@ -577,7 +577,7 @@ const Clientes = () => {
           const handleEditContrato = (ct: Contrato) => {
             setEditingContratoId(ct.id);
             const { id, ...rest } = ct;
-            setContratoForm({ ...emptyContratoComPrestacao, ...rest, numeroProcesso: rest.numeroProcesso || "", textoNotaFiscal: rest.textoNotaFiscal ?? "", ufPrestacao: rest.ufPrestacao || "RJ", codigoMunicipioPrestacao: rest.codigoMunicipioPrestacao ?? "", municipioPrestacao: rest.municipioPrestacao ?? "", codigoTributacaoNacional: rest.codigoTributacaoNacional ?? "", codigoTributacaoMunicipal: rest.codigoTributacaoMunicipal ?? "" });
+            setContratoForm({ ...emptyContratoComPrestacao, ...rest, numeroProcesso: rest.numeroProcesso || "", textoNotaFiscal: rest.textoNotaFiscal ?? "", codigoNbs: rest.codigoNbs ?? "", ufPrestacao: rest.ufPrestacao || "RJ", codigoMunicipioPrestacao: rest.codigoMunicipioPrestacao ?? "", municipioPrestacao: rest.municipioPrestacao ?? "", codigoTributacaoNacional: rest.codigoTributacaoNacional ?? "", codigoTributacaoMunicipal: rest.codigoTributacaoMunicipal ?? "" });
             setContratoErrors({});
           };
 
@@ -664,6 +664,13 @@ const Clientes = () => {
                   onChange={e => setContratoForm(p => ({ ...p, textoNotaFiscal: e.target.value }))}
                   rows={4}
                   className="resize-y"
+                />
+                <label htmlFor="contrato-codigo-nbs" className="text-sm font-medium text-foreground mb-1 mt-3 block">Código NBS</label>
+                <Input
+                  id="contrato-codigo-nbs"
+                  placeholder="Código NBS"
+                  value={contratoForm.codigoNbs}
+                  onChange={e => setContratoForm(p => ({ ...p, codigoNbs: e.target.value }))}
                 />
               </div>
 

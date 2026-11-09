@@ -465,6 +465,7 @@ function EmitirDialog({ open, onClose, initial }: { open: boolean; onClose: () =
     setMunicipioPrest(c.codigoMunicipioPrestacao ? { id: String(c.codigoMunicipioPrestacao), nome: c.municipioPrestacao || "" } : null);
     if (c.codigoTributacaoNacional) setCodigoTribNacional(c.codigoTributacaoNacional);
     if (c.codigoTributacaoMunicipal) setCodigoTrib(c.codigoTributacaoMunicipal);
+    if (c.codigoNbs) setCodigoNbs(String(c.codigoNbs));
   };
 
   useEffect(() => {

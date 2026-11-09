@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useEffect, type ReactNode } from "react";
+import TomadorSelect from "@/components/financeiro/TomadorSelect";
 import GradeRequerFiltro from "@/components/GradeRequerFiltro";
 import { ensureLoadGate, setLoadGate, clearLoadGate } from "@/lib/providerGate";
 import { loadPersistedFilters, usePersistFilters } from "@/lib/persistedFilters";
@@ -1160,10 +1161,7 @@ export default function SolicitacaoServicosPage() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="md:col-span-3">
                     <Label className="font-bold">Cliente</Label>
-                    <Select value={form.cliente_id} onValueChange={v => setForm(f => ({ ...f, cliente_id: v, local_id: "", pavimento_id: "", setor_id: "", equipamento_id: "" }))}>
-                      <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                      <SelectContent>{soClientes.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}</SelectContent>
-                    </Select>
+                    <TomadorSelect label="Cliente" todosLabel="Selecione o cliente..." value={form.cliente_id} options={soClientes as any} onValueChange={v => setForm(f => ({ ...f, cliente_id: v, local_id: "", pavimento_id: "", setor_id: "", equipamento_id: "" }))} />
                   </div>
                   <div>
                     <Label className="font-bold">Situação</Label>

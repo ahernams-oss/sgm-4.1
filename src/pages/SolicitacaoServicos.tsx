@@ -840,10 +840,12 @@ export default function SolicitacaoServicosPage() {
   }, [solicitacoes, search, filterCliente, filterTipo, filterSituacao, filterPrioridade, filterVisitado, filterOrigem, filterImpresso, filterSetorCritico, filterDataIni, filterDataFim, setoresCriticosIds, orcamentos, sortField, sortDir]);
 
   const clientesUnicos = useMemo(() => {
+    // Clientes liberados para o usuário, mesmo que ainda não tenham SS
     const map = new Map<string, string>();
-    solicitacoes.forEach(s => { if (s.clienteId && s.clienteNome) map.set(s.clienteId, s.clienteNome); });
-    return Array.from(map.entries());
-  }, [solicitacoes]);
+    soClientes.forEach(c => { if (c.id && c.nome) map.set(c.id, c.nome); });
+    solicitacoes.forEach(s => { if (s.clienteId && s.clienteNome && !map.has(s.clienteId)) map.set(s.clienteId, s.clienteNome); });
+    return Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1], "pt-BR"));
+  }, [soClientes, solicitacoes]);
 
   const { paginated, totalPages } = paginate(filtered, page, pageSize);
 

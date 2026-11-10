@@ -288,6 +288,10 @@ export default function SolicitacaoServicosPage() {
   };
 
   const handleSave = async (keepOpen = false) => {
+    if (editingId ? !podeEditar : !podeCriar) {
+      toast({ title: "Sem permissão", description: editingId ? "Seu perfil não permite editar SS." : "Seu perfil não permite abrir SS.", variant: "destructive" });
+      return;
+    }
     if (!form.cliente_id) { toast({ title: "Selecione um cliente", variant: "destructive" }); return; }
     if (!form.descricao_servicos.trim()) { toast({ title: "Descrição dos serviços obrigatória", variant: "destructive" }); return; }
     if (form.tipo === "Equipamentos" && !form.equipamento_id) { toast({ title: "Selecione um equipamento", variant: "destructive" }); return; }
@@ -1122,7 +1126,7 @@ export default function SolicitacaoServicosPage() {
           </DropdownMenu>
           </div>
         )}
-        {!formOpen && (
+        {!formOpen && podeCriar && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button>
@@ -1533,6 +1537,7 @@ export default function SolicitacaoServicosPage() {
                   node: (
                     <Checkbox
                       checked={s.visitado}
+                      disabled={!podeEditar}
                       onCheckedChange={async (checked) => {
                         await updateSolicitacao(s.id, { visitado: !!checked });
                       }}

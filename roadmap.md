@@ -1,6 +1,6 @@
 # Tarefas
 
-- [ ] Corrigir a recusa no download oficial: usar a sessão já validada e a autorização SQL do módulo, sem a ponte legada; manter leitura da nota pelas restrições de cliente.
+- [x] Corrigir a recusa no download oficial: usar a sessão já validada e a autorização SQL do módulo, sem a ponte legada; leitura da nota continua sujeita às restrições de cliente, conferidas no banco. Dezessete testes passaram, tipos e build OK; falhas de consulta agora têm mensagem própria. Não testei com login nem consultei o PDF real no provedor.
 
 - [x] Tornar o download do PDF oficial das NFS-e visível na grade e preparar arquivo antes do clique de salvar, com compartilhamento em celulares compatíveis e URLs revogadas com atraso para PDF/XML; consulta e permissões preservadas. Dezesseis testes e tipos passaram, build OK; download auxiliar no navegador preservou os bytes. Não testei com login nem baixei nota real nesta verificação.
 

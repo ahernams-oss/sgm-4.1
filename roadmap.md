@@ -1,5 +1,7 @@
 # Tarefas
 
+- [ ] Tornar o download do PDF oficial das NFS-e visível na grade e garantir entrega por clique direto, incluindo opção de salvar no celular; preservar consulta e permissões existentes.
+
 - [x] Corrigir carregamento de módulo antigo da Operação SMART: recuperar falhas de pré-carregamento antes da barreira React, sem loops ou repetição de gravações; sete testes, tipos e build OK. Navegador confirmou recarga única e abertura sem erros até o login. Não testei com login.
 
 - [x] Criar PMOC › Operação SMART com cartões, etapas por toque, captura/anexo de fotos privadas e observações com salvamento automático; gravação transacional sincroniza execução/O.S. e preserva confirmação/faturamento. Quinze testes passaram e tipos/build sem erros. Sem sessão, celular/tablet redirecionaram ao login sem erros; cartões autenticados, salvamento real e câmera física não verificados. Não testei com login.

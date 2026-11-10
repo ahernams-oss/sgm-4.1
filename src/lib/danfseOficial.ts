@@ -52,3 +52,16 @@ export function baixarDanfseBlob(blob: Blob, nome: string) {
   document.body.appendChild(link); link.click(); link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 30_000);
 }
+
+export async function salvarDanfseBlob(blob: Blob, nome: string): Promise<void> {
+  const arquivo = new File([blob], nome, { type: blob.type });
+  if (window.matchMedia("(pointer: coarse)").matches && navigator.canShare?.({ files: [arquivo] })) {
+    try {
+      await navigator.share({ files: [arquivo], title: nome });
+      return;
+    } catch (erro) {
+      if (erro instanceof DOMException && erro.name === "AbortError") return;
+    }
+  }
+  baixarDanfseBlob(blob, nome);
+}

@@ -15,10 +15,8 @@ export const obterDanfseOficial = createServerFn({ method: "POST" })
   .middleware([sessaoDanfse, requireSupabaseAuth])
   .inputValidator(input => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    const { getRequest } = await import("@tanstack/react-start/server");
-    const { exigirAcesso, podeModulo } = await import("@/lib/edge/permissao");
-    const acesso = await exigirAcesso(getRequest(), c => c.tipo === "usuario" && podeModulo(c, "financeiro.nfes_recebidas", "faturamentos"));
-    if (!acesso.ok) throw new Error("Você não possui permissão para baixar esta nota.");
+    const { exigirAcessoDanfse } = await import("./danfseAcesso.server");
+    await exigirAcessoDanfse(context.supabase);
     const { data: nota, error } = await context.supabase.from("nfses_emitidas")
       .select("id, status, numero_dps, ambiente, prestador, servico, protocolo").eq("id", data.id).maybeSingle();
     if (error || !nota) throw new Error("Nota não encontrada ou sem acesso.");

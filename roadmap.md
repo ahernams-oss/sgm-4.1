@@ -1,5 +1,7 @@
 # Tarefas
 
+- [ ] Corrigir a recusa no download oficial: usar a sessão já validada e a autorização SQL do módulo, sem a ponte legada; manter leitura da nota pelas restrições de cliente.
+
 - [x] Tornar o download do PDF oficial das NFS-e visível na grade e preparar arquivo antes do clique de salvar, com compartilhamento em celulares compatíveis e URLs revogadas com atraso para PDF/XML; consulta e permissões preservadas. Dezesseis testes e tipos passaram, build OK; download auxiliar no navegador preservou os bytes. Não testei com login nem baixei nota real nesta verificação.
 
 - [x] Corrigir carregamento de módulo antigo da Operação SMART: recuperar falhas de pré-carregamento antes da barreira React, sem loops ou repetição de gravações; sete testes, tipos e build OK. Navegador confirmou recarga única e abertura sem erros até o login. Não testei com login.

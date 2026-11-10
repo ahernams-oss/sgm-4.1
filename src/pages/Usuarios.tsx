@@ -1,3 +1,4 @@
+// Tela de cadastro de usuários do SGM.
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { DoubleConfirmDelete, useDoubleConfirmDelete } from "@/components/DoubleConfirmDelete";

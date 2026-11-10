@@ -25,7 +25,7 @@ import TomadorSelect from "@/components/financeiro/TomadorSelect";
 import { podeGerarPdfNfse } from "@/lib/gerarPdfNfse";
 import { useServerFn } from "@tanstack/react-start";
 import { obterDanfseOficial } from "@/lib/danfseOficial.functions";
-import { baixarDanfseBlob, decodificarPdfDanfse } from "@/lib/danfseOficial";
+import { baixarDanfseBlob, decodificarPdfDanfse, salvarDanfseBlob } from "@/lib/danfseOficial";
 import { aliquotaIssContratoNfse, contratoInicialNfse } from "@/lib/issContratoNfse";
 import { textoContratoNfse } from "@/lib/textoContratoNfse";
 import { codigoNbsContrato } from "@/lib/codigoNbsContrato";
@@ -94,18 +94,17 @@ export default function NfseEmitir() {
   const [pdfId, setPdfId] = useState<string | null>(null);
   const consultarDanfse = useServerFn(obterDanfseOficial);
   const [pdfPronto, setPdfPronto] = useState<{ blob: Blob; nome: string } | null>(null);
+  const [salvandoPdf, setSalvandoPdf] = useState(false);
 
   const gerarPdf = async (nota: NfseEmitida) => {
+    if (pdfId !== null) return;
+    setPdfPronto(null);
     setPdfId(nota.id);
     try {
       const documento = await consultarDanfse({ data: { id: nota.id } });
       const bytes = decodificarPdfDanfse(documento.base64);
       const blob = new Blob([new Uint8Array(bytes)], { type: "application/pdf" });
-      if (window.matchMedia("(pointer: coarse)").matches) {
-        setPdfPronto({ blob, nome: documento.nome });
-      } else {
-        baixarDanfseBlob(blob, documento.nome);
-      }
+      setPdfPronto({ blob, nome: documento.nome });
     } catch (erro) {
       toast.error(erro instanceof Error ? erro.message : "Não foi possível gerar o PDF da NFS-e.");
     } finally {
@@ -256,9 +255,9 @@ export default function NfseEmitir() {
                     <div className="flex justify-end gap-1">
                       <Button size="icon" variant="ghost" onClick={() => setViewNfse(n)} title="Ver detalhes"><Eye className="w-4 h-4" /></Button>
                       {podeGerarPdfNfse(n) && (
-                        <Button size="icon" variant="ghost" title="Baixar DANFSe oficial" aria-label="Baixar DANFSe oficial"
+                        <Button size="sm" variant="outline" title="Baixar DANFSe oficial" aria-label="Baixar PDF oficial da NFS-e"
                           disabled={pdfId !== null} onClick={() => gerarPdf(n)}>
-                          {pdfId === n.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                          {pdfId === n.id ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Download className="w-4 h-4 mr-2" />} PDF
                         </Button>
                       )}
                       {n.xml_nfse && (
@@ -344,16 +343,23 @@ export default function NfseEmitir() {
         </DialogContent>
       </Dialog>
 
-      {/* Cancelar */}
-      <Dialog open={!!pdfPronto} onOpenChange={o => { if (!o) setPdfPronto(null); }}>
+      <Dialog open={!!pdfPronto} onOpenChange={o => { if (!o && !salvandoPdf) setPdfPronto(null); }}>
         <DialogContent>
           <DialogHeader><DialogTitle>DANFSe oficial</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground break-all">{pdfPronto?.nome}</p>
           <DialogFooter>
-            <Button onClick={() => {
-              if (!pdfPronto) return;
-              baixarDanfseBlob(pdfPronto.blob, pdfPronto.nome);
-              setPdfPronto(null);
-            }}><Download className="h-4 w-4 mr-2" />Baixar PDF</Button>
+            <Button disabled={salvandoPdf} onClick={async () => {
+              if (!pdfPronto || salvandoPdf) return;
+              setSalvandoPdf(true);
+              try {
+                await salvarDanfseBlob(pdfPronto.blob, pdfPronto.nome);
+                setPdfPronto(null);
+              } catch {
+                toast.error("Não foi possível salvar o PDF. Tente novamente.");
+              } finally {
+                setSalvandoPdf(false);
+              }
+            }}>{salvandoPdf ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}Baixar PDF</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -392,10 +398,7 @@ function Info({ label, value }: { label: string; value: string | number }) {
 
 function downloadText(filename: string, content: string) {
   const blob = new Blob([content], { type: "application/xml" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = filename; a.click();
-  URL.revokeObjectURL(url);
+  baixarDanfseBlob(blob, filename);
 }
 
 // ====================== Dialog de Emissão ======================

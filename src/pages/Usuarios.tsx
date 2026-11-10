@@ -134,7 +134,11 @@ const Usuarios = () => {
           const { error } = await supabase.functions.invoke("auth-set-password", {
             body: { userId: editingId, novaSenha: form.senha },
           });
-          if (error) throw error;
+          if (error) {
+            let msg = "";
+            try { msg = (await (error as any)?.context?.json())?.error ?? ""; } catch { /* ignore */ }
+            throw new Error(msg || error.message);
+          }
         }
         toast.success("Usuário atualizado.");
       } else {
@@ -150,14 +154,19 @@ const Usuarios = () => {
           const { error } = await supabase.functions.invoke("auth-set-password", {
             body: { userId: novo.id, novaSenha: form.senha },
           });
-          if (error) throw error;
+          if (error) {
+            let msg = "";
+            try { msg = (await (error as any)?.context?.json())?.error ?? ""; } catch { /* ignore */ }
+            throw new Error(msg || error.message);
+          }
         }
         toast.success("Usuário cadastrado.");
       }
       resetForm();
     } catch (err) {
       console.error(err);
-      toast.error("Erro ao salvar usuário.");
+      const msg = err instanceof Error ? err.message : "";
+      toast.error(msg ? `Erro ao salvar usuário: ${msg}` : "Erro ao salvar usuário.");
     } finally {
       setSubmitting(false);
     }

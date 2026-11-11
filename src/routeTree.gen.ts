@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
 import { Route as PmocOperacaoSmartRouteImport } from './routes/pmoc.operacao-smart'
 import { Route as ApiPublicEdgeNameRouteImport } from './routes/api/public/edge/$name'
+import { Route as ApiPublicZapiWebhookRouteImport } from './routes/api/public/zapi/webhook'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 
 const IndexRoute = IndexRouteImport.update({
@@ -35,6 +36,11 @@ const ApiPublicEdgeNameRoute = ApiPublicEdgeNameRouteImport.update({
   path: '/api/public/edge/$name',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicZapiWebhookRoute = ApiPublicZapiWebhookRouteImport.update({
+  id: '/api/public/zapi/webhook',
+  path: '/api/public/zapi/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LovableEmailTransactionalPreviewRoute =
   LovableEmailTransactionalPreviewRouteImport.update({
     id: '/lovable/email/transactional/preview',
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/$': typeof SplatRoute
   '/pmoc/operacao-smart': typeof PmocOperacaoSmartRoute
   '/api/public/edge/$name': typeof ApiPublicEdgeNameRoute
+  '/api/public/zapi/webhook': typeof ApiPublicZapiWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesByTo {
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/$': typeof SplatRoute
   '/pmoc/operacao-smart': typeof PmocOperacaoSmartRoute
   '/api/public/edge/$name': typeof ApiPublicEdgeNameRoute
+  '/api/public/zapi/webhook': typeof ApiPublicZapiWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRoutesById {
@@ -62,6 +70,7 @@ export interface FileRoutesById {
   '/$': typeof SplatRoute
   '/pmoc/operacao-smart': typeof PmocOperacaoSmartRoute
   '/api/public/edge/$name': typeof ApiPublicEdgeNameRoute
+  '/api/public/zapi/webhook': typeof ApiPublicZapiWebhookRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
 }
 export interface FileRouteTypes {
@@ -71,6 +80,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/pmoc/operacao-smart'
     | '/api/public/edge/$name'
+    | '/api/public/zapi/webhook'
     | '/lovable/email/transactional/preview'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -78,6 +88,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/pmoc/operacao-smart'
     | '/api/public/edge/$name'
+    | '/api/public/zapi/webhook'
     | '/lovable/email/transactional/preview'
   id:
     | '__root__'
@@ -85,6 +96,7 @@ export interface FileRouteTypes {
     | '/$'
     | '/pmoc/operacao-smart'
     | '/api/public/edge/$name'
+    | '/api/public/zapi/webhook'
     | '/lovable/email/transactional/preview'
   fileRoutesById: FileRoutesById
 }
@@ -93,6 +105,7 @@ export interface RootRouteChildren {
   SplatRoute: typeof SplatRoute
   PmocOperacaoSmartRoute: typeof PmocOperacaoSmartRoute
   ApiPublicEdgeNameRoute: typeof ApiPublicEdgeNameRoute
+  ApiPublicZapiWebhookRoute: typeof ApiPublicZapiWebhookRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
 }
 
@@ -126,6 +139,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicEdgeNameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/zapi/webhook': {
+      id: '/api/public/zapi/webhook'
+      path: '/api/public/zapi/webhook'
+      fullPath: '/api/public/zapi/webhook'
+      preLoaderRoute: typeof ApiPublicZapiWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lovable/email/transactional/preview': {
       id: '/lovable/email/transactional/preview'
       path: '/lovable/email/transactional/preview'
@@ -141,6 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   SplatRoute: SplatRoute,
   PmocOperacaoSmartRoute: PmocOperacaoSmartRoute,
   ApiPublicEdgeNameRoute: ApiPublicEdgeNameRoute,
+  ApiPublicZapiWebhookRoute: ApiPublicZapiWebhookRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
 }
 export const routeTree = rootRouteImport

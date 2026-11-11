@@ -45,6 +45,7 @@ export default function ComunicacaoGruposWhatsappPage() {
 
   const [grupos, setGrupos] = useState<GrupoWhatsApp[]>([]);
   const [loading, setLoading] = useState(false);
+  const [erroConsulta, setErroConsulta] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -74,9 +75,10 @@ export default function ComunicacaoGruposWhatsappPage() {
     const r = await plugsendGroups.list({ force });
     setLoading(false);
     if (!r.success) {
-      toast.error("Falha ao listar grupos: " + (r.error || ""));
+      setErroConsulta(r.error || "Não foi possível consultar os grupos.");
       return;
     }
+    setErroConsulta("");
     const lista: GrupoWhatsApp[] = r.data?.groups || r.data || [];
     setGrupos(Array.isArray(lista) ? lista : []);
   }
@@ -243,6 +245,8 @@ export default function ComunicacaoGruposWhatsappPage() {
           )}
         </div>
       </div>
+
+      {erroConsulta && <div role="alert" className="border border-destructive rounded-md p-3 text-sm text-destructive">{erroConsulta}</div>}
 
       <Card>
         <CardHeader className="pb-2">

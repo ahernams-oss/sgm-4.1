@@ -18,7 +18,7 @@ import { useOrdensServico } from "@/contexts/OrdensServicoContext";
 import { useEmpresa } from "@/contexts/EmpresaContext";
 import { gerarPdfMedicaoControle } from "@/lib/gerarPdfMedicaoControle";
 import { gerarContaReceberDeFaturamento } from "@/lib/financeiroFromPC";
-import { numeroNotaXml } from "@/lib/numeroNotaXml";
+import { numeroNotaXml, chaveNotaXml } from "@/lib/numeroNotaXml";
 
 const emptyFaturamento: Omit<Faturamento, "id"> = {
   periodoInicio: "",
@@ -156,24 +156,14 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
         const vNFbr = toBR(vNF);
         const vLiqBr = toBR(vLiq);
 
-        // Chave: NFe (chNFe / infNFe@Id), NFSe (CodigoVerificacao) ou nome do arquivo (chave de 44+ dígitos)
-        let chave = getTag("chNFe", "ChaveAcesso", "chave_acesso", "CodigoVerificacao", "codigo_verificacao", "codigoVerificacao");
-        if (!chave) {
-          const infNFe = xmlDoc.getElementsByTagName("infNFe")[0];
-          const id = infNFe?.getAttribute("Id") || "";
-          chave = id.replace(/^NFe/i, "");
-        }
-        if (!chave) {
-          const m = file.name.match(/\d{40,}/);
-          if (m) chave = m[0];
-        }
+        const chave = chaveNotaXml(xmlDoc);
 
         setForm((prev) => ({
           ...prev,
           xmlNfNome: file.name,
           xmlNfConteudo: content.substring(0, 5000),
           numeroNf: nNF,
-          ...(chave && !prev.chaveNf ? { chaveNf: chave } : {}),
+          chaveNf: chave,
           
           ...(vNFbr && (!prev.valorBruto || prev.valorBruto === "0,00") ? { valorBruto: vNFbr } : {}),
           ...(vLiqBr && (!prev.valorLiquido || prev.valorLiquido === "0,00") ? { valorLiquido: vLiqBr } : {}),
@@ -364,7 +354,7 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
         </div>
         <div className="sm:col-span-2 md:col-span-3">
           <label className="field-label">Chave da Nota Fiscal</label>
-          <Input placeholder="Chave de acesso (44 dígitos)" maxLength={44} value={form.chaveNf} onChange={(e) => update("chaveNf", e.target.value.replace(/\D/g, ""))} />
+          <Input placeholder="Chave de acesso (44 ou 50 dígitos)" maxLength={50} value={form.chaveNf} onChange={(e) => update("chaveNf", e.target.value.replace(/\D/g, ""))} />
         </div>
         <div className="sm:col-span-2">
           <label className="field-label">Descrição</label>

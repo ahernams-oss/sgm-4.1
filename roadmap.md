@@ -1,5 +1,7 @@
 # Tarefas
 
+- [ ] Preparar webhook isolado Z-API para recebimento, envio/entrega, leitura e conexão/desconexão; validar origem com segredo compartilhado e registrar somente metadados não pessoais. Publicação, segredo e configuração no painel Z-API necessários para o teste real.
+
 - [x] Tratar desconexão da PlugSend como resultado recuperável na consulta de grupos, com aviso visível e sem expor respostas brutas. Reconexão do aparelho depende do responsável pela conta PlugSend; não testei com login.
 
 - [x] Corrigir leitura do número fiscal no XML do faturamento: reconhecer nNFSe nacional, manter NF-e/ABRASF e nunca usar DPS/RPS ou número do arquivo; reanexar atualiza o campo.

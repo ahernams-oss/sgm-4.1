@@ -35,7 +35,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const body = await req.json();
+    const body = await req.clone().json();
     const action = String(body.action || "send");
     const usuario_id = String(body.usuario_id || "");
     const purpose = String(body.purpose || "");

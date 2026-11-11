@@ -22,7 +22,7 @@ function onlyDigits(s: string) { return (s || "").replace(/\D/g, ""); }
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
-    const { usuario_id, purpose } = await req.json();
+    const { usuario_id, purpose } = await req.clone().json();
     if (!usuario_id || !purpose) {
       return new Response(JSON.stringify({ success: false, error: "usuario_id e purpose obrigatórios" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });

@@ -15,7 +15,7 @@ const json = (b: unknown, status = 200) =>
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   try {
-    const body = await req.json().catch(() => ({}));
+    const body = await req.clone().json().catch(() => ({}));
     const userId = String(body?.userId ?? "").trim();
     const ativo = body?.ativo === true;
     const acesso = await exigirAcesso(req);

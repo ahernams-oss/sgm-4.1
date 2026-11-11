@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const body = await req.json().catch(() => ({}));
+    const body = await req.clone().json().catch(() => ({}));
     const userId = String(body?.userId ?? "").trim();
     const novaSenha = String(body?.novaSenha ?? "");
 

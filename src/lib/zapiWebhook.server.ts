@@ -2,13 +2,14 @@ import { timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
 
 const eventoSchema = z.object({
-  type: z.enum(['ReceivedCallback', 'DeliveryCallback', 'MessageStatusCallback', 'ConnectedCallback', 'DisconnectedCallback']),
-  instanceId: z.string().min(1).max(200),
+  type: z.enum(['ReceivedCallback', 'DeliveryCallback', 'MessageStatusCallback', 'ConnectedCallback', 'DisconnectedCallback', 'ErrorCallback']),
+  instanceId: z.string().min(1).max(200).optional(),
+  channel_id: z.string().min(1).max(200).optional(),
   status: z.enum(['SENT', 'RECEIVED', 'READ', 'READ_BY_ME', 'PLAYED']).optional(),
   connected: z.boolean().optional(),
   disconnected: z.boolean().optional(),
   ids: z.array(z.string().min(1).max(200)).max(1000).optional(),
-}).strip();
+}).strip().refine(evento => Boolean(evento.instanceId || evento.channel_id));
 
 const LIMITE_BYTES = 256 * 1024;
 

@@ -23,3 +23,34 @@ export function numeroNotaXml(xml: Document): string {
   }
   return "";
 }
+
+/** National NFSe keys have 50 digits; product NFe keys have 44 digits. */
+export function chaveNotaXml(xml: Document): string {
+  const elements = Array.from(xml.getElementsByTagName("*"));
+  const name = (el: Element) => (el.localName || el.nodeName).toLowerCase();
+  const fiscal = elements.filter(el => {
+    let current: Element | null = el;
+    while (current) {
+      if (["dps", "infdps", "rps", "infrps", "identificacaorps"].includes(name(current))) return false;
+      current = current.parentNode?.nodeType === 1 ? current.parentNode as Element : null;
+    }
+    return true;
+  });
+  const key = (value: string) => {
+    const cleaned = value.trim().replace(/^(?:NFSe|NFe)/i, "");
+    return /^(?:\d{44}|\d{50})$/.test(cleaned) ? cleaned : "";
+  };
+  for (const tag of ["chnfse", "chnfe", "chaveacesso", "chave_acesso", "chaveacessonfse"]) {
+    for (const el of fiscal.filter(el => name(el) === tag)) {
+      const found = key(el.textContent || "");
+      if (found) return found;
+    }
+  }
+  for (const tag of ["infnfse", "infnfe"]) {
+    for (const el of fiscal.filter(el => name(el) === tag)) {
+      const found = key(el.getAttribute("Id") || el.getAttribute("id") || "");
+      if (found) return found;
+    }
+  }
+  return "";
+}

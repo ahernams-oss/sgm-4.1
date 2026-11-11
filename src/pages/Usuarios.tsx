@@ -58,6 +58,7 @@ const Usuarios = () => {
   const [showSenha, setShowSenha] = useState(false);
   const [search, setSearch] = useState("");
   const [filterCargo, setFilterCargo] = useState<string>("todos");
+  const [filterTipo, setFilterTipo] = useState<"todos" | "cliente" | "interno">("todos");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { deleteId, requestDelete, cancelDelete } = useDoubleConfirmDelete();
@@ -241,8 +242,13 @@ const Usuarios = () => {
     if (filterCargo !== "todos") {
       result = result.filter((u) => u.cargoId === filterCargo);
     }
+    if (filterTipo === "cliente") {
+      result = result.filter((u) => u.destinadoCliente === true);
+    } else if (filterTipo === "interno") {
+      result = result.filter((u) => u.destinadoCliente !== true);
+    }
     return result;
-  }, [usuarios, search, filterCargo, cargos]);
+  }, [usuarios, search, filterCargo, filterTipo, cargos]);
 
   // Auditoria de senhas (baseada em senha_status, calculado pelo servidor)
   const auditoria = useMemo(() => {
@@ -576,6 +582,16 @@ const Usuarios = () => {
           <div className="px-4 sm:px-6 py-4 border-b border-border bg-muted/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <h2 className="text-sm font-semibold text-foreground">Usuários Cadastrados</h2>
             <div className="flex items-center gap-2">
+              <Select value={filterTipo} onValueChange={(v) => { setFilterTipo(v as "todos" | "cliente" | "interno"); setPage(1); }}>
+                <SelectTrigger className="h-9 w-[160px] text-xs">
+                  <SelectValue placeholder="Tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Cliente e Interno</SelectItem>
+                  <SelectItem value="cliente">Somente Cliente</SelectItem>
+                  <SelectItem value="interno">Somente Interno</SelectItem>
+                </SelectContent>
+              </Select>
               <Select value={filterCargo} onValueChange={setFilterCargo}>
                 <SelectTrigger className="h-9 w-[150px] text-xs">
                   <SelectValue placeholder="Cargo" />

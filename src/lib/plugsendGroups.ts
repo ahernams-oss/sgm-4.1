@@ -19,9 +19,13 @@ async function invoke(body: Record<string, any>): Promise<{ success: boolean; da
       // supabase-js wraps non-2xx as generic error; try to read context
       // @ts-ignore
       const ctx = (error as any).context;
-      let details: any = error.message;
-      try { if (ctx?.text) details = await ctx.text(); } catch { /* noop */ }
-      return { success: false, error: error.message, details };
+      try {
+        if (ctx instanceof Response) {
+          const result = await ctx.json();
+          if (typeof result?.error === "string") return { success: false, error: result.error };
+        }
+      } catch { /* Keep the fallback if the response is not JSON. */ }
+      return { success: false, error: error.message };
     }
     return data;
   } catch (err: unknown) {

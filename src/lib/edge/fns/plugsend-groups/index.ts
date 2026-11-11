@@ -5,6 +5,7 @@ const Deno = __slot.Deno;
 import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
 // deno-lint-ignore-file no-explicit-any
 import { corsHeaders } from '@/lib/edge/cors';
+import { falhaPlugsend } from '@/lib/plugsendFalha';
 
 const BASE = 'https://plugsend.uazapi.com';
 
@@ -123,8 +124,11 @@ Deno.serve(async (req) => {
     }
 
     if (!result.ok) {
-      return new Response(JSON.stringify({ success: false, error: `PlugSend [${result.status}]`, details: result.body }), {
-        status: result.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      const falha = falhaPlugsend(result.status, result.body);
+      console.warn(`[plugsend-groups] action=${action} status=${result.status} code=${falha.code}`);
+      return new Response(JSON.stringify(falha), {
+        // Expected provider disconnection is a recoverable application result.
+        status: falha.code === 'WHATSAPP_DESCONECTADO' ? 200 : 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
     return new Response(JSON.stringify({ success: true, data: result.body }), {

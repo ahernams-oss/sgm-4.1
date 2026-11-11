@@ -37,7 +37,7 @@ export function chaveNotaXml(xml: Document): string {
     return true;
   });
   const key = (value: string) => {
-    const cleaned = value.trim().replace(/^(?:NFSe|NFe)/i, "");
+    const cleaned = value.trim().replace(/^(?:NFSe|NFS|NFe)/i, "");
     return /^(?:\d{44}|\d{50})$/.test(cleaned) ? cleaned : "";
   };
   for (const tag of ["chnfse", "chnfe", "chaveacesso", "chave_acesso", "chaveacessonfse"]) {

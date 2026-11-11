@@ -33,7 +33,7 @@ describe("chave fiscal do XML anexado", () => {
   const extractKey = (xml: string) => chaveNotaXml(new DOMParser().parseFromString(xml, "text/xml") as unknown as Document);
 
   it("extrai os 50 dígitos de infNFSe@Id, não o identificador da DPS", () => {
-    expect(extractKey(`<NFSe><infNFSe Id="NFS${national}"><DPS><infDPS Id="DPS123"/></DPS></infNFSe></NFSe>`)).toBe("");
+    expect(extractKey(`<NFSe><infNFSe Id="NFS${national}"><DPS><infDPS Id="DPS123"/></DPS></infNFSe></NFSe>`)).toBe(national);
     expect(extractKey(`<NFSe><infNFSe Id="NFSe${national}"><DPS><infDPS Id="DPS123"/></DPS></infNFSe></NFSe>`)).toBe(national);
   });
   it("reconhece namespaces e prioriza a chave fiscal sobre código de verificação", () => {

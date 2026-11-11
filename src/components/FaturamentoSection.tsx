@@ -354,7 +354,7 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
         </div>
         <div className="sm:col-span-2 md:col-span-3">
           <label className="field-label">Chave da Nota Fiscal</label>
-          <Input placeholder="Chave de acesso (44 dígitos)" maxLength={44} value={form.chaveNf} onChange={(e) => update("chaveNf", e.target.value.replace(/\D/g, ""))} />
+          <Input placeholder="Chave de acesso (44 ou 50 dígitos)" maxLength={50} value={form.chaveNf} onChange={(e) => update("chaveNf", e.target.value.replace(/\D/g, ""))} />
         </div>
         <div className="sm:col-span-2">
           <label className="field-label">Descrição</label>

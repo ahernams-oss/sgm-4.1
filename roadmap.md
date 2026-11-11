@@ -2,8 +2,8 @@
 
 - [x] Preparar webhook isolado Z-API para recebimento, envio/entrega, leitura e conexão/desconexão; validar origem com segredo compartilhado e registrar somente tipo/status, sem dados pessoais. Dezesseis testes passaram; GET local 200, POST sem configuração bloqueado com 503; build OK. PlugSend preservada.
 - [ ] Ativar teste real Z-API: webhook publicado e proteção confirmada (POST público sem token retorna 401); ZAPI_WEBHOOK_SECRET salvo. Depende de configurar no painel Z-API as URLs dos cinco callbacks com ?token= e confirmar evento real. Nenhuma mensagem enviada; não testei com login.
-- [ ] Enviar mensagem de teste Z-API ao número informado pelo usuário: confirmar cadastro no SGM e conectar credenciais de envio da instância Z-API; segredo do webhook não autoriza envio. Não substituir PlugSend.
-- [ ] Revisar alertas de segurança antes da publicação: verificação rápida concluída com alertas de acesso; análise aprofundada solicitada e em andamento, aguardando resultado para distinguir exposição real de controles complementares. Nenhuma permissão alterada nem publicação solicitada.
+- [ ] Enviar mensagem de teste Z-API ao número informado pelo usuário: cadastro confirmado pela função destinatario_telefone_cadastrado; faltam ID/token da instância e Client-Token. O conector disponível não suporta token no caminho com segundo segredo no cabeçalho; aguarda autorização para formulário seguro como alternativa. Não substituir PlugSend nem enviar sem conexão validada.
+- [ ] Revisar alertas de segurança: análise aprofundada concluída com riscos em arquivamento de auditoria, acesso a candidatos, recuperação de senha do portal e envio de relatórios/e-mails; correções pendentes, nenhuma permissão alterada. Publicação do webhook posteriormente autorizada pelo usuário.
 
 - [x] Tratar desconexão da PlugSend como resultado recuperável na consulta de grupos, com aviso visível e sem expor respostas brutas. Reconexão do aparelho depende do responsável pela conta PlugSend; não testei com login.
 

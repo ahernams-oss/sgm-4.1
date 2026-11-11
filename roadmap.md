@@ -1,6 +1,6 @@
 # Tarefas
 
-- [ ] Criar seleção de acesso por aba de Funcionários nos perfis e exibir somente abas autorizadas, preservando ações existentes.
+- [x] Criar seleção explícita das 16 abas de Funcionários nos perfis; abas não autorizadas não são exibidas/montadas e ações existentes permanecem independentes. 22 testes passaram, tipos e build OK. Perfis existentes precisam marcar as novas opções; controle de abas aplicado na tela, sem mudar RLS. Não testei com login.
 
 - [x] Adicionar marcador visual Cliente, persistido nos usuários e perfis, sem alterar permissões ou clientes liberados; cadastro, edição e duplicação preservam a marcação. Três testes passaram, tipos e build OK; campos conferidos no banco. Não testei com login.
 

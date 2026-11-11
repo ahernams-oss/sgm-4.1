@@ -7,6 +7,22 @@ const request = (body: unknown, token = fixtureSecret) => new Request(`https://e
 });
 
 describe('webhook de teste Z-API', () => {
+  it('aceita proteção Bearer do Omni sem token na URL', async () => {
+    const registrar = vi.fn();
+    const req = new Request('https://example.test/api/public/zapi/webhook', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${fixtureSecret}` },
+      body: JSON.stringify({ type: 'ConnectedCallback', instanceId: 'fixture' }),
+    });
+    expect((await receberWebhookZapi(req, fixtureSecret, registrar)).status).toBe(200);
+    expect(registrar).toHaveBeenCalledWith({ tipo: 'ConnectedCallback' });
+  });
+  it('recusa Bearer incorreto mesmo com token correto na URL', async () => {
+    const registrar = vi.fn();
+    const req = request({ type: 'ConnectedCallback', instanceId: 'fixture' });
+    req.headers.set('Authorization', 'Bearer invalid');
+    expect((await receberWebhookZapi(req, fixtureSecret, registrar)).status).toBe(401);
+    expect(registrar).not.toHaveBeenCalled();
+  });
   it('recusa ausência de configuração sem registrar evento', async () => {
     const registrar = vi.fn();
     expect((await receberWebhookZapi(request({}), undefined, registrar)).status).toBe(503);

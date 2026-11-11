@@ -47,6 +47,10 @@ import { PromocoesTab } from "@/components/PromocoesTab";
 import { NRsFuncionarioTab } from "@/components/NRsFuncionarioTab";
 import { FeriasTab } from "@/components/FeriasTab";
 import { usePermissao } from "@/hooks/usePermissao";
+import { ABAS_FUNCIONARIOS, podeAcessarAbaFuncionario } from "@/lib/abasFuncionarios";
+
+const AbaFuncionarioContent = ({ value, allowed, readOnly, children }: { value: string; allowed: boolean; readOnly: boolean; children: ReactNode }) =>
+  allowed ? <TabsContent value={value}><fieldset disabled={readOnly} className="min-w-0">{children}</fieldset></TabsContent> : null;
 
 
 const UF_OPTIONS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
@@ -788,6 +792,9 @@ const Funcionarios = () => {
   const podeExcluir = tem("funcionarios.excluir");
   const podeExportarPdf = tem("funcionarios.exportar_pdf");
   const podeTransferirCliente = tem("funcionarios.transferir_cliente");
+  const abasPermitidas = ABAS_FUNCIONARIOS.filter(aba => podeAcessarAbaFuncionario(tem, aba.value));
+  const [abaSelecionada, setAbaSelecionada] = useState<string>("pessoal");
+  const abaAtiva = abasPermitidas.some(aba => aba.value === abaSelecionada) ? abaSelecionada : (abasPermitidas[0]?.value ?? "");
 
   const [form, setForm] = useState(emptyFuncionarioForm);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -916,6 +923,7 @@ const Funcionarios = () => {
   };
 
   const handleEdit = (f: typeof funcionarios[0]) => {
+    if (!abasPermitidas.length) { toast.error("Seu perfil não possui acesso às abas do funcionário."); return; }
     const { id, ...rest } = f;
     setForm({ ...emptyFuncionarioForm, ...rest });
     setEditingId(id);
@@ -990,7 +998,7 @@ const Funcionarios = () => {
                 Gerencie o cadastro completo de funcionários da empresa.
               </p>
             </div>
-            {!showForm && podeCriar && (
+            {!showForm && podeCriar && abasPermitidas.length > 0 && (
               <Button onClick={() => setShowForm(true)} className="shadow-md">
                 <Plus className="h-4 w-4 mr-1" /> Novo Funcionário
               </Button>
@@ -1000,24 +1008,9 @@ const Funcionarios = () => {
 
         {showForm && (
           <form onSubmit={handleSubmit} className="mb-8 rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm animate-fade-up">
-            <Tabs defaultValue="pessoal" className="w-full">
+            <Tabs value={abaAtiva} onValueChange={setAbaSelecionada} className="w-full">
               <TabsList className="mb-6 flex-wrap h-auto gap-1">
-                <TabsTrigger value="pessoal">Dados Pessoais</TabsTrigger>
-                <TabsTrigger value="endereco">Endereço</TabsTrigger>
-                <TabsTrigger value="profissional">Dados Profissionais</TabsTrigger>
-                <TabsTrigger value="bancario">Dados Bancários</TabsTrigger>
-                <TabsTrigger value="documentos">Documentos</TabsTrigger>
-                <TabsTrigger value="uniforme">Uniforme</TabsTrigger>
-                <TabsTrigger value="passagem">Passagem</TabsTrigger>
-                <TabsTrigger value="dependentes">Dependentes</TabsTrigger>
-                <TabsTrigger value="epis">EPIs</TabsTrigger>
-                <TabsTrigger value="nrs">NRs</TabsTrigger>
-                <TabsTrigger value="exames">Exames Periódicos</TabsTrigger>
-                <TabsTrigger value="ferias">Férias</TabsTrigger>
-                <TabsTrigger value="promocoes">Promoções</TabsTrigger>
-                <TabsTrigger value="anexos_docs">Anexos</TabsTrigger>
-                <TabsTrigger value="pensao">Pensão / Emergência</TabsTrigger>
-                <TabsTrigger value="observacoes">Observações</TabsTrigger>
+                {abasPermitidas.map(aba => <TabsTrigger key={aba.value} value={aba.value}>{aba.label}</TabsTrigger>)}
               </TabsList>
 
               {/* DADOS PESSOAIS */}
@@ -1560,7 +1553,7 @@ const Funcionarios = () => {
 
             <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-border">
               <Button type="button" variant="outline" onClick={resetForm}>Cancelar</Button>
-              <Button type="submit" className="shadow-md">{editingId ? "Salvar Alterações" : "Cadastrar Funcionário"}</Button>
+              {(editingId ? podeEditar : podeCriar) && abasPermitidas.length > 0 && <Button type="submit" className="shadow-md">{editingId ? "Salvar Alterações" : "Cadastrar Funcionário"}</Button>}
             </div>
           </form>
         )}
@@ -1704,8 +1697,8 @@ const Funcionarios = () => {
                             {podeExportarPdf && <DropdownMenuItem onClick={() => gerarPdfUniforme(f, { cargoNome: getCargoNome(f.cargoId), clienteNome: f.clienteId ? getClienteNome(f.clienteId) : "" })}>
                               <FileDown className="h-4 w-4 mr-2" /> Baixar PDF Uniforme
                             </DropdownMenuItem>}
-                            {podeEditar && <DropdownMenuItem onClick={() => handleEdit(f)}>
-                              <Pencil className="h-4 w-4 mr-2" /> Editar
+                            {abasPermitidas.length > 0 && <DropdownMenuItem onClick={() => handleEdit(f)}>
+                              <Pencil className="h-4 w-4 mr-2" /> {podeEditar ? "Editar" : "Consultar"}
                             </DropdownMenuItem>}
                             <DropdownMenuItem onClick={() => setTransferir({ id: f.id, nome: f.nome, clienteId: f.clienteId })}>
                               <ArrowRightLeft className="h-4 w-4 mr-2" /> {podeTransferirCliente ? "Transferir Cliente/Unidade" : "Solicitar Transferência de Cliente/Unidade"}

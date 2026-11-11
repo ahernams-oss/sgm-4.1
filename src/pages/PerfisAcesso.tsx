@@ -20,10 +20,11 @@ import {
 import { toast } from "sonner";
 import { usePermissao } from "@/hooks/usePermissao";
 import { expandirSubmenusFaturamento, expandirSubmenuContratos } from "@/lib/gruposPermissoes";
+import { MarcadorCliente } from "@/components/MarcadorCliente";
 
 const MODULOS_PERFIL = expandirSubmenuContratos(expandirSubmenusFaturamento(MODULOS_SISTEMA));
 
-const emptyForm = { nome: "", descricao: "", permissoes: {} as Permissoes };
+const emptyForm = { nome: "", descricao: "", permissoes: {} as Permissoes, destinadoCliente: false };
 
 const PerfisAcesso = () => {
   const { perfis, addPerfil, updatePerfil, deletePerfil } = usePerfisAcesso();
@@ -151,7 +152,7 @@ const PerfisAcesso = () => {
   };
 
   const handleEdit = (p: typeof perfis[0]) => {
-    setForm({ nome: p.nome, descricao: p.descricao, permissoes: { ...p.permissoes } });
+    setForm({ nome: p.nome, descricao: p.descricao, permissoes: { ...p.permissoes }, destinadoCliente: p.destinadoCliente === true });
     setEditingId(p.id);
     setShowForm(true);
   };
@@ -162,7 +163,7 @@ const PerfisAcesso = () => {
       `Deseja criar uma CÓPIA do perfil "${p.nome}"?\n\nIsso irá criar um NOVO perfil. Se você quer apenas editar o perfil existente, clique em Cancelar e use o botão de Editar (ícone de lápis).`
     );
     if (!ok) return;
-    setForm({ nome: `${p.nome} (cópia)`, descricao: p.descricao, permissoes: { ...p.permissoes } });
+    setForm({ nome: `${p.nome} (cópia)`, descricao: p.descricao, permissoes: { ...p.permissoes }, destinadoCliente: p.destinadoCliente === true });
     setEditingId(null);
     setShowForm(true);
     toast.info("Perfil duplicado. Edite e salve.");
@@ -247,6 +248,11 @@ const PerfisAcesso = () => {
                   placeholder="Descrição opcional do perfil"
                 />
               </div>
+            </div>
+
+            <div className="mb-6 flex items-center gap-2">
+              <Checkbox id="perfil-destinado-cliente" checked={form.destinadoCliente} onCheckedChange={(checked) => setForm(prev => ({ ...prev, destinadoCliente: checked === true }))} />
+              <Label htmlFor="perfil-destinado-cliente">Perfil destinado a cliente</Label>
             </div>
 
             <div className="mb-4 space-y-3">
@@ -458,7 +464,7 @@ const PerfisAcesso = () => {
               <TableBody>
                 {paginate(filteredPerfis, page, pageSize).paginated.map(p => (
                   <TableRow key={p.id}>
-                    <TableCell className="font-medium">{p.nome}</TableCell>
+                    <TableCell className="font-medium">{p.nome}{p.destinadoCliente && <MarcadorCliente />}</TableCell>
                     <TableCell className="text-muted-foreground">{p.descricao || "—"}</TableCell>
                     <TableCell className="text-center">
                       <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">

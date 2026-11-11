@@ -2,6 +2,7 @@ import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
 import { useProviderGate, useActivateProvider } from "@/lib/providerGate";
+import { lerMarcadorCliente, gravarMarcadorCliente } from "@/lib/marcadorCliente";
 
 export interface Usuario {
   id: string; nome: string; cargoId: string; telefone: string;
@@ -11,6 +12,7 @@ export interface Usuario {
   limiteAprovacaoCompras: number; limiteAprovacaoOS: number;
   senhaStatus?: "sem_senha" | "legado" | "seguro";
   ativo?: boolean;
+  destinadoCliente?: boolean;
 }
 
 interface UsuariosContextType {
@@ -32,10 +34,12 @@ const rowToUsuario = (r: any): Usuario => ({
   limiteAprovacaoCompras: Number(r.limite_aprovacao_compras ?? 0),
   limiteAprovacaoOS: Number(r.limite_aprovacao_os ?? 0),
   ativo: r.ativo !== false,
+  destinadoCliente: lerMarcadorCliente(r),
   senhaStatus: (r.senha_status ?? "sem_senha") as Usuario["senhaStatus"],
 });
 
 const usuarioToRow = (u: Omit<Usuario, "id">) => ({
+  ...gravarMarcadorCliente(u),
   nome: u.nome, cargo_id: u.cargoId, telefone: u.telefone,
   email: u.email, clientes_permitidos: u.clientesPermitidos as any,
   locais_permitidos: (u.locaisPermitidos ?? []) as any,

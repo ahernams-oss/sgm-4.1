@@ -29,12 +29,14 @@ import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import AcessosPorLocal from "@/components/AcessosPorLocal";
+import { MarcadorCliente } from "@/components/MarcadorCliente";
 
 const emptyForm = {
   nome: "", cargoId: "", telefone: "+55 ", email: "", senha: "",
   clientesPermitidos: [] as string[], locaisPermitidos: [] as string[], perfilAcessoId: "",
   matricula: "", ramal: "",
   limiteAprovacaoCompras: 0, limiteAprovacaoOS: 0,
+  destinadoCliente: false,
 };
 
 const Usuarios = () => {
@@ -180,6 +182,7 @@ const Usuarios = () => {
       perfilAcessoId: u.perfilAcessoId, matricula: u.matricula, ramal: u.ramal,
       limiteAprovacaoCompras: u.limiteAprovacaoCompras ?? 0,
       limiteAprovacaoOS: u.limiteAprovacaoOS ?? 0,
+      destinadoCliente: u.destinadoCliente === true,
     });
     setEditingId(u.id);
     setShowForm(true);
@@ -409,9 +412,13 @@ const Usuarios = () => {
                       <SelectTrigger><SelectValue placeholder="Selecione o perfil" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="nenhum">Nenhum</SelectItem>
-                        {perfis.map((p) => (<SelectItem key={p.id} value={p.id}>{p.nome}</SelectItem>))}
+                        {perfis.map((p) => (<SelectItem key={p.id} value={p.id}>{p.nome}{p.destinadoCliente && <MarcadorCliente />}</SelectItem>))}
                       </SelectContent>
                     </Select>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Checkbox id="usuario-destinado-cliente" checked={form.destinadoCliente} onCheckedChange={(checked) => setForm(prev => ({ ...prev, destinadoCliente: checked === true }))} />
+                    <Label htmlFor="usuario-destinado-cliente">Usuário destinado a cliente</Label>
                   </div>
                   <div className="space-y-1.5">
                     <Label className="text-xs font-semibold text-foreground/80">Limite Aprovação Compras (R$)</Label>
@@ -606,12 +613,13 @@ const Usuarios = () => {
               <TableBody>
                 {paginate(filteredUsuarios, page, pageSize).paginated.map((u) => (
                   <TableRow key={u.id} className={u.ativo === false ? "opacity-60" : ""}>
-                    <TableCell className="font-medium">{u.nome}{u.ativo === false && <span className="ml-2 inline-flex rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">Inativo</span>}</TableCell>
+                    <TableCell className="font-medium">{u.nome}{u.destinadoCliente && <MarcadorCliente />}{u.ativo === false && <span className="ml-2 inline-flex rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">Inativo</span>}</TableCell>
                     <TableCell>{getCargoNome(u.cargoId)}</TableCell>
                     <TableCell>
                       <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${u.perfilAcessoId ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
                         {getPerfilNome(u.perfilAcessoId)}
                       </span>
+                      {perfis.find(p => p.id === u.perfilAcessoId)?.destinadoCliente && <MarcadorCliente />}
                     </TableCell>
                     <TableCell>{u.telefone}</TableCell>
                     <TableCell>{u.email}</TableCell>

@@ -6141,6 +6141,7 @@ export type Database = {
         Row: {
           created_at: string | null
           descricao: string | null
+          destinado_cliente: boolean
           id: string
           nome: string
           permissoes: Json
@@ -6148,6 +6149,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           descricao?: string | null
+          destinado_cliente?: boolean
           id?: string
           nome?: string
           permissoes?: Json
@@ -6155,6 +6157,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           descricao?: string | null
+          destinado_cliente?: boolean
           id?: string
           nome?: string
           permissoes?: Json
@@ -9344,6 +9347,7 @@ export type Database = {
           cargo_id: string | null
           clientes_permitidos: Json | null
           created_at: string | null
+          destinado_cliente: boolean
           email: string
           id: string
           limite_aprovacao_compras: number
@@ -9362,6 +9366,7 @@ export type Database = {
           cargo_id?: string | null
           clientes_permitidos?: Json | null
           created_at?: string | null
+          destinado_cliente?: boolean
           email?: string
           id?: string
           limite_aprovacao_compras?: number
@@ -9380,6 +9385,7 @@ export type Database = {
           cargo_id?: string | null
           clientes_permitidos?: Json | null
           created_at?: string | null
+          destinado_cliente?: boolean
           email?: string
           id?: string
           limite_aprovacao_compras?: number

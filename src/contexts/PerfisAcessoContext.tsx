@@ -1020,6 +1020,7 @@ export interface PerfilAcesso {
   nome: string;
   descricao: string;
   permissoes: Permissoes;
+  destinadoCliente?: boolean;
 }
 
 interface PerfisAcessoContextType {
@@ -1047,12 +1048,14 @@ const rowToPerfil = (r: any): PerfilAcesso => ({
   id: r.id,
   nome: r.nome ?? "",
   descricao: r.descricao ?? "",
+  destinadoCliente: r.destinado_cliente === true,
   permissoes: (r.permissoes as Permissoes) ?? {},
 });
 
 const perfilToRow = (p: Omit<PerfilAcesso, "id">) => ({
   nome: p.nome,
   descricao: p.descricao,
+  destinado_cliente: p.destinadoCliente === true,
   permissoes: p.permissoes as any,
 });
 

@@ -1,7 +1,8 @@
 # Tarefas
 
 - [x] Preparar webhook isolado Z-API para recebimento, envio/entrega, leitura e conexão/desconexão; validar origem com segredo compartilhado e registrar somente tipo/status, sem dados pessoais. Dezesseis testes passaram; GET local 200, POST sem configuração bloqueado com 503; build OK. PlugSend preservada.
-- [ ] Ativar teste real Z-API: aguarda autorização de publicação (preview HTTPS exige login), depois solicitar ZAPI_WEBHOOK_SECRET em formulário seguro com geração/cópia para o painel da Z-API e configurar URLs dos cinco callbacks. Ainda não recebeu eventos reais; não testei com login.
+- [ ] Ativar teste real Z-API: publicação pausada a pedido do usuário para revisar alertas de segurança; depois solicitar ZAPI_WEBHOOK_SECRET em formulário seguro com geração/cópia para o painel da Z-API e configurar URLs dos cinco callbacks. Ainda não recebeu eventos reais; não testei com login.
+- [ ] Revisar alertas de segurança antes da publicação, distinguindo exposição real de controles complementares e sem alterar permissões indiscriminadamente.
 
 - [x] Tratar desconexão da PlugSend como resultado recuperável na consulta de grupos, com aviso visível e sem expor respostas brutas. Reconexão do aparelho depende do responsável pela conta PlugSend; não testei com login.
 

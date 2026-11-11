@@ -15,7 +15,10 @@ const LIMITE_BYTES = 256 * 1024;
 export async function receberWebhookZapi(request: Request, secret: string | undefined, registrar: (evento: { tipo: string; status?: string }) => void): Promise<Response> {
   const resposta = (status: number, body: object) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } });
   if (!secret) return resposta(503, { error: 'Webhook Z-API ainda não configurado.' });
-  const fornecido = new URL(request.url).searchParams.get('token') || '';
+  const authorization = request.headers.get('authorization');
+  const fornecido = authorization?.startsWith('Bearer ')
+    ? authorization.slice(7)
+    : new URL(request.url).searchParams.get('token') || '';
   const esperadoBytes = new TextEncoder().encode(secret);
   const fornecidoBytes = new TextEncoder().encode(fornecido);
   if (!fornecido || fornecidoBytes.length !== esperadoBytes.length || !timingSafeEqual(fornecidoBytes, esperadoBytes)) {

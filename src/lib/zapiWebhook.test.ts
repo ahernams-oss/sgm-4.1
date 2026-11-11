@@ -7,6 +7,17 @@ const request = (body: unknown, token = fixtureSecret) => new Request(`https://e
 });
 
 describe('webhook de teste Z-API', () => {
+  it.each(['ReceivedCallback', 'DeliveryCallback', 'MessageStatusCallback', 'ConnectedCallback', 'DisconnectedCallback', 'ErrorCallback'])('aceita %s identificado por channel_id do Omni', async type => {
+    const registrar = vi.fn();
+    const result = await receberWebhookZapi(request({ type, channel_id: 'fixture-channel', status: 'READ', error: 'private failure', phone: 'private phone' }), fixtureSecret, registrar);
+    expect(result.status).toBe(200);
+    expect(registrar).toHaveBeenCalledWith({ tipo: type, status: 'READ' });
+  });
+  it('recusa evento sem identificador de instância ou canal', async () => {
+    const registrar = vi.fn();
+    expect((await receberWebhookZapi(request({ type: 'MessageStatusCallback', status: 'READ' }), fixtureSecret, registrar)).status).toBe(400);
+    expect(registrar).not.toHaveBeenCalled();
+  });
   it('aceita proteção Bearer do Omni sem token na URL', async () => {
     const registrar = vi.fn();
     const req = new Request('https://example.test/api/public/zapi/webhook', {

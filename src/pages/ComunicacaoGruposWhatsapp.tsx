@@ -9,6 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import PaginationControls from "@/components/PaginationControls";
 import { Plus, RefreshCw, Copy, Users, LogOut, Pencil, X, Search, UserPlus } from "lucide-react";
 import { toast } from "sonner";
+import { FileText, FileSpreadsheet } from "lucide-react";
+import { gerarPdfGenerico, gerarExcelGenerico } from "@/lib/gerarRelatoriosJuridico";
 import { usePermissao } from "@/hooks/usePermissao";
 import { plugsendGroups, extractJID, extractName, type GrupoWhatsApp } from "@/lib/plugsendGroups";
 import { useClientes } from "@/contexts/ClientesContext";
@@ -95,6 +97,18 @@ export default function ComunicacaoGruposWhatsappPage() {
     });
   }, [grupos, search]);
 
+  const relatorio = () => ({
+    titulo: "Relatório de Grupos WhatsApp",
+    subtitulo: "SGM Lasant",
+    filtros: search ? `Busca: ${search}` : undefined,
+    colunas: ["Nome", "JID", "Participantes"],
+    linhas: filtrados.map((g) => [extractName(g) || "-", extractJID(g), g.participants?.length ?? g.size ?? 0]),
+  });
+  const exportar = async (tipo: "pdf" | "excel") => {
+    if (!filtrados.length) { toast.error("Nenhum grupo para exportar."); return; }
+    try { tipo === "pdf" ? await gerarPdfGenerico(relatorio()) : await gerarExcelGenerico(relatorio()); }
+    catch (e) { toast.error("Erro ao gerar relatório: " + (e instanceof Error ? e.message : String(e))); }
+  };
   const pageItems = filtrados.slice((page - 1) * pageSize, page * pageSize);
   useEffect(() => { setPage(1); }, [search, pageSize]);
 
@@ -238,6 +252,8 @@ export default function ComunicacaoGruposWhatsappPage() {
           <Button variant="outline" onClick={() => carregar(true)} disabled={loading}>
             <RefreshCw className={`h-4 w-4 mr-1 ${loading ? "animate-spin" : ""}`} /> Atualizar
           </Button>
+          <Button variant="outline" onClick={() => exportar("pdf")}><FileText className="h-4 w-4 mr-1" /> PDF</Button>
+          <Button variant="outline" onClick={() => exportar("excel")}><FileSpreadsheet className="h-4 w-4 mr-1" /> Excel</Button>
           {podeCriar && (
             <Button onClick={() => { setOpenNovo(true); setNovoCriadoJID(null); }}>
               <Plus className="h-4 w-4 mr-1" /> Novo Grupo

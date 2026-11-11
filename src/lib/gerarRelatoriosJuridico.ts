@@ -359,3 +359,7 @@ function parcelasReport(parcelas: any[], decisoes: any[], filtros?: string): Rep
 
 export const gerarPdfParcelas = (p: any[], d: any[], f?: string) => basePdf(parcelasReport(p, d, f));
 export const gerarExcelParcelas = (p: any[], d: any[], f?: string) => baseExcel(parcelasReport(p, d, f));
+
+export type RelatorioGenerico = ReportInput;
+export const gerarPdfGenerico = (r: ReportInput) => basePdf(r);
+export const gerarExcelGenerico = (r: ReportInput) => baseExcel(r);

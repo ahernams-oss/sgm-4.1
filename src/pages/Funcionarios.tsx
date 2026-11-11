@@ -47,6 +47,10 @@ import { PromocoesTab } from "@/components/PromocoesTab";
 import { NRsFuncionarioTab } from "@/components/NRsFuncionarioTab";
 import { FeriasTab } from "@/components/FeriasTab";
 import { usePermissao } from "@/hooks/usePermissao";
+import { ABAS_FUNCIONARIOS, podeAcessarAbaFuncionario } from "@/lib/abasFuncionarios";
+
+const AbaFuncionarioContent = ({ value, allowed, readOnly, children }: { value: string; allowed: boolean; readOnly: boolean; children: ReactNode }) =>
+  allowed ? <TabsContent value={value}><fieldset disabled={readOnly} className="min-w-0">{children}</fieldset></TabsContent> : null;
 
 
 const UF_OPTIONS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
@@ -788,6 +792,9 @@ const Funcionarios = () => {
   const podeExcluir = tem("funcionarios.excluir");
   const podeExportarPdf = tem("funcionarios.exportar_pdf");
   const podeTransferirCliente = tem("funcionarios.transferir_cliente");
+  const abasPermitidas = ABAS_FUNCIONARIOS.filter(aba => podeAcessarAbaFuncionario(tem, aba.value));
+  const [abaSelecionada, setAbaSelecionada] = useState<string>("pessoal");
+  const abaAtiva = abasPermitidas.some(aba => aba.value === abaSelecionada) ? abaSelecionada : (abasPermitidas[0]?.value ?? "");
 
   const [form, setForm] = useState(emptyFuncionarioForm);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -916,6 +923,7 @@ const Funcionarios = () => {
   };
 
   const handleEdit = (f: typeof funcionarios[0]) => {
+    if (!abasPermitidas.length) { toast.error("Seu perfil não possui acesso às abas do funcionário."); return; }
     const { id, ...rest } = f;
     setForm({ ...emptyFuncionarioForm, ...rest });
     setEditingId(id);
@@ -990,7 +998,7 @@ const Funcionarios = () => {
                 Gerencie o cadastro completo de funcionários da empresa.
               </p>
             </div>
-            {!showForm && podeCriar && (
+            {!showForm && podeCriar && abasPermitidas.length > 0 && (
               <Button onClick={() => setShowForm(true)} className="shadow-md">
                 <Plus className="h-4 w-4 mr-1" /> Novo Funcionário
               </Button>
@@ -1000,28 +1008,13 @@ const Funcionarios = () => {
 
         {showForm && (
           <form onSubmit={handleSubmit} className="mb-8 rounded-xl border border-border bg-card p-4 sm:p-6 shadow-sm animate-fade-up">
-            <Tabs defaultValue="pessoal" className="w-full">
+            <Tabs value={abaAtiva} onValueChange={setAbaSelecionada} className="w-full">
               <TabsList className="mb-6 flex-wrap h-auto gap-1">
-                <TabsTrigger value="pessoal">Dados Pessoais</TabsTrigger>
-                <TabsTrigger value="endereco">Endereço</TabsTrigger>
-                <TabsTrigger value="profissional">Dados Profissionais</TabsTrigger>
-                <TabsTrigger value="bancario">Dados Bancários</TabsTrigger>
-                <TabsTrigger value="documentos">Documentos</TabsTrigger>
-                <TabsTrigger value="uniforme">Uniforme</TabsTrigger>
-                <TabsTrigger value="passagem">Passagem</TabsTrigger>
-                <TabsTrigger value="dependentes">Dependentes</TabsTrigger>
-                <TabsTrigger value="epis">EPIs</TabsTrigger>
-                <TabsTrigger value="nrs">NRs</TabsTrigger>
-                <TabsTrigger value="exames">Exames Periódicos</TabsTrigger>
-                <TabsTrigger value="ferias">Férias</TabsTrigger>
-                <TabsTrigger value="promocoes">Promoções</TabsTrigger>
-                <TabsTrigger value="anexos_docs">Anexos</TabsTrigger>
-                <TabsTrigger value="pensao">Pensão / Emergência</TabsTrigger>
-                <TabsTrigger value="observacoes">Observações</TabsTrigger>
+                {abasPermitidas.map(aba => <TabsTrigger key={aba.value} value={aba.value}>{aba.label}</TabsTrigger>)}
               </TabsList>
 
               {/* DADOS PESSOAIS */}
-              <TabsContent value="pessoal">
+              <AbaFuncionarioContent value="pessoal" allowed={podeAcessarAbaFuncionario(tem, "pessoal")} readOnly={editingId ? !podeEditar : !podeCriar}>
                 {form.foto && (
                   <div className="mb-4 flex items-center gap-4">
                     <img src={form.foto} alt="Foto do funcionário" className="w-24 h-24 rounded-full object-cover border" />
@@ -1130,10 +1123,10 @@ const Funcionarios = () => {
                     </Field>
                   )}
                 </div>
-              </TabsContent>
+              </AbaFuncionarioContent>
 
               {/* ENDEREÇO */}
-              <TabsContent value="endereco">
+              <AbaFuncionarioContent value="endereco" allowed={podeAcessarAbaFuncionario(tem, "endereco")} readOnly={editingId ? !podeEditar : !podeCriar}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <Field label="CEP">
                     <Input value={form.cep} onChange={(e) => update("cep", e.target.value)} onBlur={buscarCep} placeholder="00000-000" />
@@ -1162,10 +1155,10 @@ const Funcionarios = () => {
                     </Select>
                   </Field>
                 </div>
-              </TabsContent>
+              </AbaFuncionarioContent>
 
               {/* DADOS PROFISSIONAIS */}
-              <TabsContent value="profissional">
+              <AbaFuncionarioContent value="profissional" allowed={podeAcessarAbaFuncionario(tem, "profissional")} readOnly={editingId ? !podeEditar : !podeCriar}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <Field label="Cargo" required>
                     <Select value={form.cargoId} onValueChange={(v) => {
@@ -1327,10 +1320,10 @@ const Funcionarios = () => {
                     })()}
                   </div>
                 )}
-              </TabsContent>
+              </AbaFuncionarioContent>
 
               {/* DADOS BANCÁRIOS */}
-              <TabsContent value="bancario">
+              <AbaFuncionarioContent value="bancario" allowed={podeAcessarAbaFuncionario(tem, "bancario")} readOnly={editingId ? !podeEditar : !podeCriar}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <Field label="Banco">
                     <Input value={form.banco} onChange={(e) => update("banco", e.target.value)} placeholder="Nome do banco" />
@@ -1353,10 +1346,10 @@ const Funcionarios = () => {
                     <Input value={form.chavePix} onChange={(e) => update("chavePix", e.target.value)} placeholder="CPF, e-mail, telefone ou aleatória" />
                   </Field>
                 </div>
-              </TabsContent>
+              </AbaFuncionarioContent>
 
               {/* DOCUMENTOS */}
-              <TabsContent value="documentos">
+              <AbaFuncionarioContent value="documentos" allowed={podeAcessarAbaFuncionario(tem, "documentos")} readOnly={editingId ? !podeEditar : !podeCriar}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   <Field label="Título de Eleitor">
                     <Input value={form.tituloEleitor} onChange={(e) => update("tituloEleitor", e.target.value)} />
@@ -1385,10 +1378,10 @@ const Funcionarios = () => {
                     <Input value={form.certificadoReservista} onChange={(e) => update("certificadoReservista", e.target.value)} />
                   </Field>
                 </div>
-              </TabsContent>
+              </AbaFuncionarioContent>
 
               {/* UNIFORME */}
-              <TabsContent value="uniforme">
+              <AbaFuncionarioContent value="uniforme" allowed={podeAcessarAbaFuncionario(tem, "uniforme")} readOnly={editingId ? !podeEditar : !podeCriar}>
                 <UniformeTab
                   uniformes={form.uniformes || []}
                   onChange={(u) => update("uniformes", u as any)}
@@ -1399,53 +1392,53 @@ const Funcionarios = () => {
                   altura={form.altura}
                   onSizeChange={(field, value) => update(field, value)}
                 />
-              </TabsContent>
+              </AbaFuncionarioContent>
 
               {/* PASSAGEM */}
-              <TabsContent value="passagem">
+              <AbaFuncionarioContent value="passagem" allowed={podeAcessarAbaFuncionario(tem, "passagem")} readOnly={editingId ? !podeEditar : !podeCriar}>
                 <PassagemTab passagens={form.passagens || []} onChange={(p) => update("passagens", p as any)} />
-              </TabsContent>
+              </AbaFuncionarioContent>
 
               {/* DEPENDENTES */}
-              <TabsContent value="dependentes">
+              <AbaFuncionarioContent value="dependentes" allowed={podeAcessarAbaFuncionario(tem, "dependentes")} readOnly={editingId ? !podeEditar : !podeCriar}>
                 <DependentesTab dependentes={form.dependentes || []} onChange={(d) => update("dependentes", d as any)} />
-              </TabsContent>
+              </AbaFuncionarioContent>
 
               {/* EPIs */}
-              <TabsContent value="epis">
+              <AbaFuncionarioContent value="epis" allowed={podeAcessarAbaFuncionario(tem, "epis")} readOnly={editingId ? !podeEditar : !podeCriar}>
                 <EpiTab epis={form.epis || []} onChange={(e) => update("epis", e as any)} cargoId={form.cargoId} funcionarioId={editingId || undefined} telefoneWhatsapp={form.telefoneWhatsapp} />
-              </TabsContent>
+              </AbaFuncionarioContent>
 
               {/* NRs */}
-              <TabsContent value="nrs">
+              <AbaFuncionarioContent value="nrs" allowed={podeAcessarAbaFuncionario(tem, "nrs")} readOnly={editingId ? !podeEditar : !podeCriar}>
                 <NRsFuncionarioTab
                   nrs={form.nrs || []}
                   onChange={(nrs) => update("nrs", nrs)}
                 />
-              </TabsContent>
+              </AbaFuncionarioContent>
 
               {/* EXAMES PERIÓDICOS */}
-              <TabsContent value="exames">
+              <AbaFuncionarioContent value="exames" allowed={podeAcessarAbaFuncionario(tem, "exames")} readOnly={editingId ? !podeEditar : !podeCriar}>
                 <ExamesPeriodicosTab
                   funcionarioId={editingId || ""}
                   funcionarioNome={form.nome}
                   funcionarioTelefone={form.telefone}
                   funcionarioEmail={form.email}
                 />
-              </TabsContent>
+              </AbaFuncionarioContent>
 
               {/* FÉRIAS */}
-              <TabsContent value="ferias">
+              <AbaFuncionarioContent value="ferias" allowed={podeAcessarAbaFuncionario(tem, "ferias")} readOnly={editingId ? !podeEditar : !podeCriar}>
                 <FeriasTab
                   funcionarioId={editingId || ""}
                   funcionarioNome={form.nome}
                   dataAdmissao={form.dataAdmissao}
                 />
-              </TabsContent>
+              </AbaFuncionarioContent>
 
 
               {/* PROMOÇÕES */}
-              <TabsContent value="promocoes">
+              <AbaFuncionarioContent value="promocoes" allowed={podeAcessarAbaFuncionario(tem, "promocoes")} readOnly={editingId ? !podeEditar : !podeCriar}>
                 <PromocoesTab
                   funcionarioId={editingId || ""}
                   cargoAtualId={form.cargoId}
@@ -1457,19 +1450,19 @@ const Funcionarios = () => {
                     update("clienteId", dados.clienteId);
                   }}
                 />
-              </TabsContent>
+              </AbaFuncionarioContent>
 
               {/* ANEXOS DOCUMENTOS */}
-              <TabsContent value="anexos_docs">
+              <AbaFuncionarioContent value="anexos_docs" allowed={podeAcessarAbaFuncionario(tem, "anexos_docs")} readOnly={editingId ? !podeEditar : !podeCriar}>
                 <AnexosDocumentosTab
                   anexos={form.anexosDocumentos}
                   onChange={(a) => update("anexosDocumentos", a)}
                   funcionarioId={editingId || undefined}
                 />
-              </TabsContent>
+              </AbaFuncionarioContent>
 
               {/* PENSÃO / CONTATOS DE EMERGÊNCIA */}
-              <TabsContent value="pensao">
+              <AbaFuncionarioContent value="pensao" allowed={podeAcessarAbaFuncionario(tem, "pensao")} readOnly={editingId ? !podeEditar : !podeCriar}>
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-sm font-semibold mb-2">Contatos de Emergência</h3>
@@ -1548,19 +1541,19 @@ const Funcionarios = () => {
                     )}
                   </div>
                 </div>
-              </TabsContent>
+              </AbaFuncionarioContent>
 
               {/* OBSERVAÇÕES */}
-              <TabsContent value="observacoes">
+              <AbaFuncionarioContent value="observacoes" allowed={podeAcessarAbaFuncionario(tem, "observacoes")} readOnly={editingId ? !podeEditar : !podeCriar}>
                 <Field label="Observações">
                   <Textarea value={form.observacoes} onChange={(e) => update("observacoes", e.target.value)} rows={5} placeholder="Anotações gerais sobre o funcionário..." />
                 </Field>
-              </TabsContent>
+              </AbaFuncionarioContent>
             </Tabs>
 
             <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-border">
               <Button type="button" variant="outline" onClick={resetForm}>Cancelar</Button>
-              <Button type="submit" className="shadow-md">{editingId ? "Salvar Alterações" : "Cadastrar Funcionário"}</Button>
+              {(editingId ? podeEditar : podeCriar) && abasPermitidas.length > 0 && <Button type="submit" className="shadow-md">{editingId ? "Salvar Alterações" : "Cadastrar Funcionário"}</Button>}
             </div>
           </form>
         )}
@@ -1704,8 +1697,8 @@ const Funcionarios = () => {
                             {podeExportarPdf && <DropdownMenuItem onClick={() => gerarPdfUniforme(f, { cargoNome: getCargoNome(f.cargoId), clienteNome: f.clienteId ? getClienteNome(f.clienteId) : "" })}>
                               <FileDown className="h-4 w-4 mr-2" /> Baixar PDF Uniforme
                             </DropdownMenuItem>}
-                            {podeEditar && <DropdownMenuItem onClick={() => handleEdit(f)}>
-                              <Pencil className="h-4 w-4 mr-2" /> Editar
+                            {abasPermitidas.length > 0 && <DropdownMenuItem onClick={() => handleEdit(f)}>
+                              <Pencil className="h-4 w-4 mr-2" /> {podeEditar ? "Editar" : "Consultar"}
                             </DropdownMenuItem>}
                             <DropdownMenuItem onClick={() => setTransferir({ id: f.id, nome: f.nome, clienteId: f.clienteId })}>
                               <ArrowRightLeft className="h-4 w-4 mr-2" /> {podeTransferirCliente ? "Transferir Cliente/Unidade" : "Solicitar Transferência de Cliente/Unidade"}

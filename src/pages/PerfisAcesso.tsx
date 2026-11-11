@@ -61,6 +61,7 @@ const PerfisAcesso = () => {
     ...(mod.acoes?.map(a => a.key) ?? []),
     ...(mod.statusTransicoes?.map(s => s.key) ?? []),
     ...(mod.flags?.map(f => f.key) ?? []),
+    ...(mod.abas?.map(a => a.key) ?? []),
   ];
 
   const toggleModuleAll = (mod: typeof MODULOS_SISTEMA[0]["modulos"][0]) => {
@@ -121,6 +122,7 @@ const PerfisAcesso = () => {
             ...(m.acoes ?? []),
             ...(m.statusTransicoes ?? []),
             ...(m.flags ?? []),
+            ...(m.abas ?? []),
           ];
           return sub.some(s => matchesSearch(s.label));
         }),
@@ -338,7 +340,7 @@ const PerfisAcesso = () => {
                       {grupo.modulos.map(mod => {
                         const modKeys = getModuleAllKeys(mod);
                         const allModChecked = modKeys.every(k => form.permissoes[k]);
-                        const hasDetails = (mod.acoes?.length ?? 0) > 0 || (mod.statusTransicoes?.length ?? 0) > 0 || (mod.flags?.length ?? 0) > 0;
+                        const hasDetails = (mod.acoes?.length ?? 0) > 0 || (mod.statusTransicoes?.length ?? 0) > 0 || (mod.flags?.length ?? 0) > 0 || (mod.abas?.length ?? 0) > 0;
                         const displayKey = `${grupo.grupo}:${mod.label}`;
                         const isExpanded = !!expandedModules[displayKey];
 
@@ -395,6 +397,14 @@ const PerfisAcesso = () => {
 
                             {hasDetails && isExpanded && (
                               <div className="px-4 pb-3 pl-10 space-y-3">
+                                {mod.abas && mod.abas.length > 0 && (
+                                  <section className="border-b border-border pb-3">
+                                    <p className="text-xs font-semibold text-foreground mb-2">Abas do cadastro de Funcionários</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5">
+                                      {mod.abas.map(aba => renderPermissionCheckbox(aba, "acao"))}
+                                    </div>
+                                  </section>
+                                )}
                                 {mod.acoes && mod.acoes.length > 0 && (
                                   <div>
                                     <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">Ações</p>

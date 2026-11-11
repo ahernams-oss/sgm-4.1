@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
 import { useProviderGate, useActivateProvider } from "@/lib/providerGate";
 import { organizarPermissoesPorMenu } from "@/lib/gruposPermissoes";
+import { permissoesAbasFuncionarios } from "@/lib/abasFuncionarios";
 
 const PERFIS_QK = ["perfis_acesso"] as const;
 
@@ -19,6 +20,7 @@ export interface GrupoPermissao {
     acoes?: PermissaoModulo[];
     statusTransicoes?: PermissaoModulo[];
     flags?: PermissaoModulo[];
+    abas?: PermissaoModulo[];
   }[];
 }
 
@@ -77,6 +79,7 @@ const MODULOS_CADASTRADOS: GrupoPermissao[] = [
       {
         key: "funcionarios",
         label: "Funcionários",
+        abas: permissoesAbasFuncionarios,
         acoes: [
           { key: "funcionarios.criar", label: "Pode Cadastrar Funcionário" },
           { key: "funcionarios.editar", label: "Pode Editar Funcionário" },
@@ -1010,6 +1013,7 @@ export const ALL_PERMISSION_KEYS = MODULOS_SISTEMA.flatMap(g =>
     ...(m.acoes?.map(a => a.key) ?? []),
     ...(m.statusTransicoes?.map(s => s.key) ?? []),
     ...(m.flags?.map(f => f.key) ?? []),
+    ...(m.abas?.map(a => a.key) ?? []),
   ])
 );
 

@@ -1,5 +1,7 @@
 # Tarefas
 
+- [ ] Criar seleção de acesso por aba de Funcionários nos perfis e exibir somente abas autorizadas, preservando ações existentes.
+
 - [x] Adicionar marcador visual Cliente, persistido nos usuários e perfis, sem alterar permissões ou clientes liberados; cadastro, edição e duplicação preservam a marcação. Três testes passaram, tipos e build OK; campos conferidos no banco. Não testei com login.
 
 - [x] Corrigir a recusa no download oficial: usar a sessão já validada e a autorização SQL do módulo, sem a ponte legada; leitura da nota continua sujeita às restrições de cliente, conferidas no banco. Dezessete testes passaram, tipos e build OK; falhas de consulta agora têm mensagem própria. Não testei com login nem consultei o PDF real no provedor.

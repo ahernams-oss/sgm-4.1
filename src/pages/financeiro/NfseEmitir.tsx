@@ -22,7 +22,7 @@ import { Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import CodigoTributacaoSelect from "@/components/financeiro/CodigoTributacaoSelect";
 import TomadorSelect from "@/components/financeiro/TomadorSelect";
-import { podeGerarPdfNfse } from "@/lib/gerarPdfNfse";
+import { numeroFiscalNfse, podeGerarPdfNfse } from "@/lib/gerarPdfNfse";
 import { useServerFn } from "@tanstack/react-start";
 import { obterDanfseOficial } from "@/lib/danfseOficial.functions";
 import { baixarDanfseBlob, decodificarPdfDanfse, salvarDanfseBlob } from "@/lib/danfseOficial";
@@ -119,6 +119,7 @@ export default function NfseEmitir() {
     if (filtroBusca) {
       const q = filtroBusca.toLowerCase();
       lista = lista.filter((n) =>
+        (numeroFiscalNfse(n.xml_nfse) || "").includes(q) ||
         String(n.numero_dps).includes(q) ||
         (n.tomador?.razaoSocial || "").toLowerCase().includes(q) ||
         (n.chave_acesso || "").includes(q)
@@ -218,7 +219,7 @@ export default function NfseEmitir() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Número/Série</TableHead>
+                <TableHead>Nº Nota Fiscal</TableHead>
                 <TableHead>Emissão</TableHead>
                 <TableHead>Tomador</TableHead>
                 <TableHead className="text-right">Valor Serviço</TableHead>
@@ -235,7 +236,7 @@ export default function NfseEmitir() {
               )}
               {pageItems.map((n) => (
                 <TableRow key={n.id}>
-                  <TableCell className="font-mono">{n.numero_dps}/{n.serie}</TableCell>
+                  <TableCell className="font-mono" title={`DPS: ${n.numero_dps} / Série: ${n.serie}`}>{numeroFiscalNfse(n.xml_nfse) || "—"}</TableCell>
                   <TableCell>{formatDate(n.data_emissao || n.created_at)}</TableCell>
                   <TableCell>
                     <div className="flex flex-col">

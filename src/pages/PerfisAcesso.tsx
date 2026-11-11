@@ -19,10 +19,10 @@ import {
 } from "@/contexts/PerfisAcessoContext";
 import { toast } from "sonner";
 import { usePermissao } from "@/hooks/usePermissao";
-import { expandirSubmenusFaturamento, expandirSubmenuContratos } from "@/lib/gruposPermissoes";
+import { expandirSubmenusFaturamento, expandirSubmenuContratos, expandirSubmenusPmoc } from "@/lib/gruposPermissoes";
 import { MarcadorCliente } from "@/components/MarcadorCliente";
 
-const MODULOS_PERFIL = expandirSubmenuContratos(expandirSubmenusFaturamento(MODULOS_SISTEMA));
+const MODULOS_PERFIL = expandirSubmenusPmoc(expandirSubmenuContratos(expandirSubmenusFaturamento(MODULOS_SISTEMA)));
 
 const emptyForm = { nome: "", descricao: "", permissoes: {} as Permissoes, destinadoCliente: false };
 

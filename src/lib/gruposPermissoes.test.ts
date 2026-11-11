@@ -1,7 +1,31 @@
 import { describe, expect, test } from "vitest";
-import { expandirSubmenusFaturamento, organizarPermissoesPorMenu } from "./gruposPermissoes";
+import { expandirSubmenusFaturamento, expandirSubmenusPmoc, organizarPermissoesPorMenu } from "./gruposPermissoes";
 
 describe("organização dos perfis por menu", () => {
+  test("os cinco submenus PMOC preservam as chaves de acesso e todas as ações existentes", () => {
+    const pmoc = { key: "pmoc", label: "PMOC", acoes: ["criar", "editar", "excluir", "exportar_pdf", "exportar_excel", "confirmar_execucao"].map(key => ({ key: `pmoc.${key}`, label: key })) };
+    const valores = { key: "pmoc_valores", label: "Valores", acoes: [] };
+    const grupos = [{ grupo: "PMOC", modulos: [pmoc, valores] }];
+    const antes = structuredClone(grupos);
+    const resultado = expandirSubmenusPmoc(grupos);
+    expect(resultado[0]?.modulos.map(mod => mod.key)).toEqual(["pmoc", "pmoc", "pmoc", "pmoc", "pmoc_valores"]);
+    const keys = (modulos: typeof grupos[0]["modulos"]) => [...new Set(modulos.flatMap(mod => [mod.key, ...(mod.acoes?.map(acao => acao.key) ?? [])]))].sort();
+    expect(keys(resultado[0]?.modulos ?? [])).toEqual(keys(grupos[0].modulos));
+    expect(grupos).toEqual(antes);
+  });
+
+  test("confirmação é apresentada na operação gerenciada, não na SMART", () => {
+    const acoes = ["criar", "editar", "confirmar_execucao"].map(key => ({ key: `pmoc.${key}`, label: key }));
+    const resultado = expandirSubmenusPmoc([{ grupo: "PMOC", modulos: [{ key: "pmoc", label: "PMOC", acoes }] }]);
+    expect(resultado[0]?.modulos[1]?.acoes?.map(acao => acao.key)).toEqual(["pmoc.criar", "pmoc.editar", "pmoc.confirmar_execucao"]);
+    expect(resultado[0]?.modulos[2]?.acoes?.map(acao => acao.key)).toEqual(["pmoc.criar", "pmoc.editar"]);
+  });
+
+  test("catálogo sem PMOC permanece intacto", () => {
+    const grupo = { grupo: "Cadastros", modulos: [{ key: "clientes", label: "Clientes" }] };
+    expect(expandirSubmenusPmoc([grupo])[0]).toBe(grupo);
+  });
+
   test("os quatro submenus de Faturamento reutilizam as permissões existentes sem alterar o catálogo", () => {
     const clientes = { key: "clientes", label: "Clientes" };
     const notas = { key: "financeiro.nfes_recebidas", label: "NFes Recebidas" };

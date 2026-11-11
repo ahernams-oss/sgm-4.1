@@ -66,6 +66,30 @@ export function expandirSubmenusFaturamento(grupos: GrupoPermissao[]): GrupoPerm
 }
 const ACOES_CONTRATOS = ["clientes.gerenciar_contratos", "clientes.contratos_visualizar", "clientes.contratos_criar", "clientes.contratos_editar", "clientes.contratos_excluir"];
 
+// Os submenus PMOC compartilham os acessos atuais do menu lateral.
+// Esta projeção não cria permissões sem efeito nem altera perfis já salvos.
+export function expandirSubmenusPmoc(grupos: GrupoPermissao[]): GrupoPermissao[] {
+  return grupos.map(grupo => {
+    if (grupo.grupo !== "PMOC") return grupo;
+    const pmoc = grupo.modulos.find(mod => mod.key === "pmoc");
+    if (!pmoc) return grupo;
+    const acoes = pmoc.acoes ?? [];
+    const operacao = acoes.filter(acao => ["pmoc.criar", "pmoc.editar", "pmoc.confirmar_execucao"].includes(acao.key));
+    const smart = operacao.filter(acao => acao.key !== "pmoc.confirmar_execucao");
+    const relatorios = acoes.filter(acao => ["pmoc.exportar_pdf", "pmoc.exportar_excel"].includes(acao.key));
+    return {
+      ...grupo,
+      modulos: [
+        { ...pmoc, acoes: acoes.filter(acao => acao.key !== "pmoc.confirmar_execucao") },
+        { key: pmoc.key, label: "Gerenciar Operação", acoes: operacao },
+        { key: pmoc.key, label: "Operação SMART", acoes: smart },
+        { key: pmoc.key, label: "O.S. PMOC", acoes: relatorios },
+        ...grupo.modulos.filter(mod => mod.key !== "pmoc").map(mod => mod.key === "pmoc_valores" ? { ...mod, label: "Valores PMOC" } : mod),
+      ],
+    };
+  });
+}
+
 // Projeção visual: "Contratos" aparece como submenu de Clientes, reutilizando as chaves de clientes.
 export function expandirSubmenuContratos(grupos: GrupoPermissao[]): GrupoPermissao[] {
   return grupos.map(g => {

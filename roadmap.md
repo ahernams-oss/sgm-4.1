@@ -1,5 +1,6 @@
 # Tarefas
 
+- [ ] Adaptar o teste para Omni Z-API (Meta Cloud API/Coexistência): conectar com Secret Key de Segurança, identificar o canal SGM, configurar webhook protegido e enviar o teste autorizado somente com janela de conversa aberta ou template aprovado. Preservar PlugSend e não reutilizar ID/token da Z-API tradicional.
 - [x] Preparar webhook isolado Z-API para recebimento, envio/entrega, leitura e conexão/desconexão; validar origem com segredo compartilhado e registrar somente tipo/status, sem dados pessoais. Dezesseis testes passaram; GET local 200, POST sem configuração bloqueado com 503; build OK. PlugSend preservada.
 - [ ] Ativar teste real Z-API: webhook publicado e proteção confirmada (POST público sem token retorna 401); ZAPI_WEBHOOK_SECRET salvo. Depende de configurar no painel Z-API as URLs dos cinco callbacks com ?token= e confirmar evento real. Nenhuma mensagem enviada; não testei com login.
 - [ ] Enviar mensagem de teste Z-API ao número informado pelo usuário: cadastro confirmado; após atualização segura de ID/token, nova consulta de conexão ainda retornou HTTP 400 com falha na identificação da instância. Bloqueado por dados de conexão recusados pela Z-API; nenhum webhook do provedor alterado nem mensagem enviada.

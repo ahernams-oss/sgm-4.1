@@ -49,6 +49,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEmpresa } from "@/contexts/EmpresaContext";
+import { podeValidarOs, MSG_OS_SEM_PROFISSIONAL } from "@/lib/validacaoOsProfissionais";
 import { gerarPdfOrdemServico, gerarPdfOrdemServicoLote } from "@/lib/gerarPdfOrdemServico";
 import { gerarPdfOrdemServicoComFotos, gerarPdfOrdemServicoFotosMemoria, gerarPdfOrdemServicoFotosMemoriaFotos } from "@/lib/gerarPdfOrdemServicoFotos";
 import WorkflowTimeline from "@/components/WorkflowTimeline";
@@ -704,6 +705,10 @@ export default function OrdensServicoPage() {
       toast.error(`Você não possui permissão para alterar a OS para "${novaSituacao}".`);
       return;
     }
+    if (novaSituacao === "Validada" && !podeValidarOs(os.profissionais)) {
+      toast.error(MSG_OS_SEM_PROFISSIONAL);
+      return;
+    }
     // If rejecting, open justification dialog instead
     if (novaSituacao === "Serviço Não Aprovado pela Fiscalização") {
       setNaoAprovarOS(os);
@@ -991,6 +996,7 @@ export default function OrdensServicoPage() {
   const handleSubmit = async () => {
     if (!clienteId) { toast.error("Selecione um cliente."); return; }
     if (!descricaoServicos.trim()) { toast.error("Preencha a descrição dos serviços."); return; }
+    if (situacao === "Validada" && !podeValidarOs(profissionais)) { toast.error(MSG_OS_SEM_PROFISSIONAL); return; }
     if (fotos.some(foto => (foto.observacao?.length || 0) > 200)) {
       toast.error("A observação de cada foto deve ter no máximo 200 caracteres.");
       return;

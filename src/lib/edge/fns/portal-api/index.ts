@@ -5,6 +5,7 @@ const Deno = __slot.Deno;
 import { createClient } from "@supabase/supabase-js";
 import * as bcrypt from "@/lib/edge/bcrypt";
 import { create, verify, getNumericDate } from "@/lib/edge/djwt";
+import { exigirAcesso, podeModulo } from "@/lib/edge/permissao";
 import { MSG_SENHA_VAZADA, senhaVazada } from "../_shared/senha-vazada.ts";
 
 const corsHeaders = {
@@ -111,6 +112,12 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const action = String(body?.action || "");
 
+    // Ações administrativas: só usuários do SGM logados com acesso a RH.
+    if (action.startsWith("admin-")) {
+      const acesso = await exigirAcesso(req, (c) => podeModulo(c, "processos_seletivos", "funcionarios"));
+      if (!acesso.ok) return acesso.resposta;
+    }
+
     // -------- SIGNUP (1º acesso) --------
     if (action === "signup") {
       const cpf = normCpf(body.cpf);
@@ -211,36 +218,10 @@ Deno.serve(async (req) => {
     }
 
     // -------- RESET (esqueci senha - reset direto por CPF+DataNasc para v1) --------
+    // Redefinição só com CPF + data de nascimento foi desativada: esses dados não são
+    // segredo. A senha do portal passa a ser redefinida pelo RH.
     if (action === "reset-request") {
-      const cpf = normCpf(body.cpf);
-      const dataNasc = String(body.dataNascimento || "");
-      const novaSenha = String(body.novaSenha || "");
-      if (!validCpf(cpf) || !dataNasc || novaSenha.length < 8)
-        return json({ error: "Informe CPF, data de nascimento e nova senha (mín. 8 caracteres)." }, 400);
-      if (await senhaVazada(novaSenha)) return json({ error: MSG_SENHA_VAZADA }, 400);
-
-      const { data: cred } = await sb.from("portal_credenciais").select("*").eq("cpf", cpf).maybeSingle();
-      if (!cred) return json({ error: "CPF não encontrado." }, 404);
-
-      let match = false;
-      if (cred.funcionario_id) {
-        if (await funcionarioBloqueado(cred.funcionario_id))
-          return json({ error: "Funcionário inativo. Acesso ao portal bloqueado." }, 403);
-        const { data: f } = await sb.from("funcionarios").select("data_nascimento").eq("id", cred.funcionario_id).maybeSingle();
-        match = f?.data_nascimento === dataNasc;
-      } else {
-        // Candidato precisa informar CPF + data de nascimento cadastrados (sem atalho de teste).
-        const cand = await findCandidato(cpf, dataNasc);
-        match = !!cand && !!cand.candidato?.dataNascimento && cand.candidato.dataNascimento === dataNasc;
-      }
-      if (!match) return json({ error: "Dados não conferem." }, 401);
-
-      const hash = bcrypt.hashSync(novaSenha, bcrypt.genSaltSync(10));
-      await sb.from("portal_credenciais").update({
-        senha_hash: hash, tentativas_falhas: 0, bloqueado_ate: null,
-      }).eq("id", cred.id);
-      await log(cpf, cred.id, "reset", true, null, req);
-      return json({ ok: true });
+      return json({ error: "Para redefinir sua senha, procure o RH da Lasant." }, 403);
     }
 
     // -------- Ações administrativas (SGM app, sem token de portal) --------

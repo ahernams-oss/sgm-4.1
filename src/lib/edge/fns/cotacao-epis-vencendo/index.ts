@@ -212,7 +212,7 @@ serve(async (req) => {
         const link = `${APP_BASE_URL}/cotacao/proposta/${convite!.token}`;
 
         const linhasHtml = itensConvite
-          .map((i) => `<tr><td style="padding:6px 10px;border-bottom:1px solid #eee">${i.descricao}</td><td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center">${i.quantidade}</td><td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center">${i.unidadeMedida}</td></tr>`)
+          .map((i) => `<tr><td style="padding:6px 10px;border-bottom:1px solid #eee">${escHtml(i.descricao)}</td><td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center">${escHtml(i.quantidade)}</td><td style="padding:6px 10px;border-bottom:1px solid #eee;text-align:center">${escHtml(i.unidadeMedida)}</td></tr>`)
           .join("");
 
         let emailEnviado = false;
@@ -225,7 +225,7 @@ serve(async (req) => {
               html: `
                 <div style="font-family:Arial,sans-serif;color:#1f2937">
                   <h2 style="color:#1e3a5f">Pedido de Cotação — EPIs</h2>
-                  <p>Prezado(a) <strong>${nome}</strong>,</p>
+                  <p>Prezado(a) <strong>${escHtml(nome)}</strong>,</p>
                   <p>Solicitamos proposta comercial para os EPIs abaixo, cuja substituição está prevista por vencimento em ${ANTECEDENCIA_DIAS} dias.</p>
                   <table style="border-collapse:collapse;width:100%;font-size:14px">
                     <thead><tr style="background:#1e3a5f;color:#fff">
@@ -241,7 +241,7 @@ serve(async (req) => {
                   <p style="font-size:12px;color:#6b7280">Ou acesse: ${link}</p>
                 </div>`,
           }).then(() => null, (e) => e);
-          if (mailErr) console.error("[cotacao-epis] falha no e-mail para", email, mailErr);
+          if (mailErr) console.error("[cotacao-epis] falha no envio de e-mail a fornecedor", (mailErr as { message?: string })?.message ?? "erro");
           emailEnviado = !mailErr;
         }
 
@@ -303,3 +303,7 @@ serve(async (req) => {
 });
 
 export default __slot.dispatch;
+
+function escHtml(v: unknown): string {
+  return String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}

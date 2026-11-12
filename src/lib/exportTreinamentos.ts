@@ -15,7 +15,12 @@ export interface TreinamentoExportRow {
 
 const DARK_BLUE: [number, number, number] = [30, 58, 107];
 const HEAD = ["Funcionário", "CPF", "Título", "Tipo", "Status", "Nota", "Conclusão"];
-const csvCell = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+// Neutraliza fórmulas de planilha (=, +, -, @, tab, CR) vindas de dados digitados no portal.
+const csvCell = (v: unknown) => {
+  let t = String(v ?? "");
+  if (/^[=+\-@\t\r]/.test(t)) t = `'${t}`;
+  return `"${t.replace(/"/g, '""')}"`;
+};
 const stamp = () => new Date().toISOString().slice(0, 10);
 
 const toArray = (r: TreinamentoExportRow) => [r.funcionario, r.cpf, r.titulo, r.tipo, r.status, r.nota, r.conclusao];

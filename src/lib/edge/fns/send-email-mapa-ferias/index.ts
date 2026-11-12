@@ -3,6 +3,7 @@ const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
 import { emailsCadastrados, MSG_DESTINO_NAO_CADASTRADO } from "@/lib/edge/fns/_shared/destinatarios";
+import { exigirAcesso } from "@/lib/edge/permissao";
 import { sendTemplateEmail } from '../_shared/transactional-email-templates/send-email.ts'
 import { enviarComLog } from '../_shared/transactional-email-templates/log-send.ts'
 
@@ -23,6 +24,10 @@ const json = (body: unknown, status = 200) =>
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405)
+
+  // Exige usuário do SGM logado (ou o próprio servidor).
+  const acesso = await exigirAcesso(req.clone())
+  if (!acesso.ok) return acesso.resposta
 
   let recipientEmail = ''
   let idempotencyKey: string | undefined

@@ -13,7 +13,8 @@ export const getEquipamentoPublico = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data }) => {
     const db = await admin();
-    const { data: equip } = await db.from("equipamentos").select("*").eq("id", data.id).maybeSingle();
+    const { data: equip } = await db.from("equipamentos")
+      .select("id, equipamento, tag, fabricante, modelo, serie, tensao, capacidade_btu, situacao, cliente_nome, local_descricao, pavimento_descricao, setor_descricao, foto_url, fotos").eq("id", data.id).maybeSingle();
     if (!equip) return { equip: null, manutencoes: [], atividades: [], execucoes: [] };
     const [ss, ats, exs] = await Promise.all([
       db.from("solicitacoes_servicos")

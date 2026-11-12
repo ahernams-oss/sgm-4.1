@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.rp_preservar_solicitante() FROM PUBLIC, anon, authenticated; GRANT EXECUTE ON FUNCTION public.rp_preservar_solicitante() TO service_role;

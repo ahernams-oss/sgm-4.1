@@ -135,7 +135,7 @@ const RequisicaoForm = ({ onSuccess }: { onSuccess?: () => void }) => {
       }
     }
 
-    addRequisicao({
+    await addRequisicao({
       headcount: form.headcount,
       orcamento: form.orcamento,
       tipoVaga: form.tipoVaga,

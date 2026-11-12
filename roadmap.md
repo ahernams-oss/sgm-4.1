@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Avisar WhatsApp Seleção e solicitante original em criação/edição/status da RP, candidatos, avaliações, agendamento, documentos/ficha do portal, exame, liberação e contratação; vínculo original protegido no banco, falhas de envio visíveis na tela. Testes e tipos verificados; preservada PlugSend para grupos. Não testei com login nem confirmei entrega real; 32 alertas anteriores do banco permanecem fora deste pedido.
+
 - [x] Adaptar teste para Omni Z-API (Meta Cloud API/Coexistência): conexão segura vinculada; canal SGM identificado pelo usuário; cinco eventos no formato Z_API e autenticação Bearer confirmados no provedor. Recebimento protegido publicado respondeu 200, chamada sem proteção 401; 18 testes e tipos passaram. PlugSend preservada; não testei com login.
 - [x] Preparar webhook isolado Z-API para recebimento, envio/entrega, leitura e conexão/desconexão; validar origem com segredo compartilhado e registrar somente tipo/status, sem dados pessoais. Dezesseis testes passaram; GET local 200, POST sem configuração bloqueado com 503; build OK. PlugSend preservada.
 - [ ] Confirmar evento real do Omni Z-API: imagem do provedor mostra READ para outro ID de mensagem, mas callback recusado com 400 por channel_id sem instanceId. Compatibilidade de channel_id e ErrorCallback corrigida; aguarda publicação e reenvio do evento para confirmar recebimento real. Não atribuir essa leitura às tentativas com IDs diferentes.

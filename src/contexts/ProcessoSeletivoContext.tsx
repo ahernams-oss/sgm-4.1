@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow } from "@/lib/supabaseHelper";
 import { supabase } from "@/integrations/supabase/client";
 import { enviarNotificacaoRP } from "@/lib/notificacaoRP";
+import { eventosRecrutamento } from "@/lib/eventosRecrutamento";
 import { toast } from "sonner";
 import { useProviderGate, useActivateProvider } from "@/lib/providerGate";
 
@@ -22,7 +23,7 @@ async function notificarEtapaCandidato(requisicaoId: string, candidatoNome: stri
       `Candidato: ${candidatoNome}\n` +
       (detalhes ? `${detalhes}\n` : "") +
       `Data: ${new Date().toLocaleString("pt-BR")}`;
-    await enviarNotificacaoRP({ mensagem: msg, solicitante: req.solicitante });
+    await enviarNotificacaoRP({ mensagem: msg, requisicaoId });
   } catch (e) {
     console.error("Falha notificação processo seletivo:", e);
   }
@@ -172,6 +173,18 @@ export function ProcessoSeletivoProvider({ children }: { children: ReactNode }) 
       console.error("Falha ao salvar processo seletivo, recarregando...", e);
       toast.error("Não foi possível salvar. Tente novamente.");
       await invalidate();
+      return null;
+    }
+    if (base.candidatos.length !== updated.candidatos.length) {
+      await notificarEtapaCandidato(updated.requisicaoId, "Cadastro de candidatos", "Candidatos atualizados", `Total: ${updated.candidatos.length}`);
+    }
+    for (const candidato of updated.candidatos) {
+      const antes = base.candidatos.find(c => c.id === candidato.id);
+      if (!antes) continue;
+      for (const evento of eventosRecrutamento(antes as unknown as Record<string, unknown>, candidato as unknown as Record<string, unknown>)) {
+        await notificarEtapaCandidato(updated.requisicaoId, candidato.nome, evento,
+          evento === "Agendamento atualizado" ? `Dia: ${candidato.agendamentoData || "-"} | Horário: ${candidato.agendamentoHora || "-"} | Local: ${candidato.agendamentoLocal || "-"}` : `Etapa: ${candidato.etapaAtual} | Psicológica: ${candidato.statusPsicologico} | Técnica: ${candidato.statusTecnico} | Liberação: ${candidato.statusLiberacao}`);
+      }
     }
     return updated;
 
@@ -201,7 +214,11 @@ export function ProcessoSeletivoProvider({ children }: { children: ReactNode }) 
     (supabase as any)
       .from("processos_seletivos")
       .upsert({ id: novo.id, ...processoToRow(novo) }, { onConflict: "requisicao_id", ignoreDuplicates: true })
-      .then(() => invalidate())
+      .select("id")
+      .then(async ({ error, data }: any) => {
+        await invalidate();
+        if (!error && data?.length) await notificarEtapaCandidato(requisicaoId, "-", "Processo seletivo iniciado");
+      })
       .catch(() => invalidate());
     return novo;
   };
@@ -286,51 +303,19 @@ export function ProcessoSeletivoProvider({ children }: { children: ReactNode }) 
   };
 
   const updateCandidato = async (processoId: string, candidatoId: string, data: Partial<Candidato>) => {
-    let before: Candidato | undefined;
-    let after: Candidato | undefined;
-    let requisicaoIdRef: string | undefined;
-    await applyPatch(processoId, (p) => {
-      requisicaoIdRef = p.requisicaoId;
-      before = p.candidatos.find(c => c.id === candidatoId);
-      const novosCandidatos = p.candidatos.map(c => {
-        if (c.id !== candidatoId) return c;
-        const merged = { ...c, ...data };
-        after = merged;
-        return merged;
-      });
-      return { ...p, candidatos: novosCandidatos };
-    });
-    if (!before || !after || !requisicaoIdRef) return;
-    const eventos: { evento: string; detalhes?: string }[] = [];
-    if (data.statusPsicologico && data.statusPsicologico !== before.statusPsicologico) {
-      eventos.push({ evento: "Avaliação Psicológica", detalhes: `Status: ${data.statusPsicologico}` });
-    }
-    if (data.statusTecnico && data.statusTecnico !== before.statusTecnico) {
-      eventos.push({ evento: "Avaliação Técnica", detalhes: `Status: ${data.statusTecnico}${after.avaliadorTecnico ? ` | Avaliador: ${after.avaliadorTecnico}` : ""}` });
-    }
-    if (data.statusLiberacao && data.statusLiberacao !== before.statusLiberacao) {
-      eventos.push({ evento: "Liberação", detalhes: `Status: ${data.statusLiberacao}${after.liberadoPor ? ` | Por: ${after.liberadoPor}` : ""}` });
-    }
-    if (data.contratacaoFinalizada && !before.contratacaoFinalizada) {
-      eventos.push({ evento: "Contratação Finalizada" });
-    }
-    for (const ev of eventos) {
-      await notificarEtapaCandidato(requisicaoIdRef, after.nome, ev.evento, ev.detalhes);
-    }
+    await applyPatch(processoId, p => ({ ...p, candidatos: p.candidatos.map(c => c.id === candidatoId ? { ...c, ...data } : c) }));
   };
 
   const avancarEtapa = async (processoId: string, candidatoId: string) => {
     const etapas: EtapaCandidato[] = ["entrevista_psicologica", "entrevista_tecnica", "liberacao", "contratacao"];
     const p = await resolveProcesso(processoId);
     if (!p) return;
-    let candidatoNotif: { nome: string; nextEtapa: EtapaCandidato } | null | any = null;
     await saveAndReload(p.id, {
       ...p, candidatos: p.candidatos.map(c => {
         if (c.id !== candidatoId) return c;
         const idx = etapas.indexOf(c.etapaAtual);
         if (idx < etapas.length - 1) {
           const nextEtapa = etapas[idx + 1];
-          candidatoNotif = { nome: c.nome, nextEtapa };
           const dateNow = new Date().toLocaleDateString("pt-BR");
           const dateField =
             nextEtapa === "entrevista_tecnica" ? "dataEntrevistaTecnica" :
@@ -341,15 +326,6 @@ export function ProcessoSeletivoProvider({ children }: { children: ReactNode }) 
         return c;
       }),
     });
-    if (candidatoNotif) {
-      const labels: Record<EtapaCandidato, string> = {
-        entrevista_psicologica: "Entrevista Psicológica",
-        entrevista_tecnica: "Entrevista Técnica",
-        liberacao: "Liberação",
-        contratacao: "Contratação",
-      };
-      await notificarEtapaCandidato(p.requisicaoId, candidatoNotif.nome, `Avanço de Etapa → ${labels[candidatoNotif.nextEtapa]}`);
-    }
   };
 
   return (

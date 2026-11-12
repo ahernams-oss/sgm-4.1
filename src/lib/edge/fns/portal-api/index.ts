@@ -71,10 +71,21 @@ async function findCandidato(cpf: string, dataNasc?: string | null) {
     const idx = list.findIndex((c: any) => normCpf(c?.cpf) === cpf);
     if (idx >= 0) {
       if (dataNasc && list[idx]?.dataNascimento && list[idx].dataNascimento !== dataNasc) continue;
-      return { processo_seletivo_id: ps.id, candidato: list[idx], candidato_ref: list[idx]?.id || String(idx) };
+      return { processo_seletivo_id: ps.id, requisicao_id: ps.requisicao_id, candidato: list[idx], candidato_ref: list[idx]?.id || String(idx) };
     }
   }
   return null;
+}
+
+async function notificarPortalRecrutamento(cpf: string, evento: string) {
+  try {
+    const candidato = await findCandidato(cpf);
+    if (!candidato?.requisicao_id) return;
+    const { notificarRpServidor } = await import("@/lib/notificacaoRP.server");
+    const resultado = await notificarRpServidor(sb, candidato.requisicao_id,
+      `*Processo Seletivo — ${evento}*\nCandidato: ${candidato.candidato.nome || "-"}\nData: ${new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`);
+    if (!resultado.success) console.warn("Avisos do portal RH não confirmados:", resultado.avisos);
+  } catch { console.warn("Avisos do portal RH não enviados."); }
 }
 
 /** Funcionário inativo (demitido/desligado) perde o acesso ao portal. */
@@ -247,10 +258,12 @@ Deno.serve(async (req) => {
       const id = String(body.id || "");
       const status = String(body.status || "");
       if (!["pendente", "aprovado", "reprovado"].includes(status)) return json({ error: "Status inválido." }, 400);
+      const { data: documento } = await sb.from("portal_documentos_candidato").select("cpf,status").eq("id", id).maybeSingle();
       const { error } = await sb.from("portal_documentos_candidato").update({
         status, observacao: body.observacao ?? null, revisado_em: new Date().toISOString(),
       }).eq("id", id);
       if (error) return json({ error: error.message }, 500);
+      if (documento && documento.status !== status) await notificarPortalRecrutamento(documento.cpf, `Documento ${status}`);
       return json({ ok: true });
     }
     if (action === "admin-cand-ficha-status") {
@@ -262,6 +275,7 @@ Deno.serve(async (req) => {
         status, observacoes_rh: body.observacoes_rh ?? null, revisado_em: new Date().toISOString(),
       }).eq("cpf", cpf);
       if (error) return json({ error: error.message }, 500);
+      await notificarPortalRecrutamento(cpf, `Ficha de admissão: ${status}`);
       return json({ ok: true });
     }
 
@@ -539,10 +553,13 @@ Deno.serve(async (req) => {
       };
       const { data: existente } = await sb.from("portal_ficha_admissao").select("id").eq("cpf", cred.cpf).maybeSingle();
       if (existente) {
-        await sb.from("portal_ficha_admissao").update(payload).eq("id", existente.id);
+        const { error } = await sb.from("portal_ficha_admissao").update(payload).eq("id", existente.id);
+        if (error) return json({ error: error.message }, 500);
       } else {
-        await sb.from("portal_ficha_admissao").insert(payload);
+        const { error } = await sb.from("portal_ficha_admissao").insert(payload);
+        if (error) return json({ error: error.message }, 500);
       }
+      if (enviar) await notificarPortalRecrutamento(cred.cpf, "Ficha de admissão enviada");
       await log(cred.cpf, cred.id, "ficha-save", true, { enviar }, req);
       return json({ ok: true });
     }
@@ -566,10 +583,12 @@ Deno.serve(async (req) => {
         contentType: mimeDoc, upsert: false,
       });
       if (upErr) return json({ error: upErr.message }, 500);
-      await sb.from("portal_documentos_candidato").insert({
+      const { error: erroDocumento } = await sb.from("portal_documentos_candidato").insert({
         cpf: cred.cpf, processo_seletivo_id: cred.processo_seletivo_id,
         tipo_documento: tipo, nome_arquivo: nome, storage_path: path, tamanho_bytes: bin.byteLength,
       });
+      if (erroDocumento) return json({ error: erroDocumento.message }, 500);
+      await notificarPortalRecrutamento(cred.cpf, "Documento recebido");
       return json({ ok: true, path });
     }
     if (action === "cand-doc-list") {

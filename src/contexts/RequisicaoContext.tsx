@@ -103,6 +103,8 @@ export function RequisicaoProvider({ children }: { children: ReactNode }) {
       historicoStatus: [{ status: "Pendente", dataHora: agora }],
     };
     const inserted = await insertRow("requisicoes", reqToRow(full));
+    if (!inserted?.id) throw new Error("Não foi possível salvar a requisição.");
+    full.id = inserted.id;
     if (inserted?.numero) full.numero = inserted.numero;
     await load();
 
@@ -114,7 +116,7 @@ export function RequisicaoProvider({ children }: { children: ReactNode }) {
       `Solicitante: ${full.solicitante || "-"}\n` +
       `Data: ${full.dataCriacao}\n` +
       `Status: ${full.status}`;
-    await enviarNotificacaoRP({ mensagem: msg, solicitante: full.solicitante });
+    await enviarNotificacaoRP({ mensagem: msg, requisicaoId: full.id });
   };
 
   const updateRequisicao = async (id: string, data: Partial<Omit<Requisicao, "id" | "numero" | "dataCriacao" | "status" | "aprovadoPor" | "historicoStatus">>) => {
@@ -124,6 +126,7 @@ export function RequisicaoProvider({ children }: { children: ReactNode }) {
     const merged = { ...current, ...data };
     await updateRow("requisicoes", id, reqToRow(merged));
     await load();
+    await enviarNotificacaoRP({ requisicaoId: id, mensagem: `*Requisição de Pessoal atualizada*\nRP Nº: ${current.numero}\nCargo: ${merged.cargoNome}\nStatus: ${merged.status}` });
   };
 
   const updateStatus = async (id: string, status: Requisicao["status"], aprovadoPor?: string, observacao?: string) => {
@@ -145,7 +148,7 @@ export function RequisicaoProvider({ children }: { children: ReactNode }) {
       (aprovadoPor ? `Por: ${aprovadoPor}\n` : "") +
       (observacao ? `Justificativa: ${observacao}\n` : "") +
       `Data: ${agora}`;
-    await enviarNotificacaoRP({ mensagem: msg, solicitante: current.solicitante });
+    await enviarNotificacaoRP({ mensagem: msg, requisicaoId: id });
   };
 
   return (

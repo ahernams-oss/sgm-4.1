@@ -6,10 +6,11 @@ import { supabase } from "@/integrations/supabase/client";
 import promocaoPendenteIcon from "@/assets/promocao-pendente.png";
 import { DoubleConfirmDelete, useDoubleConfirmDelete } from "@/components/DoubleConfirmDelete";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
-import { UserCheck, Trash2, Pencil, Search, Plus, ChevronDown, ChevronUp, Bus, Paperclip, Users, FileDown, HardHat, Stethoscope, TrendingUp, Clock, MoreHorizontal, ArrowRightLeft, FileClock } from "lucide-react";
+import { UserCheck, Trash2, Pencil, Search, Plus, ChevronDown, ChevronUp, Bus, Paperclip, Users, FileDown, HardHat, Stethoscope, TrendingUp, Clock, MoreHorizontal, ArrowRightLeft, FileClock, KeyRound } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import TransferirClienteDialog from "@/components/TransferirClienteDialog";
 import SolicitarPromocaoDialog from "@/components/SolicitarPromocaoDialog";
+import RedefinirSenhaPortalDialog from "@/components/RedefinirSenhaPortalDialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -807,6 +808,7 @@ const Funcionarios = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [transferir, setTransferir] = useState<{ id: string; nome: string; clienteId: string } | null>(null);
+  const [senhaPortalAlvo, setSenhaPortalAlvo] = useState<{ id: string; nome: string } | null>(null);
   const [promocaoAlvo, setPromocaoAlvo] = useState<{ id: string; nome: string; cargoId: string; salario: string; clienteId: string } | null>(null);
 
   const colDefs: Record<string, { label: string; className?: string }> = {
@@ -1706,6 +1708,9 @@ const Funcionarios = () => {
                             <DropdownMenuItem onClick={() => setPromocaoAlvo({ id: f.id, nome: f.nome, cargoId: f.cargoId, salario: f.salario, clienteId: f.clienteId })}>
                               <TrendingUp className="h-4 w-4 mr-2" /> Solicitar Promoção
                             </DropdownMenuItem>
+                            {podeEditar && <DropdownMenuItem onClick={() => setSenhaPortalAlvo({ id: f.id, nome: f.nome })}>
+                              <KeyRound className="h-4 w-4 mr-2" /> Redefinir senha do portal
+                            </DropdownMenuItem>}
                             {podeExcluir && <DropdownMenuSeparator />}
                             {podeExcluir && <DropdownMenuItem onClick={() => requestDelete(f.id)} className="text-destructive focus:text-destructive">
                               <Trash2 className="h-4 w-4 mr-2" /> Excluir
@@ -1735,6 +1740,7 @@ const Funcionarios = () => {
           podeAutorizar={podeTransferirCliente}
         />
       )}
+      <RedefinirSenhaPortalDialog funcionario={senhaPortalAlvo} onClose={() => setSenhaPortalAlvo(null)} />
       {promocaoAlvo && (
         <SolicitarPromocaoDialog
           open={!!promocaoAlvo}

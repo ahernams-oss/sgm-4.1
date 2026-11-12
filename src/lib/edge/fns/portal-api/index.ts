@@ -5,7 +5,7 @@ const Deno = __slot.Deno;
 import { createClient } from "@supabase/supabase-js";
 import * as bcrypt from "@/lib/edge/bcrypt";
 import { create, verify, getNumericDate } from "@/lib/edge/djwt";
-import { exigirAcesso, podeModulo } from "@/lib/edge/permissao";
+import { exigirAcesso, pode, podeModulo } from "@/lib/edge/permissao";
 import { MSG_SENHA_VAZADA, senhaVazada } from "../_shared/senha-vazada.ts";
 
 const corsHeaders = {
@@ -267,6 +267,25 @@ Deno.serve(async (req) => {
 
     // Promove credencial de candidato para funcionário quando RH finaliza contratação.
     // Reaproveita CPF/senha; portal passa a rotear para /portal/funcionario no próximo login.
+    // RH redefine a senha do portal do funcionário (substitui o "esqueci a senha").
+    if (action === "admin-portal-redefinir-senha") {
+      const acesso = await exigirAcesso(req, (c) => pode(c, "funcionarios.editar"));
+      if (!acesso.ok) return acesso.resposta;
+      const funcId = String(body.funcionario_id || "");
+      const novaSenha = String(body.novaSenha || "");
+      if (!funcId || novaSenha.length < 8) return json({ error: "Informe uma senha com pelo menos 8 caracteres." }, 400);
+      if (await senhaVazada(novaSenha)) return json({ error: MSG_SENHA_VAZADA }, 400);
+      const { data: cred } = await sb.from("portal_credenciais").select("id, cpf").eq("funcionario_id", funcId).maybeSingle();
+      if (!cred) return json({ error: "Este funcionário ainda não fez o primeiro acesso ao portal." }, 404);
+      const hash = bcrypt.hashSync(novaSenha, bcrypt.genSaltSync(10));
+      const { error } = await sb.from("portal_credenciais").update({
+        senha_hash: hash, tentativas_falhas: 0, bloqueado_ate: null,
+      }).eq("id", cred.id);
+      if (error) return json({ error: "Não foi possível salvar a nova senha." }, 500);
+      await log(cred.cpf, cred.id, "reset-rh", true, null, req);
+      return json({ ok: true });
+    }
+
     if (action === "admin-promover-funcionario") {
       const cpf = normCpf(body.cpf);
       const funcId = String(body.funcionario_id || "");

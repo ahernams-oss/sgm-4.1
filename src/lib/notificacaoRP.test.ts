@@ -18,7 +18,7 @@ afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
 describe("envio das etapas de pessoal", () => {
   it("busca o telefone pelo ID original e envia para os dois destinos cadastrados", async () => {
     vi.stubEnv("PLUGSEND_TOKEN", "test-only");
-    const fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ success: true })));
+    const fetch = vi.fn().mockImplementation(async () => new Response(JSON.stringify({ success: true })));
     vi.stubGlobal("fetch", fetch);
     const { db, eq } = banco();
     expect(await notificarRpServidor(db, "rp-1", "Etapa registrada")).toEqual({ success: true, avisos: [] });

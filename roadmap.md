@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Destacar o filtro de Cliente na tela de Ordem de Serviço, acima dos demais filtros, com busca por nome/CPF/CNPJ e opção Todos os Clientes; escolha continua salva e volta à primeira página. Tipos e build OK. Não testei com login.
+
 - [x] Avisar WhatsApp Seleção e solicitante original em criação/edição/status da RP, candidatos, avaliações, agendamento, documentos/ficha do portal, exame, liberação e contratação; vínculo original protegido no banco, falhas de envio visíveis na tela. Testes e tipos verificados; preservada PlugSend para grupos. Não testei com login nem confirmei entrega real; 32 alertas anteriores do banco permanecem fora deste pedido.
 
 - [x] Adaptar teste para Omni Z-API (Meta Cloud API/Coexistência): conexão segura vinculada; canal SGM identificado pelo usuário; cinco eventos no formato Z_API e autenticação Bearer confirmados no provedor. Recebimento protegido publicado respondeu 200, chamada sem proteção 401; 18 testes e tipos passaram. PlugSend preservada; não testei com login.

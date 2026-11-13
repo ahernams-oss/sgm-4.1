@@ -985,10 +985,28 @@ export default function SolicitacaoServicosPage() {
     return { cols: [rotulo, "Qtd.", "% do total"], rows };
   };
 
-  type RelKey = "analitico" | "sintetico" | "situacao" | "cliente" | "prioridade" | "tipo" | "pendentes" | "fotos";
+  type RelKey = "analitico" | "analiticoI" | "sintetico" | "situacao" | "cliente" | "prioridade" | "tipo" | "pendentes" | "fotos";
 
   const montarRelatorio = (key: RelKey): { titulo: string; cols: string[]; rows: string[][] } => {
     switch (key) {
+      case "analiticoI":
+        return {
+          titulo: "Solicitações de Serviço - Analítico - I",
+          cols: ["Nº", "Data", "Tipo", "Local", "Pavimento", "Setor", "Equipamento", "Prioridade", "Situação", "Solicitante", "Descrição"],
+          rows: filtered.map(s => [
+            formatNumeroAno(s.numero, s.createdAt),
+            relData(s),
+            s.tipo || "-",
+            s.localDescricao || "-",
+            s.pavimentoDescricao || "-",
+            s.setorDescricao || "-",
+            s.equipamentoNome || "-",
+            s.prioridade || "-",
+            s.situacao || "-",
+            s.solicitanteNome || "-",
+            s.descricaoServicos || "-",
+          ]),
+        };
       case "analitico":
         return {
           titulo: "Solicitações de Serviço - Analítico",
@@ -1089,6 +1107,7 @@ export default function SolicitacaoServicosPage() {
 
   const RELATORIOS: { key: RelKey; label: string }[] = [
     { key: "analitico", label: "Analítico (detalhado)" },
+    { key: "analiticoI", label: "Analitico I" },
     { key: "sintetico", label: "Sintético (resumido)" },
     { key: "situacao", label: "Resumo por Situação" },
     { key: "cliente", label: "Resumo por Cliente" },

@@ -2,6 +2,7 @@ import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow } from "@/lib/supabaseHelper";
 import { enviarNotificacaoRP } from "@/lib/notificacaoRP";
+import { mensagemAtualizacaoStatus, mensagemNovaRequisicao } from "@/lib/mensagensRequisicao";
 import { useProviderGate, useActivateProvider } from "@/lib/providerGate";
 
 export interface StatusHistorico { status: string; dataHora: string; usuario?: string; observacao?: string; }
@@ -108,14 +109,10 @@ export function RequisicaoProvider({ children }: { children: ReactNode }) {
     if (inserted?.numero) full.numero = inserted.numero;
     await load();
 
-    const msg =
-      `*Nova Requisição de Pessoal*\n\n` +
-      `RP Nº: ${full.numero}\n` +
-      `Cargo: ${full.cargoNome || "-"}\n` +
-      `Unidade: ${full.unidade || "-"}\n` +
-      `Solicitante: ${full.solicitante || "-"}\n` +
-      `Data: ${full.dataCriacao}\n` +
-      `Status: ${full.status}`;
+    const msg = mensagemNovaRequisicao({
+      numero: full.numero, cargoNome: full.cargoNome, unidade: full.unidade,
+      status: full.status, agora: full.dataCriacao, solicitante: full.solicitante,
+    });
     await enviarNotificacaoRP({ mensagem: msg, requisicaoId: full.id });
   };
 
@@ -140,14 +137,10 @@ export function RequisicaoProvider({ children }: { children: ReactNode }) {
     await updateRow("requisicoes", id, reqToRow(updated));
     await load();
 
-    const msg =
-      `*Atualização de Requisição de Pessoal*\n\n` +
-      `RP Nº: ${current.numero}\n` +
-      `Cargo: ${current.cargoNome || "-"}\n` +
-      `Status: ${status}\n` +
-      (aprovadoPor ? `Por: ${aprovadoPor}\n` : "") +
-      (observacao ? `Justificativa: ${observacao}\n` : "") +
-      `Data: ${agora}`;
+    const msg = mensagemAtualizacaoStatus({
+      numero: current.numero, cargoNome: current.cargoNome, unidade: current.unidade,
+      status, agora, aprovadoPor, observacao,
+    });
     await enviarNotificacaoRP({ mensagem: msg, requisicaoId: id });
   };
 

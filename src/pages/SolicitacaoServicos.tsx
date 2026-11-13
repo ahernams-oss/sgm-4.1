@@ -1301,13 +1301,15 @@ export default function SolicitacaoServicosPage() {
           onChange={e => { setSearch(e.target.value); setPage(1); }}
           className="max-w-xs"
         />
-        <Select value={filterCliente} onValueChange={v => { setFilterCliente(v); setClienteTodosEscolhido(v === "all"); localStorage.setItem("ss_filtroCliente", v); setPage(1); }}>
-          <SelectTrigger className="w-[200px]"><SelectValue placeholder="Cliente" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all" onPointerUp={() => setClienteTodosEscolhido(true)} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") setClienteTodosEscolhido(true); }}>Todos os Clientes</SelectItem>
-            {clientesUnicos.map(([id, nome]) => <SelectItem key={id} value={id}>{nome}</SelectItem>)}
-          </SelectContent>
-        </Select>
+        <div className="w-full sm:w-[320px]">
+          <TomadorSelect
+            label="Filtrar por cliente"
+            todosLabel="Todos os Clientes"
+            value={filterCliente === "all" ? "" : filterCliente}
+            options={clientesUnicos.map(([id, nome]) => (soClientes as any[]).find(c => c.id === id) || { id, nome }) as any}
+            onValueChange={id => { const v = id || "all"; setFilterCliente(v); setClienteTodosEscolhido(v === "all"); localStorage.setItem("ss_filtroCliente", v); setPage(1); }}
+          />
+        </div>
         <Select value={filterTipo} onValueChange={v => { setFilterTipo(v); setPage(1); }}>
           <SelectTrigger className="w-[160px]"><SelectValue placeholder="Tipo" /></SelectTrigger>
           <SelectContent>

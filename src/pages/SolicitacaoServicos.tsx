@@ -1294,14 +1294,8 @@ export default function SolicitacaoServicosPage() {
       )}
 
       {/* Search & Filters */}
-      <div className="flex flex-wrap gap-3 items-end">
-        <Input
-          placeholder="Buscar solicitação ou valor..."
-          value={search}
-          onChange={e => { setSearch(e.target.value); setPage(1); }}
-          className="max-w-xs"
-        />
-        <div className="w-full sm:w-[320px]">
+        <div className="w-full max-w-xl rounded-lg border-2 border-primary/40 bg-primary/5 p-3 space-y-1">
+          <p className="text-sm font-semibold text-primary">Cliente</p>
           <TomadorSelect
             label="Filtrar por cliente"
             todosLabel="Todos os Clientes"
@@ -1310,6 +1304,13 @@ export default function SolicitacaoServicosPage() {
             onValueChange={id => { const v = id || "all"; setFilterCliente(v); setClienteTodosEscolhido(v === "all"); localStorage.setItem("ss_filtroCliente", v); setPage(1); }}
           />
         </div>
+      <div className="flex flex-wrap gap-3 items-end">
+        <Input
+          placeholder="Buscar solicitação ou valor..."
+          value={search}
+          onChange={e => { setSearch(e.target.value); setPage(1); }}
+          className="max-w-xs"
+        />
         <Select value={filterTipo} onValueChange={v => { setFilterTipo(v); setPage(1); }}>
           <SelectTrigger className="w-[160px]"><SelectValue placeholder="Tipo" /></SelectTrigger>
           <SelectContent>

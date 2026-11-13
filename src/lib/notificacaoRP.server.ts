@@ -4,7 +4,7 @@ import { destinosRequisicao } from "./eventosRecrutamento";
 // Called only after caller authentication, or by the already-authenticated portal handler.
 export async function notificarRpServidor(db: SupabaseClient, requisicaoId: string, mensagem: string) {
   const { data: req, error } = await db.from("requisicoes")
-    .select("solicitante_usuario_id").eq("id", requisicaoId).maybeSingle();
+    .select("solicitante_usuario_id, aprovado_por").eq("id", requisicaoId).maybeSingle();
   if (error || !req) throw new Error("Requisição não encontrada para notificação.");
   const { data: empresa, error: erroEmpresa } = await db.from("empresa")
     .select("whatsapp_selecao").limit(1).maybeSingle();
@@ -16,6 +16,14 @@ export async function notificarRpServidor(db: SupabaseClient, requisicaoId: stri
     if (erroUsuario) throw new Error("Não foi possível consultar o telefone do solicitante.");
     telefone = usuario?.telefone || "";
   }
+  // Approver is stored by name; only notify when exactly one active user matches.
+  let telefoneAprovador = "";
+  const aprovador = String(req.aprovado_por || "").trim();
+  if (aprovador) {
+    const { data: aprovadores } = await db.from("usuarios")
+      .select("telefone").ilike("nome", aprovador).limit(2);
+    if (aprovadores?.length === 1) telefoneAprovador = aprovadores[0].telefone || "";
+  }
   const avisos: string[] = [];
   if (!destinosRequisicao(empresa?.whatsapp_selecao || "", "").length)
     avisos.push("WhatsApp Seleção não cadastrado ou inválido.");
@@ -23,7 +31,13 @@ export async function notificarRpServidor(db: SupabaseClient, requisicaoId: stri
     avisos.push("Solicitante sem telefone válido ou sem vínculo identificado com o cadastro de usuários.");
   const token = process.env["PLUGSEND_TOKEN"];
   if (!token) return { success: false, avisos: [...avisos, "Serviço de WhatsApp não configurado."] };
-  for (const destino of destinosRequisicao(empresa?.whatsapp_selecao || "", telefone)) {
+  if (aprovador && !destinosRequisicao("", telefoneAprovador).length)
+    avisos.push("Aprovador sem telefone válido no cadastro de usuários.");
+  const destinos = [...new Set([
+    ...destinosRequisicao(empresa?.whatsapp_selecao || "", telefone),
+    ...destinosRequisicao("", telefoneAprovador),
+  ])];
+  for (const destino of destinos) {
     try {
       const response = await fetch("https://plugsend.uazapi.com/send/text", {
         method: "POST", headers: { "Content-Type": "application/json", token },

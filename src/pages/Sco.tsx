@@ -109,6 +109,12 @@ export default function Sco() {
     }
   };
 
+  const contagensPorTipo = useMemo(() => {
+    const base: Record<string, number> = { SCO: 0, SINAPI: 0, EMOP: 0 };
+    scos.forEach((s) => { base[s.tipo] = (base[s.tipo] || 0) + 1; });
+    return base;
+  }, [scos]);
+
   const familias = useMemo(() => {
     const set = new Set<string>();
     scos.forEach((s) => { if (s.familia) set.add(s.familia); });
@@ -187,6 +193,28 @@ export default function Sco() {
             <Plus className="mr-2 h-4 w-4" /> Novo Item
           </Button>}
         </div>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <button
+          type="button"
+          onClick={() => { setFilterTipo("todos"); setPage(1); }}
+          className={`rounded-lg border-2 p-3 text-left transition-colors ${filterTipo === "todos" ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/40"}`}
+        >
+          <p className="text-xs font-medium text-muted-foreground">Total de itens</p>
+          <p className="text-2xl font-bold text-foreground">{scos.length.toLocaleString("pt-BR")}</p>
+        </button>
+        {tiposSco.map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => { setFilterTipo(filterTipo === t ? "todos" : t); setPage(1); }}
+            className={`rounded-lg border-2 p-3 text-left transition-colors ${filterTipo === t ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/40"}`}
+          >
+            <p className="text-xs font-medium text-muted-foreground">{t}</p>
+            <p className="text-2xl font-bold text-foreground">{(contagensPorTipo[t] || 0).toLocaleString("pt-BR")}</p>
+          </button>
+        ))}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">

@@ -662,7 +662,15 @@ export default function OrdensServicoPage() {
   const scosFiltered = useMemo(() => {
     const raw = scoBusca.trim();
     if (!raw) return [];
-    const base = scoTipoFiltro === "todos" ? scos : scos.filter(s => (s.tipo || "").trim() === scoTipoFiltro);
+    // Somente itens da tabela I0 (mês/ano) configurada no contrato do cliente
+    const contratoTab = (clientesFiltrados.find(c => c.id === clienteId) as any)?.contratos?.[0];
+    const mesTab = Number(contratoTab?.mesSco);
+    const anoTab = Number(contratoTab?.anoSco);
+    const codigosTabela = mesTab && anoTab
+      ? new Set(i0Items.filter(i => i.mes === mesTab && i.ano === anoTab).map(i => i.codSco))
+      : null;
+    const daTabela = codigosTabela ? scos.filter(s => codigosTabela.has(s.codSco)) : [];
+    const base = scoTipoFiltro === "todos" ? daTabela : daTabela.filter(s => (s.tipo || "").trim() === scoTipoFiltro);
     // "*" abre a listagem completa (igual ao mecanismo da aba de Estoque)
     if (raw.startsWith("*")) {
       const q = raw.slice(1).trim().toLowerCase();
@@ -671,7 +679,7 @@ export default function OrdensServicoPage() {
     }
     const q = raw.toLowerCase();
     return base.filter(s => s.codSco.toLowerCase().includes(q) || s.descricaoSco.toLowerCase().includes(q));
-  }, [scos, scoBusca, scoTipoFiltro]);
+  }, [scos, scoBusca, scoTipoFiltro, i0Items, clientesFiltrados, clienteId]);
 
 
   // Recalculate financial values for an OS based on current client contract
@@ -2199,6 +2207,11 @@ export default function OrdensServicoPage() {
                       </Select>
                     </div>
                   </div>
+                  {scoBusca.trim() && scosFiltered.length === 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      Nenhum item encontrado na tabela configurada no contrato do cliente (mês/ano SCO). Verifique o contrato ou a tabela I0 desse período.
+                    </p>
+                  )}
                   {scosFiltered.length > 0 && (
                     <div className="border rounded-md">
                       <div className="max-h-[420px] overflow-y-auto">

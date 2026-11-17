@@ -1,0 +1,1 @@
+- Cancelamento de NFS-e vai oficialmente pela Brasil NFe; só marca cancelada com Status 1 confirmado, sem reenvio automático.

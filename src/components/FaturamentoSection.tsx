@@ -426,8 +426,8 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
           {anexosDe(form).length > 0 && (
             <ul className="mt-2 space-y-1">
               {anexosDe(form).map((a, i) => (
-                <li key={i} className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <FileText className="h-3 w-3 shrink-0" /> <span className="min-w-0 truncate">{a.nome}</span>
+                <li key={i} className="flex items-start gap-1 text-xs text-muted-foreground">
+                  <FileText className="mt-0.5 h-3 w-3 shrink-0" /> <span className="min-w-0 break-words">{a.nome}</span>
                   <button type="button" title="Remover anexo" onClick={() => definirAnexos(anexosDe(form).filter((_, j) => j !== i))} className="text-destructive hover:text-destructive/80 ml-1">
                     <X className="h-3 w-3" />
                   </button>
@@ -507,8 +507,8 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
                 {anexosDe(f).length > 0 && (
                   <div className="sm:col-span-full flex min-w-0 flex-col gap-0.5">
                     {anexosDe(f).map((a, i) => (
-                      <a key={i} href={a.url} download={a.nome} className="flex min-w-0 items-center gap-1 text-muted-foreground hover:text-primary">
-                        <FileText className="h-3 w-3 shrink-0" /> <span className="truncate">{a.nome}</span>
+                      <a key={i} href={a.url} download={a.nome} className="flex min-w-0 items-start gap-1 text-muted-foreground hover:text-primary">
+                        <FileText className="mt-0.5 h-3 w-3 shrink-0" /> <span className="min-w-0 break-words">{a.nome}</span>
                       </a>
                     ))}
                   </div>

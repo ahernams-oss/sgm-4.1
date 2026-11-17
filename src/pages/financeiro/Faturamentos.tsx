@@ -5,7 +5,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, ExternalLink, BarChart3 } from "lucide-react";
+import { FileText, ExternalLink, BarChart3, ChevronDown } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 import { useClientes, type Faturamento, type Contrato, type Cliente } from "@/contexts/ClientesContext";
 import { usePermissao } from "@/hooks/usePermissao";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
@@ -102,6 +104,78 @@ export default function Faturamentos() {
 
   const fmtBRL = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
+
+  type RelKey = "analitico" | "sintetico" | "cliente" | "contrato" | "mes" | "pagos" | "pendentes";
+  const RELATORIOS: { key: RelKey; label: string }[] = [
+    { key: "analitico", label: "Analítico (detalhado)" },
+    { key: "sintetico", label: "Sintético (resumido)" },
+    { key: "cliente", label: "Resumo por Cliente" },
+    { key: "contrato", label: "Resumo por Contrato" },
+    { key: "mes", label: "Resumo por Mês" },
+    { key: "pagos", label: "Faturamentos Pagos" },
+    { key: "pendentes", label: "Faturamentos Pendentes" },
+  ];
+  const parseV = (v?: string) => parseFloat(String(v || "0").replace(/\./g, "").replace(",", ".")) || 0;
+  const relFiltrosTexto = () => {
+    const partes: string[] = [];
+    if (filtroCliente !== "todos") partes.push(`Cliente: ${clientesLista.find(c => c.id === filtroCliente)?.nome || ""}`);
+    if (filtroStatus !== "todos") partes.push(`Situação: ${filtroStatus === "pago" ? "Pago" : "Pendente"}`);
+    if (dataIni) partes.push(`De: ${formatDate(dataIni)}`);
+    if (dataFim) partes.push(`Até: ${formatDate(dataFim)}`);
+    if (busca.trim()) partes.push(`Busca: ${busca.trim()}`);
+    return partes.join(" | ") || "Todos os registros";
+  };
+  const resumir = (lista: Row[], chave: (r: Row) => string, titulo: string, rotulo: string) => {
+    const m = new Map<string, { qtd: number; bruto: number; liquido: number; pagos: number }>();
+    lista.forEach(r => {
+      const k = chave(r) || "—";
+      const a = m.get(k) || { qtd: 0, bruto: 0, liquido: 0, pagos: 0 };
+      a.qtd++; a.bruto += parseV(r.faturamento.valorBruto); a.liquido += parseV(r.faturamento.valorLiquido);
+      if (r.faturamento.pago) a.pagos++;
+      m.set(k, a);
+    });
+    const linhas = [...m.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+    const tot = linhas.reduce((t, [, v]) => ({ qtd: t.qtd + v.qtd, bruto: t.bruto + v.bruto, liquido: t.liquido + v.liquido, pagos: t.pagos + v.pagos }), { qtd: 0, bruto: 0, liquido: 0, pagos: 0 });
+    return {
+      titulo, cols: [rotulo, "Qtd", "Pagos", "Pendentes", "Valor Bruto", "Valor Líquido"],
+      rows: [...linhas.map(([k, v]) => [k, String(v.qtd), String(v.pagos), String(v.qtd - v.pagos), fmtBRL(v.bruto), fmtBRL(v.liquido)]),
+        ...(linhas.length ? [["TOTAL", String(tot.qtd), String(tot.pagos), String(tot.qtd - tot.pagos), fmtBRL(tot.bruto), fmtBRL(tot.liquido)]] : [])],
+    };
+  };
+  const analitico = (lista: Row[], titulo: string) => {
+    const cols = ["Cliente", "Contrato", "Período", "Medição", "NF", "Processo", "Valor Bruto", "Valor Líquido", ...(podeVerFolha ? ["Valor Folha", "Valor Variável"] : []), "Situação", "Data Pagamento"];
+    const rows = lista.map(r => { const f = r.faturamento as any; return [
+      r.clienteNome, r.contratoNumero, `${formatDate(f.periodoInicio)} a ${formatDate(f.periodoFim)}`, f.numeroMedicao || "—", f.numeroNf || "—", f.processoNf || "—",
+      formatCurrency(f.valorBruto), formatCurrency(f.valorLiquido), ...(podeVerFolha ? [formatCurrency(f.valorFolha), formatCurrency(f.valorVariavel)] : []),
+      f.pago ? "Pago" : "Pendente", f.dataPagamento ? formatDate(f.dataPagamento) : "—"]; });
+    if (rows.length) {
+      const t = lista.reduce((a, r) => ({ b: a.b + parseV(r.faturamento.valorBruto), l: a.l + parseV(r.faturamento.valorLiquido), fo: a.fo + parseV(r.faturamento.valorFolha), v: a.v + parseV(r.faturamento.valorVariavel) }), { b: 0, l: 0, fo: 0, v: 0 });
+      rows.push(["TOTAL", "", "", "", "", "", fmtBRL(t.b), fmtBRL(t.l), ...(podeVerFolha ? [fmtBRL(t.fo), fmtBRL(t.v)] : []), "", ""]);
+    }
+    return { titulo, cols, rows };
+  };
+  const montarRelatorio = (key: RelKey) => {
+    switch (key) {
+      case "analitico": return analitico(filtradas, "Faturamentos - Analítico");
+      case "pagos": return analitico(filtradas.filter(r => r.faturamento.pago), "Faturamentos Pagos");
+      case "pendentes": return analitico(filtradas.filter(r => !r.faturamento.pago), "Faturamentos Pendentes");
+      case "sintetico": {
+        const rows = filtradas.map(r => [r.clienteNome, r.contratoNumero, formatDate(r.faturamento.periodoFim), r.faturamento.numeroNf || "—", formatCurrency(r.faturamento.valorLiquido), r.faturamento.pago ? "Pago" : "Pendente"]);
+        return { titulo: "Faturamentos - Sintético", cols: ["Cliente", "Contrato", "Fim do Período", "NF", "Valor Líquido", "Situação"], rows };
+      }
+      case "cliente": return resumir(filtradas, r => r.clienteNome, "Faturamentos - Resumo por Cliente", "Cliente");
+      case "contrato": return resumir(filtradas, r => `${r.clienteNome} - ${r.contratoNumero}`, "Faturamentos - Resumo por Contrato", "Cliente / Contrato");
+      case "mes": return resumir(filtradas, r => (r.faturamento.periodoFim || "").slice(0, 7).split("-").reverse().join("/"), "Faturamentos - Resumo por Mês", "Mês/Ano (fim do período)");
+    }
+  };
+  const exportarRelatorio = async (key: RelKey, tipo: "pdf" | "excel") => {
+    const { titulo, cols, rows } = montarRelatorio(key);
+    if (rows.length === 0) { toast.error("Nenhum registro na listagem atual."); return; }
+    const mod = await import("@/lib/gerarRelatorioEstoque");
+    if (tipo === "pdf") await mod.gerarPdfEstoque(titulo, cols, rows, relFiltrosTexto());
+    else await mod.gerarExcelEstoque(titulo, cols, rows, relFiltrosTexto());
+  };
+
   return (
     <div className="container max-w-full mx-auto px-4 py-6 space-y-4">
       <div className="flex items-end justify-between">
@@ -115,9 +189,27 @@ export default function Faturamentos() {
             Acompanhamento consolidado de todos os faturamentos lançados por cliente e contrato.
           </p>
         </div>
+        <div className="flex flex-wrap gap-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline"><FileText className="h-4 w-4 mr-2" /> Relatórios <ChevronDown className="h-4 w-4 ml-2" /></Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-72">
+            {RELATORIOS.map(r => (
+              <div key={r.key} className="flex items-center justify-between gap-2 px-2 py-1 text-sm">
+                <span className="truncate">{r.label}</span>
+                <span className="flex gap-1 shrink-0">
+                  <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => exportarRelatorio(r.key, "pdf")}>PDF</Button>
+                  <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => exportarRelatorio(r.key, "excel")}>Excel</Button>
+                </span>
+              </div>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Button onClick={() => setOpenSaldos(true)} variant="default">
           <BarChart3 className="h-4 w-4 mr-2" /> Relatório de Saldos
         </Button>
+        </div>
       </div>
 
       <RelatorioSaldosContratoDialog open={openSaldos} onOpenChange={setOpenSaldos} />

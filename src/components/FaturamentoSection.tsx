@@ -427,7 +427,7 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
             <ul className="mt-2 space-y-1">
               {anexosDe(form).map((a, i) => (
                 <li key={i} className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <FileText className="h-3 w-3 shrink-0" /> <span className="truncate">{a.nome}</span>
+                  <FileText className="h-3 w-3 shrink-0" /> <span className="min-w-0 truncate">{a.nome}</span>
                   <button type="button" title="Remover anexo" onClick={() => definirAnexos(anexosDe(form).filter((_, j) => j !== i))} className="text-destructive hover:text-destructive/80 ml-1">
                     <X className="h-3 w-3" />
                   </button>
@@ -504,11 +504,15 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
                 <p className={`font-medium ${f.pago ? "text-emerald-600" : "text-amber-600"}`}>
                   {f.pago ? `Crédito em conta: ${f.dataPagamento ? new Date(f.dataPagamento + "T00:00:00").toLocaleDateString("pt-BR") : "—"}` : "Pendente"}
                 </p>
-                {anexosDe(f).map((a, i) => (
-                  <a key={i} href={a.url} download={a.nome} className="text-muted-foreground hover:text-primary flex items-center gap-1">
-                    <FileText className="h-3 w-3" /> {a.nome}
-                  </a>
-                ))}
+                {anexosDe(f).length > 0 && (
+                  <div className="sm:col-span-full flex min-w-0 flex-col gap-0.5">
+                    {anexosDe(f).map((a, i) => (
+                      <a key={i} href={a.url} download={a.nome} className="flex min-w-0 items-center gap-1 text-muted-foreground hover:text-primary">
+                        <FileText className="h-3 w-3 shrink-0" /> <span className="truncate">{a.nome}</span>
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
               <div className="flex gap-1 shrink-0">
                 <Button variant="ghost" size="sm" type="button" onClick={() => handleGerarRelatorio(f)} className="text-xs gap-1" title="Relatório de Medição (PDF)">

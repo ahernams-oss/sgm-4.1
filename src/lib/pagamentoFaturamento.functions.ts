@@ -19,6 +19,7 @@ const faturamentoSchema = z.object({
   valeTransporte: texto.optional(), valeAlimentacao: texto.optional(), custoFixo: texto.optional(),
   foraFolha: texto.optional(), provisaoFerias: texto.optional(), provisao13: texto.optional(), valorVariavel: texto.optional(),
   anexoNfUrl: z.string().max(30000000), anexoNfNome: texto,
+  anexosNf: z.array(z.object({ nome: texto, url: z.string().max(30000000) })).max(5).optional(),
   pago: z.literal(true), dataPagamento: dataCreditoSchema,
 });
 

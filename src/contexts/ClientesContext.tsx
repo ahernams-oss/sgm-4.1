@@ -53,6 +53,8 @@ export interface Faturamento {
   valorVariavel?: string;
   anexoNfUrl: string;
   anexoNfNome: string;
+  /** Até 5 anexos; o primeiro também fica em anexoNfUrl/anexoNfNome para compatibilidade. */
+  anexosNf?: { nome: string; url: string }[];
   pago: boolean;
   dataPagamento: string;
 }

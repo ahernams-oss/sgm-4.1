@@ -183,17 +183,22 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
     e.target.value = "";
   };
 
+  const anexosDe = (f: { anexosNf?: { nome: string; url: string }[]; anexoNfUrl?: string; anexoNfNome?: string }) =>
+    f.anexosNf?.length ? f.anexosNf : (f.anexoNfUrl ? [{ nome: f.anexoNfNome || "NF", url: f.anexoNfUrl }] : []);
+  const definirAnexos = (lista: { nome: string; url: string }[]) =>
+    setForm((prev) => ({ ...prev, anexosNf: lista, anexoNfUrl: lista[0]?.url || "", anexoNfNome: lista[0]?.nome || "" }));
+
   const handleAnexoNf = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
     e.target.value = "";
-    const base64 = await lerArquivoBase64(file);
-    setForm((prev) => ({
-      ...prev,
-      anexoNfUrl: base64,
-      anexoNfNome: file.name,
-    }));
-    toast.success("NF anexada.");
+    if (!files.length) return;
+    const atuais = anexosDe(form);
+    const vagas = 5 - atuais.length;
+    if (vagas <= 0) { toast.error("Limite de 5 arquivos atingido."); return; }
+    if (files.length > vagas) toast.error(`Só é possível anexar até 5 arquivos. ${files.length - vagas} arquivo(s) ignorado(s).`);
+    const novos = await Promise.all(files.slice(0, vagas).map(async (file) => ({ nome: file.name, url: await lerArquivoBase64(file) })));
+    definirAnexos([...atuais, ...novos]);
+    toast.success(novos.length > 1 ? `${novos.length} arquivos anexados.` : "Arquivo anexado.");
   };
 
   const handleSave = async (pagamento?: { data: string; senha: string }) => {
@@ -411,13 +416,25 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
           </>
         )}
         <div>
-          <label className="field-label">Anexar NF</label>
-          <label className="cursor-pointer">
-            <input type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={handleAnexoNf} />
+          <label className="field-label">Anexar NF ({anexosDe(form).length}/5)</label>
+          <label className={anexosDe(form).length >= 5 ? "pointer-events-none opacity-50" : "cursor-pointer"}>
+            <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={handleAnexoNf} />
             <Button type="button" variant="outline" size="sm" asChild className="w-full gap-2">
-              <span><Upload className="h-3.5 w-3.5" /> {form.anexoNfNome || "Selecionar arquivo"}</span>
+              <span><Upload className="h-3.5 w-3.5" /> {anexosDe(form).length >= 5 ? "Limite de 5 arquivos" : "Selecionar arquivos"}</span>
             </Button>
           </label>
+          {anexosDe(form).length > 0 && (
+            <ul className="mt-2 space-y-1">
+              {anexosDe(form).map((a, i) => (
+                <li key={i} className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <FileText className="h-3 w-3 shrink-0" /> <span className="truncate">{a.nome}</span>
+                  <button type="button" title="Remover anexo" onClick={() => definirAnexos(anexosDe(form).filter((_, j) => j !== i))} className="text-destructive hover:text-destructive/80 ml-1">
+                    <X className="h-3 w-3" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         <div className="flex items-end gap-4">
           <Button type="button" variant={form.pago ? "default" : "outline"} disabled={salvando || !tem("clientes.editar")} onClick={() => { setDataCredito(form.dataPagamento || ""); setSenhaPagamento(""); setPagamentoOpen(true); }}>
@@ -487,11 +504,11 @@ export default function FaturamentoSection({ faturamentos, onChange, contratoNum
                 <p className={`font-medium ${f.pago ? "text-emerald-600" : "text-amber-600"}`}>
                   {f.pago ? `Crédito em conta: ${f.dataPagamento ? new Date(f.dataPagamento + "T00:00:00").toLocaleDateString("pt-BR") : "—"}` : "Pendente"}
                 </p>
-                {f.anexoNfNome && (
-                  <p className="text-muted-foreground flex items-center gap-1">
-                    <FileText className="h-3 w-3" /> {f.anexoNfNome}
-                  </p>
-                )}
+                {anexosDe(f).map((a, i) => (
+                  <a key={i} href={a.url} download={a.nome} className="text-muted-foreground hover:text-primary flex items-center gap-1">
+                    <FileText className="h-3 w-3" /> {a.nome}
+                  </a>
+                ))}
               </div>
               <div className="flex gap-1 shrink-0">
                 <Button variant="ghost" size="sm" type="button" onClick={() => handleGerarRelatorio(f)} className="text-xs gap-1" title="Relatório de Medição (PDF)">

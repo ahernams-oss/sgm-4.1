@@ -4,10 +4,10 @@ import { toast } from "sonner";
 import { ArrowLeft, KeyRound, Mail } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { solicitarRecuperacaoSenha } from "@/lib/recuperacaoSenha";
 
 const EsqueciSenha = () => {
-  const { resetSenha } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,7 +21,7 @@ const EsqueciSenha = () => {
     }
 
     setLoading(true);
-    const result = await resetSenha(email);
+    const result = await solicitarRecuperacaoSenha(supabase.auth, email, window.location.origin);
     setLoading(false);
 
     if (result.ok) {
@@ -43,7 +43,7 @@ const EsqueciSenha = () => {
           />
           <h1 className="text-xl font-bold text-foreground">Recuperar Senha</h1>
           <p className="text-sm text-muted-foreground mt-1 text-center">
-            Informe seu e-mail e enviaremos uma senha temporária
+            Informe seu e-mail para receber um link de recuperação
           </p>
         </div>
 
@@ -58,8 +58,8 @@ const EsqueciSenha = () => {
                   Verifique seu e-mail
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Se o endereço estiver cadastrado, você receberá uma senha
-                  temporária em alguns instantes.
+                  Se o endereço estiver cadastrado, você receberá um link para
+                  definir uma nova senha. Confira também a pasta de spam.
                 </p>
               </div>
               <Button
@@ -88,7 +88,7 @@ const EsqueciSenha = () => {
 
               <Button type="submit" className="w-full gap-2" disabled={loading}>
                 <KeyRound className="h-4 w-4" />
-                {loading ? "Enviando..." : "Enviar senha temporária"}
+                {loading ? "Enviando..." : "Enviar link de recuperação"}
               </Button>
 
               <Link
@@ -103,7 +103,7 @@ const EsqueciSenha = () => {
         </div>
 
         <p className="text-[11px] text-muted-foreground text-center mt-6">
-          Após acessar com a senha temporária, altere-a no seu cadastro.
+          Sua senha atual permanece válida até você definir uma nova pelo link.
         </p>
       </div>
     </div>

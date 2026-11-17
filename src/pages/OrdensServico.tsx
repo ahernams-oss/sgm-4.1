@@ -1392,7 +1392,7 @@ export default function OrdensServicoPage() {
       </div>
 
       {/* Filtro de Cliente em destaque, acima dos demais filtros */}
-      <div className="w-full max-w-xl rounded-lg border-2 border-primary/40 bg-primary/5 p-3 space-y-1">
+      <div className="w-full max-w-[45rem] rounded-lg border-2 border-primary/40 bg-primary/5 p-3 space-y-1">
         <p className="text-sm font-semibold text-primary">Cliente</p>
         <TomadorSelect
           label="Filtrar por cliente"

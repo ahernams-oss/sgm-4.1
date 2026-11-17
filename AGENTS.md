@@ -52,3 +52,4 @@
 - Home-screen installation uses the root head and the existing manifest with local brand icons, without app-shell service workers or offline caches; preserve module-specific manifest overrides and the stable app identity/start URL to avoid breaking installed shortcuts.
 - Root observes preload/rejection chunk errors and reloads once per chunk via sessionStorage to avoid loops; ordinary errors use router retry, never retrying fiscal submissions.
 - Client scope uses restrictive RLS and cache-filtering hooks; full catalogue is for access administration only.
+- Cancelamento de NFS-e é enviado oficialmente pela Brasil NFe (CancelarNotaFiscal) e só marca "cancelada" com Status 1 confirmado; sem resposta não há reenvio automático.

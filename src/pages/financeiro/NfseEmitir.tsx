@@ -25,6 +25,8 @@ import TomadorSelect from "@/components/financeiro/TomadorSelect";
 import { numeroFiscalNfse, podeGerarPdfNfse } from "@/lib/gerarPdfNfse";
 import { useServerFn } from "@tanstack/react-start";
 import { obterDanfseOficial } from "@/lib/danfseOficial.functions";
+import { cancelarNfseOficial } from "@/lib/cancelamentoNfse.functions";
+import { MOTIVOS_CANCELAMENTO_NFSE } from "@/lib/cancelamentoNfse";
 import { baixarDanfseBlob, decodificarPdfDanfse, salvarDanfseBlob } from "@/lib/danfseOficial";
 import { aliquotaIssContratoNfse, contratoInicialNfse } from "@/lib/issContratoNfse";
 import { textoContratoNfse } from "@/lib/textoContratoNfse";
@@ -54,7 +56,11 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function NfseEmitir() {
-  const { nfses, config, loading, saveConfig, emitir, cancelar, remover } = useNfses();
+  const { nfses, config, loading, saveConfig, emitir, reload, remover } = useNfses();
+  const cancelarOficial = useServerFn(cancelarNfseOficial);
+  const [codigoCancel, setCodigoCancel] = useState<1 | 2 | 3 | 9>(1);
+  const [cancelando, setCancelando] = useState(false);
+  const canceladaOficial = (n: NfseEmitida) => (n.servico as any)?.brasilNfe?.cancelamento?.situacao === "cancelada";
   const { empresa } = useEmpresa();
   const { clientes } = useClientes();
   const { temModulo } = usePermissao();
@@ -267,8 +273,8 @@ export default function NfseEmitir() {
                           <Download className="w-4 h-4" />
                         </Button>
                       )}
-                      {n.status === "emitida" && (
-                        <Button size="icon" variant="ghost" title="Cancelar"
+                      {(n.status === "emitida" || (n.status === "cancelada" && !canceladaOficial(n))) && (
+                        <Button size="icon" variant="ghost" title={n.status === "cancelada" ? "Enviar cancelamento ao Portal Nacional" : "Cancelar"}
                           onClick={() => { setCancelTarget(n); setMotivoCancel(""); }}>
                           <XCircle className="w-4 h-4 text-orange-600" />
                         </Button>
@@ -366,17 +372,30 @@ export default function NfseEmitir() {
       </Dialog>
       <Dialog open={!!cancelTarget} onOpenChange={(o) => !o && setCancelTarget(null)}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Cancelar NFS-e {cancelTarget?.numero_dps}</DialogTitle></DialogHeader>
-          <Label>Motivo do cancelamento</Label>
+          <DialogHeader><DialogTitle>Cancelar NFS-e {numeroFiscalNfse(cancelTarget?.xml_nfse ?? null) || cancelTarget?.numero_dps}</DialogTitle></DialogHeader>
+          <p className="text-sm text-muted-foreground">O cancelamento será enviado ao Portal Nacional pela Brasil NFe. A nota só fica cancelada após a confirmação.</p>
+          <Label>Código do motivo</Label>
+          <Select value={String(codigoCancel)} onValueChange={(v) => setCodigoCancel(Number(v) as 1 | 2 | 3 | 9)}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>{MOTIVOS_CANCELAMENTO_NFSE.map(m => <SelectItem key={m.codigo} value={String(m.codigo)}>{m.label}</SelectItem>)}</SelectContent>
+          </Select>
+          <Label>Justificativa</Label>
           <Textarea value={motivoCancel} onChange={(e) => setMotivoCancel(e.target.value)} rows={4} />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCancelTarget(null)}>Voltar</Button>
-            <Button onClick={async () => {
-              if (motivoCancel.length < 15) return toast.error("Motivo deve ter ao menos 15 caracteres");
-              await cancelar(cancelTarget!.id, motivoCancel);
-              toast.success("NFS-e cancelada");
-              setCancelTarget(null);
-            }}>Confirmar</Button>
+            <Button variant="outline" disabled={cancelando} onClick={() => setCancelTarget(null)}>Voltar</Button>
+            <Button disabled={cancelando} onClick={async () => {
+              if (motivoCancel.trim().length < 15) return toast.error("Justificativa deve ter ao menos 15 caracteres");
+              setCancelando(true);
+              try {
+                const r = await cancelarOficial({ data: { id: cancelTarget!.id, codigo: codigoCancel, justificativa: motivoCancel.trim() } });
+                if (r.situacao === "cancelada") toast.success("NFS-e cancelada no Portal Nacional");
+                else toast.info("Cancelamento enviado e em processamento. Confira no Portal Nacional antes de reenviar.");
+                setCancelTarget(null);
+                await reload();
+              } catch (e) {
+                toast.error(e instanceof Error ? e.message : "Falha ao cancelar a nota");
+              } finally { setCancelando(false); }
+            }}>{cancelando && <Loader2 className="w-4 h-4 animate-spin mr-2" />}Confirmar cancelamento</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

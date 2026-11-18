@@ -30,6 +30,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import AcessosPorLocal from "@/components/AcessosPorLocal";
 import { MarcadorCliente } from "@/components/MarcadorCliente";
+import UsuariosPlanilha from "@/components/UsuariosPlanilha";
 
 const emptyForm = {
   nome: "", cargoId: "", telefone: "+55 ", email: "", senha: "",
@@ -324,7 +325,8 @@ const Usuarios = () => {
                 Gerencie os usuários do sistema e seus acessos por cliente.
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <UsuariosPlanilha usuarios={filteredUsuarios} existentes={usuarios} catalogos={{ cargos, perfis, clientes }} podeImportar={podeCriar} />
               {podeAuditoria && (
                 <Button variant="outline" onClick={() => setLoginAuditOpen(true)}>
                   <History className="h-4 w-4 mr-2" /> Auditoria de Login

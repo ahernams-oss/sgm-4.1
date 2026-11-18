@@ -326,7 +326,7 @@ const Usuarios = () => {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <UsuariosPlanilha usuarios={filteredUsuarios} existentes={usuarios} catalogos={{ cargos, perfis, clientes }} podeImportar={podeCriar} />
+              <UsuariosPlanilha usuarios={filteredUsuarios} existentes={usuarios} catalogos={{ cargos, perfis, clientes: clientes.map(c => ({ id: c.id, nome: c.nome, locais: (c.locais ?? []).map(l => ({ id: l.id, nome: l.descricao })) })) }} podeImportar={podeCriar} />
               {podeAuditoria && (
                 <Button variant="outline" onClick={() => setLoginAuditOpen(true)}>
                   <History className="h-4 w-4 mr-2" /> Auditoria de Login

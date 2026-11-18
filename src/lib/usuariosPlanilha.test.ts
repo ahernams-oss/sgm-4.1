@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { conferirUsuarios, linhasUsuariosSchema } from "./usuariosPlanilha";
+import { cabecalhoClientesLocais, conferirUsuarios, linhasClientesLocais, linhasUsuariosSchema } from "./usuariosPlanilha";
 const cargo = "11111111-1111-4111-8111-111111111111";
 const cliente = "22222222-2222-4222-8222-222222222222";
 const local = "33333333-3333-4333-8333-333333333333";
-const catalogos = { cargos: [{ id: cargo, nome: "Técnico" }], perfis: [], clientes: [{ id: cliente, locais: [{ id: local }] }] };
+const catalogos = { cargos: [{ id: cargo, nome: "Técnico" }], perfis: [], clientes: [{ id: cliente, nome: "Cliente Alfa", locais: [{ id: local, nome: "Sede Central" }] }] };
 const linha = { Nome: "Maria", "E-mail": "maria@example.com", Cargo: "Técnico" };
 describe("planilha de usuários", () => {
   it("importa novo cadastro sem senha e sem liberar clientes por padrão", () => {
@@ -34,5 +34,12 @@ describe("planilha de usuários", () => {
   it("limita lotes a 500 registros", () => {
     expect(linhasUsuariosSchema.safeParse(Array(501).fill(linha)).success).toBe(false);
     expect(linhasUsuariosSchema.safeParse(Array(500).fill(linha)).success).toBe(true);
+  });
+  it("mostra o nome do cliente e do local junto dos IDs na aba de referência", () => {
+    expect(cabecalhoClientesLocais).toEqual(["Cliente ID", "Cliente", "Local ID", "Local"]);
+    expect(linhasClientesLocais(catalogos)).toEqual([
+      [cliente, "Cliente Alfa", "", ""],
+      [cliente, "Cliente Alfa", local, "Sede Central"],
+    ]);
   });
 });

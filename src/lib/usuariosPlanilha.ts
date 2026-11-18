@@ -4,7 +4,7 @@ export const colunasUsuarios = ["Nome", "E-mail", "Cargo", "Perfil de Acesso", "
 export const linhasUsuariosSchema = z.array(z.record(z.string(), z.union([z.string().max(10000), z.number().finite(), z.boolean(), z.null()]))).min(1).max(500);
 export type LinhaUsuario = z.infer<typeof linhasUsuariosSchema>[number];
 export type ReferenciaUsuario = { id: string; nome: string };
-export type CatalogosUsuarios = { cargos: ReferenciaUsuario[]; perfis: ReferenciaUsuario[]; clientes: { id: string; locais?: { id: string }[] }[] };
+export type CatalogosUsuarios = { cargos: ReferenciaUsuario[]; perfis: ReferenciaUsuario[]; clientes: { id: string; nome?: string; locais?: { id: string; nome?: string }[] }[] };
 export const normalizarColunaUsuario = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
 const texto = z.string().trim().max(200);
 const cadastroSchema = z.object({
@@ -47,4 +47,12 @@ export function conferirUsuarios(linhas: LinhaUsuario[], catalogos: CatalogosUsu
       return { ...base, situacao: "Erro", motivo: e instanceof z.ZodError ? e.errors.map(x => `${x.path.join(".")}: ${x.message}`).join("; ") : e instanceof Error ? e.message : "Dados inválidos" };
     }
   });
+}
+
+export const cabecalhoClientesLocais = ["Cliente ID", "Cliente", "Local ID", "Local"];
+export function linhasClientesLocais(catalogos: CatalogosUsuarios): string[][] {
+  return catalogos.clientes.flatMap(c => [
+    [c.id, c.nome ?? "", "", ""],
+    ...(c.locais ?? []).map(l => [c.id, c.nome ?? "", l.id, l.nome ?? ""]),
+  ]);
 }

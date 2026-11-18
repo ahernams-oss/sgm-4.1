@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { Usuario } from "@/contexts/UsuariosContext";
-import { colunasUsuarios, conferirUsuarios, linhasUsuariosSchema, type CatalogosUsuarios, type ConferenciaUsuario, type LinhaUsuario } from "@/lib/usuariosPlanilha";
+import { cabecalhoClientesLocais, colunasUsuarios, conferirUsuarios, linhasClientesLocais, linhasUsuariosSchema, type CatalogosUsuarios, type ConferenciaUsuario, type LinhaUsuario } from "@/lib/usuariosPlanilha";
 import { importarUsuariosPlanilha } from "@/lib/usuariosPlanilha.functions";
 
 type Props = { usuarios: Usuario[]; existentes: Usuario[]; catalogos: CatalogosUsuarios; podeImportar: boolean };
@@ -35,14 +35,14 @@ export default function UsuariosPlanilha({ usuarios, existentes, catalogos, pode
       sheet.columns.forEach((col, i) => { col.width = [36, 40, 36, 30, 24, 18, 14, 16, 45, 45, 24, 24, 16][i] ?? 25; });
       sheet.autoFilter = { from: { row: 1, column: 1 }, to: { row: Math.max(sheet.rowCount, 1), column: sheet.columnCount } };
       const instrucoes = book.addWorksheet("Instruções");
-      ["Nome, E-mail e Cargo são obrigatórios. Cargo e Perfil de Acesso aceitam nome exato ou ID cadastrado.", "Somente novos e-mails são importados. Cadastros existentes nunca são alterados.", "Não inclua senhas. Após importar, defina a senha no cadastro do usuário.", "Tipo: Interno ou Cliente. Clientes e Locais: IDs separados por ponto e vírgula.", "Locais devem pertencer aos clientes selecionados. Campos vazios não liberam todos os clientes.", "Limites em reais, positivos ou zero; zero significa sem limite de aprovação.", "Até 500 linhas por importação. Situação é informativa na exportação; não altera o acesso na importação."].forEach(t => instrucoes.addRow([t]));
+      ["Nome, E-mail e Cargo são obrigatórios. Cargo e Perfil de Acesso aceitam nome exato ou ID cadastrado.", "Somente novos e-mails são importados. Cadastros existentes nunca são alterados.", "Não inclua senhas. Após importar, defina a senha no cadastro do usuário.", "Tipo: Interno ou Cliente. Clientes e Locais: IDs separados por ponto e vírgula.", "Na aba Clientes e Locais os nomes aparecem apenas como referência; na importação informe os IDs.", "Locais devem pertencer aos clientes selecionados. Campos vazios não liberam todos os clientes.", "Limites em reais, positivos ou zero; zero significa sem limite de aprovação.", "Até 500 linhas por importação. Situação é informativa na exportação; não altera o acesso na importação."].forEach(t => instrucoes.addRow([t]));
       instrucoes.getColumn(1).width = 110;
       for (const [titulo, refs] of [["Cargos", catalogos.cargos], ["Perfis", catalogos.perfis]] as const) {
         const ref = book.addWorksheet(titulo); ref.addRow(["ID", "Nome"]); refs.forEach(r => ref.addRow([r.id, r.nome])); ref.getColumn(1).width = 40; ref.getColumn(2).width = 45;
       }
-      const clientes = book.addWorksheet("Clientes e Locais"); clientes.addRow(["Cliente ID", "Local ID"]);
-      catalogos.clientes.forEach(c => { clientes.addRow([c.id, ""]); c.locais?.forEach(l => clientes.addRow([c.id, l.id])); });
-      clientes.columns.forEach(c => { c.width = 40; });
+      const clientes = book.addWorksheet("Clientes e Locais"); clientes.addRow(cabecalhoClientesLocais);
+      linhasClientesLocais(catalogos).forEach(linha => clientes.addRow(linha));
+      clientes.columns.forEach((c, i) => { c.width = [40, 45, 40, 45][i] ?? 40; });
       book.eachSheet(s => s.eachRow((row, i) => { row.font = { name: "Arial", size: 11, bold: i === 1 }; row.alignment = { vertical: "top", wrapText: true }; }));
       const buffer = await book.xlsx.writeBuffer();
       const url = URL.createObjectURL(new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));

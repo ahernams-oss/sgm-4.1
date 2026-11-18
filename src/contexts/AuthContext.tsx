@@ -177,7 +177,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (sessErr) console.warn("[Login] Sessão não estabelecida:", sessErr.message);
       }
 
-      await queryClient.invalidateQueries();
+      // Não espera o recarregamento de todas as listas: isso atrasava a entrada em vários segundos.
+      void queryClient.invalidateQueries();
       setLembrar(lembrarMe);
       setUsuarioLogado(usuario);
       return true;

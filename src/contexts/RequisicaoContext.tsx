@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, type Context, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow } from "@/lib/supabaseHelper";
 import { enviarNotificacaoRP } from "@/lib/notificacaoRP";
@@ -39,7 +39,13 @@ interface RequisicaoContextType {
   updateStatus: (id: string, status: Requisicao["status"], aprovadoPor?: string, observacao?: string) => void;
 }
 
-const RequisicaoContext = createContext<RequisicaoContextType | undefined>(undefined);
+// A atualização do módulo não pode separar o Provider já montado dos consumidores.
+// Guardamos apenas a identidade do contexto, nunca os dados de uma requisição.
+const contextScope = globalThis as typeof globalThis & {
+  __sgmRequisicaoContext?: Context<RequisicaoContextType | undefined>;
+};
+const RequisicaoContext = contextScope.__sgmRequisicaoContext ??=
+  createContext<RequisicaoContextType | undefined>(undefined);
 
 const rowToReq = (r: any): Requisicao => ({
   id: r.id, numero: r.numero ?? 0, dataCriacao: r.data_criacao ?? "",

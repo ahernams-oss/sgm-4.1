@@ -1,0 +1,1 @@
+ALTER TABLE public.requisicoes ADD COLUMN IF NOT EXISTS funcionario_promocao text NOT NULL DEFAULT '';

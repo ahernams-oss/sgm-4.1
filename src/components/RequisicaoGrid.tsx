@@ -112,6 +112,7 @@ const RequisicaoGrid = () => {
   const [editForm, setEditForm] = useState({
     unidade: "", cargoId: "", jornada: "", cargaHoraria: "",
     tipoContratacao: [] as string[], tipoContratacaoDetalhe: "", internoExterno: "", origemVaga: "", motivoOutros: "",
+    funcionarioPromocao: "",
     matricula: "", nomeSubstituido: "", cargoSubstituido: "",
     salarioSubstituido: "", dataDesligamento: "",
     formacao: [] as string[], formacaoDetalhe: "", experiencia: "",
@@ -137,6 +138,7 @@ const RequisicaoGrid = () => {
       internoExterno: req.internoExterno || "",
       origemVaga: req.origemVaga || "",
       motivoOutros: req.motivoOutros || "",
+      funcionarioPromocao: req.funcionarioPromocao || "",
       matricula: req.matricula || "",
       nomeSubstituido: req.nomeSubstituido || "",
       cargoSubstituido: req.cargoSubstituido || "",
@@ -166,6 +168,7 @@ const RequisicaoGrid = () => {
       internoExterno: editForm.internoExterno,
       origemVaga: editForm.origemVaga,
       motivoOutros: editForm.motivoOutros,
+      funcionarioPromocao: editForm.origemVaga === "Promoção" ? editForm.funcionarioPromocao.trim() : "",
       matricula: editForm.matricula,
       nomeSubstituido: editForm.nomeSubstituido,
       cargoSubstituido: editForm.cargoSubstituido,
@@ -643,6 +646,12 @@ const RequisicaoGrid = () => {
                     </SelectContent>
                   </Select>
                 </div>
+                {editForm.origemVaga === "Promoção" && (
+                  <div>
+                    <label className="field-label">Funcionário a promover</label>
+                    <Input placeholder="Nome do funcionário" value={editForm.funcionarioPromocao} onChange={e => setEditForm(p => ({ ...p, funcionarioPromocao: e.target.value }))} />
+                  </div>
+                )}
                 {editForm.origemVaga === "Outros" && (
                   <div>
                     <label className="field-label">Especifique o motivo</label>

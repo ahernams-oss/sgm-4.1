@@ -22,7 +22,7 @@ export interface Requisicao {
   unidade: string;
   cargoNome: string; cargoId: string; jornada: string; cargaHoraria: string;
   tipoContratacao: string[]; tipoContratacaoDetalhe?: string; internoExterno: string; origemVaga: string;
-  motivoOutros: string; matricula: string; nomeSubstituido: string;
+  motivoOutros: string; funcionarioPromocao: string; matricula: string; nomeSubstituido: string;
   cargoSubstituido: string; salarioSubstituido: string; dataDesligamento: string;
   formacao: string[]; formacaoDetalhe: string; experiencia: string;
   conhecimentoInformatica: string; atividadesCargo: string; salarioVaga: string;
@@ -48,6 +48,7 @@ const rowToReq = (r: any): Requisicao => ({
   jornada: r.jornada ?? "", cargaHoraria: r.carga_horaria ?? "",
   tipoContratacao: r.tipo_contratacao ?? [], tipoContratacaoDetalhe: r.tipo_contratacao_detalhe ?? "", internoExterno: r.interno_externo ?? "",
   origemVaga: r.origem_vaga ?? "", motivoOutros: r.motivo_outros ?? "",
+  funcionarioPromocao: r.funcionario_promocao ?? "",
   matricula: r.matricula ?? "", nomeSubstituido: r.nome_substituido ?? "",
   cargoSubstituido: r.cargo_substituido ?? "", salarioSubstituido: r.salario_substituido ?? "",
   dataDesligamento: r.data_desligamento ?? "", formacao: r.formacao ?? [],
@@ -68,7 +69,8 @@ const reqToRow = (r: Requisicao) => ({
   carga_horaria: r.cargaHoraria, tipo_contratacao: r.tipoContratacao as any,
   tipo_contratacao_detalhe: r.tipoContratacaoDetalhe ?? "",
   interno_externo: r.internoExterno, origem_vaga: r.origemVaga,
-  motivo_outros: r.motivoOutros, matricula: r.matricula,
+  motivo_outros: r.motivoOutros, funcionario_promocao: r.funcionarioPromocao ?? "",
+  matricula: r.matricula,
   nome_substituido: r.nomeSubstituido, cargo_substituido: r.cargoSubstituido,
   salario_substituido: r.salarioSubstituido, data_desligamento: r.dataDesligamento,
   formacao: r.formacao as any, formacao_detalhe: r.formacaoDetalhe,

@@ -8813,6 +8813,7 @@ export type Database = {
           experiencia: string | null
           formacao: Json | null
           formacao_detalhe: string | null
+          funcionario_promocao: string
           headcount: string | null
           historico_status: Json | null
           id: string
@@ -8849,6 +8850,7 @@ export type Database = {
           experiencia?: string | null
           formacao?: Json | null
           formacao_detalhe?: string | null
+          funcionario_promocao?: string
           headcount?: string | null
           historico_status?: Json | null
           id?: string
@@ -8885,6 +8887,7 @@ export type Database = {
           experiencia?: string | null
           formacao?: Json | null
           formacao_detalhe?: string | null
+          funcionario_promocao?: string
           headcount?: string | null
           historico_status?: Json | null
           id?: string

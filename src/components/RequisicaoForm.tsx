@@ -66,6 +66,7 @@ const RequisicaoForm = ({ onSuccess }: { onSuccess?: () => void }) => {
     internoExterno: "",
     origemVaga: "",
     motivoOutros: "",
+    funcionarioPromocao: "",
     // Colaborador substituído
     matricula: "",
     nomeSubstituido: "",
@@ -94,6 +95,10 @@ const RequisicaoForm = ({ onSuccess }: { onSuccess?: () => void }) => {
     e.preventDefault();
     if (!form.unidade || !form.cargo) {
       toast.error("Preencha ao menos a Unidade e o Cargo.");
+      return;
+    }
+    if (form.origemVaga === "Promoção" && !form.funcionarioPromocao.trim()) {
+      toast.error("Informe o nome do funcionário que se pretende promover.");
       return;
     }
     const cargoObj = cargos.find((c) => c.id === form.cargo);
@@ -149,6 +154,7 @@ const RequisicaoForm = ({ onSuccess }: { onSuccess?: () => void }) => {
       internoExterno: form.internoExterno,
       origemVaga: form.origemVaga,
       motivoOutros: form.motivoOutros,
+      funcionarioPromocao: form.origemVaga === "Promoção" ? form.funcionarioPromocao.trim() : "",
       matricula: form.matricula,
       nomeSubstituido: form.nomeSubstituido,
       cargoSubstituido: form.cargoSubstituido,
@@ -170,6 +176,7 @@ const RequisicaoForm = ({ onSuccess }: { onSuccess?: () => void }) => {
       headcount: "", orcamento: "", tipoVaga: "",
       unidade: "", cargo: "", jornada: "", cargaHoraria: "",
       tipoContratacao: [], tipoContratacaoDetalhe: "", internoExterno: "", origemVaga: "", motivoOutros: "",
+      funcionarioPromocao: "",
       matricula: "", nomeSubstituido: "", cargoSubstituido: "",
       salarioSubstituido: "", dataDesligamento: "",
       formacao: [], formacaoDetalhe: "", experiencia: "",
@@ -437,6 +444,16 @@ const RequisicaoForm = ({ onSuccess }: { onSuccess?: () => void }) => {
               </SelectContent>
             </Select>
           </div>
+          {form.origemVaga === "Promoção" && (
+            <div>
+              <label className="field-label">Funcionário a promover</label>
+              <Input
+                placeholder="Nome do funcionário"
+                value={form.funcionarioPromocao}
+                onChange={(e) => update("funcionarioPromocao", e.target.value)}
+              />
+            </div>
+          )}
           {form.origemVaga === "Outros" && (
             <div>
               <label className="field-label">Especifique o motivo</label>
@@ -716,6 +733,7 @@ const RequisicaoForm = ({ onSuccess }: { onSuccess?: () => void }) => {
           headcount: "", orcamento: "", tipoVaga: "",
           unidade: "", cargo: "", jornada: "", cargaHoraria: "",
           tipoContratacao: [], tipoContratacaoDetalhe: "", internoExterno: "", origemVaga: "", motivoOutros: "",
+          funcionarioPromocao: "",
           matricula: "", nomeSubstituido: "", cargoSubstituido: "",
           salarioSubstituido: "", dataDesligamento: "",
           formacao: [], formacaoDetalhe: "", experiencia: "",

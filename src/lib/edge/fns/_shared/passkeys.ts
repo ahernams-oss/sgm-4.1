@@ -44,6 +44,13 @@ export function contextoRp(req: Request): ContextoRp {
   return { origem, rpID };
 }
 
+/** Mensagem em português para qualquer falha de conferência da digital. */
+export function mensagemDigital(e: unknown): string {
+  const bruto = e instanceof Error ? e.message : "";
+  if (/digital|etapa|desafio/i.test(bruto)) return bruto;
+  return "Não foi possível confirmar a digital neste aparelho. Tente de novo ou entre com a senha.";
+}
+
 /** Transports guardados como texto JSON na tabela. */
 export function transportes(texto: unknown): string[] {
   if (typeof texto !== "string" || !texto) return [];
@@ -165,9 +172,9 @@ export async function conferirRegistro(
   if (!verified || !registrationInfo) throw new Error("A digital não pôde ser confirmada.");
   return {
     credential_id: registrationInfo.credential.id,
-    public_key: isoBase64URL.stringify(registrationInfo.credential.publicKey),
+    public_key: isoBase64URL.fromBuffer(registrationInfo.credential.publicKey),
     counter: Number(registrationInfo.credential.counter ?? 0),
-    device_type: registrationInfo.credentialDeviceType ?? "single-device",
+    device_type: registrationInfo.credentialDeviceType ?? "singleDevice",
     transports: JSON.stringify(resposta.response.transports ?? []),
   };
 }

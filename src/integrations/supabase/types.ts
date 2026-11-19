@@ -9343,6 +9343,53 @@ export type Database = {
         }
         Relationships: []
       }
+      usuario_passkeys: {
+        Row: {
+          counter: number
+          credential_id: string
+          criado_em: string
+          device_type: string | null
+          id: string
+          nome: string | null
+          public_key: string
+          transports: string | null
+          ultimo_uso: string | null
+          usuario_id: string
+        }
+        Insert: {
+          counter?: number
+          credential_id: string
+          criado_em?: string
+          device_type?: string | null
+          id?: string
+          nome?: string | null
+          public_key: string
+          transports?: string | null
+          ultimo_uso?: string | null
+          usuario_id: string
+        }
+        Update: {
+          counter?: number
+          credential_id?: string
+          criado_em?: string
+          device_type?: string | null
+          id?: string
+          nome?: string | null
+          public_key?: string
+          transports?: string | null
+          ultimo_uso?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "usuario_passkeys_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       usuarios: {
         Row: {
           ativo: boolean

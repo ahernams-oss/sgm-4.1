@@ -50,10 +50,12 @@ export async function emitirSessaoSgm(
 
   // Completa o vínculo usuarios.auth_user_id quando estiver faltando.
   if (tokenHash && !usuario.auth_user_id) {
-    const { data: conta } = await db.auth.admin.getUserByEmail(emailAuth).catch(() => ({ data: null }));
-    const authId = conta?.user?.id;
-    if (authId) {
-      await db.from("usuarios").update({ auth_user_id: authId }).eq("id", usuario.id);
+    const { data: lista } = await db.auth.admin.listUsers();
+    const encontrada = lista?.users?.find(
+      (u: { email?: string | null }) => (u.email ?? "").toLowerCase() === emailAuth,
+    );
+    if (encontrada) {
+      await db.from("usuarios").update({ auth_user_id: encontrada.id }).eq("id", usuario.id);
     }
   }
 

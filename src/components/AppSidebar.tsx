@@ -51,6 +51,7 @@ import {
   FileSignature,
   CheckCircle2,
   GraduationCap,
+  Fingerprint,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePermissao } from "@/hooks/usePermissao";
@@ -73,6 +74,7 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useState, useEffect } from "react";
 import { AlterarMinhaSenhaDialog } from "@/components/AlterarMinhaSenhaDialog";
+import { GerenciarDigitaisDialog } from "@/components/GerenciarDigitaisDialog";
 
 const menuItems = [
   {
@@ -277,6 +279,7 @@ export function AppSidebar() {
   const location = useLocation();
   const { usuarioLogado, logout } = useAuth();
   const [trocarSenhaOpen, setTrocarSenhaOpen] = useState(false);
+  const [digitaisOpen, setDigitaisOpen] = useState(false);
   const { temModulo, acessoTotal, isDiretor } = usePermissao();
 
   const visibleGroups = menuItems
@@ -436,6 +439,13 @@ export function AppSidebar() {
                 )}
               </div>
               <button
+                onClick={() => setDigitaisOpen(true)}
+                className="shrink-0 text-muted-foreground hover:text-primary transition-colors"
+                title="Acesso com digital"
+              >
+                <Fingerprint className="h-4 w-4" />
+              </button>
+              <button
                 onClick={() => setTrocarSenhaOpen(true)}
                 className="shrink-0 text-muted-foreground hover:text-primary transition-colors"
                 title="Alterar minha senha"
@@ -451,6 +461,7 @@ export function AppSidebar() {
               </button>
             </div>
             <AlterarMinhaSenhaDialog open={trocarSenhaOpen} onOpenChange={setTrocarSenhaOpen} />
+            <GerenciarDigitaisDialog open={digitaisOpen} onOpenChange={setDigitaisOpen} />
           </div>
         )}
       </SidebarFooter>

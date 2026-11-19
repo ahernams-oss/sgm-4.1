@@ -19,6 +19,7 @@ const PUBLICAS = new Set([
 // publishable (que o front sempre manda); a função confere senha ou token.
 const CHAVE_PUBLICA = new Set([
   "auth-login",
+  "passkey-login",
   "fornecedor-login",
   "fornecedor-trocar-senha",
   "epi-recebimento-publico",

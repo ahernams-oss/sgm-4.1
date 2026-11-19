@@ -46,6 +46,8 @@ export const edgeFunctions: Record<string, () => Promise<{ default: EdgeFn }>> =
   "notificar-vencimento-epi": () => import("./fns/notificar-vencimento-epi/index"),
   "notificar-vencimento-ferias": () => import("./fns/notificar-vencimento-ferias/index"),
   "notificar-vencimento-nr": () => import("./fns/notificar-vencimento-nr/index"),
+  "passkey-login": () => import("./fns/passkey-login/index"),
+  "passkey-portal": () => import("./fns/passkey-portal/index"),
   "plugsend-groups": () => import("./fns/plugsend-groups/index"),
   "portal-api": () => import("./fns/portal-api/index"),
   "preview-transactional-email": () => import("./fns/preview-transactional-email/index"),

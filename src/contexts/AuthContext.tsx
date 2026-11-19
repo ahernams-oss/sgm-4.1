@@ -4,12 +4,14 @@ import { useCargos } from "./CargosContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { cargoTemAcessoTotal } from "@/lib/permissoes";
+import { iniciarLoginDigital, concluirLoginDigital } from "@/lib/passkeys";
 
 const STORAGE_KEY = "usuarioLogado";
 
 interface AuthContextType {
   usuarioLogado: Usuario | null;
   login: (email: string, senha: string, lembrar?: boolean) => Promise<boolean>;
+  entrarComDigital: (lembrar?: boolean) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
   temAcessoTotal: boolean;
@@ -129,6 +131,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, [escopoAtual, queryClient]);
 
+  // Conclui a entrada: monta o objeto Usuario, abre a sessão no backend e mostra o app.
+  // Usado tanto pelo login com senha quanto pelo acesso com digital.
+  const concluirLogin = async (
+    r: Record<string, any>,
+    tokenHash: string | null | undefined,
+    email: string | null | undefined,
+    lembrarMe: boolean,
+  ): Promise<boolean> => {
+    // Mapeia resposta da função (snake_case) para o objeto Usuario (camelCase)
+    const usuario: Usuario = {
+      id: r.id,
+      nome: r.nome ?? "",
+      cargoId: r.cargo_id ?? "",
+      telefone: r.telefone ?? "",
+      email: r.email ?? "",
+      senha: "", // nunca persistir senha no client
+      clientesPermitidos: r.clientes_permitidos ?? [],
+      locaisPermitidos: r.locais_permitidos ?? [],
+      perfilAcessoId: r.perfil_acesso_id ?? "",
+      matricula: r.matricula ?? "",
+      ramal: r.ramal ?? "",
+      limiteAprovacaoCompras: Number(r.limite_aprovacao_compras ?? 0),
+      limiteAprovacaoOS: Number(r.limite_aprovacao_os ?? 0),
+    };
+
+    // Estabelece a sessão autenticada no backend (necessária para as regras de acesso)
+    if (tokenHash && email) {
+      const { error: sessErr } = await supabase.auth.verifyOtp({
+        type: "email",
+        token_hash: tokenHash,
+      });
+      if (sessErr) console.warn("[Login] Sessão não estabelecida:", sessErr.message);
+    }
+
+    // Não espera o recarregamento de todas as listas: isso atrasava a entrada em vários segundos.
+    void queryClient.invalidateQueries();
+    setLembrar(lembrarMe);
+    setUsuarioLogado(usuario);
+    return true;
+  };
+
   const login = async (email: string, senha: string, lembrarMe = false): Promise<boolean> => {
     lastLoginError = "";
     const emailNorm = email.trim().toLowerCase();
@@ -150,40 +193,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
 
-      // Mapeia resposta da função (snake_case) para o objeto Usuario (camelCase)
-      const r = data.usuario;
-      const usuario: Usuario = {
-        id: r.id,
-        nome: r.nome ?? "",
-        cargoId: r.cargo_id ?? "",
-        telefone: r.telefone ?? "",
-        email: r.email ?? "",
-        senha: "", // nunca persistir senha no client
-        clientesPermitidos: r.clientes_permitidos ?? [],
-        locaisPermitidos: r.locais_permitidos ?? [],
-        perfilAcessoId: r.perfil_acesso_id ?? "",
-        matricula: r.matricula ?? "",
-        ramal: r.ramal ?? "",
-        limiteAprovacaoCompras: Number(r.limite_aprovacao_compras ?? 0),
-        limiteAprovacaoOS: Number(r.limite_aprovacao_os ?? 0),
-      };
-
-      // Estabelece a sessão autenticada no backend (necessária para as regras de acesso)
-      if (data?.tokenHash && data?.email) {
-        const { error: sessErr } = await supabase.auth.verifyOtp({
-          type: "email",
-          token_hash: data.tokenHash as string,
-        });
-        if (sessErr) console.warn("[Login] Sessão não estabelecida:", sessErr.message);
-      }
-
-      // Não espera o recarregamento de todas as listas: isso atrasava a entrada em vários segundos.
-      void queryClient.invalidateQueries();
-      setLembrar(lembrarMe);
-      setUsuarioLogado(usuario);
-      return true;
+      return concluirLogin(data.usuario, data?.tokenHash, data?.email, lembrarMe);
     } catch (e) {
       console.error("[Login] Erro inesperado:", e);
+      return false;
+    }
+  };
+
+  // Entrada com a digital do aparelho, sem digitar e-mail nem senha.
+  const entrarComDigital = async (lembrarMe = false): Promise<boolean> => {
+    lastLoginError = "";
+    try {
+      const inicio = await iniciarLoginDigital();
+      const { startAuthentication } = await import("@simplewebauthn/browser");
+      let resposta;
+      try {
+        resposta = await startAuthentication({ optionsJSON: inicio.opts as never });
+      } catch (e) {
+        const nome = e instanceof Error ? e.name : "";
+        lastLoginError =
+          nome === "NotAllowedError"
+            ? "O acesso com digital foi cancelado no aparelho."
+            : "Não foi possível usar a digital neste aparelho.";
+        return false;
+      }
+      const { usuario, tokenHash, email } = await concluirLoginDigital(inicio.estado, resposta);
+      if (!usuario?.id) {
+        lastLoginError = "Esta digital não está cadastrada aqui.";
+        return false;
+      }
+      return concluirLogin(usuario, tokenHash, email, lembrarMe);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      lastLoginError = msg;
+      console.warn("[Login] Acesso com digital não concluído:", msg);
       return false;
     }
   };
@@ -244,6 +287,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         usuarioLogado,
         login,
+        entrarComDigital,
         logout,
         isAuthenticated: !!usuarioLogado,
         temAcessoTotal,
@@ -266,6 +310,10 @@ const AUTH_FALLBACK: AuthContextType = {
     return false;
   },
   logout: () => {},
+  entrarComDigital: async () => {
+    lastLoginError = "Sistema ainda carregando. Recarregue a página (F5) e tente novamente.";
+    return false;
+  },
   isAuthenticated: false,
   temAcessoTotal: false,
   clientesPermitidosIds: [],

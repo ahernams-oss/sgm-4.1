@@ -1,21 +1,38 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "@/lib/router-compat";
 import { toast } from "sonner";
-import { User, Lock, Eye, EyeOff } from "lucide-react";
+import { User, Lock, Eye, EyeOff, Fingerprint } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth, lastLoginError } from "@/contexts/AuthContext";
+import { disponibilidadeDigital } from "@/lib/passkeys";
 import logoLasant from "@/assets/Logo_Lasant.png";
 
 const Login = () => {
-  const { login } = useAuth();
+  const { login, entrarComDigital } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [showSenha, setShowSenha] = useState(false);
   const [lembrar, setLembrar] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [digitalOk, setDigitalOk] = useState(false);
+  const [loadingDigital, setLoadingDigital] = useState(false);
+
+  useEffect(() => {
+    let vivo = true;
+    disponibilidadeDigital()
+      .then((d) => {
+        if (vivo) setDigitalOk(d.ok);
+      })
+      .catch(() => {
+        if (vivo) setDigitalOk(false);
+      });
+    return () => {
+      vivo = false;
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +52,21 @@ const Login = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const entrarComDigitalAgora = async () => {
+    setLoadingDigital(true);
+    try {
+      const success = await entrarComDigital(lembrar);
+      if (success) {
+        toast.success("Entrou com a digital.");
+        navigate("/");
+      } else {
+        toast.error(lastLoginError || "Não foi possível entrar com a digital.");
+      }
+    } finally {
+      setLoadingDigital(false);
     }
   };
 
@@ -132,6 +164,19 @@ const Login = () => {
             >
               {loading ? "Entrando..." : "Log in"}
             </Button>
+
+            {digitalOk && (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={loadingDigital || loading}
+                onClick={entrarComDigitalAgora}
+                className="h-11 w-full rounded-full border border-login-brand/30 text-sm font-semibold text-login-brand shadow-sm hover:bg-login-brand/5 sm:h-12"
+              >
+                <Fingerprint className="mr-2 h-5 w-5" />
+                {loadingDigital ? "Confirmando digital..." : "Entrar com a digital"}
+              </Button>
+            )}
 
             <p className="text-xs italic text-muted-foreground text-center pt-2">
               Para acesso, contate a empresa.

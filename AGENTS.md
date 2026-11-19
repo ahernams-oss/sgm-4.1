@@ -52,4 +52,3 @@
 - Home-screen installation uses the root head and the existing manifest with local brand icons, without app-shell service workers or offline caches; preserve module-specific manifest overrides and the stable app identity/start URL to avoid breaking installed shortcuts.
 - Root observes preload/rejection chunk errors and reloads once per chunk via sessionStorage to avoid loops; ordinary errors use router retry, never retrying fiscal submissions.
 - Client scope uses restrictive RLS and cache-filtering hooks; full catalogue is for access administration only.
-- Passkey (digital) login is issued server-side: `passkey-login` verifies the WebAuthn assertion and `_shared/sessao-sgm.ts` opens the Supabase session, so password and digital entry share one session path; the challenge travels in a signed one-time token instead of a table, and `usuario_passkeys` rows are readable only by their own user.

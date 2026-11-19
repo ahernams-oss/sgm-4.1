@@ -88,126 +88,135 @@ export async function gerarPdfRequisicao(req: Requisicao, empresa?: Empresa) {
   doc.setTextColor(40, 40, 40);
   let y = headerH + 10;
 
-  // ===== HELPER: Section with bordered table =====
-  const addSection = async (title: string, rows: [string, string][]) => {
-    const filteredRows = rows.filter(([, val]) => val && val.trim() !== "");
-    if (filteredRows.length === 0) return;
+  const autoTable = await getAutoTable();
+  const v = (x?: string | null) => (x ?? "").toString().trim() || "—";
+  const lista = (x?: string[]) => (x && x.length ? x.join(", ") : "—");
+  const moeda = (x?: string) => (x && x.trim() ? `R$ ${x.trim()}` : "—");
+  const largura = pw - ml - mr;
 
-    const estimatedHeight = filteredRows.length * 10 + 18;
-    if (y + estimatedHeight > ph - 30) {
-      doc.addPage();
-      y = 20;
-    }
-
-    doc.setFontSize(12);
+  const tituloSecao = (title: string, minH = 20) => {
+    if (y + minH > ph - 30) { doc.addPage(); y = 20; }
+    doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(...DARK_BLUE);
     doc.text(title, ml, y);
+    doc.setDrawColor(...DARK_BLUE);
+    doc.setLineWidth(0.5);
+    doc.line(ml, y + 1.5, pw - mr, y + 1.5);
     y += 4;
+  };
 
-    (await getAutoTable())(doc, {
+  // Seção em duas colunas de pares rótulo/valor (sempre exibe todos os campos)
+  const addSection = (title: string, rows: [string, string][]) => {
+    tituloSecao(title, Math.ceil(rows.length / 2) * 8 + 14);
+    const body: string[][] = [];
+    for (let i = 0; i < rows.length; i += 2) {
+      const [l1, v1] = rows[i];
+      const [l2, v2] = rows[i + 1] ?? ["", ""];
+      body.push([l1, v1, l2, v2]);
+    }
+    autoTable(doc, {
       startY: y,
-      head: [],
-      body: filteredRows,
+      body,
       theme: "grid",
-      styles: {
-        fontSize: 9,
-        cellPadding: 3,
-        lineColor: BORDER_COLOR,
-        lineWidth: 0.3,
-        textColor: [40, 40, 40],
-      },
+      styles: { fontSize: 8.5, cellPadding: 2.2, lineColor: BORDER_COLOR, lineWidth: 0.2, textColor: [40, 40, 40], overflow: "linebreak", valign: "middle" },
       columnStyles: {
-        0: { fontStyle: "bold", cellWidth: 55, textColor: [60, 60, 60] },
-        1: { cellWidth: "auto" },
+        0: { fontStyle: "bold", cellWidth: 34, fillColor: [238, 242, 248], textColor: [50, 50, 70] },
+        1: { cellWidth: largura / 2 - 34 },
+        2: { fontStyle: "bold", cellWidth: 34, fillColor: [238, 242, 248], textColor: [50, 50, 70] },
+        3: { cellWidth: largura / 2 - 34 },
       },
-      tableWidth: 130,
       margin: { left: ml, right: mr },
     });
-
-    y = (doc as any).lastAutoTable.finalY + 8;
+    y = (doc as any).lastAutoTable.finalY + 7;
   };
 
-  // ===== UNIDADE =====
-  addSection("", [["Unidade", req.unidade]]);
-
-  // ===== CLASSIFICAÇÃO DA VAGA =====
-  addSection("Classificação da Vaga", [
-    ["Headcount", req.headcount],
-    ["Orçamento", req.orcamento],
-    ["Tipo de Vaga", req.tipoVaga],
-  ]);
-
-  // ===== ESPECIFICAÇÃO DA VAGA =====
-  const cargoLabel = req.cargoNome || "";
-  addSection("Especificação da Vaga", [
-    ["Cargo", cargoLabel],
-    ["Salário", req.salarioVaga ? `R$ ${req.salarioVaga}` : ""],
-  ]);
-
-  // ===== JORNADA DE TRABALHO =====
-  addSection("Jornada de Trabalho", [
-    ["Jornada", req.jornada],
-    ["Carga Horária", req.cargaHoraria],
-  ]);
-
-  // ===== CONTRATAÇÃO =====
-  addSection("Contratação", [
-    ["Modalidade", req.tipoContratacao?.join(", ") || ""],
-    ["Tipo de contratação", req.tipoContratacaoDetalhe || ""],
-    ["Recrutamento", req.internoExterno],
-  ]);
-
-  // ===== ORIGEM DA VAGA =====
-  addSection("Origem da Vaga", [
-    ["Origem", req.origemVaga],
-    ["Motivo (Outros)", req.motivoOutros],
-  ]);
-
-  // ===== COLABORADOR SUBSTITUÍDO =====
-  addSection("Colaborador Substituído", [
-    ["Nome", req.nomeSubstituido],
-    ["Matrícula", req.matricula],
-    ["Cargo", req.cargoSubstituido],
-    ["Salário", req.salarioSubstituido ? `R$ ${req.salarioSubstituido}` : ""],
-    ["Data Desligamento", req.dataDesligamento],
-  ]);
-
-  // ===== QUALIFICAÇÃO =====
-  addSection("Qualificação", [
-    ["Formação", req.formacao?.join(", ") || ""],
-    ["Detalhe Formação", req.formacaoDetalhe],
-    ["Experiência", req.experiencia],
-  ]);
-
-  // ===== Blocos full-width (sempre exibidos) =====
   const renderFullWidthBlock = (title: string, content: string) => {
     const text = (content || "").trim() || "—";
-    const lines = doc.splitTextToSize(text, pw - ml - mr - 4);
-    const boxH = lines.length * 5 + 6;
-    if (y + boxH + 10 > ph - 30) { doc.addPage(); y = 20; }
-
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(...DARK_BLUE);
-    doc.text(title, ml, y);
-    y += 4;
-
+    const lines = doc.splitTextToSize(text, largura - 4);
+    const boxH = lines.length * 4.5 + 5;
+    tituloSecao(title, Math.min(boxH, 60) + 10);
+    if (y + boxH > ph - 30) { doc.addPage(); y = 20; }
     doc.setDrawColor(...BORDER_COLOR);
-    doc.setLineWidth(0.3);
-    doc.rect(ml, y, pw - ml - mr, boxH);
-
-    doc.setFontSize(9);
+    doc.setLineWidth(0.2);
+    doc.rect(ml, y, largura, boxH);
+    doc.setFontSize(8.5);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(40, 40, 40);
-    doc.text(lines, ml + 2, y + 5);
-    y += boxH + 8;
+    doc.text(lines, ml + 2, y + 4.5);
+    y += boxH + 7;
   };
+
+  addSection("Identificação", [
+    ["Unidade", v(req.unidade)],
+    ["Solicitante", v(req.solicitante)],
+    ["Data de abertura", v(req.dataCriacao)],
+    ["Status", v(req.status)],
+    ["Aprovado por", v(req.aprovadoPor)],
+    ["Nº da requisição", String(req.numero)],
+  ]);
+
+  addSection("Classificação da Vaga", [
+    ["Headcount", v(req.headcount)],
+    ["Orçamento", v(req.orcamento)],
+    ["Tipo de Vaga", v(req.tipoVaga)],
+  ]);
+
+  addSection("Especificação da Vaga", [
+    ["Cargo", v(req.cargoNome)],
+    ["Salário", moeda(req.salarioVaga)],
+  ]);
+
+  addSection("Jornada de Trabalho", [
+    ["Jornada", v(req.jornada)],
+    ["Carga Horária", v(req.cargaHoraria)],
+  ]);
+
+  addSection("Contratação", [
+    ["Modalidade", lista(req.tipoContratacao)],
+    ["Tipo de contratação", v(req.tipoContratacaoDetalhe)],
+    ["Recrutamento", v(req.internoExterno)],
+  ]);
+
+  const origemRows: [string, string][] = [["Origem", v(req.origemVaga)]];
+  if (req.origemVaga === "Promoção" || req.funcionarioPromocao) origemRows.push(["Funcionário a promover", v(req.funcionarioPromocao)]);
+  if (req.motivoOutros) origemRows.push(["Motivo (Outros)", v(req.motivoOutros)]);
+  addSection("Origem da Vaga", origemRows);
+
+  const temSubst = [req.nomeSubstituido, req.matricula, req.cargoSubstituido, req.salarioSubstituido, req.dataDesligamento].some((x) => x && x.trim());
+  if (temSubst || /substitui/i.test(req.origemVaga || "")) {
+    addSection("Colaborador Substituído", [
+      ["Nome", v(req.nomeSubstituido)],
+      ["Matrícula", v(req.matricula)],
+      ["Cargo", v(req.cargoSubstituido)],
+      ["Salário", moeda(req.salarioSubstituido)],
+      ["Data Desligamento", v(req.dataDesligamento)],
+    ]);
+  }
+
+  addSection("Qualificação", [
+    ["Formação", lista(req.formacao)],
+    ["Experiência", v(req.experiencia)],
+    ["Detalhe Formação", v(req.formacaoDetalhe)],
+  ]);
 
   renderFullWidthBlock("Conhecimento de Informática", req.conhecimentoInformatica);
   renderFullWidthBlock("Atividades do Cargo", req.atividadesCargo);
 
-  // ===== RESUMO DA APROVAÇÃO / PROCESSO SELETIVO =====
+  if (req.indicados && req.indicados.length > 0) {
+    tituloSecao("Candidatos Indicados", req.indicados.length * 8 + 16);
+    autoTable(doc, {
+      startY: y,
+      head: [["Nome", "CPF", "Telefone", "E-mail"]],
+      body: req.indicados.map((i) => [v(i.nome), v(i.cpf), v(i.telefone), v(i.email)]),
+      theme: "striped",
+      styles: { fontSize: 8.5, cellPadding: 2.5, textColor: [40, 40, 40], overflow: "linebreak" },
+      headStyles: { fillColor: DARK_BLUE, textColor: [255, 255, 255], fontStyle: "bold" },
+      margin: { left: ml, right: mr },
+    });
+    y = (doc as any).lastAutoTable.finalY + 7;
+  }
+
   const ultimoEvento = [...(req.historicoStatus || [])].reverse().find((h) => h.observacao);
   if (ultimoEvento) {
     renderFullWidthBlock(
@@ -215,8 +224,6 @@ export async function gerarPdfRequisicao(req: Requisicao, empresa?: Empresa) {
       `${ultimoEvento.status} em ${ultimoEvento.dataHora}${ultimoEvento.usuario ? ` por ${ultimoEvento.usuario}` : ""}\n"${ultimoEvento.observacao}"`
     );
   }
-
-
 
   // ===== ANEXOS =====
   if (y + 20 > ph - 30) {
@@ -248,7 +255,7 @@ export async function gerarPdfRequisicao(req: Requisicao, empresa?: Empresa) {
     doc.text("Histórico de Status", ml, y);
     y += 4;
 
-    (await getAutoTable())(doc, {
+    autoTable(doc, {
       startY: y,
       head: [["Status", "Data/Hora", "Usuário", "Justificativa"]],
       body: req.historicoStatus.map((h) => [

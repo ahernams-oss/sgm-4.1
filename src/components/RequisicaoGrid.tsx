@@ -4,6 +4,7 @@ import { SortableHeaderRow, SortableTableHead } from "@/components/SortableTable
 import { useRequisicoes, Requisicao, StatusHistorico } from "@/contexts/RequisicaoContext";
 import { usePermissao } from "@/hooks/usePermissao";
 import { useClientes } from "@/contexts/ClientesContext";
+import TomadorSelect from "@/components/financeiro/TomadorSelect";
 import { useCargos } from "@/contexts/CargosContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProcessoSeletivo } from "@/contexts/ProcessoSeletivoContext";
@@ -539,12 +540,16 @@ const RequisicaoGrid = () => {
                 <div>
                   <label className="field-label">Unidade</label>
                   {clientes.length > 0 ? (
-                    <Select value={editForm.unidade} onValueChange={(v) => setEditForm(p => ({ ...p, unidade: v }))}>
-                      <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-                      <SelectContent>
-                        {clientes.map(c => <SelectItem key={c.id} value={c.nome}>{c.nome}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
+                    <TomadorSelect
+                      label="Unidade"
+                      placeholder={editForm.unidade || "Selecione o cliente"}
+                      options={clientes}
+                      value={clientes.find((c) => c.nome === editForm.unidade)?.id || ""}
+                      onValueChange={(id) => {
+                        const cliente = clientes.find((c) => c.id === id);
+                        if (cliente) setEditForm(p => ({ ...p, unidade: cliente.nome }));
+                      }}
+                    />
                   ) : (
                     <Input value={editForm.unidade} onChange={e => setEditForm(p => ({ ...p, unidade: e.target.value }))} />
                   )}

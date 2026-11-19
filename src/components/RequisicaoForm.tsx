@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { useClientes } from "@/contexts/ClientesContext";
+import TomadorSelect from "@/components/financeiro/TomadorSelect";
 import FormSection from "@/components/FormSection";
 import CheckboxGroup from "@/components/CheckboxGroup";
 import RadioGroupCustom from "@/components/RadioGroupCustom";
@@ -241,21 +242,16 @@ const RequisicaoForm = ({ onSuccess }: { onSuccess?: () => void }) => {
           <div>
             <label className="field-label">Unidade</label>
             {clientes.length > 0 ? (
-              <Select
-                value={form.unidade}
-                onValueChange={(v) => update("unidade", v)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o cliente" />
-                </SelectTrigger>
-                <SelectContent>
-                  {clientes.filter((c) => c.tipo === "Cliente").map((c) => (
-                    <SelectItem key={c.id} value={c.nome}>
-                      {c.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <TomadorSelect
+                label="Unidade"
+                placeholder={form.unidade || "Selecione o cliente"}
+                options={clientes.filter((c) => c.tipo === "Cliente")}
+                value={clientes.find((c) => c.nome === form.unidade)?.id || ""}
+                onValueChange={(id) => {
+                  const cliente = clientes.find((c) => c.id === id);
+                  if (cliente) update("unidade", cliente.nome);
+                }}
+              />
             ) : (
               <Input
                 placeholder="Cadastre clientes primeiro"

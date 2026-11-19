@@ -6,9 +6,9 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { correspondeTomador, type TomadorBusca } from "@/lib/buscaTomador";
 import { cn } from "@/lib/utils";
 
-export default function TomadorSelect({ value, onValueChange, options, todosLabel, label = "Cliente / Tomador" }: {
+export default function TomadorSelect({ value, onValueChange, options, todosLabel, placeholder = "Selecione o tomador...", label = "Cliente / Tomador" }: {
   value: string; onValueChange: (id: string) => void; options: TomadorBusca[];
-  todosLabel?: string; label?: string;
+  todosLabel?: string; label?: string; placeholder?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [busca, setBusca] = useState("");
@@ -19,7 +19,7 @@ export default function TomadorSelect({ value, onValueChange, options, todosLabe
     <Popover open={open} onOpenChange={next => { setOpen(next); setBusca(""); }}>
       <PopoverTrigger asChild>
         <Button type="button" variant="outline" role="combobox" aria-label={label} aria-expanded={open} className="h-auto min-h-10 w-full justify-between gap-2 text-left font-normal">
-          <span className="min-w-0 whitespace-normal break-words">{selected ? `${selected.nome || selected.nomeFantasia} — ${selected.cnpj || selected.cpf || "—"}` : todosLabel || "Selecione o tomador..."}</span>
+          <span className="min-w-0 whitespace-normal break-words">{selected ? `${selected.nome || selected.nomeFantasia} — ${selected.cnpj || selected.cpf || "—"}` : todosLabel || placeholder}</span>
           <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>

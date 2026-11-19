@@ -75,6 +75,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { useState, useEffect } from "react";
 import { AlterarMinhaSenhaDialog } from "@/components/AlterarMinhaSenhaDialog";
 import { GerenciarDigitaisDialog } from "@/components/GerenciarDigitaisDialog";
+import { estaEmAppInstalada } from "@/lib/app-instalada";
 
 const menuItems = [
   {
@@ -280,6 +281,11 @@ export function AppSidebar() {
   const { usuarioLogado, logout } = useAuth();
   const [trocarSenhaOpen, setTrocarSenhaOpen] = useState(false);
   const [digitaisOpen, setDigitaisOpen] = useState(false);
+  // A digital só aparece quando o SGM está aberto como app instalado (PWA).
+  const [appInstalado, setAppInstalado] = useState(false);
+  useEffect(() => {
+    setAppInstalado(estaEmAppInstalada());
+  }, []);
   const { temModulo, acessoTotal, isDiretor } = usePermissao();
 
   const visibleGroups = menuItems
@@ -438,13 +444,15 @@ export function AppSidebar() {
                   </>
                 )}
               </div>
-              <button
-                onClick={() => setDigitaisOpen(true)}
-                className="shrink-0 text-muted-foreground hover:text-primary transition-colors"
-                title="Acesso com digital"
-              >
-                <Fingerprint className="h-4 w-4" />
-              </button>
+              {appInstalado && (
+                <button
+                  onClick={() => setDigitaisOpen(true)}
+                  className="shrink-0 text-muted-foreground hover:text-primary transition-colors"
+                  title="Acesso com digital"
+                >
+                  <Fingerprint className="h-4 w-4" />
+                </button>
+              )}
               <button
                 onClick={() => setTrocarSenhaOpen(true)}
                 className="shrink-0 text-muted-foreground hover:text-primary transition-colors"

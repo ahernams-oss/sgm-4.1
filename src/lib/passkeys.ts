@@ -3,6 +3,7 @@
 // Nada aqui decide quem entra: o servidor confere a assinatura e devolve o tokenHash
 // que abre a sessão do Supabase. Este módulo só conversa com o aparelho.
 import { supabase } from "@/integrations/supabase/client";
+import { estaEmAppInstalada } from "@/lib/app-instalada";
 
 export type DigitalCadastrada = {
   id: string;
@@ -20,6 +21,12 @@ export type Disponibilidade = { ok: boolean; motivo: string };
 export async function disponibilidadeDigital(): Promise<Disponibilidade> {
   if (typeof window === "undefined") {
     return { ok: false, motivo: "A digital só funciona no navegador." };
+  }
+  if (!estaEmAppInstalada()) {
+    return {
+      ok: false,
+      motivo: "A digital funciona somente no app instalado no celular (PWA).",
+    };
   }
   const { browserSupportsWebAuthn, platformAuthenticatorIsAvailable } = await import(
     "@simplewebauthn/browser"

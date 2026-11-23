@@ -60,18 +60,24 @@ export default function I0Page() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { deleteId, requestDelete, cancelDelete } = useDoubleConfirmDelete();
 
-  const getScoDesc = (cod: string) => scos.find((s) => s.codSco === cod)?.descricaoSco ?? "";
+  const descPorCod = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const s of scos) if (!m.has(s.codSco)) m.set(s.codSco, s.descricaoSco ?? "");
+    return m;
+  }, [scos]);
+  const getScoDesc = (cod: string) => descPorCod.get(cod) ?? "";
 
   const filtered = useMemo(() => {
+    const q = search.toLowerCase();
     return items.filter((i) => {
-      const matchSearch =
-        i.codSco.toLowerCase().includes(search.toLowerCase()) ||
-        getScoDesc(i.codSco).toLowerCase().includes(search.toLowerCase());
+      const matchSearch = !q ||
+        i.codSco.toLowerCase().includes(q) ||
+        getScoDesc(i.codSco).toLowerCase().includes(q);
       const matchMes = filterMes === "todos" || i.mes === Number(filterMes);
       const matchAno = filterAno === "todos" || i.ano === Number(filterAno);
       return matchSearch && matchMes && matchAno;
     });
-  }, [items, search, filterMes, filterAno, scos]);
+  }, [items, search, filterMes, filterAno, descPorCod]);
 
   const openNew = () => { setForm(emptyI0Form); setEditId(null); setOpen(true); };
 

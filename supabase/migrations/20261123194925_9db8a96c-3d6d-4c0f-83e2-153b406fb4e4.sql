@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS i0_items_created_at_id_idx ON public.i0_items (created_at, id);

@@ -1,6 +1,7 @@
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
+import { supabase } from "@/integrations/supabase/client";
+import { insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
 import { useProviderGate, useActivateProvider } from "@/lib/providerGate";
 
 export interface I0 { id: string; mes: number; ano: number; codSco: string; valor: number; }
@@ -22,13 +23,31 @@ const rowToI0 = (r: any): I0 => ({
   id: r.id, mes: r.mes ?? 1, ano: r.ano ?? 2024, codSco: r.cod_sco ?? "", valor: Number(r.valor) || 0,
 });
 
+// Carrega as páginas em paralelo (antes eram ~23 consultas em sequência).
+async function carregarI0(): Promise<any[]> {
+  const PAGE = 1000;
+  const { count, error } = await supabase.from("i0_items").select("id", { count: "exact", head: true });
+  if (error) throw error;
+  const total = count ?? 0;
+  const paginas = Array.from({ length: Math.ceil(total / PAGE) }, (_, i) => i);
+  const res = await Promise.all(paginas.map(async (i) => {
+    const { data, error: e } = await supabase.from("i0_items")
+      .select("id, mes, ano, cod_sco, valor")
+      .order("created_at", { ascending: true }).order("id", { ascending: true })
+      .range(i * PAGE, i * PAGE + PAGE - 1);
+    if (e) throw e;
+    return data ?? [];
+  }));
+  return res.flat();
+}
+
 export function I0Provider({ children }: { children: ReactNode }) {
   const __active = useProviderGate("I0");
   const qc = useQueryClient();
   const { data: items = [] } = useQuery({
     enabled: __active,
     queryKey: QK,
-    queryFn: async () => (await fetchAll("i0_items")).map(rowToI0),
+    queryFn: async () => (await carregarI0()).map(rowToI0),
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   });

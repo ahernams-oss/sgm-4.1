@@ -14,7 +14,10 @@ export function resumirI0(items: readonly RegistroI0[], catalogo: readonly Cadas
   for (const item of catalogo) {
     const codigo = item.codSco.trim().toUpperCase();
     const tabelas = tabelasPorCodigo.get(codigo) ?? new Set<string>();
-    if (item.tipo.trim()) tabelas.add(item.tipo.trim().toUpperCase());
+    const tipo = item.tipo.trim().toUpperCase();
+    // Os itens LST importados no catálogo SCO têm sua própria opção de apresentação.
+    const tabela = tipo === "SCO" && /^LST\d+$/.test(codigo) ? "LST" : tipo;
+    if (tabela) tabelas.add(tabela);
     tabelasPorCodigo.set(codigo, tabelas);
   }
   const resumo = new Map<string, ResumoI0>();

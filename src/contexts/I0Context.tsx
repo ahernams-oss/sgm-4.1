@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, type Context, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { carregarPorFaixasId, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -16,7 +16,9 @@ interface I0ContextType {
   deleteItem: (id: string) => void;
 }
 
-const I0Context = createContext<I0ContextType | undefined>(undefined);
+// Mantém a mesma identidade do contexto quando a tela é atualizada em desenvolvimento.
+const contextScope = globalThis as typeof globalThis & { __sgmI0Context?: Context<I0ContextType | undefined> };
+const I0Context = contextScope.__sgmI0Context ??= createContext<I0ContextType | undefined>(undefined);
 const QK = ["i0_items"] as const;
 
 const rowToI0 = (r: any): I0 => ({

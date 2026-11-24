@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode } from "react";
+import { createContext, useContext, type Context, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { carregarPorFaixasId, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
 import { useProviderGate, useActivateProvider } from "@/lib/providerGate";
@@ -16,7 +16,9 @@ interface ScoContextType {
   deleteSco: (id: string) => void;
 }
 
-const ScoContext = createContext<ScoContextType | undefined>(undefined);
+// Mantém a mesma identidade do contexto quando a tela é atualizada em desenvolvimento.
+const contextScope = globalThis as typeof globalThis & { __sgmScoContext?: Context<ScoContextType | undefined> };
+const ScoContext = contextScope.__sgmScoContext ??= createContext<ScoContextType | undefined>(undefined);
 const QK = ["scos"] as const;
 
 const rowToSco = (r: any): Sco => ({

@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import React, { createContext, useContext, ReactNode } from "react";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -47,7 +48,7 @@ interface BimContextType {
   refresh: () => Promise<void>;
 }
 
-const BimContext = createContext<BimContextType>({} as BimContextType);
+const BimContext = contextoEstavel<BimContextType>("BimContext:BimContext", {} as BimContextType);
 
 const QK_M = ["bim_modelos"] as const;
 const QK_Q = ["bim_quantitativos"] as const;

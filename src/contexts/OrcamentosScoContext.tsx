@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -52,7 +53,7 @@ interface Ctx {
   listReferencias: () => Promise<string[]>;
 }
 
-const C = createContext<Ctx | undefined>(undefined);
+const C = contextoEstavel<Ctx | undefined>("OrcamentosScoContext:C", undefined);
 const QK = ["orcamentos_sco"] as const;
 
 export function OrcamentosScoProvider({ children }: { children: ReactNode }) {

@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -66,7 +67,7 @@ interface Ctx {
   deleteAvaliacao: (id: string) => Promise<void>;
 }
 
-const AvaliacoesDesempenhoContext = createContext<Ctx | undefined>(undefined);
+const AvaliacoesDesempenhoContext = contextoEstavel<Ctx | undefined>("AvaliacoesDesempenhoContext:AvaliacoesDesempenhoContext", undefined);
 
 const QK = ["avaliacoes_desempenho"] as const;
 

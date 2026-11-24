@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -50,7 +51,7 @@ interface Ctx {
   refresh: () => Promise<void>;
 }
 
-const BoletinsMedicaoContext = createContext<Ctx>({} as Ctx);
+const BoletinsMedicaoContext = contextoEstavel<Ctx>("BoletinsMedicaoContext:BoletinsMedicaoContext", {} as Ctx);
 export const useBoletinsMedicao = () => { useActivateProvider("BoletinsMedicao"); return useContext(BoletinsMedicaoContext); };
 
 const QK = ["boletins_medicao"] as const;

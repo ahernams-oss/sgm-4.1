@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -11,7 +12,7 @@ interface FabricantesContextType {
   deleteFabricante: (id: string) => void;
 }
 
-const FabricantesContext = createContext<FabricantesContextType | undefined>(undefined);
+const FabricantesContext = contextoEstavel<FabricantesContextType | undefined>("FabricantesContext:FabricantesContext", undefined);
 const QK = ["fabricantes"] as const;
 
 export function FabricantesProvider({ children }: { children: ReactNode }) {

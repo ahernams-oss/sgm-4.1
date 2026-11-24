@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -70,7 +71,7 @@ interface Ctx {
   porEquipamento: (equipamentoId: string) => LaudoCondenacao[];
 }
 
-const LaudosCtx = createContext<Ctx | undefined>(undefined);
+const LaudosCtx = contextoEstavel<Ctx | undefined>("LaudosCondenacaoContext:LaudosCtx", undefined);
 const QK = ["laudos_condenacao"] as const;
 
 const rowToLaudo = (r: any): LaudoCondenacao => ({

@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, useCallback, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -25,7 +26,7 @@ interface Ctx {
   definirPadrao: (materialId: string, id: string) => Promise<void>;
 }
 
-const MaterialScoVinculosContext = createContext<Ctx | undefined>(undefined);
+const MaterialScoVinculosContext = contextoEstavel<Ctx | undefined>("MaterialScoVinculosContext:MaterialScoVinculosContext", undefined);
 const QK = ["material_sco_vinculos"] as const;
 
 const rowToVinculo = (r: any): MaterialScoVinculo => ({

@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -23,7 +24,7 @@ interface CategoriasComprasContextType {
   getDescricaoCompleta: (classeId: string) => string;
 }
 
-const CategoriasComprasContext = createContext<CategoriasComprasContextType | undefined>(undefined);
+const CategoriasComprasContext = contextoEstavel<CategoriasComprasContextType | undefined>("CategoriasComprasContext:CategoriasComprasContext", undefined);
 const QK_G = ["categorias_compras_grupos"] as const;
 const QK_S = ["categorias_compras_subgrupos"] as const;
 const QK_C = ["categorias_compras_classes"] as const;

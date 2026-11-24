@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { useProviderGate, useActivateProvider } from "@/lib/providerGate";
 import { fetchAll, insertRow, updateRow } from "@/lib/supabaseHelper";
@@ -82,7 +83,7 @@ interface EmpresaContextType {
   removerCertificadoA1: () => Promise<void>;
 }
 
-const EmpresaContext = createContext<EmpresaContextType | undefined>(undefined);
+const EmpresaContext = contextoEstavel<EmpresaContextType | undefined>("EmpresaContext:EmpresaContext", undefined);
 
 const rowToEmpresa = (r: any): Empresa => ({
   id: r.id,

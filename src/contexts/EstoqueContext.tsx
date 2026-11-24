@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, useCallback, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow } from "@/lib/supabaseHelper";
@@ -83,7 +84,7 @@ interface EstoqueContextType {
   reload: () => Promise<void>;
 }
 
-const EstoqueContext = createContext<EstoqueContextType | undefined>(undefined);
+const EstoqueContext = contextoEstavel<EstoqueContextType | undefined>("EstoqueContext:EstoqueContext", undefined);
 const QK_MOV = ["estoque_movimentacoes"] as const;
 const QK_INV = ["estoque_inventarios"] as const;
 

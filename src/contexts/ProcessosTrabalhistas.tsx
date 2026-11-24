@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -58,7 +59,7 @@ interface ContextType {
   loadAndamentos: (processoId: string) => Promise<Andamento[]>;
 }
 
-const Ctx = createContext<ContextType | undefined>(undefined);
+const Ctx = contextoEstavel<ContextType | undefined>("ProcessosTrabalhistas:Ctx", undefined);
 
 const QK = ["processos_trabalhistas"] as const;
 

@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -80,7 +81,7 @@ interface Ctx {
   remover: (id: string) => Promise<void>;
 }
 
-const NfsesContext = createContext<Ctx | undefined>(undefined);
+const NfsesContext = contextoEstavel<Ctx | undefined>("NfsesContext:NfsesContext", undefined);
 const QK_NFS = ["nfses_emitidas"] as const;
 const QK_CFG = ["nfse_config"] as const;
 

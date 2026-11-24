@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,7 +84,7 @@ interface KnowledgeBaseContextType {
   gerarEmbeddingFaq: (faqId: string, texto: string) => Promise<void>;
 }
 
-const Ctx = createContext<KnowledgeBaseContextType | undefined>(undefined);
+const Ctx = contextoEstavel<KnowledgeBaseContextType | undefined>("KnowledgeBaseContext:Ctx", undefined);
 
 const rowToArtigo = (r: any): KbArtigo => ({
   id: r.id,

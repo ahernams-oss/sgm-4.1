@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -16,7 +17,7 @@ interface MateriaisServicosContextType {
   deleteMaterial: (id: string) => void;
 }
 
-const MateriaisServicosContext = createContext<MateriaisServicosContextType | undefined>(undefined);
+const MateriaisServicosContext = contextoEstavel<MateriaisServicosContextType | undefined>("MateriaisServicosContext:MateriaisServicosContext", undefined);
 const QK = ["materiais_servicos"] as const;
 
 const rowToMaterial = (r: any): MaterialServico => ({

@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import React, { createContext, useContext, ReactNode } from "react";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -55,7 +56,7 @@ interface ChecklistsContextType {
   refresh: () => Promise<void>;
 }
 
-const ChecklistsContext = createContext<ChecklistsContextType>({} as ChecklistsContextType);
+const ChecklistsContext = contextoEstavel<ChecklistsContextType>("ChecklistsContext:ChecklistsContext", {} as ChecklistsContextType);
 export const useChecklists = () => { useActivateProvider("Checklists"); return useContext(ChecklistsContext); };
 
 const QK_C = ["checklists"] as const;

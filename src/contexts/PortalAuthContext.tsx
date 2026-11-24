@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
 import { PORTAL_SESSION_EXPIRED_EVENT, portalCall, portalStore, PortalUser } from "@/lib/portalClient";
 
@@ -9,7 +10,7 @@ interface Ctx {
   logout: () => void;
 }
 
-const PortalAuthCtx = createContext<Ctx | undefined>(undefined);
+const PortalAuthCtx = contextoEstavel<Ctx | undefined>("PortalAuthContext:PortalAuthCtx", undefined);
 
 export function PortalAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<PortalUser | null>(() => portalStore.getUser());

@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -40,7 +41,7 @@ interface EquipamentosContextType {
   deleteEquipamento: (id: string) => void;
 }
 
-const EquipamentosContext = createContext<EquipamentosContextType | undefined>(undefined);
+const EquipamentosContext = contextoEstavel<EquipamentosContextType | undefined>("EquipamentosContext:EquipamentosContext", undefined);
 const QK = ["equipamentos"] as const;
 
 const rowToEquipamento = (r: any): Equipamento => ({

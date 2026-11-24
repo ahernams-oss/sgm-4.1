@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -99,7 +100,7 @@ interface ComunicacaoContextType {
   deleteGrupo: (id: string) => Promise<void>;
 }
 
-const ComunicacaoContext = createContext<ComunicacaoContextType | undefined>(undefined);
+const ComunicacaoContext = contextoEstavel<ComunicacaoContextType | undefined>("ComunicacaoContext:ComunicacaoContext", undefined);
 
 const QK_GRUPOS = ["comunicacao_grupos"] as const;
 const QK_CONV = ["comunicacao_conversas"] as const;

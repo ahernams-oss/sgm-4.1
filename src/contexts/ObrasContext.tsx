@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -34,7 +35,7 @@ interface Ctx {
   refresh: () => Promise<void>;
 }
 
-const ObrasContext = createContext<Ctx>({
+const ObrasContext = contextoEstavel<Ctx>("ObrasContext:ObrasContext", {
   obras: [], loading: false,
   add: async () => null, update: async () => false, remove: async () => false,
   porCliente: () => [], refresh: async () => {},

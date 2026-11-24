@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import React, { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -24,7 +25,7 @@ interface EvidenciasContextType {
   uploadAnexo: (file: File, evidenciaId: string) => Promise<string | null>;
 }
 
-const EvidenciasContext = createContext<EvidenciasContextType>({} as EvidenciasContextType);
+const EvidenciasContext = contextoEstavel<EvidenciasContextType>("EvidenciasContext:EvidenciasContext", {} as EvidenciasContextType);
 export const useEvidencias = () => { useActivateProvider("Evidencias"); return useContext(EvidenciasContext); };
 const QK = ["evidencias"] as const;
 

@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -191,7 +192,7 @@ interface PmocContextType {
   refresh: () => Promise<void>;
 }
 
-const PmocContext = createContext<PmocContextType>({} as PmocContextType);
+const PmocContext = contextoEstavel<PmocContextType>("PmocContext:PmocContext", {} as PmocContextType);
 export const usePmoc = () => { useActivateProvider("Pmoc"); return useContext(PmocContext); };
 
 const TABLES = [

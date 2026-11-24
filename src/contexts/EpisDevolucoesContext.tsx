@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -50,7 +51,7 @@ interface Ctx {
   deleteDevolucao: (id: string) => Promise<void>;
 }
 
-const EpisDevolucoesContext = createContext<Ctx | undefined>(undefined);
+const EpisDevolucoesContext = contextoEstavel<Ctx | undefined>("EpisDevolucoesContext:EpisDevolucoesContext", undefined);
 
 const rowTo = (r: any): EpiDevolucao => ({
   id: r.id,

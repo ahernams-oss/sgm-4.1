@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import React, { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -40,7 +41,7 @@ interface CronogramasContextType {
   refresh: () => Promise<void>;
 }
 
-const CronogramasContext = createContext<CronogramasContextType>({} as CronogramasContextType);
+const CronogramasContext = contextoEstavel<CronogramasContextType>("CronogramasContext:CronogramasContext", {} as CronogramasContextType);
 export const useCronogramas = () => { useActivateProvider("Cronogramas"); return useContext(CronogramasContext); };
 const QK = ["cronogramas"] as const;
 

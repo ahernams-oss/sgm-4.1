@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 // Solicitações de Serviços Context
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -39,7 +40,7 @@ interface SolicitacoesServicosContextType {
   refresh: () => Promise<void>;
 }
 
-const SolicitacoesServicosContext = createContext<SolicitacoesServicosContextType | undefined>(undefined);
+const SolicitacoesServicosContext = contextoEstavel<SolicitacoesServicosContextType | undefined>("SolicitacoesServicosContext:SolicitacoesServicosContext", undefined);
 const QK = ["solicitacoes_servicos"] as const;
 
 const rowToSolicitacao = (r: any): SolicitacaoServico => ({

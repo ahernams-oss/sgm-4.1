@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -57,7 +58,7 @@ interface MedicoesContextType {
   deleteMedicao: (id: string) => Promise<void>;
 }
 
-const MedicoesContext = createContext<MedicoesContextType | undefined>(undefined);
+const MedicoesContext = contextoEstavel<MedicoesContextType | undefined>("MedicoesContext:MedicoesContext", undefined);
 const QK = ["medicoes_servicos"] as const;
 
 export function MedicoesProvider({ children }: { children: ReactNode }) {

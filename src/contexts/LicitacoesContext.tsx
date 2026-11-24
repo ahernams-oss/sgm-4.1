@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -235,7 +236,7 @@ interface LicitacoesContextType {
   reload: () => Promise<void>;
 }
 
-const LicitacoesContext = createContext<LicitacoesContextType | undefined>(undefined);
+const LicitacoesContext = contextoEstavel<LicitacoesContextType | undefined>("LicitacoesContext:LicitacoesContext", undefined);
 
 const QK_LIC = ["licitacoes"] as const;
 const QK_DOC = ["licitacoes_documentos"] as const;

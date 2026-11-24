@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,7 +32,7 @@ interface Ctx {
   refresh: () => Promise<void>;
 }
 
-const PcAssinaturasContext = createContext<Ctx>({
+const PcAssinaturasContext = contextoEstavel<Ctx>("PcAssinaturasContext:PcAssinaturasContext", {
   assinaturas: [],
   porPedido: () => [],
   registrar: async () => null,

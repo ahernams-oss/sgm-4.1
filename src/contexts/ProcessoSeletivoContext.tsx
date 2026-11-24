@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow } from "@/lib/supabaseHelper";
@@ -81,7 +82,7 @@ interface ProcessoSeletivoContextType {
   avancarEtapa: (processoId: string, candidatoId: string) => void;
 }
 
-const ProcessoSeletivoContext = createContext<ProcessoSeletivoContextType | undefined>(undefined);
+const ProcessoSeletivoContext = contextoEstavel<ProcessoSeletivoContextType | undefined>("ProcessoSeletivoContext:ProcessoSeletivoContext", undefined);
 
 const rowToProcesso = (r: any): ProcessoSeletivo => ({
   id: r.id, numero: r.numero ?? undefined, requisicaoId: r.requisicao_id ?? "", dataCriacao: r.data_criacao ?? "",

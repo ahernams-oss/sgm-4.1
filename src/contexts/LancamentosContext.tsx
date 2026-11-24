@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -26,7 +27,7 @@ interface LancamentosContextType {
   deleteLancamento: (id: string) => void;
 }
 
-const LancamentosContext = createContext<LancamentosContextType | undefined>(undefined);
+const LancamentosContext = contextoEstavel<LancamentosContextType | undefined>("LancamentosContext:LancamentosContext", undefined);
 const QK = ["lancamentos"] as const;
 
 const rowToLancamento = (r: any): Lancamento => ({

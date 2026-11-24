@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -43,7 +44,7 @@ interface Ctx {
   deleteNr: (id: string) => Promise<void>;
 }
 
-const NrsCatalogoContext = createContext<Ctx | undefined>(undefined);
+const NrsCatalogoContext = contextoEstavel<Ctx | undefined>("NrsCatalogoContext:NrsCatalogoContext", undefined);
 
 const rowTo = (r: any): NrCatalogo => ({
   id: r.id,

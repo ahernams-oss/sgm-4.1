@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import React, { createContext, useContext, ReactNode } from "react";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -48,7 +49,7 @@ interface Ctx {
   deleteExecucao: (id: string) => Promise<boolean>;
 }
 
-const PlanosManutencaoContext = createContext<Ctx>({} as Ctx);
+const PlanosManutencaoContext = contextoEstavel<Ctx>("PlanosManutencaoContext:PlanosManutencaoContext", {} as Ctx);
 export const usePlanosManutencao = () => { useActivateProvider("PlanosManutencao"); return useContext(PlanosManutencaoContext); };
 
 const QK_P = ["planos_manutencao"] as const;

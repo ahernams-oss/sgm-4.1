@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -22,7 +23,7 @@ interface CargosContextType {
   deleteCargo: (id: string) => void;
 }
 
-const CargosContext = createContext<CargosContextType | undefined>(undefined);
+const CargosContext = contextoEstavel<CargosContextType | undefined>("CargosContext:CargosContext", undefined);
 
 const rowToCargo = (r: any): Cargo => ({
   id: r.id, nome: r.nome ?? "", cbo: r.cbo ?? "", descricao: r.descricao ?? "",

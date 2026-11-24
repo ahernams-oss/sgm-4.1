@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow } from "@/lib/supabaseHelper";
@@ -38,7 +39,7 @@ interface CotacaoComprasContextType {
   getCotacaoByRequisicao: (requisicaoId: string) => CotacaoCompras | undefined;
 }
 
-const CotacaoComprasContext = createContext<CotacaoComprasContextType | undefined>(undefined);
+const CotacaoComprasContext = contextoEstavel<CotacaoComprasContextType | undefined>("CotacaoComprasContext:CotacaoComprasContext", undefined);
 const QK = ["cotacoes_compras"] as const;
 
 const rowToCotacao = (r: any): CotacaoCompras => ({

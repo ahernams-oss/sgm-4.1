@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -109,7 +110,7 @@ interface FerramentasContextType {
   refreshAll: () => Promise<void>;
 }
 
-const FerramentasContext = createContext<FerramentasContextType | undefined>(undefined);
+const FerramentasContext = contextoEstavel<FerramentasContextType | undefined>("FerramentasContext:FerramentasContext", undefined);
 
 const QK_F = ["ferramentas"] as const;
 const QK_V = ["ferramentas_vinculos"] as const;

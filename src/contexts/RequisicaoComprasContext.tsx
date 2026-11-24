@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow } from "@/lib/supabaseHelper";
@@ -37,7 +38,7 @@ interface RequisicaoComprasContextType {
   cancelarRequisicao: (id: string, usuario: string, motivo: string) => void;
 }
 
-const RequisicaoComprasContext = createContext<RequisicaoComprasContextType | undefined>(undefined);
+const RequisicaoComprasContext = contextoEstavel<RequisicaoComprasContextType | undefined>("RequisicaoComprasContext:RequisicaoComprasContext", undefined);
 const QK = ["requisicoes_compras"] as const;
 
 const rowToReq = (r: any): RequisicaoCompras => ({

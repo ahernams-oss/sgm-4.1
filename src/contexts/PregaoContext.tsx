@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -354,7 +355,7 @@ interface PregaoContextType {
   deleteHabilitacao: (habId: string) => Promise<boolean>;
 }
 
-const PregaoContext = createContext<PregaoContextType | undefined>(undefined);
+const PregaoContext = contextoEstavel<PregaoContextType | undefined>("PregaoContext:PregaoContext", undefined);
 
 const QK_PREGOES = ["pregoes"] as const;
 const QK_ITENS = ["pregao_itens"] as const;

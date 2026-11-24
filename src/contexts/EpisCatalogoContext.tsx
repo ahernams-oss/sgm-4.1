@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -22,7 +23,7 @@ interface Ctx {
   deleteEpi: (id: string) => Promise<void>;
 }
 
-const EpisCatalogoContext = createContext<Ctx | undefined>(undefined);
+const EpisCatalogoContext = contextoEstavel<Ctx | undefined>("EpisCatalogoContext:EpisCatalogoContext", undefined);
 
 const rowTo = (r: any): EpiCatalogo => ({
   id: r.id,

@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -170,7 +171,7 @@ interface Ctx {
   saldoConta: (contaId: string) => number;
 }
 
-const FinanceiroContext = createContext<Ctx | undefined>(undefined);
+const FinanceiroContext = contextoEstavel<Ctx | undefined>("FinanceiroContext:FinanceiroContext", undefined);
 
 const QK_CB = ["fin_contas_bancarias"] as const;
 const QK_PC = ["fin_plano_contas"] as const;

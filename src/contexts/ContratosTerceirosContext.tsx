@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -42,7 +43,7 @@ interface Ctx {
   refresh: () => Promise<void>;
 }
 
-const ContratosTerceirosContext = createContext<Ctx>({
+const ContratosTerceirosContext = contextoEstavel<Ctx>("ContratosTerceirosContext:ContratosTerceirosContext", {
   contratos: [], loading: false,
   add: async () => null, update: async () => false, remove: async () => false,
   refresh: async () => {},

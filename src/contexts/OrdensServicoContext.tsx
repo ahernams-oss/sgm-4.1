@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, useEffect, useRef, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow } from "@/lib/supabaseHelper";
@@ -83,7 +84,7 @@ interface OrdensServicoContextType {
   loading: boolean;
 }
 
-const OrdensServicoContext = createContext<OrdensServicoContextType | undefined>(undefined);
+const OrdensServicoContext = contextoEstavel<OrdensServicoContextType | undefined>("OrdensServicoContext:OrdensServicoContext", undefined);
 const QK = ["ordens_servico"] as const;
 
 const rowToOrdem = (r: any): OrdemServico => ({

@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow } from "@/lib/supabaseHelper";
@@ -25,7 +26,7 @@ interface Ctx {
   refresh: () => Promise<void>;
 }
 
-const BoletimAssinaturasContext = createContext<Ctx>({
+const BoletimAssinaturasContext = contextoEstavel<Ctx>("BoletimAssinaturasContext:BoletimAssinaturasContext", {
   assinaturas: [],
   porBoletim: () => [],
   registrar: async () => null,

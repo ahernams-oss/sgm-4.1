@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -17,7 +18,7 @@ interface ServicosContextType {
   deleteServico: (id: string) => Promise<void>;
 }
 
-const ServicosContext = createContext<ServicosContextType | undefined>(undefined);
+const ServicosContext = contextoEstavel<ServicosContextType | undefined>("ServicosContext:ServicosContext", undefined);
 const QK = ["servicos"] as const;
 
 const rowToServico = (r: any): Servico => ({

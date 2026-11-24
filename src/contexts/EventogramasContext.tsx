@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import React, { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -46,7 +47,7 @@ interface Ctx {
   refresh: () => Promise<void>;
 }
 
-const EventogramasContext = createContext<Ctx>({} as Ctx);
+const EventogramasContext = contextoEstavel<Ctx>("EventogramasContext:EventogramasContext", {} as Ctx);
 export const useEventogramas = () => { useActivateProvider("Eventogramas"); return useContext(EventogramasContext); };
 
 const QK = ["eventogramas"] as const;

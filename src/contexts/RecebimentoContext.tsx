@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePedidoCompra } from "@/contexts/PedidoCompraContext";
@@ -29,7 +30,7 @@ interface RecebimentoContextType {
   getTotalRecebidoPorItem: (pedidoId: string, itemId: string) => number;
 }
 
-const RecebimentoContext = createContext<RecebimentoContextType | undefined>(undefined);
+const RecebimentoContext = contextoEstavel<RecebimentoContextType | undefined>("RecebimentoContext:RecebimentoContext", undefined);
 const QK = ["recebimentos"] as const;
 
 const rowToRecebimento = (r: any): Recebimento => ({

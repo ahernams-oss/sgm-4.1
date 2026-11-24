@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -164,7 +165,7 @@ interface FuncionariosContextType {
   deleteFuncionario: (id: string) => void;
 }
 
-const FuncionariosContext = createContext<FuncionariosContextType | undefined>(undefined);
+const FuncionariosContext = contextoEstavel<FuncionariosContextType | undefined>("FuncionariosContext:FuncionariosContext", undefined);
 
 const QK = ["funcionarios"] as const;
 

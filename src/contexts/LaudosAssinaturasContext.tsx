@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, deleteRow } from "@/lib/supabaseHelper";
@@ -34,7 +35,7 @@ interface Ctx {
   refresh: () => Promise<void>;
 }
 
-const LaudosAssinaturasContext = createContext<Ctx>({
+const LaudosAssinaturasContext = contextoEstavel<Ctx>("LaudosAssinaturasContext:LaudosAssinaturasContext", {
   assinaturas: [],
   porLaudo: () => [],
   registrar: async () => null,

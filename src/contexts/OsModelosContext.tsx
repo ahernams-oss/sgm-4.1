@@ -1,3 +1,4 @@
+import { contextoEstavel } from "@/lib/contextoEstavel";
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
@@ -16,7 +17,7 @@ interface Ctx {
   deleteModelo: (id: string) => Promise<void>;
 }
 
-const OsModelosContext = createContext<Ctx | undefined>(undefined);
+const OsModelosContext = contextoEstavel<Ctx | undefined>("OsModelosContext:OsModelosContext", undefined);
 const QK = ["os_modelos"] as const;
 
 const rowTo = (r: any): OsModelo => ({

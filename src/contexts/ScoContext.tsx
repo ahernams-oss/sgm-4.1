@@ -1,6 +1,6 @@
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
+import { carregarPorFaixasId, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
 import { useProviderGate, useActivateProvider } from "@/lib/providerGate";
 
 export type TipoSco = "SCO" | "SINAPI" | "EMOP";
@@ -34,7 +34,9 @@ export function ScoProvider({ children }: { children: ReactNode }) {
   const { data: scos = [] } = useQuery({
     enabled: __active,
     queryKey: QK,
-    queryFn: async () => (await fetchAll("scos", "cod_sco")).map(rowToSco),
+    queryFn: async () => (await carregarPorFaixasId("scos", "id, cod_sco, descricao_sco, unidade, tipo, familia"))
+      .sort((a, b) => String(a.cod_sco ?? "").localeCompare(String(b.cod_sco ?? "")) || String(a.id).localeCompare(String(b.id)))
+      .map(rowToSco),
     staleTime: 5 * 60 * 1000, gcTime: 30 * 60 * 1000,
   });
   const invalidate = () => qc.invalidateQueries({ queryKey: QK });

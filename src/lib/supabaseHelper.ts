@@ -38,6 +38,42 @@ export async function fetchAll(table: string, orderBy = "created_at"): Promise<a
   return all;
 }
 
+// Tabelas muito grandes (I0, SCO): 16 faixas de id em paralelo, paginadas por id
+// (sem OFFSET profundo, que fica lento e estoura tempo), com novas tentativas.
+const HEX = "0123456789abcdef";
+async function comRetry<T>(fn: () => Promise<T>, tentativas = 3): Promise<T> {
+  let ultimo: unknown;
+  for (let t = 0; t < tentativas; t++) {
+    try { return await fn(); } catch (e) { ultimo = e; await new Promise((r) => setTimeout(r, 400 * (t + 1))); }
+  }
+  throw ultimo;
+}
+export async function carregarPorFaixasId(table: string, colunas: string): Promise<any[]> {
+  const faixa = async (inicio: string, fim: string | null) => {
+    const out: any[] = [];
+    let ultimo = inicio;
+    let primeira = true;
+    for (;;) {
+      const lote: any[] = await comRetry(async () => {
+        let q = (supabase as any).from(table).select(colunas);
+        q = primeira ? q.gte("id", ultimo) : q.gt("id", ultimo);
+        if (fim) q = q.lt("id", fim);
+        const { data, error } = await q.order("id", { ascending: true }).limit(PAGE_SIZE);
+        if (error) throw error;
+        return data ?? [];
+      });
+      out.push(...lote);
+      if (lote.length < PAGE_SIZE) break;
+      ultimo = lote[lote.length - 1].id;
+      primeira = false;
+    }
+    return out;
+  };
+  const z = "0000000-0000-0000-0000-000000000000";
+  const partes = HEX.split("").map((c, i) => faixa(`${c}${z}`, HEX[i + 1] ? `${HEX[i + 1]}${z}` : null));
+  return (await Promise.all(partes)).flat();
+}
+
 export async function insertRow(table: string, row: any): Promise<any> {
   const { data, error } = await (supabase as any).from(table).insert(row).select().single();
   if (error) {

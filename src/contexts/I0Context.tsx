@@ -1,7 +1,7 @@
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
+import { carregarPorFaixasId, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
 import { useProviderGate, useActivateProvider } from "@/lib/providerGate";
 
 export interface I0 { id: string; mes: number; ano: number; codSco: string; valor: number; }
@@ -23,44 +23,7 @@ const rowToI0 = (r: any): I0 => ({
   id: r.id, mes: r.mes ?? 1, ano: r.ano ?? 2024, codSco: r.cod_sco ?? "", valor: Number(r.valor) || 0,
 });
 
-// Carrega em 16 faixas de id em paralelo, cada uma paginada por id (keyset).
-// Evita OFFSET profundo (lento e sujeito a timeout com ~77 mil itens).
-const HEX = "0123456789abcdef";
-async function comRetry<T>(fn: () => Promise<T>, tentativas = 3): Promise<T> {
-  let ultimo: unknown;
-  for (let t = 0; t < tentativas; t++) {
-    try { return await fn(); } catch (e) { ultimo = e; await new Promise((r) => setTimeout(r, 400 * (t + 1))); }
-  }
-  throw ultimo;
-}
-async function carregarFaixa(inicio: string, fim: string | null): Promise<any[]> {
-  const PAGE = 1000;
-  const out: any[] = [];
-  let ultimo = inicio;
-  let primeira = true;
-  for (;;) {
-    const lote = await comRetry(async () => {
-      let q = supabase.from("i0_items").select("id, mes, ano, cod_sco, valor");
-      q = primeira ? q.gte("id", ultimo) : q.gt("id", ultimo);
-      if (fim) q = q.lt("id", fim);
-      const { data, error } = await q.order("id", { ascending: true }).limit(PAGE);
-      if (error) throw error;
-      return data ?? [];
-    });
-    out.push(...lote);
-    if (lote.length < PAGE) break;
-    ultimo = lote[lote.length - 1].id;
-    primeira = false;
-  }
-  return out;
-}
-async function carregarI0(): Promise<any[]> {
-  const faixas = HEX.split("").map((c, i) => {
-    const prox = HEX[i + 1];
-    return carregarFaixa(`${c}0000000-0000-0000-0000-000000000000`, prox ? `${prox}0000000-0000-0000-0000-000000000000` : null);
-  });
-  return (await Promise.all(faixas)).flat();
-}
+const carregarI0 = () => carregarPorFaixasId("i0_items", "id, mes, ano, cod_sco, valor");
 
 export function I0Provider({ children }: { children: ReactNode }) {
   const __active = useProviderGate("I0");

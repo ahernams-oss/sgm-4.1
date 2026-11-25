@@ -21,7 +21,7 @@ import type * as XLSXTypes from "xlsx";
 const getXLSX = async () => await import("xlsx");
 
 type Periodo = "semanal" | "quinzenal" | "mensal" | "personalizado";
-type TipoRelatorio = "fechamento_validadas" | "fechamento_local" | "fechamento_categoria" | "fechamento_faturadas" | "fechamento_faturadas_local" | "analitico" | "sintetico" | "financeiro" | "produtividade" | "situacao" | "ciclo_ss" | "ciclo_os" | "fotografico";
+type TipoRelatorio = "fechamento_validadas" | "fechamento_local" | "fechamento_categoria" | "fechamento_faturadas" | "fechamento_faturadas_local" | "analitico" | "sintetico" | "financeiro" | "produtividade" | "situacao" | "ciclo_ss" | "ciclo_os" | "fotografico" | "analitico_categoria" | "analitico_local";
 
 /** Tipos que travam a situação da OS (Validada/Faturada). */
 const STATUS_FIXO: Partial<Record<TipoRelatorio, string>> = {
@@ -53,6 +53,8 @@ const TIPOS: { value: TipoRelatorio; label: string; desc: string }[] = [
   { value: "fechamento_faturadas", label: "Fechamento (Faturadas)", desc: "Apenas OSs Faturadas — OS, Unidade, Categoria e Valor, com totais e gráfico por categoria (período pela Data de Faturamento)." },
   { value: "fechamento_faturadas_local", label: "Fechamento (Faturadas) por Local", desc: "OSs Faturadas segmentadas por Local, com resumo dos tipos de OS e gráfico ao final de cada local (período pela Data de Faturamento)." },
   { value: "analitico", label: "Analítico (detalhado)", desc: "Lista completa de OSs com nº, cliente, situação, prioridade, datas e descrição." },
+  { value: "analitico_categoria", label: "Analítico por Categoria de Serviço", desc: "OSs agrupadas por categoria de serviço, com detalhes, totais e gráfico por categoria." },
+  { value: "analitico_local", label: "Analítico por Local", desc: "OSs agrupadas por local, com gráfico dos serviços de cada local e gráfico consolidado ao final." },
   { value: "sintetico", label: "Sintético (resumo)", desc: "Resumo por situação e por cliente, com totais." },
   { value: "financeiro", label: "Financeiro", desc: "Totais de materiais SCO, estoque, BDI e total geral por OS." },
   { value: "produtividade", label: "Produtividade", desc: "OSs por operador/profissional com tempo médio de execução." },
@@ -1108,6 +1110,110 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
     onOpenChange(false);
   };
 
+  const exportarAnaliticoAgrupado = async (formato: "pdf" | "excel") => {
+    const porLocal = tipo === "analitico_local";
+    const grupoDe = (o: OrdemServico) => porLocal ? (o.localDescricao || "SEM LOCAL") : (o.categoria || "SEM CATEGORIA");
+    const servicoDe = (o: OrdemServico) => o.servico || "SEM SERVIÇO";
+    const rotulo = porLocal ? "Local" : "Categoria";
+    const titulo = porLocal ? "RELATÓRIO ANALÍTICO POR LOCAL" : "RELATÓRIO ANALÍTICO POR CATEGORIA DE SERVIÇO";
+    const fileBase = porLocal ? "relatorio_analitico_por_local" : "relatorio_analitico_por_categoria";
+    const mapa = new Map<string, OrdemServico[]>();
+    ordensFiltradas.forEach(o => { const g = grupoDe(o); if (!mapa.has(g)) mapa.set(g, []); mapa.get(g)!.push(o); });
+    const grupos = Array.from(mapa.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+    const totalGeral = ordensFiltradas.reduce((s, o) => s + totalOS(o).total, 0);
+    const agruparServicos = (list: OrdemServico[]) => {
+      const m = new Map<string, { qtd: number; valor: number }>();
+      list.forEach(o => { const k = servicoDe(o); const c = m.get(k) || { qtd: 0, valor: 0 }; c.qtd += 1; c.valor += totalOS(o).total; m.set(k, c); });
+      return Array.from(m.entries()).map(([nome, v]) => ({ nome, ...v })).sort((a, b) => b.qtd - a.qtd);
+    };
+    const linha = (o: OrdemServico) => [
+      formatNumeroAno(o.numero, o.createdAt), o.clienteNome || "-",
+      porLocal ? (o.categoria || "-") : (o.localDescricao || "-"),
+      servicoDe(o), o.setorDescricao || "-", o.situacao || "-", fmtData(o.createdAt), fmtBRL(totalOS(o).total),
+    ];
+    const colunas = ["OS", "Cliente", porLocal ? "Categoria" : "Local", "Serviço", "Setor", "Situação", "Abertura", "Total"];
+
+    if (formato === "excel") {
+      const XLSX = await getXLSX();
+      const wb = XLSX.utils.book_new();
+      const det: any[] = [];
+      const res: any[] = [];
+      grupos.forEach(([g, list]) => {
+        list.forEach(o => { const l = linha(o); det.push({ [rotulo]: g, OS: l[0], Cliente: l[1], [colunas[2]!]: l[2], "Serviço": l[3], Setor: l[4], "Situação": l[5], Abertura: l[6], Total: Number(totalOS(o).total.toFixed(2)) }); });
+        if (porLocal) agruparServicos(list).forEach(s => res.push({ Local: g, "Serviço": s.nome, Qtd: s.qtd, Valor: Number(s.valor.toFixed(2)) }));
+        else res.push({ Categoria: g, Qtd: list.length, Valor: Number(list.reduce((s, o) => s + totalOS(o).total, 0).toFixed(2)) });
+      });
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(det), "Analítico");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(res), porLocal ? "Serviços por Local" : "Resumo por Categoria");
+      if (porLocal) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(agruparServicos(ordensFiltradas).map(s => ({ "Serviço": s.nome, Qtd: s.qtd, Valor: Number(s.valor.toFixed(2)) }))), "Consolidado");
+      XLSX.writeFile(wb, `${fileBase}.xlsx`, { compression: true });
+      toast.success("Excel gerado!");
+      onOpenChange(false);
+      return;
+    }
+
+    const autoTable = await getAutoTable();
+    const doc = new (await getJsPDF())({ compress: true, orientation: orientacao, unit: "mm", format: "a4" });
+    const pw = doc.internal.pageSize.getWidth();
+    const ph = doc.internal.pageSize.getHeight();
+    const estilo = {
+      styles: { fontSize: 8, cellPadding: 2, overflow: "linebreak" as const },
+      headStyles: { fillColor: [30, 58, 107] as [number, number, number], textColor: 255, fontStyle: "bold" as const },
+      footStyles: { fillColor: [230, 235, 245] as [number, number, number], textColor: 30, fontStyle: "bold" as const },
+      alternateRowStyles: { fillColor: [245, 247, 250] as [number, number, number] },
+    };
+    const inserirGrafico = (img: string) => {
+      const imgW = Math.min(pw - 28, 170);
+      const imgH = (imgW * 520) / 900;
+      let y = (doc as any).lastAutoTable?.finalY ? (doc as any).lastAutoTable.finalY + 8 : 30;
+      if (y + imgH > ph - 18) { doc.addPage(); y = 18; }
+      try { doc.addImage(img, "PNG", (pw - imgW) / 2, y, imgW, imgH); } catch {}
+    };
+    addHeader(doc, titulo, `Total: ${ordensFiltradas.length} OS(s) — ${fmtBRL(totalGeral)}`, filtrosLabel);
+    autoTable(doc, {
+      startY: 34,
+      head: [[rotulo, "Qtd OS", "Valor", "%"]],
+      body: grupos.map(([g, list]) => { const v = list.reduce((s, o) => s + totalOS(o).total, 0); return [g, String(list.length), fmtBRL(v), `${totalGeral > 0 ? ((v / totalGeral) * 100).toFixed(2) : "0.00"}%`]; }),
+      foot: [["TOTAL", String(ordensFiltradas.length), fmtBRL(totalGeral), "100%"]],
+      ...estilo,
+      columnStyles: { 1: { halign: "center", cellWidth: 20 }, 2: { halign: "right", cellWidth: 34 }, 3: { halign: "right", cellWidth: 22 } },
+    });
+    if (!porLocal) inserirGrafico(drawBarChart(grupos.map(([g, l]) => ({ nome: g, valor: l.length })), "OS por Categoria de Serviço"));
+
+    for (const [g, list] of grupos) {
+      doc.addPage();
+      doc.setFont("helvetica", "bold"); doc.setFontSize(12); doc.setTextColor(30, 58, 107);
+      doc.text(`${rotulo}: ${g}`, 14, 16);
+      doc.setTextColor(30, 30, 30);
+      const tot = list.reduce((s, o) => s + totalOS(o).total, 0);
+      autoTable(doc, {
+        startY: 22, head: [colunas], body: list.map(linha),
+        foot: [[{ content: `Nº de OS: ${list.length}`, colSpan: 7 } as any, fmtBRL(tot)]],
+        ...estilo, columnStyles: { 7: { halign: "right" } },
+      });
+      if (porLocal) inserirGrafico(drawBarChart(agruparServicos(list).map(s => ({ nome: s.nome, valor: s.qtd })), `Serviços — ${g}`));
+    }
+
+    if (porLocal) {
+      doc.addPage();
+      doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(30, 58, 107);
+      doc.text("Consolidado de Serviços — Todos os Locais", pw / 2, 16, { align: "center" });
+      doc.setTextColor(30, 30, 30);
+      const cons = agruparServicos(ordensFiltradas);
+      autoTable(doc, {
+        startY: 22, head: [["Serviço", "Qtd", "Valor"]],
+        body: cons.map(s => [s.nome, String(s.qtd), fmtBRL(s.valor)]),
+        foot: [["TOTAL", String(ordensFiltradas.length), fmtBRL(totalGeral)]],
+        ...estilo, columnStyles: { 1: { halign: "center", cellWidth: 20 }, 2: { halign: "right", cellWidth: 34 } },
+      });
+      inserirGrafico(drawBarChart(cons.map(s => ({ nome: s.nome, valor: s.qtd })), "Serviços — Consolidado"));
+    }
+    addFooter(doc);
+    doc.save(`${fileBase}.pdf`);
+    toast.success("PDF gerado!");
+    onOpenChange(false);
+  };
+
   const exportarFotografico = async () => {
     const { gerarPdfRelatorioFotografico } = await import("@/lib/gerarPdfRelatorioFotografico");
     toast.info("Gerando relatório fotográfico...");
@@ -1157,6 +1263,10 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
     }
     if (tipo === "fechamento_validadas" || tipo === "fechamento_faturadas") {
       await exportarFechamentoValidadas(formato);
+      return;
+    }
+    if (tipo === "analitico_categoria" || tipo === "analitico_local") {
+      await exportarAnaliticoAgrupado(formato);
       return;
     }
     if (tipo === "fechamento_categoria") {

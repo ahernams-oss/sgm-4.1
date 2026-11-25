@@ -14,6 +14,7 @@ import type { Cliente } from "@/contexts/ClientesContext";
 import { useEmpresa } from "@/contexts/EmpresaContext";
 import { fetchAll } from "@/lib/supabaseHelper";
 import { formatNumeroAno } from "@/lib/formatNumero";
+import { agruparPorCategoria } from "@/lib/relatoriosOsAnalitico";
 
 import type { jsPDF } from "jspdf";
 import { adicionarCapaELaminaOS } from "@/lib/relatorioCapaOS";
@@ -56,7 +57,7 @@ const TIPOS: { value: TipoRelatorio; label: string; desc: string }[] = [
   { value: "fechamento_faturadas_local", label: "Fechamento (Faturadas) por Local", desc: "OSs Faturadas segmentadas por Local, com resumo dos tipos de OS e gráfico ao final de cada local (período pela Data de Faturamento)." },
   { value: "analitico", label: "Analítico (detalhado)", desc: "Lista completa de OSs com nº, cliente, situação, prioridade, datas e descrição." },
   { value: "analitico_categoria", label: "Analítico por Categoria de Serviço", desc: "OSs agrupadas por categoria de serviço, com detalhes, totais e gráfico por categoria." },
-  { value: "analitico_local", label: "Analítico por Local", desc: "OSs agrupadas por local, com gráfico dos serviços de cada local e gráfico consolidado ao final." },
+  { value: "analitico_local", label: "Analítico por Local", desc: "OSs agrupadas por local, com gráfico das categorias de cada local e gráfico consolidado por categoria ao final." },
   { value: "sintetico", label: "Sintético (resumo)", desc: "Resumo por situação e por cliente, com totais." },
   { value: "financeiro", label: "Financeiro", desc: "Totais de materiais SCO, estoque, BDI e total geral por OS." },
   { value: "produtividade", label: "Produtividade", desc: "OSs por operador/profissional com tempo médio de execução." },
@@ -1123,11 +1124,7 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
     ordensFiltradas.forEach(o => { const g = grupoDe(o); if (!mapa.has(g)) mapa.set(g, []); mapa.get(g)!.push(o); });
     const grupos = Array.from(mapa.entries()).sort((a, b) => a[0].localeCompare(b[0]));
     const totalGeral = ordensFiltradas.reduce((s, o) => s + totalOS(o).total, 0);
-    const agruparServicos = (list: OrdemServico[]) => {
-      const m = new Map<string, { qtd: number; valor: number }>();
-      list.forEach(o => { const k = servicoDe(o); const c = m.get(k) || { qtd: 0, valor: 0 }; c.qtd += 1; c.valor += totalOS(o).total; m.set(k, c); });
-      return Array.from(m.entries()).map(([nome, v]) => ({ nome, ...v })).sort((a, b) => b.qtd - a.qtd);
-    };
+    const agruparCategorias = (list: OrdemServico[]) => agruparPorCategoria(list, o => totalOS(o).total);
     const linha = (o: OrdemServico) => [
       formatNumeroAno(o.numero, o.createdAt), o.clienteNome || "-",
       porLocal ? (o.categoria || "-") : (o.localDescricao || "-"),
@@ -1142,12 +1139,12 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
       const res: any[] = [];
       grupos.forEach(([g, list]) => {
         list.forEach(o => { const l = linha(o); det.push({ [rotulo]: g, OS: l[0], Cliente: l[1], [colunas[2]!]: l[2], "Serviço": l[3], Setor: l[4], "Situação": l[5], Abertura: l[6], Total: Number(totalOS(o).total.toFixed(2)) }); });
-        if (porLocal) agruparServicos(list).forEach(s => res.push({ Local: g, "Serviço": s.nome, Qtd: s.qtd, Valor: Number(s.valor.toFixed(2)) }));
+        if (porLocal) agruparCategorias(list).forEach(s => res.push({ Local: g, "Categoria": s.nome, Qtd: s.qtd, Valor: Number(s.valor.toFixed(2)) }));
         else res.push({ Categoria: g, Qtd: list.length, Valor: Number(list.reduce((s, o) => s + totalOS(o).total, 0).toFixed(2)) });
       });
       XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(det), "Analítico");
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(res), porLocal ? "Serviços por Local" : "Resumo por Categoria");
-      if (porLocal) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(agruparServicos(ordensFiltradas).map(s => ({ "Serviço": s.nome, Qtd: s.qtd, Valor: Number(s.valor.toFixed(2)) }))), "Consolidado");
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(res), porLocal ? "Categorias por Local" : "Resumo por Categoria");
+      if (porLocal) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(agruparCategorias(ordensFiltradas).map(s => ({ "Categoria": s.nome, Qtd: s.qtd, Valor: Number(s.valor.toFixed(2)) }))), "Consolidado");
       XLSX.writeFile(wb, `${fileBase}.xlsx`, { compression: true });
       toast.success("Excel gerado!");
       onOpenChange(false);
@@ -1193,22 +1190,22 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
         foot: [[{ content: `Nº de OS: ${list.length}`, colSpan: 7 } as any, fmtBRL(tot)]],
         ...estilo, columnStyles: { 7: { halign: "right" } },
       });
-      if (porLocal) inserirGrafico(drawBarChart(agruparServicos(list).map(s => ({ nome: s.nome, valor: s.qtd })), `Serviços — ${g}`));
+      if (porLocal) inserirGrafico(drawBarChart(agruparCategorias(list).map(s => ({ nome: s.nome, valor: s.qtd })), `Categorias — ${g}`));
     }
 
     if (porLocal) {
       doc.addPage();
       doc.setFont("helvetica", "bold"); doc.setFontSize(13); doc.setTextColor(30, 58, 107);
-      doc.text("Consolidado de Serviços — Todos os Locais", pw / 2, 16, { align: "center" });
+      doc.text("Consolidado de Categorias — Todos os Locais", pw / 2, 16, { align: "center" });
       doc.setTextColor(30, 30, 30);
-      const cons = agruparServicos(ordensFiltradas);
+      const cons = agruparCategorias(ordensFiltradas);
       autoTable(doc, {
-        startY: 22, head: [["Serviço", "Qtd", "Valor"]],
+        startY: 22, head: [["Categoria", "Qtd", "Valor"]],
         body: cons.map(s => [s.nome, String(s.qtd), fmtBRL(s.valor)]),
         foot: [["TOTAL", String(ordensFiltradas.length), fmtBRL(totalGeral)]],
         ...estilo, columnStyles: { 1: { halign: "center", cellWidth: 20 }, 2: { halign: "right", cellWidth: 34 } },
       });
-      inserirGrafico(drawBarChart(cons.map(s => ({ nome: s.nome, valor: s.qtd })), "Serviços — Consolidado"));
+      inserirGrafico(drawBarChart(cons.map(s => ({ nome: s.nome, valor: s.qtd })), "Categorias — Consolidado"));
     }
     addFooter(doc);
     doc.save(`${fileBase}.pdf`);

@@ -1,2 +1,3 @@
 - Cancelamento de NFS-e vai oficialmente pela Brasil NFe; só marca cancelada com Status 1 confirmado, sem reenvio automático.
 - I0 summaries display catalog items with type SCO and an exact LST-plus-digits code as LST; this presentation alias separates the imported list without changing stored catalog fields or prices.
+- Fornecedores grid sorting is presentation-only through ordenarFornecedores (accent/case-insensitive text, numeric codes, blanks last); clicking a header never changes stored records and resets to page 1.

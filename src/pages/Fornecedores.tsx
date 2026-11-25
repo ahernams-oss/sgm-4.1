@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { DoubleConfirmDelete, useDoubleConfirmDelete } from "@/components/DoubleConfirmDelete";
 import PaginationControls, { paginate } from "@/components/PaginationControls";
 import { toast } from "sonner";
-import { Truck, Trash2, Search, MessageCircle, ChevronDown, ChevronUp, FileBarChart, KeyRound, Copy, Mail, Ban, CheckCircle2 } from "lucide-react";
+import { Truck, Trash2, Search, MessageCircle, ChevronDown, ChevronUp, FileBarChart, KeyRound, Copy, Mail, Ban, CheckCircle2, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { isFornecedorSuspenso, textoSuspensao } from "@/lib/fornecedorSuspensao";
@@ -21,6 +21,11 @@ import LinhasFornecimentoTab from "@/components/LinhasFornecimentoTab";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usePermissao } from "@/hooks/usePermissao";
+import { ordenarFornecedores, type ColunaFornecedor, type DirecaoOrdenacao } from "@/lib/ordenarFornecedores";
+
+/** Colunas da grade: código, razão social, CNPJ, contato, cidade e ações. */
+const COLUNAS =
+  "min-w-0 flex-1 grid grid-cols-1 sm:grid-cols-[110px_minmax(0,2fr)_minmax(0,1.5fr)_minmax(0,1.2fr)_minmax(0,1fr)_auto] gap-x-4 gap-y-1 items-center";
 
 const Fornecedores = () => {
   const { clientes, addCliente, updateCliente, deleteCliente } = useClientes();
@@ -34,6 +39,8 @@ const Fornecedores = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [sortCol, setSortCol] = useState<ColunaFornecedor | null>(null);
+  const [sortDir, setSortDir] = useState<DirecaoOrdenacao>("asc");
   const { deleteId, requestDelete, cancelDelete } = useDoubleConfirmDelete();
   const [activeTab, setActiveTab] = useState("cadastro");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -264,6 +271,33 @@ const Fornecedores = () => {
     );
   }, [fornecedores, search]);
 
+  const orderedFornecedores = useMemo(
+    () => ordenarFornecedores(filteredFornecedores, sortCol, sortDir),
+    [filteredFornecedores, sortCol, sortDir]
+  );
+
+  const alternarOrdenacao = (col: ColunaFornecedor) => {
+    if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else { setSortCol(col); setSortDir("asc"); }
+    setPage(1);
+  };
+
+  const cabecalhoOrdenavel = (col: ColunaFornecedor, label: string) => {
+    const ativo = sortCol === col;
+    const Icon = ativo ? (sortDir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
+    return (
+      <button
+        type="button"
+        onClick={() => alternarOrdenacao(col)}
+        title={`Ordenar por ${label}`}
+        className={`flex min-w-0 items-center gap-1 text-xs font-medium uppercase tracking-wide hover:text-foreground focus:outline-none ${ativo ? "text-foreground" : "text-muted-foreground"}`}
+      >
+        {label}
+        <Icon className={`h-3.5 w-3.5 shrink-0 ${ativo ? "text-foreground" : "text-muted-foreground/60"}`} />
+      </button>
+    );
+  };
+
   const defaultData: FormData = { ...emptyForm, tipo: "Fornecedor" };
 
   return (
@@ -371,7 +405,7 @@ const Fornecedores = () => {
           ) : (
             <>
               {(() => {
-                const pageItems = paginate(filteredFornecedores, page, pageSize).paginated;
+                const pageItems = paginate(orderedFornecedores, page, pageSize).paginated;
                 const pageIds = pageItems.map(c => c.id);
                 const allChecked = pageIds.length > 0 && pageIds.every(id => selectedIds.includes(id));
                 const someChecked = pageIds.some(id => selectedIds.includes(id));
@@ -403,14 +437,25 @@ const Fornecedores = () => {
                   </div>
                 );
               })()}
+              <div className="flex items-center gap-4 py-2 border-b border-border">
+                <div className="w-4 shrink-0" aria-hidden="true" />
+                <div className={COLUNAS}>
+                  {cabecalhoOrdenavel("codigo", "Código")}
+                  {cabecalhoOrdenavel("nome", "Razão Social")}
+                  <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">CNPJ</span>
+                  <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Contato</span>
+                  <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Cidade</span>
+                  <span className="sr-only">Ações</span>
+                </div>
+              </div>
               <div className="divide-y divide-border">
-                {paginate(filteredFornecedores, page, pageSize).paginated.map((fornecedor) => (
-                  <div key={fornecedor.id} className="flex items-center justify-between py-3 gap-4">
+                {paginate(orderedFornecedores, page, pageSize).paginated.map((fornecedor) => (
+                  <div key={fornecedor.id} className="flex items-center gap-4 py-3">
                     <Checkbox
                       checked={selectedIds.includes(fornecedor.id)}
                       onCheckedChange={() => toggleOne(fornecedor.id)}
                     />
-                    <div className="min-w-0 flex-1 grid grid-cols-1 sm:grid-cols-2 sm:grid-cols-5 gap-x-4 gap-y-1">
+                    <div className={COLUNAS}>
                       <p className="text-sm font-semibold text-primary tabular-nums">Nº {fornecedor.codigo ?? "—"}</p>
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-foreground truncate">{fornecedor.nome}</p>
@@ -423,27 +468,27 @@ const Fornecedores = () => {
                       <p className="text-sm text-muted-foreground truncate tabular-nums">{fornecedor.cnpj || "—"}</p>
                       <p className="text-sm text-muted-foreground truncate">{fornecedor.contato || "—"}</p>
                       <p className="text-sm text-muted-foreground truncate">{fornecedor.cidade ? `${fornecedor.cidade}/${fornecedor.uf}` : "—"}</p>
-                    </div>
-                    <div className="flex gap-1 shrink-0">
-                      {isDiretor && (isFornecedorSuspenso(fornecedor) ? (
-                        <Button variant="ghost" size="sm" onClick={() => reativarFornecedor(fornecedor)} className="text-emerald-600" title="Remover suspensão">
-                          <CheckCircle2 className="h-3.5 w-3.5" />
+                      <div className="flex justify-end gap-1 shrink-0">
+                        {isDiretor && (isFornecedorSuspenso(fornecedor) ? (
+                          <Button variant="ghost" size="sm" onClick={() => reativarFornecedor(fornecedor)} className="text-emerald-600" title="Remover suspensão">
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                          </Button>
+                        ) : (
+                          <Button variant="ghost" size="sm" onClick={() => abrirSuspensao(fornecedor)} className="text-destructive" title="Suspender fornecedor (bloqueia cotações)">
+                            <Ban className="h-3.5 w-3.5" />
+                          </Button>
+                        ))}
+                        <Button variant="ghost" size="sm" onClick={() => handleGerarSenha(fornecedor)} disabled={gerandoSenhaId === fornecedor.id} className="text-primary" title="Gerar senha do Portal do Fornecedor">
+                          <KeyRound className="h-3.5 w-3.5" />
                         </Button>
-                      ) : (
-                        <Button variant="ghost" size="sm" onClick={() => abrirSuspensao(fornecedor)} className="text-destructive" title="Suspender fornecedor (bloqueia cotações)">
-                          <Ban className="h-3.5 w-3.5" />
+                        <Button variant="ghost" size="sm" onClick={() => handleEnviarWhatsApp(fornecedor)} className="text-emerald-600 hover:text-emerald-700" title="Enviar WhatsApp">
+                          <MessageCircle className="h-3.5 w-3.5" />
                         </Button>
-                      ))}
-                      <Button variant="ghost" size="sm" onClick={() => handleGerarSenha(fornecedor)} disabled={gerandoSenhaId === fornecedor.id} className="text-primary" title="Gerar senha do Portal do Fornecedor">
-                        <KeyRound className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleEnviarWhatsApp(fornecedor)} className="text-emerald-600 hover:text-emerald-700" title="Enviar WhatsApp">
-                        <MessageCircle className="h-3.5 w-3.5" />
-                      </Button>
-                      {podeEditar && <Button variant="ghost" size="sm" onClick={() => handleEdit(fornecedor)} className="text-xs">Editar</Button>}
-                      {podeExcluir && <Button variant="ghost" size="sm" onClick={() => requestDelete(fornecedor.id)} className="text-destructive hover:text-destructive">
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>}
+                        {podeEditar && <Button variant="ghost" size="sm" onClick={() => handleEdit(fornecedor)} className="text-xs">Editar</Button>}
+                        {podeExcluir && <Button variant="ghost" size="sm" onClick={() => requestDelete(fornecedor.id)} className="text-destructive hover:text-destructive">
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -460,7 +505,7 @@ const Fornecedores = () => {
         onOpenChange={setRelatorioOpen}
         tipo="Fornecedor"
         todos={fornecedores}
-        filtrados={filteredFornecedores}
+        filtrados={orderedFornecedores}
         selecionados={fornecedores.filter(f => selectedIds.includes(f.id))}
       />
       <Dialog open={!!suspDialog} onOpenChange={(o) => !o && setSuspDialog(null)}>

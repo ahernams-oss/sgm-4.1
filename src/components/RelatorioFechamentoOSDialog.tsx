@@ -15,6 +15,7 @@ import { useEmpresa } from "@/contexts/EmpresaContext";
 import { fetchAll } from "@/lib/supabaseHelper";
 import { formatNumeroAno } from "@/lib/formatNumero";
 import { agruparPorCategoria } from "@/lib/relatoriosOsAnalitico";
+import { addHeader } from "@/lib/cabecalhoRelatoriosOs";
 
 import type { jsPDF } from "jspdf";
 import { adicionarCapaELaminaOS } from "@/lib/relatorioCapaOS";
@@ -80,20 +81,6 @@ const fmtDataHora = (d?: string | null) => {
   if (isNaN(dt.getTime())) return d;
   return dt.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 };
-
-function addHeader(doc: jsPDF, titulo: string, subtitulo?: string, filtros?: string) {
-  const pw = doc.internal.pageSize.getWidth();
-  doc.setFillColor(30, 58, 107);
-  doc.rect(0, 0, pw, 28, "F");
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(14); doc.setFont("helvetica", "bold");
-  doc.text(titulo, 14, 12);
-  doc.setFontSize(9); doc.setFont("helvetica", "normal");
-  if (subtitulo) doc.text(subtitulo, 14, 20);
-  doc.text(`Gerado em: ${new Date().toLocaleString("pt-BR")}`, pw - 14, 12, { align: "right" });
-  if (filtros) doc.text(filtros, pw - 14, 20, { align: "right" });
-  doc.setTextColor(30, 30, 30);
-}
 
 function addFooter(doc: jsPDF) {
   const pages = doc.getNumberOfPages();
@@ -604,7 +591,7 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
 
     // ===== Tabela agrupada =====
     doc.addPage();
-    addHeader(doc, "Fechamento por Categoria", `${clienteNome} — ${ordensFiltradas.length} OS Validadas`, `Período: ${dataIni} a ${dataFimStr}`);
+    const inicioTabela = addHeader(doc, "Fechamento por Categoria", `${clienteNome} — ${ordensFiltradas.length} OS Validadas`, `Período: ${dataIni} a ${dataFimStr}`);
 
     const body: any[] = [];
     categorias.forEach(c => {
@@ -633,7 +620,7 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
     });
 
     (await getAutoTable())(doc, {
-      startY: 32,
+      startY: inicioTabela,
       head: [["Nº OS", "Tipo", "Setor", "Valor", "Valor com BDI"]],
       body,
       styles: { fontSize: 8, cellPadding: 1.5 },
@@ -648,14 +635,14 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
       didDrawPage: () => {
         addHeader(doc, "Fechamento por Categoria", `${clienteNome} — ${ordensFiltradas.length} OS Validadas`, `Período: ${dataIni} a ${dataFimStr}`);
       },
-      margin: { top: 32 },
+      margin: { top: inicioTabela },
     });
 
     // ===== Página de totais gerais =====
     doc.addPage();
-    addHeader(doc, "Fechamento por Categoria", "Totais Gerais", `Período: ${dataIni} a ${dataFimStr}`);
+    const inicioTotais = addHeader(doc, "Fechamento por Categoria", "Totais Gerais", `Período: ${dataIni} a ${dataFimStr}`);
     (await getAutoTable())(doc, {
-      startY: 50,
+      startY: Math.max(50, inicioTotais),
       body: [[
         { content: "TOTAL DE O.S. EXECUTADAS NO PERIODO --->>>", styles: { fontStyle: "bold" as const, halign: "right" as const } },
         { content: String(ordensFiltradas.length), styles: { fontStyle: "bold" as const, halign: "center" as const } },
@@ -682,22 +669,22 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
     // ===== Gráfico por categoria =====
     if (categorias.length > 0) {
       doc.addPage();
-      addHeader(doc, "Fechamento por Categoria", "Demanda de serviços por categoria", `Período: ${dataIni} a ${dataFimStr}`);
+      const inicioGrafico = addHeader(doc, "Fechamento por Categoria", "Demanda de serviços por categoria", `Período: ${dataIni} a ${dataFimStr}`);
       const pieCats = categorias.map(c => ({ nome: c.nome, valor: c.valor, pct: totalGeral > 0 ? (c.valor / totalGeral) * 100 : 0 }));
       const img = drawPieChartLabeled(pieCats, "Demanda de serviços por categoria", fmtBRL);
-      doc.addImage(img, "PNG", 14, 36, pw - 28, 160);
+      doc.addImage(img, "PNG", 14, inicioGrafico, pw - 28, 160);
     }
 
     // ===== Gráfico de tipos de OS =====
     if (tipoMap.size > 0) {
       doc.addPage();
-      addHeader(doc, "Fechamento por Categoria", "Tipos de OS", `Período: ${dataIni} a ${dataFimStr}`);
+      const inicioGrafico = addHeader(doc, "Fechamento por Categoria", "Tipos de OS", `Período: ${dataIni} a ${dataFimStr}`);
       const totalTipos = Array.from(tipoMap.values()).reduce((s, v) => s + v, 0) || 1;
       const tipoItems = Array.from(tipoMap.entries())
         .map(([nome, q]) => ({ nome, valor: q, pct: (q / totalTipos) * 100 }))
         .sort((a, b) => b.valor - a.valor);
       const img = drawPieChartLabeled(tipoItems, "Tipos de OS", (v) => String(v));
-      doc.addImage(img, "PNG", 14, 36, pw - 28, 160);
+      doc.addImage(img, "PNG", 14, inicioGrafico, pw - 28, 160);
     }
 
     addFooter(doc);
@@ -794,9 +781,9 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
     }
 
     const doc = new (await getJsPDF())({ compress: true, orientation: "l", unit: "mm", format: "a4" });
-    addHeader(doc, "Ciclo de Vida — Solicitações de Serviço", `${ssFiltradas.length} SS(s) no período`, `Período: ${dataIni} a ${dataFimStr}`);
+    const inicioTabela = addHeader(doc, "Ciclo de Vida — Solicitações de Serviço", `${ssFiltradas.length} SS(s) no período`, `Período: ${dataIni} a ${dataFimStr}`);
     (await getAutoTable())(doc, {
-      startY: 32,
+      startY: inicioTabela,
       head: [["Nº SS", "Cliente", "Situação", "Solicitação", "Aprovação", "Conclusão", "Sol-Apr (h:min)", "Apr-Con (h:min)", "Total (h:min)"]],
       body: linhas.map(({ s, dSol, dAprov, dConcl, tSA, tAC, tTot }) => [
         formatNumeroAno(s.numero, s.createdAt),
@@ -880,9 +867,9 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
     }
 
     const doc = new (await getJsPDF())({ compress: true, orientation: "l", unit: "mm", format: "a4" });
-    addHeader(doc, "Ciclo de Vida — Ordens de Serviço", `${osList.length} OS(s) no período`, `Período: ${dataIni} a ${dataFimStr}`);
+    const inicioTabela = addHeader(doc, "Ciclo de Vida — Ordens de Serviço", `${osList.length} OS(s) no período`, `Período: ${dataIni} a ${dataFimStr}`);
     (await getAutoTable())(doc, {
-      startY: 32,
+      startY: inicioTabela,
       head: [["Nº OS", "Cliente", "Situação", "Abertura", "Execução", "Confirmação", "Ab-Ex (h:min)", "Ab-Cf (h:min)", "Total (h:min)"]],
       body: linhas.map(({ o, dAbert, dExec, dConf, tAE, tAV }) => [
         formatNumeroAno(o.numero, o.createdAt),
@@ -1168,9 +1155,9 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
       if (y + imgH > ph - 18) { doc.addPage(); y = 18; }
       try { doc.addImage(img, "PNG", (pw - imgW) / 2, y, imgW, imgH); } catch {}
     };
-    addHeader(doc, titulo, `Total: ${ordensFiltradas.length} OS(s) — ${fmtBRL(totalGeral)}`, filtrosLabel);
+    const inicioTabela = addHeader(doc, titulo, `Total: ${ordensFiltradas.length} OS(s) — ${fmtBRL(totalGeral)}`, filtrosLabel);
     autoTable(doc, {
-      startY: 34,
+      startY: inicioTabela,
       head: [[rotulo, "Qtd OS", "Valor", "%"]],
       body: grupos.map(([g, list]) => { const v = list.reduce((s, o) => s + totalOS(o).total, 0); return [g, String(list.length), fmtBRL(v), `${totalGeral > 0 ? ((v / totalGeral) * 100).toFixed(2) : "0.00"}%`]; }),
       foot: [["TOTAL", String(ordensFiltradas.length), fmtBRL(totalGeral), "100%"]],
@@ -1277,9 +1264,9 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
 
     if (formato === "pdf") {
       const doc = new (await getJsPDF())({ compress: true, orientation: orientacao, unit: "mm", format: "a4" });
-      addHeader(doc, titulo, `Total: ${ordensFiltradas.length} OS(s)`, filtrosLabel);
+      const inicioTabela = addHeader(doc, titulo, `Total: ${ordensFiltradas.length} OS(s)`, filtrosLabel);
       (await getAutoTable())(doc, {
-        startY: 32,
+        startY: inicioTabela,
         head: [columns],
         body: rows,
         styles: { fontSize: 7.5, cellPadding: 2, overflow: "linebreak" },

@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Permitir até cinco locais na Previsão do tempo, salvos por usuário neste navegador, com remoção e atualização a cada dez minutos enquanto a tela estiver aberta; destacar alertas oficiais severos/extremos e mostrar detalhes/orientações. Seis testes, tipos e build OK; consulta real retornou 200 sem alertas para Rio de Janeiro. Não testei com login.
+
 - [x] Adicionar submenu Obras › Previsão do tempo com página própria, reutilizando a consulta WeatherAPI da tela inicial, sem mudar permissões existentes. Não testei com login.
 
 - [x] Conectar WeatherAPI e exibir clima atual pesquisável por cidade na tela inicial, com chave protegida e sessão obrigatória. Conexão real retornou 200; três testes, tipos e build OK. Padrão Rio de Janeiro; não testei com login.

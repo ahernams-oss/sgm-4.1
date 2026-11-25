@@ -17,7 +17,11 @@ export const consultarClima = createServerFn({ method: "POST" })
     const autorizacao = process.env['LOVABLE_API_KEY'];
     if (!chave || !autorizacao) return { clima: null, erro: "A conexão com a WeatherAPI não está configurada." };
     try {
-      const url = new URL("https://connector-gateway.lovable.dev/udc_weatherapi/v1/current.json");
+      const url = new URL(`https://connector-gateway.lovable.dev/udc_weatherapi/v1/${data.alertas ? "forecast" : "current"}.json`);
+      if (data.alertas) {
+        url.searchParams.set("days", "1");
+        url.searchParams.set("alerts", "yes");
+      }
       url.searchParams.set("q", data.cidade);
       url.searchParams.set("lang", "pt");
       const resposta = await fetch(url, { headers: { Authorization: `Bearer ${autorizacao}`, "X-Connection-Api-Key": chave }, signal: AbortSignal.timeout(15000) });

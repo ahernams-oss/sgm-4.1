@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Adicionar submenu Obras › Previsão do tempo com página própria, reutilizando a consulta WeatherAPI da tela inicial, sem mudar permissões existentes. Não testei com login.
+
 - [x] Conectar WeatherAPI e exibir clima atual pesquisável por cidade na tela inicial, com chave protegida e sessão obrigatória. Conexão real retornou 200; três testes, tipos e build OK. Padrão Rio de Janeiro; não testei com login.
 
 - [x] Adicionar exportação Excel dos usuários filtrados, modelo e importação XLSX/CSV de novos usuários com conferência, sem senhas ou sobrescrita; seis testes passaram e build OK. Não testei com login nem gravei usuários reais.

@@ -52,6 +52,7 @@ import {
   CheckCircle2,
   GraduationCap,
   Fingerprint,
+  CloudSun,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePermissao } from "@/hooks/usePermissao";
@@ -145,6 +146,7 @@ const menuItems = [
       { title: "Contratos de Terceiro", url: "/engenharia/contratos-terceiros", icon: FileSignature, perm: "contratos_terceiros" },
       { title: "Medição de Terceiros", url: "/engenharia/medicoes", icon: Ruler, perm: "medicoes" },
       { title: "BIM - Modelagem 3D", url: "/obras/bim", icon: Box, perm: "bim" },
+      { title: "Previsão do tempo", url: "/obras/previsao-tempo", icon: CloudSun },
     ],
   },
   {

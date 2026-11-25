@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
+import { Route as ObrasPrevisaoTempoRouteImport } from './routes/obras.previsao-tempo'
 import { Route as PmocOperacaoSmartRouteImport } from './routes/pmoc.operacao-smart'
 import { Route as ApiPublicEdgeNameRouteImport } from './routes/api/public/edge/$name'
 import { Route as ApiPublicZapiWebhookRouteImport } from './routes/api/public/zapi/webhook'
@@ -24,6 +25,11 @@ const IndexRoute = IndexRouteImport.update({
 const SplatRoute = SplatRouteImport.update({
   id: '/$',
   path: '/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ObrasPrevisaoTempoRoute = ObrasPrevisaoTempoRouteImport.update({
+  id: '/obras/previsao-tempo',
+  path: '/obras/previsao-tempo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PmocOperacaoSmartRoute = PmocOperacaoSmartRouteImport.update({
@@ -51,6 +57,7 @@ const LovableEmailTransactionalPreviewRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/obras/previsao-tempo': typeof ObrasPrevisaoTempoRoute
   '/pmoc/operacao-smart': typeof PmocOperacaoSmartRoute
   '/api/public/edge/$name': typeof ApiPublicEdgeNameRoute
   '/api/public/zapi/webhook': typeof ApiPublicZapiWebhookRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/obras/previsao-tempo': typeof ObrasPrevisaoTempoRoute
   '/pmoc/operacao-smart': typeof PmocOperacaoSmartRoute
   '/api/public/edge/$name': typeof ApiPublicEdgeNameRoute
   '/api/public/zapi/webhook': typeof ApiPublicZapiWebhookRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/obras/previsao-tempo': typeof ObrasPrevisaoTempoRoute
   '/pmoc/operacao-smart': typeof PmocOperacaoSmartRoute
   '/api/public/edge/$name': typeof ApiPublicEdgeNameRoute
   '/api/public/zapi/webhook': typeof ApiPublicZapiWebhookRoute
@@ -78,6 +87,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/$'
+    | '/obras/previsao-tempo'
     | '/pmoc/operacao-smart'
     | '/api/public/edge/$name'
     | '/api/public/zapi/webhook'
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/$'
+    | '/obras/previsao-tempo'
     | '/pmoc/operacao-smart'
     | '/api/public/edge/$name'
     | '/api/public/zapi/webhook'
@@ -94,6 +105,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/$'
+    | '/obras/previsao-tempo'
     | '/pmoc/operacao-smart'
     | '/api/public/edge/$name'
     | '/api/public/zapi/webhook'
@@ -103,6 +115,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
+  ObrasPrevisaoTempoRoute: typeof ObrasPrevisaoTempoRoute
   PmocOperacaoSmartRoute: typeof PmocOperacaoSmartRoute
   ApiPublicEdgeNameRoute: typeof ApiPublicEdgeNameRoute
   ApiPublicZapiWebhookRoute: typeof ApiPublicZapiWebhookRoute
@@ -123,6 +136,13 @@ declare module '@tanstack/react-router' {
       path: '/$'
       fullPath: '/$'
       preLoaderRoute: typeof SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/obras/previsao-tempo': {
+      id: '/obras/previsao-tempo'
+      path: '/obras/previsao-tempo'
+      fullPath: '/obras/previsao-tempo'
+      preLoaderRoute: typeof ObrasPrevisaoTempoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pmoc/operacao-smart': {
@@ -159,6 +179,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
+  ObrasPrevisaoTempoRoute: ObrasPrevisaoTempoRoute,
   PmocOperacaoSmartRoute: PmocOperacaoSmartRoute,
   ApiPublicEdgeNameRoute: ApiPublicEdgeNameRoute,
   ApiPublicZapiWebhookRoute: ApiPublicZapiWebhookRoute,

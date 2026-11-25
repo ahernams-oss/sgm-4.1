@@ -2,7 +2,7 @@ import { createDenoSlot } from "@/lib/edge/deno-shim";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
-import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
+import { exigirAcesso, podeModulo, pode, MODULOS_MENSAGENS } from "@/lib/edge/permissao";
 import { emailsCadastrados, telefoneCadastrado, sanitizarHtmlEmail, MSG_DESTINO_NAO_CADASTRADO } from "@/lib/edge/fns/_shared/destinatarios";
 // Proxy compatível com a antiga API do send-whatsapp — encaminha para PlugSend (uazapi).
 // Mantido para não quebrar chamadas existentes de módulos que ainda invocam "send-whatsapp".
@@ -15,7 +15,7 @@ const corsHeaders = {
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
-  const acesso = await exigirAcesso(req);
+  const acesso = await exigirAcesso(req, (c) => podeModulo(c, ...MODULOS_MENSAGENS));
   if (!acesso.ok) return acesso.resposta;
 
   try {
@@ -24,7 +24,7 @@ serve(async (req) => {
 
     const { telefone, mensagem, documentUrl, documentFilename } = await req.json();
 
-    if (!telefone || (!mensagem && !documentUrl)) {
+    if (!telefone || (!mensagem && !documentUrl) || String(mensagem ?? "").length > 4000) {
       return new Response(
         JSON.stringify({ success: false, error: "telefone e (mensagem ou documentUrl) são obrigatórios" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },

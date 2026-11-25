@@ -321,7 +321,7 @@ export default function HoleritesProcessados() {
         r.valor_liquido ?? "", r.publicado ? "Sim" : "Não",
       ]),
     ];
-    const csv = linhas.map((l) => l.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(";")).join("\n");
+    const csv = linhas.map((l) => l.map((c) => { const v = String(c ?? ""); const seguro = /^[=+\-@\t\r]/.test(v) ? `'${v}` : v; return `"${seguro.replace(/"/g, '""')}"`; }).join(";")).join("\n");
     const url = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" }));
     const a = document.createElement("a");
     a.href = url;

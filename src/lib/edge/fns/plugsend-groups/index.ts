@@ -30,6 +30,15 @@ async function call(path: string, method: 'GET' | 'POST', token: string, body?: 
   return { ok: r.ok, status: r.status, body: parsed, raw: text };
 }
 
+import { telefoneCadastrado } from "@/lib/edge/fns/_shared/destinatarios";
+
+// Só números cadastrados no SGM entram em grupos da empresa.
+async function participantesCadastrados(lista: string[]): Promise<boolean> {
+  if (lista.length > 256) return false;
+  for (const p of lista) if (!(await telefoneCadastrado(p))) return false;
+  return true;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   const acesso = await exigirAcesso(req, (c) => podeModulo(c, "comunicacao_whatsapp"));
@@ -59,6 +68,11 @@ Deno.serve(async (req) => {
         if (!name || !Array.isArray(participants) || participants.length === 0) {
           return new Response(JSON.stringify({ success: false, error: 'name e participants são obrigatórios' }), {
             status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        if (!(await participantesCadastrados(participants.map(sanitize).filter(Boolean)))) {
+          return new Response(JSON.stringify({ success: false, error: 'Há participantes sem telefone cadastrado no SGM.' }), {
+            status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
         result = await call('/group/create', 'POST', token, {
@@ -94,6 +108,11 @@ Deno.serve(async (req) => {
         if (!groupjid || !Array.isArray(participants) || participants.length === 0) {
           return new Response(JSON.stringify({ success: false, error: 'groupjid e participants obrigatórios' }), {
             status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+        if (action === 'addParticipants' && !(await participantesCadastrados(participants.map(sanitize).filter(Boolean)))) {
+          return new Response(JSON.stringify({ success: false, error: 'Há participantes sem telefone cadastrado no SGM.' }), {
+            status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
           });
         }
         result = await call('/group/updateParticipants', 'POST', token, {

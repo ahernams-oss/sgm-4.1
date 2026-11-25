@@ -248,3 +248,12 @@ export async function exigirAcesso(
   }
   return { ok: true, chamador: c };
 }
+
+/** Módulos do SGM que disparam WhatsApp aos contatos cadastrados. */
+export const MODULOS_MENSAGENS = [
+  "comunicacao_whatsapp", "cotacoes", "clientes", "fornecedores", "requisicoes_compras",
+  "pedidos_compra", "processos_seletivos", "requisicao_colaboradores", "solicitacao_servicos",
+  "ordem_servico", "funcionarios", "pregao", "licitacoes", "juridico",
+];
+/** Módulos de compras que enviam e-mail a fornecedores. */
+export const MODULOS_EMAIL_COMPRAS = ["cotacoes", "requisicoes_compras", "pedidos_compra", "fornecedores", "pregao"];

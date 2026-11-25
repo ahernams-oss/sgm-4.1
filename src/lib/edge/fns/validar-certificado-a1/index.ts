@@ -46,6 +46,10 @@ Deno.serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    if (!empresaId || typeof empresaId !== "string" || !storagePath.startsWith(`${empresaId}/`) || storagePath.includes("..")) {
+      return new Response(JSON.stringify({ ok: false, error: "Caminho do certificado inválido para esta empresa" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
     const ufNorm = String(uf || "").toUpperCase().trim();
     const ambNorm = String(ambiente || "").toLowerCase().trim();
 
@@ -53,6 +57,11 @@ Deno.serve(async (req) => {
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const admin = createClient(supabaseUrl, serviceKey);
 
+    const { data: emp } = await admin.from("empresa").select("id").eq("id", empresaId).maybeSingle();
+    if (!emp) {
+      return new Response(JSON.stringify({ ok: false, error: "Empresa não encontrada" }),
+        { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
     // 1. Baixa o .pfx do storage privado
     const { data: file, error: dlErr } = await admin.storage
       .from("certificados-digitais")

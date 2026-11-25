@@ -3,7 +3,7 @@ const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
 import { emailsCadastrados, MSG_DESTINO_NAO_CADASTRADO } from "@/lib/edge/fns/_shared/destinatarios";
-import { exigirAcesso } from "@/lib/edge/permissao";
+import { exigirAcesso, podeModulo, MODULOS_EMAIL_COMPRAS } from "@/lib/edge/permissao";
 import { sendTemplateEmail } from '../_shared/transactional-email-templates/send-email.ts'
 import { enviarComLog } from '../_shared/transactional-email-templates/log-send.ts'
 
@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
   if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405)
 
   // Exige usuário do SGM logado (ou o próprio servidor).
-  const acesso = await exigirAcesso(req.clone())
+  const acesso = await exigirAcesso(req.clone(), (c) => podeModulo(c, ...MODULOS_EMAIL_COMPRAS))
   if (!acesso.ok) return acesso.resposta
 
   let templateName = ''
@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
     recipientEmail = String(body.recipientEmail || '').trim()
     idempotencyKey = String(body.idempotencyKey || crypto.randomUUID())
     if (body.templateData && typeof body.templateData === 'object') {
-      templateData = body.templateData
+      templateData = Object.fromEntries(Object.entries(body.templateData).map(([k, v]) => [k, typeof v === 'string' ? v.slice(0, 2000) : v]))
     }
   } catch {
     return json({ error: 'Invalid JSON in request body' }, 400)

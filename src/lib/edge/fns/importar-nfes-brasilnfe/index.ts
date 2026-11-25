@@ -4,6 +4,7 @@ const serve = __slot.serve;
 const Deno = __slot.Deno;
 import { createClient } from "@supabase/supabase-js";
 import { corsHeaders } from "@/lib/edge/cors";
+import { exigirAcesso, pode, podeModulo } from "@/lib/edge/permissao";
 
 const BASE = "https://api.brasilnfe.com.br/services/fiscal";
 const digitsOnly = (s: string) => (s || "").replace(/\D+/g, "");
@@ -19,10 +20,16 @@ Deno.serve(async (req) => {
   const json = (b: unknown, s = 200) =>
     new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
+  const acesso = await exigirAcesso(req, (c) => pode(c, "financeiro.nfes_recebidas") || podeModulo(c, "financeiro.nfes_recebidas"));
+  if (!acesso.ok) return acesso.resposta;
   try {
     const body = await req.json().catch(() => ({}));
     const empresaId = body?.empresaId;
     if (!empresaId) return json({ ok: false, error: "empresaId obrigatório" }, 400);
+
+    const adminEmp = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const { data: emp } = await adminEmp.from("empresa").select("id").eq("id", String(empresaId)).maybeSingle();
+    if (!emp) return json({ ok: false, error: "Empresa não encontrada" }, 404);
 
     const token = Deno.env.get("BRASILNFE_TOKEN");
     if (!token) return json({ ok: false, error: "BRASILNFE_TOKEN não configurado" }, 400);

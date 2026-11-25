@@ -2,7 +2,7 @@ import { createDenoSlot } from "@/lib/edge/deno-shim";
 const __slot = createDenoSlot();
 const serve = __slot.serve;
 const Deno = __slot.Deno;
-import { exigirAcesso, podeModulo, pode } from "@/lib/edge/permissao";
+import { exigirAcesso, podeModulo, pode, MODULOS_EMAIL_COMPRAS } from "@/lib/edge/permissao";
 import { emailsCadastrados, telefoneCadastrado, sanitizarHtmlEmail, MSG_DESTINO_NAO_CADASTRADO } from "@/lib/edge/fns/_shared/destinatarios";
 import { enviarEmail } from "@/lib/email/resend";
 
@@ -15,13 +15,13 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
-  const acesso = await exigirAcesso(req);
+  const acesso = await exigirAcesso(req, (c) => podeModulo(c, ...MODULOS_EMAIL_COMPRAS));
   if (!acesso.ok) return acesso.resposta;
 
   try {
     const { to, subject, htmlBody } = await req.json();
 
-    if (!to || !subject || !htmlBody) {
+    if (!to || !subject || !htmlBody || String(htmlBody).length > 200_000) {
       return new Response(
         JSON.stringify({ success: false, error: 'to, subject e htmlBody são obrigatórios' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

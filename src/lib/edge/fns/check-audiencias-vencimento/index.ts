@@ -4,6 +4,7 @@ const serve = __slot.serve;
 const Deno = __slot.Deno;
 
 import { createClient } from "@supabase/supabase-js";
+import { exigirAcesso, podeModulo } from "@/lib/edge/permissao";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -21,6 +22,9 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  const acesso = await exigirAcesso(req, (c) => podeModulo(c, "juridico"));
+  if (!acesso.ok) return acesso.resposta;
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;

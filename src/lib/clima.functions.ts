@@ -13,18 +13,27 @@ export const consultarClima = createServerFn({ method: "POST" })
   .middleware([sessaoClima, requireSupabaseAuth])
   .inputValidator(input => consultaClimaSchema.parse(input))
   .handler(async ({ data }) => {
+    const chaveDireta = process.env['WEATHERAPI_KEY'];
     const chave = process.env['UDC_WEATHERAPI_API_KEY'];
     const autorizacao = process.env['LOVABLE_API_KEY'];
-    if (!chave || !autorizacao) return { clima: null, erro: "A conexão com a WeatherAPI não está configurada." };
+    if (!chaveDireta && (!chave || !autorizacao)) return { clima: null, erro: "A conexão com a WeatherAPI não está configurada." };
     try {
-      const url = new URL(`https://connector-gateway.lovable.dev/udc_weatherapi/v1/${data.alertas ? "forecast" : "current"}.json`);
+      const base = chaveDireta ? "https://api.weatherapi.com/v1" : "https://connector-gateway.lovable.dev/udc_weatherapi/v1";
+      const url = new URL(`${base}/${data.alertas ? "forecast" : "current"}.json`);
       if (data.alertas) {
         url.searchParams.set("days", "1");
         url.searchParams.set("alerts", "yes");
       }
       url.searchParams.set("q", data.cidade);
       url.searchParams.set("lang", "pt");
-      const resposta = await fetch(url, { headers: { Authorization: `Bearer ${autorizacao}`, "X-Connection-Api-Key": chave }, signal: AbortSignal.timeout(15000) });
+      const headers: Record<string, string> = {};
+      if (chaveDireta) {
+        url.searchParams.set("key", chaveDireta);
+      } else {
+        headers.Authorization = `Bearer ${autorizacao}`;
+        headers["X-Connection-Api-Key"] = chave!;
+      }
+      const resposta = await fetch(url, { headers, signal: AbortSignal.timeout(15000) });
       if (!resposta.ok) {
         const corpo = await resposta.text();
         console.error("WeatherAPI", resposta.status, corpo);

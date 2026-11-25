@@ -8327,28 +8327,34 @@ export type Database = {
       }
       processos_seletivos: {
         Row: {
+          alerta_inatividade_em: string | null
           candidatos: Json | null
           created_at: string | null
           data_criacao: string | null
           id: string
           numero: number | null
           requisicao_id: string
+          ultimo_movimento_em: string | null
         }
         Insert: {
+          alerta_inatividade_em?: string | null
           candidatos?: Json | null
           created_at?: string | null
           data_criacao?: string | null
           id?: string
           numero?: number | null
           requisicao_id?: string
+          ultimo_movimento_em?: string | null
         }
         Update: {
+          alerta_inatividade_em?: string | null
           candidatos?: Json | null
           created_at?: string | null
           data_criacao?: string | null
           id?: string
           numero?: number | null
           requisicao_id?: string
+          ultimo_movimento_em?: string | null
         }
         Relationships: []
       }

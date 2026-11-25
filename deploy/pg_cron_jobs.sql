@@ -65,7 +65,8 @@ begin
       ('sgm-check-exames-vencimento',      '20 12 * * *',  'check-exames-vencimento'),
       ('sgm-check-experiencia-vencimento', '25 12 * * *',  'check-experiencia-vencimento'),
       ('sgm-check-calibracao-vencimento',  '30 12 * * *',  'check-calibracao-vencimento'),
-      ('sgm-check-oc-entrega-atrasada',    '0 */6 * * *',  'check-oc-entrega-atrasada')     -- a cada 6 h (regra das 48 h)
+      ('sgm-check-oc-entrega-atrasada',    '0 */6 * * *',  'check-oc-entrega-atrasada'),    -- a cada 6 h (regra das 48 h)
+      ('sgm-check-processo-parado',        '0 */3 * * *',  'check-processo-seletivo-parado') -- a cada 3 h (regra das 72 h)
     ) as t(jobname, schedule, fn)
   loop
     perform cron.unschedule(jobname) from cron.job where jobname = j.jobname;

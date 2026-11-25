@@ -18,6 +18,7 @@ export const edgeFunctions: Record<string, () => Promise<{ default: EdgeFn }>> =
   "check-documentos-vencimento": () => import("./fns/check-documentos-vencimento/index"),
   "check-exames-vencimento": () => import("./fns/check-exames-vencimento/index"),
   "check-experiencia-vencimento": () => import("./fns/check-experiencia-vencimento/index"),
+  "check-processo-seletivo-parado": () => import("./fns/check-processo-seletivo-parado/index"),
   "check-oc-entrega-atrasada": () => import("./fns/check-oc-entrega-atrasada/index"),
   "check-parcelas-vencimento": () => import("./fns/check-parcelas-vencimento/index"),
   "cotacao-epis-vencendo": () => import("./fns/cotacao-epis-vencendo/index"),

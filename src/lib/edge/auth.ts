@@ -39,6 +39,7 @@ const CRON = new Set([
   "check-experiencia-vencimento",
   "check-calibracao-vencimento",
   "check-oc-entrega-atrasada",
+  "check-processo-seletivo-parado",
 ]);
 
 // Todas as outras exigem usuário logado (JWT do Supabase com assinatura válida).

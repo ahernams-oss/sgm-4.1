@@ -14,7 +14,8 @@ import type { Cliente } from "@/contexts/ClientesContext";
 import { useEmpresa } from "@/contexts/EmpresaContext";
 import { fetchAll } from "@/lib/supabaseHelper";
 import { formatNumeroAno } from "@/lib/formatNumero";
-import { agruparPorCategoria } from "@/lib/relatoriosOsAnalitico";
+import { agruparPorCategoria, percentuaisOsPorLocal } from "@/lib/relatoriosOsAnalitico";
+import { desenharPizzaOsLocal } from "@/lib/graficoPizzaOsLocal";
 import { addHeader } from "@/lib/cabecalhoRelatoriosOs";
 
 import type { jsPDF } from "jspdf";
@@ -1155,7 +1156,10 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
       if (y + imgH > ph - 18) { doc.addPage(); y = 18; }
       try { doc.addImage(img, "PNG", (pw - imgW) / 2, y, imgW, imgH); } catch {}
     };
-    const inicioTabela = addHeader(doc, titulo, `Total: ${ordensFiltradas.length} OS(s) — ${fmtBRL(totalGeral)}`, filtrosLabel);
+    const inicioCabecalho = addHeader(doc, titulo, `Total: ${ordensFiltradas.length} OS(s) — ${fmtBRL(totalGeral)}`, filtrosLabel);
+    const inicioTabela = porLocal
+      ? desenharPizzaOsLocal(doc, percentuaisOsPorLocal(grupos), inicioCabecalho)
+      : inicioCabecalho;
     autoTable(doc, {
       startY: inicioTabela,
       head: [[rotulo, "Qtd OS", "Valor", "%"]],

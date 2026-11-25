@@ -4,6 +4,13 @@ export const SEM_CATEGORIA = "SEM CATEGORIA";
 
 export type AgrupamentoOS = { nome: string; qtd: number; valor: number };
 
+export function percentuaisOsPorLocal(grupos: [string, OrdemServico[]][]) {
+  const total = grupos.reduce((soma, [, ordens]) => soma + ordens.length, 0);
+  return grupos.map(([nome, ordens]) => ({
+    nome, qtd: ordens.length, percentual: total ? ordens.length * 100 / total : 0,
+  }));
+}
+
 /** Categoria da O.S.; vazia ou só espaços cai em "SEM CATEGORIA". */
 export const categoriaDeOS = (o: OrdemServico): string => {
   const categoria = (o.categoria ?? "").trim();

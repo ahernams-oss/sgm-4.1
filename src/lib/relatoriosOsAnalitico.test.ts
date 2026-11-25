@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { agruparPorCategoria, categoriaDeOS, SEM_CATEGORIA } from "./relatoriosOsAnalitico";
+import { agruparPorCategoria, categoriaDeOS, SEM_CATEGORIA, percentuaisOsPorLocal } from "./relatoriosOsAnalitico";
 import type { OrdemServico } from "@/contexts/OrdensServicoContext";
 
 type OSComTotal = OrdemServico & { _total: number };
@@ -8,6 +8,21 @@ const criarOS = (id: string, categoria: string, servico: string, total: number):
   ({ id, categoria, servico, _total: total }) as unknown as OSComTotal;
 
 const totalDe = (o: OrdemServico) => (o as unknown as { _total: number })._total;
+
+describe("percentuaisOsPorLocal", () => {
+  it("calcula percentual pela quantidade de ordens, não pelos valores, incluindo SEM LOCAL", () => {
+    const os = criarOS("1", "Elétrica", "Reparo", 0);
+    const resultado = percentuaisOsPorLocal([
+      ["ACADEMIA - IRAJÁ", Array.from({ length: 33 }, () => os)],
+      ["BASE LITORÂNEA - LEBLON", Array.from({ length: 6 }, () => os)],
+      ["BASE NORTE - PIEDADE", [os, os]],
+      ["SEM LOCAL", [os]],
+    ]);
+    expect(resultado.map(r => r.qtd)).toEqual([33, 6, 2, 1]);
+    expect(resultado.map(r => Number(r.percentual.toFixed(2)))).toEqual([78.57, 14.29, 4.76, 2.38]);
+    expect(resultado.reduce((s, r) => s + r.percentual, 0)).toBeCloseTo(100);
+  });
+});
 
 describe("agruparPorCategoria", () => {
   it("agrupa O.S. de serviços diferentes quando a categoria é a mesma", () => {

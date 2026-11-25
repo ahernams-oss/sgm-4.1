@@ -262,5 +262,9 @@ export function useClientes(opcoes?: { cadastroAcessos?: boolean }) {
   const ctx = useContext(ClientesContext);
   if (!ctx) throw new Error("useClientes must be used within ClientesProvider");
   // O catálogo integral só serve à administração dos acessos e também é autorizado pelo banco.
-  return { ...ctx, clientes: opcoes?.cadastroAcessos ? ctx.clientes : filtrarClientesPermitidos(ctx.clientes, clientesPermitidosIds, (c) => c.id) };
+  return { ...ctx, clientes: opcoes?.cadastroAcessos ? ctx.clientes : [
+    ...filtrarClientesPermitidos(ctx.clientes.filter((c) => c.tipo !== "Fornecedor"), clientesPermitidosIds, (c) => c.id),
+    // Fornecedores não fazem parte do escopo de clientes selecionados.
+    ...ctx.clientes.filter((c) => c.tipo === "Fornecedor"),
+  ] };
 }

@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -67,6 +68,14 @@ const TIPOS: { value: TipoRelatorio; label: string; desc: string }[] = [
   { value: "ciclo_ss", label: "Ciclo de Vida — Solicitações (SS)", desc: "Tempo entre solicitação, aprovação e conclusão (baseado no workflow), com médias." },
   { value: "ciclo_os", label: "Ciclo de Vida — Ordens de Serviço (OS)", desc: "Tempo entre as situações do workflow até a confirmação/validação, com tempos médios." },
   { value: "fotografico", label: "Relatório Fotográfico", desc: "Capa institucional, cabeçalho de cada OS e as imagens registradas na OS (somente PDF)." },
+];
+
+// Presentation groups preserve the report identifiers and export paths.
+const GRUPOS_RELATORIOS: { value: string; label: string; tipos: TipoRelatorio[] }[] = [
+  { value: "fechamentos", label: "Fechamentos", tipos: ["fechamento_validadas", "fechamento_local", "fechamento_categoria", "fechamento_faturadas", "fechamento_faturadas_local"] },
+  { value: "analiticos", label: "Analíticos", tipos: ["analitico", "analitico_categoria", "analitico_local", "fotografico"] },
+  { value: "sinteticos", label: "Sintéticos", tipos: ["sintetico", "financeiro", "produtividade", "situacao"] },
+  { value: "ciclos", label: "Ciclos de Vida", tipos: ["ciclo_ss", "ciclo_os"] },
 ];
 
 const fmtBRL = (n: number) => `R$ ${(Number(n) || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -1336,16 +1345,33 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
 
           <div>
             <Label className="text-sm font-medium mb-2 block">Tipo de Relatório</Label>
-            <RadioGroup value={tipo} onValueChange={(v) => setTipo(v as TipoRelatorio)} className="space-y-2 border rounded-md p-3">
-              {TIPOS.map(t => (
-                <div key={t.value} className="flex items-start gap-2">
-                  <RadioGroupItem value={t.value} id={`t-${t.value}`} className="mt-1" />
-                  <Label htmlFor={`t-${t.value}`} className="font-normal cursor-pointer flex-1">
-                    <div className="font-medium text-sm">{t.label}</div>
-                    <div className="text-xs text-muted-foreground">{t.desc}</div>
-                  </Label>
-                </div>
-              ))}
+            <RadioGroup value={tipo} onValueChange={(v) => setTipo(v as TipoRelatorio)}>
+              <Accordion type="single" collapsible defaultValue={GRUPOS_RELATORIOS.find(g => g.tipos.includes(tipo))?.value} className="border rounded-md px-3">
+                {GRUPOS_RELATORIOS.map(grupo => (
+                  <AccordionItem key={grupo.value} value={grupo.value} className="last:border-b-0">
+                    <AccordionTrigger className="gap-2 text-sm hover:no-underline">
+                      <span className="flex flex-wrap items-center gap-2 text-left">
+                        <span>{grupo.label}</span>
+                        <span className="text-xs font-normal text-muted-foreground">({grupo.tipos.length})</span>
+                        {grupo.tipos.includes(tipo) && <span className="text-xs font-normal text-primary">Selecionado</span>}
+                      </span>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-3 pb-1">
+                        {TIPOS.filter(t => grupo.tipos.includes(t.value)).map(t => (
+                          <div key={t.value} className="flex items-start gap-2">
+                            <RadioGroupItem value={t.value} id={`t-${t.value}`} className="mt-1 shrink-0" />
+                            <Label htmlFor={`t-${t.value}`} className="font-normal cursor-pointer flex-1 min-w-0">
+                              <div className="font-medium text-sm">{t.label}</div>
+                              <div className="text-xs text-muted-foreground">{t.desc}</div>
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
             </RadioGroup>
           </div>
 

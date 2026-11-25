@@ -7,6 +7,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import TomadorSelect from "@/components/financeiro/TomadorSelect";
+import type { TomadorBusca } from "@/lib/buscaTomador";
 import type { OrdemServico } from "@/contexts/OrdensServicoContext";
 import type { Cliente } from "@/contexts/ClientesContext";
 import { useEmpresa } from "@/contexts/EmpresaContext";
@@ -1362,13 +1364,13 @@ export default function RelatorioFechamentoOSDialog({ open, onOpenChange, ordens
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <Label className="text-sm">Cliente</Label>
-              <Select value={clienteSel} onValueChange={setClienteSel}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos os clientes</SelectItem>
-                  {clientes.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <TomadorSelect
+                value={clienteSel === "todos" ? "" : clienteSel}
+                onValueChange={id => setClienteSel(id || "todos")}
+                options={clientes as TomadorBusca[]}
+                todosLabel="Todos os clientes"
+                label="Cliente"
+              />
             </div>
             <div>
               <Label className="text-sm">Situação</Label>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "@/lib/router-compat";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ClimaInicial } from "@/components/ClimaInicial";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -13,7 +14,9 @@ const Home = () => {
   }
 
   return (
-    <div className="min-h-[calc(100vh-3rem)] w-full flex items-center justify-center bg-background">
+    <div className="w-full bg-background">
+      <ClimaInicial />
+      <div className="relative min-h-[calc(100vh-14rem)] w-full flex items-center justify-center">
       {isLoading && (
         <Skeleton className="absolute max-w-full max-h-[calc(100vh-3rem)] aspect-video w-[90vw] rounded-xl" />
       )}
@@ -31,6 +34,7 @@ const Home = () => {
           onError={() => setHasError(true)}
         />
       </picture>
+      </div>
     </div>
   );
 };

@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Conectar WeatherAPI e exibir clima atual pesquisável por cidade na tela inicial, com chave protegida e sessão obrigatória. Conexão real retornou 200; três testes, tipos e build OK. Padrão Rio de Janeiro; não testei com login.
+
 - [x] Adicionar exportação Excel dos usuários filtrados, modelo e importação XLSX/CSV de novos usuários com conferência, sem senhas ou sobrescrita; seis testes passaram e build OK. Não testei com login nem gravei usuários reais.
 
 - [x] Corrigir Esqueci a senha: solicitar link sem depender da lista privada de usuários, concluir troca pela ação autenticada existente na credencial do SGM e tratar link inválido. Cinco testes passaram; solicitação simulada e link expirado conferidos no navegador, tipos/build OK. Não testei com login nem confirmei entrega real de e-mail; configuração de envio/redirecionamentos no Supabase externo não verificada.

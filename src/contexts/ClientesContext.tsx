@@ -69,6 +69,7 @@ export interface ContratoAnexo { id: string; nome: string; path: string; tamanho
 export interface Contrato {
   id: string; numero: string; numeroProcesso?: string; descricao: string; dataInicio: string; dataFim: string;
   bdi: string; descontoLicitacao?: string; valorBase: string; valorBase2: string; valorBase3: string;
+  bdiGeral?: string; bdiMaterial?: string; bdiServicos?: string; bdiEspecial?: string;
   maoDeObraMensal?: string; maoDeObraAnual?: string; maoDeObraContratual?: string;
   mesSco: string; anoSco: string;
   valorContrato?: string;

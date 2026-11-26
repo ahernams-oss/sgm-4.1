@@ -24,6 +24,7 @@ import ImportClientesFornecedores from "@/components/ImportClientesFornecedores"
 import FaturamentoSection from "@/components/FaturamentoSection";
 import EmpenhoSection from "@/components/EmpenhoSection";
 import LocalPrestacaoContratoFields from "@/components/financeiro/LocalPrestacaoContratoFields";
+import { CAMPOS_BDI_CONTRATO, validarBdisContrato, type CampoBdiContrato } from "@/lib/bdisContrato";
 
 import { usePermissao } from "@/hooks/usePermissao";
 
@@ -167,9 +168,9 @@ const Clientes = () => {
    const [locaisEntregaClienteId, setLocaisEntregaClienteId] = useState<string | null>(null);
    const [contratosClienteId, setContratosClienteId] = useState<string | null>(null);
   const emptyContrato = { numero: "", numeroProcesso: "", descricao: "", dataInicio: "", dataFim: "", bdi: "", descontoLicitacao: "", valorBase: "", valorBase2: "", valorBase3: "", maoDeObraMensal: "", maoDeObraAnual: "", maoDeObraContratual: "", mesSco: "", anoSco: "", valorContrato: "", inss: "", pis: "", cofins: "", csll: "", irrf: "", iss: "", cbs: "", ibs: "", cbsMunicipal: "", ibsMunicipal: "", textoNotaFiscal: "", codigoNbs: "", meta1: "", meta2: "", meta3: "", anexos: [] as ContratoAnexo[] };
-  const emptyContratoComPrestacao = { ...emptyContrato, ufPrestacao: "RJ", codigoMunicipioPrestacao: "", municipioPrestacao: "", codigoTributacaoNacional: "", codigoTributacaoMunicipal: "" };
+  const emptyContratoComPrestacao = { ...emptyContrato, bdiGeral: "", bdiMaterial: "", bdiServicos: "", bdiEspecial: "", ufPrestacao: "RJ", codigoMunicipioPrestacao: "", municipioPrestacao: "", codigoTributacaoNacional: "", codigoTributacaoMunicipal: "" };
   const [contratoForm, setContratoForm] = useState(emptyContratoComPrestacao);
-  const [contratoErrors, setContratoErrors] = useState<{ cbs?: string; ibs?: string; cbsMunicipal?: string; ibsMunicipal?: string; descontoLicitacao?: string; bdi?: string }>({});
+  const [contratoErrors, setContratoErrors] = useState<{ cbs?: string; ibs?: string; cbsMunicipal?: string; ibsMunicipal?: string; descontoLicitacao?: string; bdi?: string } & Partial<Record<CampoBdiContrato, string>>>({});
   const [editingContratoId, setEditingContratoId] = useState<string | null>(null);
   const [salvandoContrato, setSalvandoContrato] = useState(false);
   const [faturamentoContratoId, setFaturamentoContratoId] = useState<string | null>(null);
@@ -557,8 +558,9 @@ const Clientes = () => {
             const ibsMunicipalError = validarPercentual(contratoForm.ibsMunicipal, "IBS Municipal");
             const descontoLicitacaoError = validarPercentual(contratoForm.descontoLicitacao, "Desconto Licitação");
             const bdiError = validarPercentual(contratoForm.bdi, "BDI");
-            setContratoErrors({ cbs: cbsError, ibs: ibsError, cbsMunicipal: cbsMunicipalError, ibsMunicipal: ibsMunicipalError, descontoLicitacao: descontoLicitacaoError, bdi: bdiError });
-            if (cbsError || ibsError || cbsMunicipalError || ibsMunicipalError || descontoLicitacaoError || bdiError) { toast.error("Corrija os campos de porcentagem antes de salvar."); return; }
+            const bdisErrors = validarBdisContrato(contratoForm);
+            setContratoErrors({ cbs: cbsError, ibs: ibsError, cbsMunicipal: cbsMunicipalError, ibsMunicipal: ibsMunicipalError, descontoLicitacao: descontoLicitacaoError, bdi: bdiError, ...bdisErrors });
+            if (cbsError || ibsError || cbsMunicipalError || ibsMunicipalError || descontoLicitacaoError || bdiError || Object.keys(bdisErrors).length) { toast.error("Corrija os campos de porcentagem antes de salvar."); return; }
             setSalvandoContrato(true);
             try {
               const contratosAtualizados = editingContratoId
@@ -614,6 +616,31 @@ const Clientes = () => {
                   <div>
                     <Input placeholder="BDI (%)" type="number" step="0.01" value={contratoForm.bdi} onChange={e => { setContratoForm(p => ({ ...p, bdi: e.target.value })); setContratoErrors(prev => ({ ...prev, bdi: validarPercentual(e.target.value, "BDI") })); }} />
                     {contratoErrors.bdi && <p className="text-xs text-destructive mt-1">{contratoErrors.bdi}</p>}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:col-span-2 md:col-span-3">
+                    {CAMPOS_BDI_CONTRATO.map(({ chave, nome }) => (
+                      <div key={chave} className="min-w-0">
+                        <label htmlFor={`contrato-${chave}`} className="block text-xs font-medium text-foreground mb-1">{nome} (%)</label>
+                        <Input
+                          id={`contrato-${chave}`}
+                          inputMode="decimal"
+                          placeholder={`${nome} (%)`}
+                          value={contratoForm[chave] ?? ""}
+                          aria-invalid={Boolean(contratoErrors[chave])}
+                          aria-describedby={contratoErrors[chave] ? `erro-${chave}` : undefined}
+                          onChange={e => {
+                            const valor = e.target.value;
+                            setContratoForm(p => ({ ...p, [chave]: valor }));
+                            setContratoErrors(prev => {
+                              const proximos = { ...prev };
+                              delete proximos[chave];
+                              return { ...proximos, ...validarBdisContrato({ [chave]: valor }) };
+                            });
+                          }}
+                        />
+                        {contratoErrors[chave] && <p id={`erro-${chave}`} className="text-xs text-destructive mt-1">{contratoErrors[chave]}</p>}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -748,6 +775,9 @@ const Clientes = () => {
                             {ct.dataInicio ? new Date(ct.dataInicio + "T00:00:00").toLocaleDateString("pt-BR") : "—"} a {ct.dataFim ? new Date(ct.dataFim + "T00:00:00").toLocaleDateString("pt-BR") : "—"}
                           </p>
                           <p className="text-muted-foreground">BDI: {ct.bdi ? `${ct.bdi}%` : "—"}</p>
+                          {CAMPOS_BDI_CONTRATO.map(({ chave, nome }) => (
+                            <p key={chave} className="text-muted-foreground">{nome}: {ct[chave] ? `${ct[chave]}%` : "—"}</p>
+                          ))}
                           <p className="text-muted-foreground">Desconto Licitação: {ct.descontoLicitacao ? `${ct.descontoLicitacao}%` : "—"}</p>
                           <p className="text-muted-foreground">VTM Mensal: {ct.valorBase || "—"}</p>
                           <p className="text-muted-foreground">VTM Anual: {ct.valorBase2 || "—"}</p>

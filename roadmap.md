@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Avisar o grupo de emergência do respectivo cliente após aprovação emergencial de SS, incluindo aprovação direta, por orçamento e em lote; falha de gravação não envia e falha de aviso é exibida sem desfazer a aprovação. Entrega real depende de validação no WhatsApp; não testei com login.
+
 - [x] Ligar a aba Eventuais da O.S. ao contrato do cliente: ocultar sem itens associados, pesquisar por nome, informar quantidade, mostrar disponibilidade e valor unitário com CITL, alertar saldo zero/negativo e persistir os itens selecionados. Oito testes, tipos e build OK; não testei com login.
 
 - [x] Estruturar Serv. Eventuais conforme a planilha, com grupos/subgrupos, itens, quantidades, preços, CITL, totais e referência; vínculo obrigatório por cliente/contrato, cadastro/edição/exclusão e busca. Cinco testes passaram e build OK; não importei a planilha nem testei com login. Os 32 alertas anteriores de segurança permanecem fora deste pedido.

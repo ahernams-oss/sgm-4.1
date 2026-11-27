@@ -6,6 +6,9 @@ import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper"
 import { useProviderGate, useActivateProvider, useLoadGateAllowed } from "@/lib/providerGate";
 import { useAuth } from "@/contexts/AuthContext";
 import { filtrarClientesPermitidos } from "@/lib/acessoClientes";
+import { entrouEmAprovacaoEmergencial } from "@/lib/notificacaoSSEmergencial";
+import { notificarSSEmergencial } from "@/lib/notificacaoSSEmergencial.functions";
+import { toast } from "sonner";
 
 export interface HistoricoEntry {
   situacao: string;
@@ -85,7 +88,26 @@ export function SolicitacoesServicosProvider({ children }: { children: ReactNode
   };
 
   const addSolicitacao = async (d: any) => { await insertRow("solicitacoes_servicos", d); invalidate(); };
-  const updateSolicitacao = async (id: string, d: any) => { await updateRow("solicitacoes_servicos", id, d); invalidate(); };
+  const updateSolicitacao = async (id: string, d: any) => {
+    const anterior = qc.getQueryData<SolicitacaoServico[]>(QK)?.find(s => s.id === id);
+    const salvo = await updateRow("solicitacoes_servicos", id, d);
+    if (!salvo) throw new Error("Não foi possível salvar a solicitação.");
+    // Shared by direct approval, budget approval and batch approval.
+    qc.setQueryData<SolicitacaoServico[]>(QK, atual => atual?.map(s => s.id === id
+      ? { ...s, situacao: d.situacao ?? s.situacao, prioridade: d.prioridade ?? s.prioridade }
+      : s));
+    invalidate();
+    if (entrouEmAprovacaoEmergencial(anterior, d)) {
+      try {
+        await notificarSSEmergencial({ data: { solicitacaoId: id } });
+      } catch (erro) {
+        toast.warning("Solicitação aprovada, mas o aviso de emergência não foi confirmado.", {
+          description: erro instanceof Error ? erro.message : "Confira a conexão do WhatsApp.",
+          duration: 12000,
+        });
+      }
+    }
+  };
   const deleteSolicitacao = async (id: string) => { await deleteRow("solicitacoes_servicos", id); invalidate(); };
 
   return (

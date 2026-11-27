@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Destacar o símbolo de setor crítico junto ao número e ao setor da SS; priorizar sempre os setores críticos antes da ordenação escolhida, sem alterar registros, filtros ou permissões. Testes de ordenação incluídos; não testei com login.
+
 - [x] Corrigir a lista após abrir SS: inserir imediatamente a linha retornada pelo salvamento, cancelar leitura antiga e exibir o cliente cadastrado na primeira página por número decrescente, sem filtros incompatíveis. SS 91 confirmada no banco; envio preservado, não testei com login.
 
 - [x] Avisar imediatamente o grupo de emergência do cliente na abertura de SS em setor crítico, sem aguardar aprovação nem exigir prioridade emergencial; confirmar a hierarquia salva no servidor e manter permissões de abertura/acesso. Não testei com login nem confirmei entrega real.

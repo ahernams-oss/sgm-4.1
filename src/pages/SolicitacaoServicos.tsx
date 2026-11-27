@@ -29,6 +29,7 @@ import { enviarWhatsApp } from "@/lib/whatsapp";
 import { formatNumeroAno } from "@/lib/formatNumero";
 import { formatBRLValor } from "@/lib/faturamentoClientes";
 import { matchValorOrcamento } from "@/lib/matchValorOrcamento";
+import { compararSetorCritico } from "@/lib/prioridadeSetorCritico";
 import iconRevisao from "@/assets/icon-revisao.png";
 import iconSetorCritico from "@/assets/icone-setor-critico.png";
 
@@ -785,8 +786,10 @@ export default function SolicitacaoServicosPage() {
       });
     }
 
-    // Ordenação por coluna (padrão: prioridade → número decrescente)
+    // Setor crítico sempre vem primeiro; coluna/prioridade ordena dentro de cada grupo.
     result = [...result].sort((a, b) => {
+      const criticoCmp = compararSetorCritico(a, b, setoresCriticosIds);
+      if (criticoCmp !== 0) return criticoCmp;
       if (!sortField) {
         const prioridadeRank = (p: string) => {
           if (p === "Emergencial") return 1;
@@ -1490,6 +1493,9 @@ export default function SolicitacaoServicosPage() {
                 numero: {
                   node: (
                     <div className="flex items-center gap-2">
+                      {setoresCriticosIds.has(s.setorId) && (
+                        <img src={iconSetorCritico} alt="Setor Crítico" title="Setor Crítico" className="h-6 w-6 shrink-0 object-contain" />
+                      )}
                       {s.prioridade && (
                         <span className={`inline-block w-3 h-3 rounded-full ${getPrioridadeColor(s.prioridade)}`} title={s.prioridade} />
                       )}
@@ -1523,7 +1529,7 @@ export default function SolicitacaoServicosPage() {
                           src={iconSetorCritico}
                           alt="Setor Crítico"
                           title="Setor Crítico"
-                          className="h-5 w-5 object-contain"
+                          className="h-6 w-6 shrink-0 object-contain"
                         />
                       )}
                       <span>{s.setorDescricao || "-"}</span>

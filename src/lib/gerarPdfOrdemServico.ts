@@ -537,6 +537,22 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(5.5);
     doc.text("Carimbo e assinatura / Assinatura eletrônica", bx + boxW2 / 2, y + 2.8, { align: "center" });
+    // Profissionais que executaram a O.S. (à esquerda da caixa de assinatura)
+    const profW = cw - boxW2 - 3;
+    doc.rect(ml, y, profW, headH);
+    doc.rect(ml, y + headH, profW, bodyH);
+    doc.text("Profissional(is) responsável(is) pela execução", ml + profW / 2, y + 2.8, { align: "center" });
+    const profs = (os.profissionais || []).filter((p) => (p.nome || "").trim());
+    if (!emBranco && profs.length) {
+      doc.setFontSize(8);
+      let py = y + headH + 4.5;
+      for (const p of profs) {
+        const linha = doc.splitTextToSize(`• ${p.nome.trim()}${p.cargo ? ` — ${p.cargo}` : ""}`, profW - 4);
+        if (py + 3.5 * linha.length > y + headH + bodyH - 1) { doc.text("...", ml + 2, py); break; }
+        doc.text(linha, ml + 2, py);
+        py += 3.8 * linha.length;
+      }
+    }
     fiscalCellRect = { x: bx, y: y + headH, w: boxW2, h: bodyH };
     y += headH + bodyH + 4;
   } else {

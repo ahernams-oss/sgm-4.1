@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Avisar imediatamente o grupo de emergência do cliente na abertura de SS em setor crítico, sem aguardar aprovação nem exigir prioridade emergencial; confirmar a hierarquia salva no servidor e manter permissões de abertura/acesso. Não testei com login nem confirmei entrega real.
+
 - [x] Avisar o grupo de emergência do respectivo cliente após aprovação emergencial de SS, incluindo aprovação direta, por orçamento e em lote; falha de gravação não envia e falha de aviso é exibida sem desfazer a aprovação. Entrega real depende de validação no WhatsApp; não testei com login.
 
 - [x] Ligar a aba Eventuais da O.S. ao contrato do cliente: ocultar sem itens associados, pesquisar por nome, informar quantidade, mostrar disponibilidade e valor unitário com CITL, alertar saldo zero/negativo e persistir os itens selecionados. Oito testes, tipos e build OK; não testei com login.

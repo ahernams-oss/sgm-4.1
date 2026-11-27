@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { entrouEmAprovacaoEmergencial } from "./notificacaoSSEmergencial";
+import { entrouEmAprovacaoEmergencial, setorDaSolicitacaoEhCritico } from "./notificacaoSSEmergencial";
 import { avisarSSEmergencial } from "./notificacaoSSEmergencial.server";
 
 afterEach(() => vi.unstubAllGlobals());
@@ -26,10 +26,10 @@ describe("aprovação emergencial", () => {
   });
 });
 
-function banco(situacao = "Aprovada", prioridade = "Emergencial", jid = "120363123456789@g.us") {
+function banco(situacao = "Aprovada", prioridade = "Emergencial", jid = "120363123456789@g.us", critico = true) {
   const dados = {
-    solicitacoes_servicos: { numero: 42, created_at: "2026-11-27", cliente_id: "cliente-correto", situacao, prioridade, descricao_servicos: "Vazamento", local_descricao: "Prédio A" },
-    clientes: { nome: "Cliente correto", grupo_whatsapp_emergencia: jid, grupo_whatsapp: "120363999999999@g.us" },
+    solicitacoes_servicos: { numero: 42, created_at: "2026-11-27", cliente_id: "cliente-correto", local_id: "local-1", pavimento_id: "pav-1", setor_id: "setor-1", situacao, prioridade, descricao_servicos: "Vazamento", local_descricao: "Prédio A" },
+    clientes: { nome: "Cliente correto", grupo_whatsapp_emergencia: jid, grupo_whatsapp: "120363999999999@g.us", locais: [{ id: "local-1", pavimentos: [{ id: "pav-1", setores: [{ id: "setor-1", critico }] }] }] },
   };
   const eq = vi.fn();
   const from = vi.fn((tabela: string) => ({ select: () => ({
@@ -71,4 +71,39 @@ it("não substitui grupo de emergência ausente pelo grupo normal", async () => 
 it("recusa do provedor não é tratada como envio confirmado", async () => {
   vi.stubGlobal("fetch", vi.fn(async () => Response.json({ success: false, error: "desconectado" })));
   await expect(avisarSSEmergencial(banco().db, "ss-42", "teste")).rejects.toThrow("desconectado");
+});
+
+describe("abertura em setor crítico", () => {
+  it.each(["", "Normal", "Urgente", "Emergencial"])("avisa sem aprovação e com prioridade '%s'", async prioridade => {
+    const { db, eq } = banco("Aguardando aprovação", prioridade);
+    const enviar = vi.fn(async () => Response.json({ success: true }));
+    vi.stubGlobal("fetch", enviar);
+    await avisarSSEmergencial(db, "ss-42", "teste", "setor-critico");
+    expect(enviar).toHaveBeenCalledTimes(1);
+    expect(eq).toHaveBeenCalledWith("clientes", "id", "cliente-correto");
+    const chamada = enviar.mock.calls[0] as unknown as [string, RequestInit] | undefined;
+    if (!chamada) throw new Error("Aviso não enviado");
+    expect(JSON.parse(String(chamada[1].body)).number).toBe("120363123456789@g.us");
+  });
+
+  it("não envia para setor não crítico, mesmo sem grupo cadastrado", async () => {
+    const enviar = vi.fn();
+    vi.stubGlobal("fetch", enviar);
+    const result = await avisarSSEmergencial(banco("Aguardando aprovação", "", "", false).db, "ss-42", undefined, "setor-critico");
+    expect(result).toEqual({ success: true, skipped: true });
+    expect(enviar).not.toHaveBeenCalled();
+  });
+
+  const estrutura = [{ id: "local-1", pavimentos: [{ id: "pav-1", setores: [{ id: "setor-1", critico: true }, { id: "setor-2", critico: false }] }] }];
+  it("confirma o marcador crítico apenas no setor escolhido", () => {
+    expect(setorDaSolicitacaoEhCritico(estrutura, { local_id: "local-1", pavimento_id: "pav-1", setor_id: "setor-1" })).toBe(true);
+    expect(setorDaSolicitacaoEhCritico(estrutura, { local_id: "local-1", pavimento_id: "pav-1", setor_id: "setor-2" })).toBe(false);
+  });
+  it.each([
+    { local_id: "outro-local", pavimento_id: "pav-1", setor_id: "setor-1" },
+    { local_id: "local-1", pavimento_id: "outro-pav", setor_id: "setor-1" },
+    { local_id: "local-1", pavimento_id: "pav-1", setor_id: "outro-setor" },
+  ])("não associa setor crítico a outra hierarquia: %j", ss => {
+    expect(setorDaSolicitacaoEhCritico(estrutura, ss)).toBe(false);
+  });
 });

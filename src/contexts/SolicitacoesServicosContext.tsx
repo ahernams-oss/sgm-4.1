@@ -2,12 +2,13 @@ import { contextoEstavel } from "@/lib/contextoEstavel";
 // Solicitações de Serviços Context
 import { createContext, useContext, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { fetchAll, insertRow, updateRow, deleteRow } from "@/lib/supabaseHelper";
 import { useProviderGate, useActivateProvider, useLoadGateAllowed } from "@/lib/providerGate";
 import { useAuth } from "@/contexts/AuthContext";
 import { filtrarClientesPermitidos } from "@/lib/acessoClientes";
 import { entrouEmAprovacaoEmergencial } from "@/lib/notificacaoSSEmergencial";
-import { notificarSSEmergencial } from "@/lib/notificacaoSSEmergencial.functions";
+import { notificarSSEmergencial, notificarSSSetorCritico } from "@/lib/notificacaoSSEmergencial.functions";
 import { toast } from "sonner";
 
 export interface HistoricoEntry {
@@ -73,6 +74,8 @@ export function SolicitacoesServicosProvider({ children }: { children: ReactNode
   const __active = useProviderGate("SolicitacoesServicos");
   const __loadOk = useLoadGateAllowed("SolicitacoesServicos");
   const qc = useQueryClient();
+  const avisarAprovacao = useServerFn(notificarSSEmergencial);
+  const avisarSetorCritico = useServerFn(notificarSSSetorCritico);
   const { data: solicitacoes = [] } = useQuery({
     enabled: __active && __loadOk,
     queryKey: QK,
@@ -87,7 +90,20 @@ export function SolicitacoesServicosProvider({ children }: { children: ReactNode
     await qc.invalidateQueries({ queryKey: QK, refetchType: "all" });
   };
 
-  const addSolicitacao = async (d: any) => { await insertRow("solicitacoes_servicos", d); invalidate(); };
+  const addSolicitacao = async (d: any) => {
+    const salva = await insertRow("solicitacoes_servicos", d);
+    if (!salva?.id) throw new Error("Não foi possível salvar a solicitação.");
+    invalidate();
+    try {
+      // The server checks the saved sector, not a critical flag from the browser.
+      await avisarSetorCritico({ data: { solicitacaoId: salva.id } });
+    } catch (erro) {
+      toast.warning("Solicitação cadastrada, mas a verificação ou o aviso de setor crítico não foi confirmado.", {
+        description: erro instanceof Error ? erro.message : "Confira a conexão do WhatsApp.",
+        duration: 12000,
+      });
+    }
+  };
   const updateSolicitacao = async (id: string, d: any) => {
     const anterior = qc.getQueryData<SolicitacaoServico[]>(QK)?.find(s => s.id === id);
     const salvo = await updateRow("solicitacoes_servicos", id, d);
@@ -99,7 +115,7 @@ export function SolicitacoesServicosProvider({ children }: { children: ReactNode
     invalidate();
     if (entrouEmAprovacaoEmergencial(anterior, d)) {
       try {
-        await notificarSSEmergencial({ data: { solicitacaoId: id } });
+        await avisarAprovacao({ data: { solicitacaoId: id } });
       } catch (erro) {
         toast.warning("Solicitação aprovada, mas o aviso de emergência não foi confirmado.", {
           description: erro instanceof Error ? erro.message : "Confira a conexão do WhatsApp.",

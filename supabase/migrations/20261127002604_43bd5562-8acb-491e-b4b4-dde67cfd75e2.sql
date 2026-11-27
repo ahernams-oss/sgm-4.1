@@ -1,0 +1,1 @@
+ALTER POLICY eventuais_escopo ON public.servicos_eventuais USING ((select auth.uid()) IS NOT NULL AND sgm_private.sgm_cliente_permitido(cliente_id::text)) WITH CHECK ((select auth.uid()) IS NOT NULL AND sgm_private.sgm_cliente_permitido(cliente_id::text));

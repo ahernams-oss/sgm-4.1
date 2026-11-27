@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import App from "@/App";
 import { RotaProtegida } from "@/components/RotaProtegida";
+import ServicosEventuaisCadastro from "@/components/ServicosEventuaisCadastro";
 
 export const Route = createFileRoute("/cadastros/servicos-eventuais")({
   ssr: false,
@@ -21,9 +22,7 @@ function ServicosEventuais() {
   return (
     <App>
       <RotaProtegida perm="sco">
-        <section className="w-full px-4 py-6 sm:px-6">
-          <h1 className="text-2xl font-semibold">Serv. Eventuais</h1>
-        </section>
+        <ServicosEventuaisCadastro />
       </RotaProtegida>
     </App>
   );

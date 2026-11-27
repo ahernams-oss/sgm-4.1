@@ -4,3 +4,4 @@
 - OS analítico reports group and chart by CATEGORIA (never by serviço) through agruparPorCategoria; a missing category is shown as SEM CATEGORIA so no order is dropped from totals.
 - OS report headers wrap and separate title, totals, filters and generation time through cabecalhoRelatoriosOs; use its returned content position for tables and charts to prevent overlap.
 - The local analytical PDF starts with graficoPizzaOsLocal using percentuaisOsPorLocal by order count, including unassigned and zero-value orders; financial percentages and category charts remain independent.
+- Eventual services use a separate client/contract-scoped table with immutable links and database-calculated CITL totals; servicosEventuais mirrors unit-price rounding for form previews without changing O.S. BDI.

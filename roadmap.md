@@ -1,6 +1,6 @@
 # Tarefas
 
-- [ ] Estruturar Serv. Eventuais conforme a planilha, com grupos, itens, valores e vínculo obrigatório por cliente/contrato.
+- [x] Estruturar Serv. Eventuais conforme a planilha, com grupos/subgrupos, itens, quantidades, preços, CITL, totais e referência; vínculo obrigatório por cliente/contrato, cadastro/edição/exclusão e busca. Cinco testes passaram e build OK; não importei a planilha nem testei com login. Os 32 alertas anteriores de segurança permanecem fora deste pedido.
 
 - [x] Permitir até cinco locais na Previsão do tempo, salvos por usuário neste navegador, com remoção e atualização a cada dez minutos enquanto a tela estiver aberta; destacar alertas oficiais severos/extremos e mostrar detalhes/orientações. Seis testes, tipos e build OK; consulta real retornou 200 sem alertas para Rio de Janeiro. Não testei com login.
 

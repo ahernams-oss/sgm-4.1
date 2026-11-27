@@ -177,9 +177,15 @@ export function FuncionariosProvider({ children }: { children: ReactNode }) {
     enabled: __active,
     queryKey: QK,
     queryFn: async () => {
-      const { data, error } = await (supabase as any).from("funcionarios").select("*").order("nome");
-      if (error) { console.error("Erro:", error); throw error; }
-      return (data || []).map(rowToFuncionario) as Funcionario[];
+      // Pagina de 1000 em 1000: o limite padrão do Supabase cortava parte dos funcionários.
+      const todos: any[] = [];
+      for (let de = 0; ; de += 1000) {
+        const { data, error } = await (supabase as any).from("funcionarios").select("*").order("nome").order("id").range(de, de + 999);
+        if (error) { console.error("Erro:", error); throw error; }
+        todos.push(...(data || []));
+        if (!data || data.length < 1000) break;
+      }
+      return todos.map(rowToFuncionario) as Funcionario[];
     },
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
@@ -199,6 +205,7 @@ export function FuncionariosProvider({ children }: { children: ReactNode }) {
     const { id: _id, ...rest } = fullData as Funcionario;
     const { error } = await (supabase as any).from("funcionarios").update(funcionarioToRow(rest)).eq("id", id);
     if (error) { console.error("Erro:", error); toast.error("Erro ao atualizar."); return; }
+    queryClient.setQueryData<Funcionario[]>(QK, (atual) => atual?.map(f => f.id === id ? { ...f, ...rest, id } : f));
     await invalidate();
   };
 

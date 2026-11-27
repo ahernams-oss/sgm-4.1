@@ -2165,6 +2165,7 @@ export default function OrdensServicoPage() {
                 <TabsList className="w-full flex flex-wrap h-auto gap-1 bg-muted/40 p-1">
                   <TabsTrigger value="sco" className="flex items-center gap-1.5 text-xs"><ClipboardList className="h-3.5 w-3.5" /> Tabelas</TabsTrigger>
                   <TabsTrigger value="estoque" className="flex items-center gap-1.5 text-xs"><ClipboardList className="h-3.5 w-3.5" /> Estoque</TabsTrigger>
+                  <TabsTrigger value="eventuais" className="flex items-center gap-1.5 text-xs"><ClipboardList className="h-3.5 w-3.5" /> Eventuais</TabsTrigger>
                   <TabsTrigger value="memoria" className="flex items-center gap-1.5 text-xs"><ClipboardList className="h-3.5 w-3.5" /> Memória de Cálculo</TabsTrigger>
 
                   <TabsTrigger value="profissionais" className="flex items-center gap-1.5 text-xs"><Wrench className="h-3.5 w-3.5" /> Profissionais</TabsTrigger>
@@ -2448,6 +2449,8 @@ export default function OrdensServicoPage() {
                     </Table>
                   )}
                 </TabsContent>
+
+                <TabsContent value="eventuais" className="space-y-3 p-3 min-h-24" />
 
                 {/* Memória de Cálculo (somente leitura, vinda do orçamento aprovado) */}
                 <TabsContent value="memoria" className="space-y-3 p-3">

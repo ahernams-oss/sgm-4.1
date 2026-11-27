@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SplatRouteImport } from './routes/$'
+import { Route as CadastrosServicosEventuaisRouteImport } from './routes/cadastros.servicos-eventuais'
 import { Route as ObrasPrevisaoTempoRouteImport } from './routes/obras.previsao-tempo'
 import { Route as PmocOperacaoSmartRouteImport } from './routes/pmoc.operacao-smart'
 import { Route as ApiPublicEdgeNameRouteImport } from './routes/api/public/edge/$name'
@@ -27,6 +28,12 @@ const SplatRoute = SplatRouteImport.update({
   path: '/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CadastrosServicosEventuaisRoute =
+  CadastrosServicosEventuaisRouteImport.update({
+    id: '/cadastros/servicos-eventuais',
+    path: '/cadastros/servicos-eventuais',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ObrasPrevisaoTempoRoute = ObrasPrevisaoTempoRouteImport.update({
   id: '/obras/previsao-tempo',
   path: '/obras/previsao-tempo',
@@ -57,6 +64,7 @@ const LovableEmailTransactionalPreviewRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/cadastros/servicos-eventuais': typeof CadastrosServicosEventuaisRoute
   '/obras/previsao-tempo': typeof ObrasPrevisaoTempoRoute
   '/pmoc/operacao-smart': typeof PmocOperacaoSmartRoute
   '/api/public/edge/$name': typeof ApiPublicEdgeNameRoute
@@ -66,6 +74,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/cadastros/servicos-eventuais': typeof CadastrosServicosEventuaisRoute
   '/obras/previsao-tempo': typeof ObrasPrevisaoTempoRoute
   '/pmoc/operacao-smart': typeof PmocOperacaoSmartRoute
   '/api/public/edge/$name': typeof ApiPublicEdgeNameRoute
@@ -76,6 +85,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$': typeof SplatRoute
+  '/cadastros/servicos-eventuais': typeof CadastrosServicosEventuaisRoute
   '/obras/previsao-tempo': typeof ObrasPrevisaoTempoRoute
   '/pmoc/operacao-smart': typeof PmocOperacaoSmartRoute
   '/api/public/edge/$name': typeof ApiPublicEdgeNameRoute
@@ -87,6 +97,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/$'
+    | '/cadastros/servicos-eventuais'
     | '/obras/previsao-tempo'
     | '/pmoc/operacao-smart'
     | '/api/public/edge/$name'
@@ -96,6 +107,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/$'
+    | '/cadastros/servicos-eventuais'
     | '/obras/previsao-tempo'
     | '/pmoc/operacao-smart'
     | '/api/public/edge/$name'
@@ -105,6 +117,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/$'
+    | '/cadastros/servicos-eventuais'
     | '/obras/previsao-tempo'
     | '/pmoc/operacao-smart'
     | '/api/public/edge/$name'
@@ -115,6 +128,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   SplatRoute: typeof SplatRoute
+  CadastrosServicosEventuaisRoute: typeof CadastrosServicosEventuaisRoute
   ObrasPrevisaoTempoRoute: typeof ObrasPrevisaoTempoRoute
   PmocOperacaoSmartRoute: typeof PmocOperacaoSmartRoute
   ApiPublicEdgeNameRoute: typeof ApiPublicEdgeNameRoute
@@ -136,6 +150,13 @@ declare module '@tanstack/react-router' {
       path: '/$'
       fullPath: '/$'
       preLoaderRoute: typeof SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastros/servicos-eventuais': {
+      id: '/cadastros/servicos-eventuais'
+      path: '/cadastros/servicos-eventuais'
+      fullPath: '/cadastros/servicos-eventuais'
+      preLoaderRoute: typeof CadastrosServicosEventuaisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/obras/previsao-tempo': {
@@ -179,6 +200,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   SplatRoute: SplatRoute,
+  CadastrosServicosEventuaisRoute: CadastrosServicosEventuaisRoute,
   ObrasPrevisaoTempoRoute: ObrasPrevisaoTempoRoute,
   PmocOperacaoSmartRoute: PmocOperacaoSmartRoute,
   ApiPublicEdgeNameRoute: ApiPublicEdgeNameRoute,

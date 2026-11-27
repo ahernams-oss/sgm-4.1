@@ -127,13 +127,14 @@ export default function ServicosEventuaisOs({ contratoNumero, itens, selecionado
 
     {selecionados.length > 0 && <div className="space-y-2 border-t border-border pt-4">
       <h4 className="text-sm font-semibold">Itens adicionados à O.S. ({selecionados.length})</h4>
-      <div className="overflow-x-auto rounded-md border border-border"><Table className="min-w-[850px]"><TableHeader><TableRow><TableHead>Item</TableHead><TableHead>Discriminação</TableHead><TableHead>Quantidade</TableHead><TableHead className="text-right">Unitário com CITL</TableHead><TableHead className="text-right">Total com CITL</TableHead><TableHead><span className="sr-only">Remover</span></TableHead></TableRow></TableHeader><TableBody>
+      <div className="overflow-x-auto rounded-md border border-border"><Table className="min-w-[850px]"><TableHeader><TableRow><TableHead>Item</TableHead><TableHead>Discriminação</TableHead><TableHead className="text-right">Disponível</TableHead><TableHead>Quantidade</TableHead><TableHead className="text-right">Unitário com CITL</TableHead><TableHead className="text-right">Total com CITL</TableHead><TableHead><span className="sr-only">Remover</span></TableHead></TableRow></TableHeader><TableBody>
         {selecionados.map(selecionado => {
           const catalogo = itens.find(item => idOs(item.id) === selecionado.id);
           const invalido = validarQuantidadeEventual(Number(catalogo?.quantidade), selecionado.quantidade);
           return <TableRow key={selecionado.id}>
             <TableCell>{selecionado.codigo}</TableCell>
             <TableCell className="min-w-72 whitespace-normal break-words">{selecionado.descricao}{invalido && <span role="alert" className="mt-1 block text-xs text-destructive">{invalido}</span>}</TableCell>
+            <TableCell className={`whitespace-nowrap text-right font-semibold ${Number(catalogo?.quantidade) > 0 ? "" : "text-destructive"}`}>{catalogo && Number.isFinite(Number(catalogo.quantidade)) ? numero(Number(catalogo.quantidade)) : "—"}</TableCell>
             <TableCell><Input aria-label={`Quantidade adicionada de ${selecionado.descricao}`} className="w-28" type="number" min="0.01" step="0.01" value={selecionado.quantidade} onChange={event => alterarQuantidade(selecionado, event.target.value)} onBlur={() => persistirQuantidade(selecionado)} /></TableCell>
             <TableCell className="whitespace-nowrap text-right">{moeda(selecionado.valorUnitario)}</TableCell>
             <TableCell className="whitespace-nowrap text-right font-semibold">{moeda(selecionado.valorTotal)}</TableCell>

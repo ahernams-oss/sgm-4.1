@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { AlertTriangle, Plus, Search, Trash2 } from "lucide-react";
+import { AlertTriangle, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { MaterialOS } from "@/contexts/OrdensServicoContext";
 import type { ServicoEventualCatalogo } from "@/hooks/useServicosEventuaisContrato";
@@ -30,19 +30,20 @@ interface Props {
 
 export default function ServicosEventuaisOs({ contratoNumero, itens, selecionados, carregando, erro, onTentarNovamente, onChange, onPersist }: Props) {
   const [busca, setBusca] = useState("");
-  const [quantidades, setQuantidades] = useState<Record<string, string>>({});
-  const [pagina, setPagina] = useState(1);
-  const filtrados = useMemo(() => filtrarEventuaisPorNome(itens, busca), [itens, busca]);
+  const [quantidade, setQuantidade] = useState("1");
+  const buscaAtiva = busca.trim().length > 0;
+  const sugestoes = useMemo(() => {
+    const termo = busca.trim();
+    if (!termo) return [];
+    return (termo === "*" ? itens : filtrarEventuaisPorNome(itens, termo)).slice(0, 50);
+  }, [itens, busca]);
   const comSaldo = itens.filter(item => Number(item.quantidade) > 0).length;
   const semSaldo = itens.length - comSaldo;
-  const paginas = Math.max(1, Math.ceil(filtrados.length / 10));
-  const paginaAtual = Math.min(pagina, paginas);
-  const visiveis = filtrados.slice((paginaAtual - 1) * 10, paginaAtual * 10);
 
   function adicionar(item: ServicoEventualCatalogo) {
     const disponivel = Number(item.quantidade);
-    const quantidade = Number(quantidades[item.id] ?? "1");
-    const invalido = validarQuantidadeEventual(disponivel, quantidade);
+    const qtd = Number(quantidade.replace(",", "."));
+    const invalido = validarQuantidadeEventual(disponivel, qtd);
     if (invalido) { toast.error(invalido); return; }
     if (selecionados.some(selecionado => selecionado.id === idOs(item.id))) {
       toast.warning("Este item já foi adicionado. Ajuste a quantidade na lista de itens selecionados.");
@@ -54,13 +55,14 @@ export default function ServicosEventuaisOs({ contratoNumero, itens, selecionado
       codigo: item.item,
       descricao: item.discriminacao,
       unidade: item.unidade,
-      quantidade,
+      quantidade: qtd,
       valorUnitario,
-      valorTotal: valoresEventuais(quantidade, valorUnitario, 0).totalComCitl,
+      valorTotal: valoresEventuais(qtd, valorUnitario, 0).totalComCitl,
     }];
     onChange(atualizados);
     onPersist(atualizados);
-    setQuantidades(atuais => ({ ...atuais, [item.id]: "1" }));
+    setBusca("");
+    setQuantidade("1");
     toast.success("Serviço eventual adicionado.");
   }
 
@@ -98,34 +100,30 @@ export default function ServicosEventuaisOs({ contratoNumero, itens, selecionado
       {semSaldo > 0 && <span className="flex items-center gap-1 text-destructive"><AlertTriangle className="h-4 w-4" /><strong>{semSaldo}</strong> zerado(s) ou negativo(s)</span>}
     </div>
 
-    <div className="relative max-w-2xl">
-      <Label htmlFor="busca-eventual-os">Pesquisar serviço eventual</Label>
-      <Search className="absolute bottom-3 left-3 h-4 w-4 text-muted-foreground" />
-      <Input id="busca-eventual-os" className="mt-2 pl-9" placeholder="Buscar por nome, item, grupo ou subgrupo..." value={busca} onChange={event => { setBusca(event.target.value); setPagina(1); }} />
-    </div>
-
-    <div className="overflow-x-auto rounded-md border border-border">
-      <Table className="min-w-[1040px]">
-        <TableHeader><TableRow><TableHead>Item</TableHead><TableHead>Discriminação</TableHead><TableHead>Un.</TableHead><TableHead className="text-right">Disponível</TableHead><TableHead className="text-right">Valor unitário com CITL</TableHead><TableHead className="w-32">Quantidade</TableHead><TableHead className="w-28"><span className="sr-only">Adicionar</span></TableHead></TableRow></TableHeader>
-        <TableBody>
-          {visiveis.map(item => {
+    <div className="flex flex-wrap items-end gap-3">
+      <div className="relative min-w-72 flex-1">
+        <Label htmlFor="busca-eventual-os">Código</Label>
+        <div className="relative mt-2">
+          <Input id="busca-eventual-os" autoComplete="off" className="pr-9" placeholder="Código ou descrição (digite * para listar tudo)" value={busca} onChange={event => setBusca(event.target.value)} onKeyDown={event => { if (event.key === "Escape") setBusca(""); if (event.key === "Enter" && sugestoes.length === 1 && sugestoes[0]) { event.preventDefault(); adicionar(sugestoes[0]); } }} />
+          <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        </div>
+        {buscaAtiva && <div role="listbox" className="absolute z-30 mt-1 max-h-80 w-full overflow-y-auto rounded-md border border-border bg-popover text-popover-foreground shadow-lg">
+          {sugestoes.map(item => {
             const disponivel = Number(item.quantidade);
             const saldoInvalido = !Number.isFinite(disponivel) || disponivel <= 0;
-            return <TableRow key={item.id}>
-              <TableCell className="font-medium">{item.item}</TableCell>
-              <TableCell className="min-w-80 max-w-xl whitespace-normal break-words"><span>{item.discriminacao}</span>{(item.grupo || item.subgrupo) && <span className="mt-1 block text-xs text-muted-foreground">{[item.grupo, item.subgrupo].filter(Boolean).join(" › ")}</span>}{saldoInvalido && <span role="alert" className="mt-1 flex items-center gap-1 text-xs text-destructive"><AlertTriangle className="h-3.5 w-3.5 shrink-0" />{disponivel < 0 ? "Saldo negativo: regularize o cadastro." : "Saldo zerado: item indisponível."}</span>}</TableCell>
-              <TableCell>{item.unidade}</TableCell>
-              <TableCell className={`text-right font-semibold ${saldoInvalido ? "text-destructive" : ""}`}>{Number.isFinite(disponivel) ? numero(disponivel) : "—"}</TableCell>
-              <TableCell className="whitespace-nowrap text-right font-semibold">{moeda(unitarioComCitl(item))}</TableCell>
-              <TableCell><Input aria-label={`Quantidade de ${item.discriminacao}`} type="number" min="0.01" step="0.01" disabled={saldoInvalido} value={quantidades[item.id] ?? "1"} onChange={event => setQuantidades(atuais => ({ ...atuais, [item.id]: event.target.value }))} /></TableCell>
-              <TableCell><Button type="button" size="sm" disabled={saldoInvalido} onClick={() => adicionar(item)}><Plus className="mr-1 h-4 w-4" />Adicionar</Button></TableCell>
-            </TableRow>;
+            return <button key={item.id} type="button" role="option" aria-selected={false} disabled={saldoInvalido} onClick={() => adicionar(item)} className="flex w-full items-start justify-between gap-3 border-b border-border px-3 py-2 text-left text-sm last:border-b-0 hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60">
+              <span className="min-w-0"><span className="font-semibold">{item.item}</span> — <span className="break-words">{item.discriminacao}</span> <span className="text-muted-foreground">({item.unidade})</span>{saldoInvalido && <span className="mt-0.5 flex items-center gap-1 text-xs text-destructive"><AlertTriangle className="h-3.5 w-3.5" />{disponivel < 0 ? "Saldo negativo" : "Saldo zerado"}: item indisponível</span>}</span>
+              <span className="shrink-0 text-right text-xs"><span className="block font-semibold">{moeda(unitarioComCitl(item))}</span><span className={saldoInvalido ? "text-destructive" : "text-muted-foreground"}>Disp.: {Number.isFinite(disponivel) ? numero(disponivel) : "—"}</span></span>
+            </button>;
           })}
-          {!visiveis.length && <TableRow><TableCell colSpan={7} className="h-24 text-center text-muted-foreground">Nenhum serviço eventual corresponde à pesquisa.</TableCell></TableRow>}
-        </TableBody>
-      </Table>
+          {!sugestoes.length && <p className="px-3 py-3 text-sm text-muted-foreground">Nenhum serviço eventual encontrado.</p>}
+        </div>}
+      </div>
+      <div>
+        <Label htmlFor="qtd-eventual-os">Qtd.</Label>
+        <Input id="qtd-eventual-os" className="mt-2 w-28 text-center" type="number" min="0.01" step="0.01" value={quantidade} onChange={event => setQuantidade(event.target.value)} />
+      </div>
     </div>
-    {filtrados.length > 10 && <div className="flex items-center justify-end gap-3 text-sm"><Button type="button" variant="outline" disabled={paginaAtual === 1} onClick={() => setPagina(paginaAtual - 1)}>Anterior</Button><span>{paginaAtual} / {paginas}</span><Button type="button" variant="outline" disabled={paginaAtual === paginas} onClick={() => setPagina(paginaAtual + 1)}>Próxima</Button></div>}
 
     {selecionados.length > 0 && <div className="space-y-2 border-t border-border pt-4">
       <h4 className="text-sm font-semibold">Itens adicionados à O.S. ({selecionados.length})</h4>

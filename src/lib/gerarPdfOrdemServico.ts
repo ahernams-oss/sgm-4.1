@@ -474,7 +474,14 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
     // ===== SERVIÇOS EVENTUAIS =====
     const eventuais = os.servicosEventuais || [];
     const totalEv = eventuais.reduce((acc, m) => acc + (Number(m.valorTotal) || 0), 0);
-    const bdiEv = totalEv * (bdi / 100);
+    // Serviços eventuais usam o "BDI Serviços" do contrato; sem ele, mantém o BDI geral.
+    const bdiServ = (() => {
+      const contratos = (cliente as any)?.contratos || [];
+      const ativo = contratos.find((c: any) => parseBdi(c?.bdiServicos) >= 0 && String(c?.bdiServicos ?? "").trim() !== "");
+      const n = parseBdi(ativo?.bdiServicos);
+      return isNaN(n) ? bdi : n;
+    })();
+    const bdiEv = totalEv * (bdiServ / 100);
     const totalEvComBdi = totalEv + bdiEv;
     doc.setFont("helvetica", "bolditalic");
     doc.setFontSize(7.5);
@@ -501,7 +508,7 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
         ]);
         rows.push([
           { content: "BDI (Benefícios e Despesas Indiretas)", colSpan: 4, styles: { fontStyle: "bold", halign: "left" } },
-          { content: emBranco ? "" : `${bdi.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}%`, styles: { fontStyle: "bold", halign: "right" } },
+          { content: emBranco ? "" : `${bdiServ.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}%`, styles: { fontStyle: "bold", halign: "right" } },
           { content: valor(bdiEv), styles: { fontStyle: "bold", halign: "right" } },
         ]);
         rows.push([

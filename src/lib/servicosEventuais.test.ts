@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { contratoEventualValido, numeroEventual, servicoEventualSchema, valoresEventuais } from "./servicosEventuais";
+import { contratoEventualValido, filtrarEventuaisPorNome, numeroEventual, servicoEventualSchema, validarQuantidadeEventual, valoresEventuais } from "./servicosEventuais";
 
 describe("Serviços eventuais por cliente e contrato", () => {
   it("não aceita contrato de outro cliente", () => {
@@ -23,5 +23,21 @@ describe("Serviços eventuais por cliente e contrato", () => {
     expect(servicoEventualSchema.safeParse(base).success).toBe(true);
     expect(servicoEventualSchema.safeParse({ ...base, contrato_id: "" }).success).toBe(false);
     expect(servicoEventualSchema.safeParse({ ...base, cliente_id: "" }).success).toBe(false);
+  });
+  it("pesquisa o nome sem distinguir acentos ou caixa", () => {
+    const itens = [{ item: "1.1", discriminacao: "Análise de óleo", grupo: "Inspeção", subgrupo: "Predial" }, { item: "2", discriminacao: "Limpeza", grupo: "", subgrupo: "" }];
+    expect(filtrarEventuaisPorNome(itens, "ANALISE").map(item => item.item)).toEqual(["1.1"]);
+    expect(filtrarEventuaisPorNome(itens, "predial").map(item => item.item)).toEqual(["1.1"]);
+    expect(filtrarEventuaisPorNome(itens, "")).toHaveLength(2);
+  });
+  it("avisa saldo zerado ou negativo", () => {
+    expect(validarQuantidadeEventual(0, 1)).toContain("saldo zerado");
+    expect(validarQuantidadeEventual(-1, 1)).toContain("negativo");
+  });
+  it("não aceita quantidade zero, negativa ou acima do disponível", () => {
+    expect(validarQuantidadeEventual(5, 0)).toContain("maior que zero");
+    expect(validarQuantidadeEventual(5, -1)).toContain("maior que zero");
+    expect(validarQuantidadeEventual(5, 6)).toContain("supera o saldo");
+    expect(validarQuantidadeEventual(5, 5)).toBeNull();
   });
 });

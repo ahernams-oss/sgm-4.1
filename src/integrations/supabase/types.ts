@@ -5806,6 +5806,7 @@ export type Database = {
           ressalva_aprovacao: string | null
           retorno_pendente: Json | null
           servico: string | null
+          servicos_eventuais: Json
           setor_descricao: string | null
           setor_id: string | null
           situacao: string | null
@@ -5861,6 +5862,7 @@ export type Database = {
           ressalva_aprovacao?: string | null
           retorno_pendente?: Json | null
           servico?: string | null
+          servicos_eventuais?: Json
           setor_descricao?: string | null
           setor_id?: string | null
           situacao?: string | null
@@ -5916,6 +5918,7 @@ export type Database = {
           ressalva_aprovacao?: string | null
           retorno_pendente?: Json | null
           servico?: string | null
+          servicos_eventuais?: Json
           setor_descricao?: string | null
           setor_id?: string | null
           situacao?: string | null

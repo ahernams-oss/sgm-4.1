@@ -47,6 +47,7 @@ export interface OrdemServico {
   descricaoServicos: string;
   ressalvaAprovacao: string; descricaoConclusao: string;
   materiais: MaterialOS[]; materiaisEstoque: MaterialOS[];
+  servicosEventuais?: MaterialOS[];
   profissionais: ProfissionalOS[]; anexos: AnexoOS[]; fotos: FotoOS[];
   observacoes: ObservacaoOS[]; observacoesFiscalizacao: ObservacaoFiscalizacao[];
   bdi: number; tipoOs: TipoOS;
@@ -108,6 +109,7 @@ const rowToOrdem = (r: any): OrdemServico => ({
   descricaoConclusao: r.descricao_conclusao ?? "",
   materiais: Array.isArray(r.materiais) ? r.materiais : [],
   materiaisEstoque: Array.isArray(r.materiais_estoque) ? r.materiais_estoque : [],
+  servicosEventuais: Array.isArray(r.servicos_eventuais) ? r.servicos_eventuais : [],
   profissionais: Array.isArray(r.profissionais) ? r.profissionais : [],
   anexos: Array.isArray(r.anexos) ? r.anexos : [],
   fotos: Array.isArray(r.fotos) ? r.fotos : [],

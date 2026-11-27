@@ -30,3 +30,21 @@ export function valoresEventuais(quantidade: number, preco: number, citl: number
 export function contratoEventualValido(clienteId: string, contratoId: string, clientes: { id: string; contratos: { id: string }[] }[]) {
   return clientes.some(c => c.id === clienteId && c.contratos.some(ct => ct.id === contratoId));
 }
+
+export function normalizarBuscaEventual(texto: string) {
+  return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLocaleLowerCase("pt-BR");
+}
+
+export function filtrarEventuaisPorNome<T extends { item: string; discriminacao: string; grupo: string; subgrupo: string }>(itens: T[], busca: string) {
+  const termo = normalizarBuscaEventual(busca);
+  if (!termo) return itens;
+  return itens.filter(item => normalizarBuscaEventual(`${item.item} ${item.discriminacao} ${item.grupo} ${item.subgrupo}`).includes(termo));
+}
+
+export function validarQuantidadeEventual(disponivel: number, quantidade: number) {
+  if (!Number.isFinite(disponivel) || disponivel < 0) return "O saldo deste item está negativo ou inválido. Regularize o cadastro antes de adicioná-lo.";
+  if (disponivel === 0) return "Este item está com saldo zerado e não pode ser adicionado.";
+  if (!Number.isFinite(quantidade) || quantidade <= 0) return "Informe uma quantidade maior que zero.";
+  if (quantidade > disponivel) return `A quantidade informada supera o saldo disponível (${disponivel.toLocaleString("pt-BR")}).`;
+  return null;
+}

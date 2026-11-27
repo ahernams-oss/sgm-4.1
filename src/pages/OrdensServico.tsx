@@ -62,6 +62,9 @@ import { AvaliacaoOs } from "@/components/AvaliacaoOs";
 import MemoriaCalculoView from "@/components/orcamento/MemoriaCalculoView";
 import NfeOrigemPicker from "@/components/NfeOrigemPicker";
 import SugestaoClassificacaoOs from "@/components/SugestaoClassificacaoOs";
+import ServicosEventuaisOs from "@/components/ServicosEventuaisOs";
+import { useServicosEventuaisContrato } from "@/hooks/useServicosEventuaisContrato";
+import { validarQuantidadeEventual } from "@/lib/servicosEventuais";
 
 import { useOsAssinaturas } from "@/contexts/OsAssinaturasContext";
 import { BarChart3, Camera, ImagePlus } from "lucide-react";
@@ -396,6 +399,7 @@ export default function OrdensServicoPage() {
   const clientesFiltrados = clientes.filter(c => c.tipo === "Cliente");
 
   const [formOpen, setFormOpen] = useState(false);
+  const [abaItens, setAbaItens] = useState("sco");
   const [relatorioOpen, setRelatorioOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [viewOS, setViewOS] = useState<OrdemServico | null>(null);
@@ -494,6 +498,7 @@ export default function OrdensServicoPage() {
   // Tab data state
   const [materiais, setMateriais] = useState<MaterialOS[]>([]);
   const [materiaisEstoque, setMateriaisEstoque] = useState<MaterialOS[]>([]);
+  const [servicosEventuais, setServicosEventuais] = useState<MaterialOS[]>([]);
   const [profissionais, setProfissionais] = useState<ProfissionalOS[]>([]);
   const [anexos, setAnexos] = useState<AnexoOS[]>([]);
   const [fotos, setFotos] = useState<FotoOS[]>([]);
@@ -652,6 +657,13 @@ export default function OrdensServicoPage() {
     if (editingId) {
       await updateOrdem(editingId, { materiais_estoque: updated });
     }
+  };
+
+  const autoSaveServicosEventuais = (updated: MaterialOS[]) => {
+    if (!editingId) return;
+    void updateOrdem(editingId, { servicos_eventuais: updated })
+      .then(() => toast.success("Serviços eventuais salvos na O.S."))
+      .catch(() => toast.error("Não foi possível salvar os serviços eventuais."));
   };
 
   const [scoTipoFiltro, setScoTipoFiltro] = useState<string>("todos");
@@ -903,6 +915,20 @@ export default function OrdensServicoPage() {
   };
 
   const clienteSelecionado = clientesFiltrados.find(c => c.id === clienteId);
+  const contratoEventual = clienteSelecionado?.contratos?.[0];
+  const {
+    itens: eventuaisContrato,
+    isLoading: carregandoEventuais,
+    isError: erroEventuais,
+    refetch: recarregarEventuais,
+  } = useServicosEventuaisContrato(clienteId, contratoEventual?.id ?? "", formOpen);
+  const possuiEventuais = eventuaisContrato.length > 0;
+  const exibirEventuais = possuiEventuais || erroEventuais;
+
+  useEffect(() => {
+    if (abaItens === "eventuais" && !carregandoEventuais && !erroEventuais && !possuiEventuais) setAbaItens("sco");
+  }, [abaItens, carregandoEventuais, erroEventuais, possuiEventuais]);
+
   const locais = clienteSelecionado?.locais || [];
   const localSelecionado = (locais as any[]).find((l: any) => l.id === localId);
   const pavimentos = localSelecionado?.pavimentos || [];
@@ -967,9 +993,10 @@ export default function OrdensServicoPage() {
     setRamal(""); setTelefone(""); setLocalId(""); setPavimentoId("");
     setSetorId(""); setCategoria(""); setServico("");
     setDescricaoServicos(""); setRessalvaAprovacao(""); setDescricaoConclusao("");
-    setMateriais([]); setMateriaisEstoque([]); setProfissionais([]);
+    setMateriais([]); setMateriaisEstoque([]); setServicosEventuais([]); setProfissionais([]);
     setAnexos([]); setFotos([]); setObservacoes([]); setObservacoesFiscalizacao([]);
     setScoBusca(""); setScoQtd(1); setScoResultPage(1);
+    setAbaItens("sco");
     setEditingId(null);
   };
 
@@ -995,7 +1022,7 @@ export default function OrdensServicoPage() {
     setCategoria(os.categoria); setServico(os.servico);
     setDescricaoServicos(os.descricaoServicos); setRessalvaAprovacao(os.ressalvaAprovacao);
     setDescricaoConclusao(os.descricaoConclusao);
-    setMateriais(os.materiais); setMateriaisEstoque(os.materiaisEstoque);
+    setMateriais(os.materiais); setMateriaisEstoque(os.materiaisEstoque); setServicosEventuais(os.servicosEventuais || []);
     setProfissionais(os.profissionais); setAnexos(os.anexos); setFotos(os.fotos);
     setObservacoes(os.observacoes); setObservacoesFiscalizacao(os.observacoesFiscalizacao);
     setFormOpen(true);
@@ -1005,6 +1032,22 @@ export default function OrdensServicoPage() {
     if (!clienteId) { toast.error("Selecione um cliente."); return; }
     if (!descricaoServicos.trim()) { toast.error("Preencha a descrição dos serviços."); return; }
     if (situacao === "Validada" && !podeValidarOs(profissionais)) { toast.error(MSG_OS_SEM_PROFISSIONAL); return; }
+    if (servicosEventuais.length > 0 && carregandoEventuais) {
+      toast.error("Aguarde a conferência dos serviços eventuais antes de salvar.");
+      return;
+    }
+    for (const eventual of servicosEventuais) {
+      const catalogo = eventuaisContrato.find(item => `eventual:${item.id}` === eventual.id);
+      if (!catalogo) {
+        toast.error(`O serviço eventual "${eventual.descricao}" não está mais associado a este contrato. Remova-o antes de salvar.`);
+        return;
+      }
+      const invalido = validarQuantidadeEventual(Number(catalogo.quantidade), eventual.quantidade);
+      if (invalido) {
+        toast.error(`${eventual.descricao}: ${invalido}`);
+        return;
+      }
+    }
     if (fotos.some(foto => (foto.observacao?.length || 0) > 200)) {
       toast.error("A observação de cada foto deve ter no máximo 200 caracteres.");
       return;
@@ -1042,6 +1085,7 @@ export default function OrdensServicoPage() {
       descricao_conclusao: descricaoConclusao,
       materiais,
       materiais_estoque: materiaisEstoque,
+      servicos_eventuais: servicosEventuais,
       profissionais,
       anexos,
       fotos,
@@ -1942,7 +1986,7 @@ export default function OrdensServicoPage() {
                 {editingId ? (
                   <Input value={clientesFiltrados.find(c => c.id === clienteId)?.nome || ""} disabled className="bg-muted cursor-not-allowed" />
                 ) : (
-                  <Select value={clienteId} onValueChange={v => { setClienteId(v); setLocalId(""); setPavimentoId(""); setSetorId(""); }}>
+                  <Select value={clienteId} onValueChange={v => { setClienteId(v); setLocalId(""); setPavimentoId(""); setSetorId(""); setServicosEventuais([]); setAbaItens("sco"); }}>
                     <SelectTrigger><SelectValue placeholder="Selecione o cliente" /></SelectTrigger>
                     <SelectContent>
                       {clientesFiltrados.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
@@ -2161,11 +2205,11 @@ export default function OrdensServicoPage() {
 
             {/* === ABAS === */}
             <div className="border-t pt-4">
-              <Tabs defaultValue="sco" className="w-full">
+              <Tabs value={abaItens} onValueChange={setAbaItens} className="w-full">
                 <TabsList className="w-full flex flex-wrap h-auto gap-1 bg-muted/40 p-1">
                   <TabsTrigger value="sco" className="flex items-center gap-1.5 text-xs"><ClipboardList className="h-3.5 w-3.5" /> Tabelas</TabsTrigger>
                   <TabsTrigger value="estoque" className="flex items-center gap-1.5 text-xs"><ClipboardList className="h-3.5 w-3.5" /> Estoque</TabsTrigger>
-                  <TabsTrigger value="eventuais" className="flex items-center gap-1.5 text-xs"><ClipboardList className="h-3.5 w-3.5" /> Eventuais</TabsTrigger>
+                  {exibirEventuais && <TabsTrigger value="eventuais" className="flex items-center gap-1.5 text-xs"><ClipboardList className="h-3.5 w-3.5" /> Eventuais{possuiEventuais ? ` (${eventuaisContrato.length})` : ""}</TabsTrigger>}
                   <TabsTrigger value="memoria" className="flex items-center gap-1.5 text-xs"><ClipboardList className="h-3.5 w-3.5" /> Memória de Cálculo</TabsTrigger>
 
                   <TabsTrigger value="profissionais" className="flex items-center gap-1.5 text-xs"><Wrench className="h-3.5 w-3.5" /> Profissionais</TabsTrigger>
@@ -2450,7 +2494,18 @@ export default function OrdensServicoPage() {
                   )}
                 </TabsContent>
 
-                <TabsContent value="eventuais" className="space-y-3 p-3 min-h-24" />
+                {exibirEventuais && <TabsContent value="eventuais" className="space-y-3 p-3 min-h-24">
+                  <ServicosEventuaisOs
+                    contratoNumero={contratoEventual?.numero ?? ""}
+                    itens={eventuaisContrato}
+                    selecionados={servicosEventuais}
+                    carregando={carregandoEventuais}
+                    erro={erroEventuais}
+                    onTentarNovamente={() => void recarregarEventuais()}
+                    onChange={setServicosEventuais}
+                    onPersist={autoSaveServicosEventuais}
+                  />
+                </TabsContent>}
 
                 {/* Memória de Cálculo (somente leitura, vinda do orçamento aprovado) */}
                 <TabsContent value="memoria" className="space-y-3 p-3">

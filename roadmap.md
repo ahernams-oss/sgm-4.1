@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Ligar a aba Eventuais da O.S. ao contrato do cliente: ocultar sem itens associados, pesquisar por nome, informar quantidade, mostrar disponibilidade e valor unitário com CITL, alertar saldo zero/negativo e persistir os itens selecionados. Oito testes, tipos e build OK; não testei com login.
+
 - [x] Estruturar Serv. Eventuais conforme a planilha, com grupos/subgrupos, itens, quantidades, preços, CITL, totais e referência; vínculo obrigatório por cliente/contrato, cadastro/edição/exclusão e busca. Cinco testes passaram e build OK; não importei a planilha nem testei com login. Os 32 alertas anteriores de segurança permanecem fora deste pedido.
 
 - [x] Permitir até cinco locais na Previsão do tempo, salvos por usuário neste navegador, com remoção e atualização a cada dez minutos enquanto a tela estiver aberta; destacar alertas oficiais severos/extremos e mostrar detalhes/orientações. Seis testes, tipos e build OK; consulta real retornou 200 sem alertas para Rio de Janeiro. Não testei com login.

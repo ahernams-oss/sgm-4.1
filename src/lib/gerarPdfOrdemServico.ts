@@ -20,6 +20,8 @@ async function resolverModeloNome(cliente?: Cliente): Promise<string> {
   } catch { return ""; }
 }
 
+export const MODELO_FIOCRUZ = "Modelo_FioCruz";
+
 const DARK = [60, 60, 60] as const;
 const BORDER: [number, number, number] = [60, 60, 60];
 
@@ -66,6 +68,8 @@ export interface RenderOSOptions {
   numeroIdentificador?: string;
   aprovacaoTexto?: string;
   emBranco?: boolean;
+  /** Layout Modelo_FioCruz: sem bloco de fiscalização/dados finais e com seção de Serviços Eventuais. */
+  fiocruz?: boolean;
 }
 
 async function gerarQRCodeDataUrl(text: string): Promise<string | null> {
@@ -153,7 +157,7 @@ async function renderAssinaturas(doc: jsPDF, assinaturas: OsAssinatura[], y: num
   return y;
 }
 
-export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, numeroIdentificador, aprovacaoTexto, emBranco = false }: RenderOSOptions) {
+export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, numeroIdentificador, aprovacaoTexto, emBranco = false, fiocruz = false }: RenderOSOptions) {
   const vazio = emBranco ? "" : "-";
   const valor = (n: number) => emBranco ? "" : fmtBRL(n);
   const pw = doc.internal.pageSize.getWidth();
@@ -314,6 +318,7 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
   y = (doc as any).lastAutoTable.finalY + 4;
 
   // ===== Aprovação da Fiscalização + Carimbo =====
+  if (!fiocruz) {
   const fiscalizada = !!(os.historico || []).find((h: any) =>
     ["Executada", "Serviço Confirmado", "Validada"].includes(h.situacao)
   );
@@ -338,6 +343,7 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
     margin: { left: ml, right: mr },
   });
   y = (doc as any).lastAutoTable.finalY + 4;
+  }
 
   // ===== MATERIAIS SCO =====
   // BDI: prioriza o contrato do cliente; cai para os.bdi se não houver
@@ -384,7 +390,7 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
         rows.push(emBranco ? ["", "", "", "", "", ""] : [{ content: "Sem materiais SCO", colSpan: 6, styles: { fontStyle: "italic", textColor: [120, 120, 120] } }]);
       }
       rows.push([
-        { content: "TOTAL MATERIAL TABELA", colSpan: 5, styles: { fontStyle: "bold", halign: "right" } },
+        { content: fiocruz ? "TOTAL MATERIAL SCO" : "TOTAL MATERIAL TABELA", colSpan: 5, styles: { fontStyle: "bold", halign: "right" } },
         { content: valor(totalSCO), styles: { fontStyle: "bold", halign: "right" } },
       ]);
       rows.push([
@@ -393,7 +399,7 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
         { content: valor(bdiSCO), styles: { fontStyle: "bold", halign: "right" } },
       ]);
       rows.push([
-        { content: "TOTAL TABELA + BDI", colSpan: 5, styles: { fontStyle: "bold", halign: "right", fillColor: [240, 240, 240] } },
+        { content: fiocruz ? "TOTAL SCO + BDI" : "TOTAL TABELA + BDI", colSpan: 5, styles: { fontStyle: "bold", halign: "right", fillColor: [240, 240, 240] } },
         { content: valor(totalSCOcomBDI), styles: { fontStyle: "bold", halign: "right", fillColor: [240, 240, 240] } },
       ]);
       return rows;
@@ -459,12 +465,76 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
     })(),
     margin: { left: ml, right: mr },
   });
-  y = (doc as any).lastAutoTable.finalY + 4;
+  y = (doc as any).lastAutoTable.finalY + (fiocruz ? 2 : 4);
 
-  // ===== DADOS FINAIS / Avaliação + Carimbo gerente =====
-  const validada = os.situacao === "Validada";
   const assinaturaFiscal = (assinaturas || []).find((a) => a.papel === "fiscal");
   let fiscalCellRect: any = null;
+
+  if (fiocruz) {
+    // ===== SERVIÇOS EVENTUAIS =====
+    const eventuais = os.servicosEventuais || [];
+    const totalEv = eventuais.reduce((acc, m) => acc + (Number(m.valorTotal) || 0), 0);
+    const bdiEv = totalEv * (bdi / 100);
+    const totalEvComBdi = totalEv + bdiEv;
+    doc.setFont("helvetica", "bolditalic");
+    doc.setFontSize(7.5);
+    doc.setTextColor(30, 30, 30);
+    doc.text("Serviços Eventuais", pw / 2, y + 3, { align: "center" });
+    y += 5;
+    (await getAutoTable())(doc, {
+      startY: y,
+      theme: "grid",
+      styles: { fontSize: 7.5, cellPadding: 1.5, lineColor: BORDER, lineWidth: 0.3, textColor: [30, 30, 30], halign: "center", valign: "middle" },
+      columnStyles: {
+        0: { cellWidth: cw * 0.13 }, 1: { cellWidth: cw * 0.45, halign: "left" }, 2: { cellWidth: cw * 0.08 },
+        3: { cellWidth: cw * 0.08 }, 4: { cellWidth: cw * 0.13, halign: "right" }, 5: { cellWidth: cw * 0.13, halign: "right" },
+      },
+      body: (() => {
+        const rows: any[] = eventuais.map((m: MaterialOS) => [
+          m.codigo || "", m.descricao || "", m.unidade || "", String(m.quantidade ?? ""),
+          fmtBRL(Number(m.valorUnitario) || 0), fmtBRL(Number(m.valorTotal) || 0),
+        ]);
+        if (rows.length === 0) rows.push([{ content: "", colSpan: 6, styles: { minCellHeight: 6 } }]);
+        rows.push([
+          { content: "TOTAL SERVIÇOS EVENTUAIS", colSpan: 5, styles: { fontStyle: "bold", halign: "right" } },
+          { content: valor(totalEv), styles: { fontStyle: "bold", halign: "right" } },
+        ]);
+        rows.push([
+          { content: "BDI (Benefícios e Despesas Indiretas)", colSpan: 4, styles: { fontStyle: "bold", halign: "left" } },
+          { content: emBranco ? "" : `${bdi.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}%`, styles: { fontStyle: "bold", halign: "right" } },
+          { content: valor(bdiEv), styles: { fontStyle: "bold", halign: "right" } },
+        ]);
+        rows.push([
+          { content: "TOTAL SERVIÇOS EVENTUAIS + BDI", colSpan: 5, styles: { fontStyle: "bold", halign: "right", fillColor: [240, 240, 240] } },
+          { content: valor(totalEvComBdi), styles: { fontStyle: "bold", halign: "right", fillColor: [240, 240, 240] } },
+        ]);
+        rows.push([
+          { content: "TOTAL GERAL", colSpan: 5, styles: { fontStyle: "bold", halign: "right", fillColor: [220, 220, 220], fontSize: 9 } },
+          { content: valor(totalSCOcomBDI + totalEstcomBDI + totalEvComBdi), styles: { fontStyle: "bold", halign: "right", fillColor: [220, 220, 220], fontSize: 9 } },
+        ]);
+        return rows;
+      })(),
+      margin: { left: ml, right: mr },
+    });
+    y = (doc as any).lastAutoTable.finalY + 4;
+
+    // ===== Carimbo e assinatura (caixa à direita) =====
+    const ph = doc.internal.pageSize.getHeight();
+    const boxW2 = cw * 0.31, headH = 4, bodyH = 28;
+    if (y + headH + bodyH > ph - 12) { doc.addPage(); y = 18; }
+    const bx = ml + cw - boxW2;
+    doc.setDrawColor(...BORDER);
+    doc.setLineWidth(0.3);
+    doc.rect(bx, y, boxW2, headH);
+    doc.rect(bx, y + headH, boxW2, bodyH);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(5.5);
+    doc.text("Carimbo e assinatura / Assinatura eletrônica", bx + boxW2 / 2, y + 2.8, { align: "center" });
+    fiscalCellRect = { x: bx, y: y + headH, w: boxW2, h: bodyH };
+    y += headH + bodyH + 4;
+  } else {
+  // ===== DADOS FINAIS / Avaliação + Carimbo gerente =====
+  const validada = os.situacao === "Validada";
   (await getAutoTable())(doc, {
     startY: y,
     theme: "grid",
@@ -504,6 +574,7 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
     margin: { left: ml, right: mr },
   });
   y = (doc as any).lastAutoTable.finalY;
+  }
 
   // Renderiza assinatura do fiscal dentro do retângulo "Carimbo e assinatura / Assinatura eletrônica"
   if (assinaturaFiscal && fiscalCellRect) {
@@ -552,6 +623,7 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
   }
 
   // Caixa de observações grande
+  if (!fiocruz) {
   const obsTexto = (os.observacoes || []).map((o: any) => `• ${o.descricao || ""}`).join("\n") || "";
   (await getAutoTable())(doc, {
     startY: y,
@@ -562,6 +634,7 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
     margin: { left: ml, right: mr },
   });
   y = (doc as any).lastAutoTable.finalY + 4;
+  }
 
   // ===== ASSINATURAS ELETRÔNICAS (somente solicitante; fiscal já foi renderizado acima) =====
   const assinaturasRestantes = (assinaturas || []).filter((a) => a.papel !== "fiscal");
@@ -610,7 +683,7 @@ export async function visualizarPdfOrdemServicoVazia(opts: RenderOSOptions): Pro
   if (modelo === "Modelo_Educação") {
     await renderOrdemServicoEducacao(doc, { ...opts, emBranco: true });
   } else {
-    await renderOS(doc, { ...opts, emBranco: true });
+    await renderOS(doc, { ...opts, emBranco: true, fiocruz: modelo === MODELO_FIOCRUZ });
   }
   addContinuationHeaders(doc, "", opts.cliente?.nome || "");
   return doc.output("blob");
@@ -622,7 +695,7 @@ export async function gerarPdfOrdemServico(opts: RenderOSOptions) {
   if (modelo === "Modelo_Educação") {
     await renderOrdemServicoEducacao(doc, opts);
   } else {
-    await renderOS(doc, opts);
+    await renderOS(doc, { ...opts, fiocruz: modelo === MODELO_FIOCRUZ });
   }
   const c: any = opts.cliente || {};
   const ident = [c.relLinha1, c.relLinha2, c.relLinha3, c.relLinha4]
@@ -642,7 +715,7 @@ export async function gerarPdfOrdemServicoLote(lista: RenderOSOptions[]) {
     if (modelo === "Modelo_Educação") {
       await renderOrdemServicoEducacao(doc, lista[i]);
     } else {
-      await renderOS(doc, lista[i]);
+      await renderOS(doc, { ...lista[i], fiocruz: modelo === MODELO_FIOCRUZ });
     }
   }
   addContinuationHeaders(doc);

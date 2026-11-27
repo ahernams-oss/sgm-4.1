@@ -786,7 +786,7 @@ export default function SolicitacaoServicosPage() {
       });
     }
 
-    // Setor crítico sempre vem primeiro; coluna/prioridade ordena dentro de cada grupo.
+    // Setor crítico vem primeiro enquanto a solicitação não foi concluída; coluna/prioridade ordena dentro de cada grupo.
     result = [...result].sort((a, b) => {
       const criticoCmp = compararSetorCritico(a, b, setoresCriticosIds);
       if (criticoCmp !== 0) return criticoCmp;

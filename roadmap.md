@@ -1,4 +1,6 @@
 # Tarefas
+- [x] Solicitações de setor crítico saem do topo da grade quando a situação é Concluída, seguindo a ordenação escolhida; demais continuam acima. Nove testes de ordenação, tipos e build OK; não testei com login.
+
 
 - [x] Destacar o símbolo de setor crítico junto ao número e ao setor da SS; priorizar sempre os setores críticos antes da ordenação escolhida, sem alterar registros, filtros ou permissões. Testes de ordenação incluídos; não testei com login.
 

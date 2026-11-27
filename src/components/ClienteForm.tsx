@@ -26,7 +26,7 @@ const emptyForm: FormData = {
   telefones: [""], telefoneCelular: "", celulares: "", telefonesWhatsapp: "",
   cep: "", bairro: "", logradouro: "", numero: "", complemento: "", uf: "", cidade: "",
   endereco: "", dataInicioContrato: "", relLinha1: "", relLinha2: "", relLinha3: "",
-  relLinha4: "", contato: "", grupoWhatsapp: "", logoUrl: "", modeloOsId: "",
+  relLinha4: "", contato: "", grupoWhatsapp: "", grupoWhatsappEmergencia: "", logoUrl: "", modeloOsId: "",
 };
 
 interface ClienteFormProps {
@@ -290,6 +290,11 @@ export default function ClienteForm({ editingId, initialData, onSubmit, onCancel
           <label className="field-label">Código do Grupo de WhatsApp (JID)</label>
           <Input placeholder="Ex: 1203630000000000@g.us" value={form.grupoWhatsapp} onChange={(e) => update("grupoWhatsapp", e.target.value)} />
           <p className="text-xs text-muted-foreground mt-1">Informe o JID do grupo (formato <code>120363xxxxxxx@g.us</code>), não o link de convite.</p>
+        </div>
+        <div className="md:col-span-2">
+          <label className="field-label">Código do Grupo de WhatsApp para Emergencia (JID)</label>
+          <Input placeholder="Ex: 1203630000000000@g.us" value={form.grupoWhatsappEmergencia} onChange={(e) => update("grupoWhatsappEmergencia", e.target.value)} />
+          <p className="text-xs text-muted-foreground mt-1">Informe o JID do grupo de emergência (formato <code>120363xxxxxxx@g.us</code>), não o link de convite.</p>
         </div>
       </div>
 

@@ -766,6 +766,7 @@ export type Database = {
           endereco: string | null
           esfera: string | null
           grupo_whatsapp: string | null
+          grupo_whatsapp_emergencia: string | null
           id: string
           informacoes_financeiras: Json | null
           inscricao_estadual: string | null
@@ -819,6 +820,7 @@ export type Database = {
           endereco?: string | null
           esfera?: string | null
           grupo_whatsapp?: string | null
+          grupo_whatsapp_emergencia?: string | null
           id?: string
           informacoes_financeiras?: Json | null
           inscricao_estadual?: string | null
@@ -872,6 +874,7 @@ export type Database = {
           endereco?: string | null
           esfera?: string | null
           grupo_whatsapp?: string | null
+          grupo_whatsapp_emergencia?: string | null
           id?: string
           informacoes_financeiras?: Json | null
           inscricao_estadual?: string | null

@@ -70,6 +70,7 @@ import { RotaProtegida } from "@/components/RotaProtegida";
 const OAuthConsent = lazy(() => import("@/pages/OAuthConsent"));
 const Index = lazy(() => import("./pages/Index.tsx"));
 const Home = lazy(() => import("./pages/Home.tsx"));
+const OsSmartPage = lazy(() => import("./pages/OsSmart"));
 const PrevisaoTempo = lazy(() => import("./pages/PrevisaoTempo.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
@@ -455,6 +456,7 @@ function ProtectedAppRoutes() {
         <Route path="/engenharia/eventograma" element={<RotaProtegida perm="eventograma"><EventogramaPage /></RotaProtegida>} />
         <Route path="/engenharia/boletim-medicao" element={<RotaProtegida perm="boletim_medicao"><BoletinsMedicaoProvider><BoletimMedicaoPage /></BoletinsMedicaoProvider></RotaProtegida>} />
         <Route path="/obras/bim" element={<RotaProtegida perm="bim"><BimPage /></RotaProtegida>} />
+        <Route path="/engenharia/os-smart" element={<RotaProtegida perm="ordem_servico"><OrdensServicoProvider><OsSmartPage /></OrdensServicoProvider></RotaProtegida>} />
         <Route path="/obras/previsao-tempo" element={<PrevisaoTempo />} />
         <Route path="/engenharia/responsaveis-tecnicos" element={<RotaProtegida perm="responsaveis_tecnicos"><ResponsaveisTecnicosPage /></RotaProtegida>} />
         <Route path="/cadastros/responsaveis-tecnicos" element={<RotaProtegida perm="responsaveis_tecnicos"><ResponsaveisTecnicosPage /></RotaProtegida>} />

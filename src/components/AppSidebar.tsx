@@ -128,6 +128,7 @@ const menuItems = [
     group: "Ordens de Serviço",
     items: [
       { title: "Ordem de Serviço", url: "/engenharia/ordem-servico", icon: Wrench, perm: "ordem_servico" },
+      { title: "OS SMART", url: "/engenharia/os-smart", icon: Wrench, perm: "ordem_servico" },
       { title: "Confirmar OS em Lote", url: "/engenharia/confirmar-lote-os", icon: ClipboardCheck, perm: "os.confirmar_lote" },
       { title: "Validar OS em Lote", url: "/engenharia/validar-lote-os", icon: ClipboardCheck, perm: "os.validar_lote" },
       { title: "Assinar OS em Lote", url: "/engenharia/assinar-lote-os", icon: ClipboardCheck, perm: "os.assinar_lote" },

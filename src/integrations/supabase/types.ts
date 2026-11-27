@@ -9232,6 +9232,74 @@ export type Database = {
           },
         ]
       }
+      servicos_eventuais: {
+        Row: {
+          citl_percentual: number
+          cliente_id: string
+          contrato_id: string
+          created_at: string
+          discriminacao: string
+          grupo: string
+          id: string
+          item: string
+          preco_unitario: number
+          quantidade: number
+          referencia: string
+          subgrupo: string
+          total_com_citl: number | null
+          total_sem_citl: number | null
+          unidade: string
+          unitario_com_citl: number | null
+          updated_at: string
+        }
+        Insert: {
+          citl_percentual?: number
+          cliente_id: string
+          contrato_id: string
+          created_at?: string
+          discriminacao: string
+          grupo?: string
+          id?: string
+          item: string
+          preco_unitario?: number
+          quantidade?: number
+          referencia?: string
+          subgrupo?: string
+          total_com_citl?: number | null
+          total_sem_citl?: number | null
+          unidade: string
+          unitario_com_citl?: number | null
+          updated_at?: string
+        }
+        Update: {
+          citl_percentual?: number
+          cliente_id?: string
+          contrato_id?: string
+          created_at?: string
+          discriminacao?: string
+          grupo?: string
+          id?: string
+          item?: string
+          preco_unitario?: number
+          quantidade?: number
+          referencia?: string
+          subgrupo?: string
+          total_com_citl?: number | null
+          total_sem_citl?: number | null
+          unidade?: string
+          unitario_com_citl?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "servicos_eventuais_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       solicitacoes_servicos: {
         Row: {
           cliente_id: string | null

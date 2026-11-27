@@ -384,7 +384,7 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
         rows.push(emBranco ? ["", "", "", "", "", ""] : [{ content: "Sem materiais SCO", colSpan: 6, styles: { fontStyle: "italic", textColor: [120, 120, 120] } }]);
       }
       rows.push([
-        { content: "TOTAL MATERIAL SCO", colSpan: 5, styles: { fontStyle: "bold", halign: "right" } },
+        { content: "TOTAL MATERIAL TABELA", colSpan: 5, styles: { fontStyle: "bold", halign: "right" } },
         { content: valor(totalSCO), styles: { fontStyle: "bold", halign: "right" } },
       ]);
       rows.push([
@@ -393,7 +393,7 @@ export async function renderOS(doc: jsPDF, { os, empresa, cliente, assinaturas, 
         { content: valor(bdiSCO), styles: { fontStyle: "bold", halign: "right" } },
       ]);
       rows.push([
-        { content: "TOTAL SCO + BDI", colSpan: 5, styles: { fontStyle: "bold", halign: "right", fillColor: [240, 240, 240] } },
+        { content: "TOTAL TABELA + BDI", colSpan: 5, styles: { fontStyle: "bold", halign: "right", fillColor: [240, 240, 240] } },
         { content: valor(totalSCOcomBDI), styles: { fontStyle: "bold", halign: "right", fillColor: [240, 240, 240] } },
       ]);
       return rows;

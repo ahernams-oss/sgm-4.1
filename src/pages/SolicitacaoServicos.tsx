@@ -344,6 +344,23 @@ export default function SolicitacaoServicosPage() {
     } else {
       payload.historico = buildHistoricoEntry("Aguardando aprovação");
       await addSolicitacao(payload);
+      // Show the newly saved request instead of retaining filters/page that hide it.
+      setFilterCliente(payload.cliente_id);
+      localStorage.setItem("ss_filtroCliente", payload.cliente_id);
+      setClienteTodosEscolhido(false);
+      setSearch("");
+      setFilterTipo("all");
+      setFilterSituacao("all");
+      setFilterVisitado("all");
+      setFilterOrigem("all");
+      setFilterImpresso("all");
+      setFilterPrioridade("all");
+      setFilterSetorCritico("all");
+      setFilterDataIni("");
+      setFilterDataFim("");
+      setSortField("numero");
+      setSortDir("desc");
+      setPage(1);
       toast({ title: "Solicitação cadastrada" });
     }
 

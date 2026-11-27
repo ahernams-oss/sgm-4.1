@@ -1,5 +1,7 @@
 # Tarefas
 
+- [x] Corrigir a lista após abrir SS: inserir imediatamente a linha retornada pelo salvamento, cancelar leitura antiga e exibir o cliente cadastrado na primeira página por número decrescente, sem filtros incompatíveis. SS 91 confirmada no banco; envio preservado, não testei com login.
+
 - [x] Avisar imediatamente o grupo de emergência do cliente na abertura de SS em setor crítico, sem aguardar aprovação nem exigir prioridade emergencial; confirmar a hierarquia salva no servidor e manter permissões de abertura/acesso. Não testei com login nem confirmei entrega real.
 
 - [x] Avisar o grupo de emergência do respectivo cliente após aprovação emergencial de SS, incluindo aprovação direta, por orçamento e em lote; falha de gravação não envia e falha de aviso é exibida sem desfazer a aprovação. Entrega real depende de validação no WhatsApp; não testei com login.

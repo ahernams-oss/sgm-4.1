@@ -37,7 +37,7 @@ export interface SolicitacaoServico {
 
 interface SolicitacoesServicosContextType {
   solicitacoes: SolicitacaoServico[];
-  addSolicitacao: (d: any) => Promise<void>;
+  addSolicitacao: (d: any) => Promise<SolicitacaoServico>;
   updateSolicitacao: (id: string, d: any) => Promise<void>;
   deleteSolicitacao: (id: string) => Promise<void>;
   /** Recarrega a grade do banco (usado ao abrir a tela, sem precisar de F5) */
@@ -93,6 +93,12 @@ export function SolicitacoesServicosProvider({ children }: { children: ReactNode
   const addSolicitacao = async (d: any) => {
     const salva = await insertRow("solicitacoes_servicos", d);
     if (!salva?.id) throw new Error("Não foi possível salvar a solicitação.");
+    const solicitacao = rowToSolicitacao(salva);
+    // A pending/disabled list read must not hide the row returned by INSERT.
+    await qc.cancelQueries({ queryKey: QK });
+    qc.setQueryData<SolicitacaoServico[]>(QK, atual => [
+      ...(atual ?? []).filter(s => s.id !== solicitacao.id), solicitacao,
+    ]);
     invalidate();
     try {
       // The server checks the saved sector, not a critical flag from the browser.
@@ -103,6 +109,7 @@ export function SolicitacoesServicosProvider({ children }: { children: ReactNode
         duration: 12000,
       });
     }
+    return solicitacao;
   };
   const updateSolicitacao = async (id: string, d: any) => {
     const anterior = qc.getQueryData<SolicitacaoServico[]>(QK)?.find(s => s.id === id);

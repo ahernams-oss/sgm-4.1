@@ -568,7 +568,7 @@ function AppRoutes() {
   );
 }
 
-const App = () => (
+const App = ({ children }: { children?: ReactNode }) => (
   <QueryClientProvider client={queryClient}>
     <ClientesProvider>
     <CargosProvider>
@@ -629,7 +629,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Suspense fallback={<PageLoader />}><Routes>
+        <Suspense fallback={<PageLoader />}>{children ? <RequireAuth><AppLayout>{children}</AppLayout></RequireAuth> : <Routes>
           <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
           <Route path="/cotacao/proposta/:token" element={<PropostaFornecedorPage />} />
 
@@ -692,7 +692,7 @@ const App = () => (
             }
           />
           <Route path="/*" element={<AppRoutes />} />
-        </Routes></Suspense>
+        </Routes>}</Suspense>
       </BrowserRouter>
     </TooltipProvider>
     </PortalAuthProvider>

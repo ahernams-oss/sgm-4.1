@@ -270,6 +270,7 @@ const menuItems = [
       { title: "Responsáveis Técnicos", url: "/cadastros/responsaveis-tecnicos", icon: UserCheck, perm: "responsaveis_tecnicos" },
       { title: "SCO", url: "/sco", icon: FileSpreadsheet, perm: "sco" },
       { title: "I0", url: "/i0", icon: DollarSign, perm: "sco" },
+      { title: "Serv. Eventuais", url: "/cadastros/servicos-eventuais", icon: Wrench, perm: "sco" },
       { title: "Materiais e Serviços", url: "/compras/materiais", icon: Package, perm: "materiais_servicos" },
       { title: "Categorias de Compras", url: "/compras/categorias", icon: Tags, perm: "categorias_compras" },
       { title: "Fabricantes", url: "/compras/fabricantes", icon: Factory, perm: "fabricantes" },

@@ -67,7 +67,7 @@ import { useServicosEventuaisContrato } from "@/hooks/useServicosEventuaisContra
 import { validarQuantidadeEventual } from "@/lib/servicosEventuais";
 
 import { useOsAssinaturas } from "@/contexts/OsAssinaturasContext";
-import { BarChart3, Camera, ImagePlus } from "lucide-react";
+import { BarChart3, Camera, ImagePlus, Maximize2, Minimize2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const OS_WORKFLOW_STEPS = [
@@ -402,6 +402,7 @@ export default function OrdensServicoPage() {
   const [abaItens, setAbaItens] = useState("sco");
   const [relatorioOpen, setRelatorioOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [formExpandido, setFormExpandido] = useState(false);
   const [viewOS, setViewOS] = useState<OrdemServico | null>(null);
   const [viewSSTarget, setViewSSTarget] = useState<SolicitacaoServico | null>(null);
   const { orcamentos: orcamentosAll, reload: reloadOrcamentos } = useOrcamentos();
@@ -1970,9 +1971,10 @@ export default function OrdensServicoPage() {
 
       {/* Form Dialog */}
       <Dialog open={formOpen} onOpenChange={o => { if (!o) { resetForm(); } setFormOpen(o); }}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className={formExpandido ? "h-[98vh] max-h-[98vh] w-[98vw] max-w-[98vw] overflow-y-auto" : "max-w-6xl max-h-[90vh] overflow-y-auto"}>
+          <DialogHeader className="flex-row items-center gap-2 space-y-0 pr-8">
             <DialogTitle>{editingId ? "Preencher Ordem de Serviço" : "Nova Ordem de Serviço"}</DialogTitle>
+            <Button type="button" variant="ghost" size="icon" className="ml-auto h-8 w-8" title={formExpandido ? "Restaurar tamanho" : "Expandir tela"} aria-label={formExpandido ? "Restaurar tamanho" : "Expandir tela"} onClick={() => setFormExpandido(v => !v)}>{formExpandido ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}</Button>
           </DialogHeader>
           <div className="space-y-4">
             {/* Identificação */}
